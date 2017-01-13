@@ -1,0 +1,112 @@
+<html>
+
+<head>
+  <title>Title</title>
+  <style>
+  body {
+    background-color: black;
+  }
+  
+  #log {
+    background-color: black;
+    color: green;
+    width: 800px;
+    height: 400px;
+    font-family: Courier;
+    overflow-y: scroll;
+  }
+  
+  input[type=text] {
+    background-color: black;
+    color: green;
+    width: 800px;
+    font-family: Courier;
+  }
+
+  .green {
+    color: green;
+  }
+
+  .red {
+    color: red;
+  }
+
+  .aqua {
+    color: aqua;
+  }
+
+  .cyan {
+    color: cyan;
+  }
+
+  .darkCyan {
+    color: darkcyan;
+  }
+  .gray {
+    color: gray;
+  }
+  .silver {
+    color: silver;
+  }
+  .white {
+    color: white;
+  }
+  .purple {
+    color: purple;
+  }
+  .teal {
+    color: teal;
+  }
+  .mediumOrchid {
+    color: mediumOrchid;
+  }
+  </style>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script>
+
+  var socket = io("http://localhost:3000");
+  /*
+  socket.on('status', function(data) {
+  console.log("status: " + data.message);
+  var ta = document.getElementById('log');
+  ta.value = ta.value + 'Status: ' + data.message + "\n";
+  });
+  socket.on('chatMessage', function(data) {
+  console.log("chatMessage: " + data.message);
+  var ta = document.getElementById('log');
+  ta.value = ta.value + 'Chat: ' + data.message + "\n";
+  });
+  */
+  socket.on('output', function(data) {
+    console.log("output: " + data.message);
+    var ta = document.getElementById('log');
+
+    var newHTML = data.message.replace(/\n/g, '<br />\n');
+    ta.innerHTML = ta.innerHTML + newHTML + '<br />';
+    ta.scrollTop = ta.scrollHeight;
+  });
+
+  function sendData(e) {
+    if (e.keyCode == 13) {
+      var tb = document.getElementById("textData");
+      console.log("command: " + tb.value);
+      socket.emit('command', {
+        value: tb.value
+      });
+      tb.value = '';
+      return false;
+    }
+  }
+  </script>
+</head>
+
+<body>
+  <div id="log">
+    <!-- <textarea id="log" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly="true"></textarea> -->
+  </div>
+  <div>
+    <input id="textData" onkeypress="return sendData(event)" type="text" />
+  </div>
+</body>
+
+</html>

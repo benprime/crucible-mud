@@ -18,7 +18,15 @@ module.exports = function(io) {
     var output = '<span class="cyan"> -=- ' + usernames.length + ' Players Online -=-</span><br />';
     output += '<div class="mediumOrchid">' + usernames.join('<br />') + '</div>';
     socket.emit('output', { message: output });
-  };
+  }
+
+  function Inventory(socket) {
+    var output = '<span class="cyan">You are carrying: </span>';
+    output += '<span class="silver">';
+    output += socket.inventory.length > 0 ? socket.inventory.map(function(item) {return item.name}).join(', ') : "Nothing.";
+    output += '</span>';
+    socket.emit('output', { message: output });
+  }
 
   function UsersInRoom(socket) {
     var clients = io.sockets.adapter.rooms[socket.room._id].sockets;
@@ -32,7 +40,7 @@ module.exports = function(io) {
       return globals.USERNAMES[socketId];
     });
     return usernames.join('<span class="mediumOrchid">, </span>');
-  };
+  }
 
   function CommandDispatch(socket, data) {
 
@@ -57,6 +65,11 @@ module.exports = function(io) {
       case 'help':
         Help(socket);
         break;
+      case 'i':
+      case 'inv':
+      case 'inventory':
+        Inventory(socket);
+        break;
       case 'l':
       case 'look':
         Look(socket);
@@ -64,9 +77,7 @@ module.exports = function(io) {
         break;
       case 'create':
         if (socket.admin) {
-          var dir = command.length > 2 ? command[2] : '';
-          adminUtil.CreateDispatch(socket, command, function() {
-            socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' has created a room to the ' + dirUtil.DisplayDirection(dir) + '.' });
+          adminUtil.CreateDispatch(socket, command, data.value, function() {
             Look(socket);
           });
         }
@@ -74,7 +85,6 @@ module.exports = function(io) {
       case 'set':
         if (socket.admin) {
           adminUtil.SetDispatch(socket, command, data.value, function() {
-            socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' has altered the fabric of reality.' });
             Look(socket);
           });
         }
@@ -144,8 +154,9 @@ module.exports = function(io) {
     if (socket.admin) {
       output += '<pre><span class="cyan">Admin commands:</span><br />';
       output += '  <span class="mediumOrchid">create room &lt;dir&gt;</span><br />';
-      output += '  <span class="mediumOrchid">set title &lt;new room title&gt;</span><br />';
-      output += '  <span class="mediumOrchid">set desc &lt;new room desc&gt;</span><br /></pre>';
+      output += '  <span class="mediumOrchid">set room name &lt;new room name&gt;</span><br />';
+      output += '  <span class="mediumOrchid">set room desc &lt;new room desc&gt;</span><br /></pre>';
+      output += '  <span class="mediumOrchid">create item &lt;item name&gt;</span><br /></pre>';
     }
     socket.emit('output', { message: output });
   }
@@ -153,10 +164,10 @@ module.exports = function(io) {
   function Look(socket, short) {
     var exits = socket.room.exits || {};
 
-    var output = '<span class="cyan">' + socket.room.title + '</span>\n';
+    var output = '<span class="cyan">' + socket.room.name + '</span>\n';
 
     if (!short) {
-      output += '<span class="silver">' + socket.room.description + '</span>\n';
+      output += '<span class="silver">' + socket.room.desc + '</span>\n';
     }
 
     var otherUsers = UsersInRoom(socket);

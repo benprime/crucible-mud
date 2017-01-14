@@ -43,8 +43,6 @@ module.exports = function(io) {
             socket.emit('output', { message: "Unknown user, please try again." });
           } else {
             // todo: maybe we don't need states for username and password separately. We can just check socket.username
-            console.log(JSON.stringify(docs));
-            //socket.username = docs[0].username;
             socket.tempUsername = docs[0].username;
             socket.state = globals.STATES.LOGIN_PASSWORD;
             console.log("Successful username.");
@@ -75,6 +73,7 @@ module.exports = function(io) {
             globals.USERNAMES[socket.id] = user.username;
             socket.userId = user._id;
             socket.admin = user.admin;
+            socket.inventory = user.inventory || [];
             if (user.roomId) {
               socket.roomId = user.roomId;
             }

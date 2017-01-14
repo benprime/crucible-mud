@@ -1,30 +1,28 @@
 var dirUtil = require('./direction');
 var globals = require('./globals')
 
-function UpdateDoor(fromRoomId, dir, toRoomId, callback) {
-  // making an object for dynamic dictionary key
-  update = {};
-  update["exits." + dir] = toRoomId;
-  var result = globals.DB.collection('rooms').update({ _id: fromRoomId }, { $set: update }, callback);
-}
-
-function UpdateRoom(io, socket, property, value, callback) {
+function UpdateRoom(io, roomId, property, value, callback) {
+  console.log("Updating room: " + roomId);
   update = {};
   update[property] = value;
-  var result = globals.DB.collection('rooms').update({ _id: socket.room._id }, { $set: update }, function() {
-    RefreshRoom(io, socket, callback);
+  var result = globals.DB.collection('rooms').update({ _id: roomId }, { $set: update }, function() {
+    console.log("Updating room: " + roomId);
+    RefreshRoom(io, roomId, callback);
   });
 }
 
-function RefreshRoom(io, socket, callback) {
+function RefreshRoom(io, roomId, callback) {
   var roomsCollection = globals.DB.collection('rooms');
-  roomsCollection.find({ _id: socket.room._id }).toArray(function(err, docs) {
+  roomsCollection.find({ _id: roomId }).toArray(function(err, docs) {
     // refresh room for all users in the room
-    for (var socketId in io.sockets.adapter.rooms[socket.room._id].sockets) {
+    for (var socketId in io.sockets.adapter.rooms[roomId].sockets) {
       var s = io.sockets.connected[socketId];
       s.room = docs[0];
     };
-    if (callback) callback();
+    console.log("CALLBACK: " + callback);
+    if (callback) {
+      callback();
+    }
   });
 }
 
@@ -47,22 +45,17 @@ function CreateRoom(io, socket, args, callback) {
     var roomCollection = globals.DB.collection('rooms');
 
     var targetCoords = dirUtil.DirectionToCoords(socket, dir);
-    console.log(JSON.stringify(targetCoords));
 
     // check if door exists by coords (created from another route)
-    console.log("Looking for: " + JSON.stringify({ x: targetCoords.x, y: targetCoords.y, z: targetCoords.z }));
     roomCollection.find({ x: targetCoords.x, y: targetCoords.y, z: targetCoords.z }).toArray(function(err, docs) {
       // if room exists at destination coordinates, just create door.
       if (docs.length > 0) {
         var newRoom = docs[0];
-        console.log("Room found: " + JSON.stringify(newRoom));
 
         // create both doors
         // dirty async callback spaghetti... refactor with async library
-        UpdateDoor(socket.room._id, dir, newRoom._id, function() {
-          UpdateDoor(newRoom._id, dirUtil.OppositeDirection(dir), socket.room._id, function() {
-            RefreshRoom(io, socket, callback);
-          });
+        UpdateRoom(io, socket.room._id, "exits." + dir, newRoom._id, function() {
+          UpdateRoom(io, newRoom._id, "exits." + dirUtil.OppositeDirection(dir), socket.room._id, callback);
         });
 
       } else {
@@ -70,8 +63,8 @@ function CreateRoom(io, socket, args, callback) {
         // create a new room w/ return exit
         var oppDir = dirUtil.OppositeDirection(dir);
         var newRoom = {
-          "title": "Default Room Title",
-          "description": "Room Description",
+          "name": "Default Room Name",
+          "desc": "Room Description",
           "x": targetCoords.x,
           "y": targetCoords.y,
           "z": targetCoords.z,
@@ -87,59 +80,82 @@ function CreateRoom(io, socket, args, callback) {
           var toRoomId = records['insertedIds'][0];
 
           // create door back to the existing room
-          UpdateDoor(socket.room._id, dir, toRoomId, function() {
-            RefreshRoom(io, socket, callback);
-          });
+          UpdateRoom(io, socket.room._id, "exits." + dir, toRoomId, callback);
         });
       }
     });
   }
 }
 
-function CreateItem(socket, args) {
-  socket.emit('output', { message: "Not implemented." });
+function CreateItem(socket, name, callback) {
+  var item = {
+    "name": name,
+    "desc": "Default description."
+  };
+
+  // todo: write item to user inventory in mongo immediately to preserve state
+  if (!socket.inventory) socket.inventory = [];
+  socket.inventory.push(item);
+
+  socket.emit('output', { message: 'Item added to inventory.' });
+  socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' has created a ' + name + ' out of thin air.' });
 }
 
 module.exports = function(io) {
   return {
-    CreateDispatch: function(socket, command, callback) {
-      if (command.length >= 2) {
-        var subject = command[1];
-        var args = command.splice(2); // pop off "create" and subject.
+    CreateDispatch: function(socket, command, commandString, lookCallback) {
+      if (command.length > 2) {
+        var subject = command[1].toLowerCase();
+        var args = command.slice(2); // pop off "create" and subject.
 
-        if (subject.toLowerCase() == "room") {
-          CreateRoom(io, socket, args, callback);
-          return;
-        }
-
-        if (subject.toLowerCase() == "item") {
-          CreateItem(socket, args, callback);
-          return;
+        switch (subject) {
+          case 'room':
+            var dir = args[0];
+            CreateRoom(io, socket, args, function() {
+              socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' has created a room to the ' + dirUtil.DisplayDirection(dir) + '.' });
+              lookCallback();
+            });
+            break;
+          case 'item':
+            var name = commandString.replace(/^create\s+item\s+/i, '').trim();
+            CreateItem(socket, name);
+            break;
+          default:
+            socket.emit('output', { message: "Invalid command." });
         }
       }
-
-      socket.emit('output', { message: "Invalid command." });
     },
 
-    SetDispatch: function(socket, command, commandString, callback) {
+    SetDispatch: function(socket, command, commandString, lookCallback) {
       if (command.length >= 3) {
         var subject = command[1].toLowerCase();
+        var property = command[2].toLowerCase();
 
-        if (subject == "title") {
-          var value = commandString.replace(/^set\s+title\s+/i, '').trim();
-          console.log("new value: " + value);
-          UpdateRoom(io, socket, "title", value, callback);
-          return;
-        }
+        switch (subject) {
+          case 'room':
+            var roomPropertyWhiteList = ["name", "desc"];
+            if (roomPropertyWhiteList.indexOf(property) === -1) {
+              socket.emit('output', { message: 'Invalid property.' });
+              return;
+            }
 
-        if (subject == "desc") {
-          var value = commandString.replace(/^set\s+desc\s+/i, '').trim();
-          UpdateRoom(io, socket, "description", value, callback);
-          return;
+            // replace all instances of multiple spaces with a single space
+            var value = commandString.replace(/\s+/g, ' ').trim();
+            value = value.replace('set room ' + property + ' ', '');
+
+            UpdateRoom(io, socket.room._id, property, value, function() {
+              socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' has altered the fabric of reality.' });
+              lookCallback();
+            });
+            break;
+
+          case 'item':
+            socket.emit('output', { message: 'Not implemented.' });
+            break;
+          default:
+            socket.emit('output', { message: "Invalid command." });
         }
       }
-
-      socket.emit('output', { message: "Invalid command." });
     }
   };
 }

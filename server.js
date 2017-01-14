@@ -59,7 +59,11 @@ mongo.connect(url, function(err, db) {
 
     socket.on('disconnect', function() {
       // check to see if this user ever successfully logged in
-      if(socket.id in globals.USERNAMES) {
+      if (socket.id in globals.USERNAMES) {
+
+        // save current room to user data
+        var result = globals.DB.collection('users').update({ _id: socket.userId }, { $set: { "roomId": socket.room._id } });
+
         socket.broadcast.emit('output', { message: globals.USERNAMES[socket.id] + ' has left the realm.' });
         delete globals.USERNAMES[socket.id];
       }

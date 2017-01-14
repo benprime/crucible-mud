@@ -15,6 +15,24 @@ module.exports = function(io) {
     return false;
   }
 
+  function GetStartingRoom(socket, callback) {
+    var roomsCollection = globals.DB.collection('rooms');
+    roomsCollection.find({ _id: socket.roomId }).toArray(function(err, docs) {
+      if (docs.length == 0) {
+        // if the user doesn't have a room saved (first login), default to starting room
+        roomsCollection.find({ x: 0, y: 0, z: 0 }).toArray(function(err, docs) {
+          if (docs.length == 0) {
+            console.log("No starting room found!");
+            return;
+          }
+          callback(docs[0]);
+        });
+      } else {
+        callback(docs[0]);
+      }
+    });
+  }
+
   return {
     LoginUsername: function(socket, username) {
       if (!socket.userId && (socket.state == globals.STATES.LOGIN_USERNAME)) {
@@ -53,26 +71,24 @@ module.exports = function(io) {
 
             // todo: maybe we don't need states for username and password separately. We can just check socket.username
             delete socket["tempUsername"];
-            globals.USERNAMES[socket.id] = docs[0].username;
-            socket.userId = docs[0]._id;
-            socket.admin = docs[0].admin;
-            //socket.username = docs[0].username;
+            var user = docs[0];
+            globals.USERNAMES[socket.id] = user.username;
+            socket.userId = user._id;
+            socket.admin = user.admin;
+            if (user.roomId) {
+              socket.roomId = user.roomId;
+            }
             socket.state = globals.STATES.MUD;
 
             // todo: currently these messages go to people who haven't even logged in... change that.
             socket.broadcast.emit('output', { message: globals.USERNAMES[socket.id] + ' has entered the realm.' });
 
             // lookup room data
-            // TODO: THIS IS STILL JUST GETTING THE FIRST ROOM IN THE COLLECTION
-            var roomsCollection = globals.DB.collection('rooms');
-            roomsCollection.find({}).toArray(function(err, docs) {
-              socket.room = docs[0];
-              socket.join(socket.room._id)
-              socket.emit('output', { message: "" }); // just forcing a blank line
+            GetStartingRoom(socket, function(room) {
+              socket.room = room;
+              socket.join(socket.room._id);
               callback(socket);
-              //console.log("joined room: " + socket.room._id);
             });
-
           }
         });
 

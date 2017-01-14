@@ -21,18 +21,10 @@ function RefreshRoom(io, socket, callback) {
   roomsCollection.find({ _id: socket.room._id }).toArray(function(err, docs) {
     // refresh room for all users in the room
     for (var socketId in io.sockets.adapter.rooms[socket.room._id].sockets) {
-      //var s = io.sockets.adapter.rooms[socket.room._id].sockets;
-      //console.log("socket: " + JSON.stringify(s));
       var s = io.sockets.connected[socketId];
-      //var s = io.sockets.connected[socketId];
       s.room = docs[0];
-      // todo: force a look on the other sockets?
     };
     if (callback) callback();
-
-    //socket.room = docs[0];
-    console.log("Refresh room: " + JSON.stringify(docs[0]));
-    //socket.emit('output', { message: "" }); // just forcing a blank line
   });
 }
 

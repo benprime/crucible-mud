@@ -192,8 +192,9 @@ module.exports = function(io) {
       output += '<pre><span class="cyan">Admin commands:</span><br />';
       output += '  <span class="mediumOrchid">create room &lt;dir&gt;</span><br />';
       output += '  <span class="mediumOrchid">set room name &lt;new room name&gt;</span><br />';
-      output += '  <span class="mediumOrchid">set room desc &lt;new room desc&gt;</span><br /></pre>';
-      output += '  <span class="mediumOrchid">create item &lt;item name&gt;</span><br /></pre>';
+      output += '  <span class="mediumOrchid">set room desc &lt;new room desc&gt;</span><br />';
+      output += '  <span class="mediumOrchid">create item &lt;item name&gt;</span><br />';
+      output += '  <span class="mediumOrchid">teleport &lt;username&gt;</span><br /></pre>';
     }
     socket.emit('output', { message: output });
   }

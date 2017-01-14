@@ -1,10 +1,27 @@
 <html>
 
 <head>
-  <title>Title</title>
+  <title>MUD</title>
   <style>
   body {
     background-color: black;
+  }
+  
+  table {
+    border: 0px;
+  }
+  
+  tr {
+    border: 0px;
+  }
+  
+  td {
+    font-family: Courier;
+    border: solid white 1px;
+  }
+  
+  pre {
+    font-family: Courier;
   }
   
   #log {
@@ -22,63 +39,59 @@
     width: 800px;
     font-family: Courier;
   }
-
+  
   .green {
     color: green;
   }
-
+  
   .red {
     color: red;
   }
-
+  
   .aqua {
     color: aqua;
   }
-
+  
   .cyan {
     color: cyan;
   }
-
+  
   .darkCyan {
     color: darkcyan;
   }
+  
   .gray {
     color: gray;
   }
+  
   .silver {
     color: silver;
   }
+  
   .white {
     color: white;
   }
+  
   .purple {
     color: purple;
   }
+  
   .teal {
     color: teal;
   }
+  
   .mediumOrchid {
     color: mediumOrchid;
   }
   </style>
   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script>
+  var commandHistory = [];
+  var historyIndex = -1;
 
   var socket = io("http://localhost:3000");
-  /*
-  socket.on('status', function(data) {
-  console.log("status: " + data.message);
-  var ta = document.getElementById('log');
-  ta.value = ta.value + 'Status: ' + data.message + "\n";
-  });
-  socket.on('chatMessage', function(data) {
-  console.log("chatMessage: " + data.message);
-  var ta = document.getElementById('log');
-  ta.value = ta.value + 'Chat: ' + data.message + "\n";
-  });
-  */
+
   socket.on('output', function(data) {
-    console.log("output: " + data.message);
     var ta = document.getElementById('log');
 
     var newHTML = data.message.replace(/\n/g, '<br />\n');
@@ -87,12 +100,43 @@
   });
 
   function sendData(e) {
+
+    var tb = document.getElementById("textData");
+
+    // esc
+    if (e.keyCode === 27) {
+      tb.value = '';
+      historyIndex = -1;
+    }
+
+    // up arrow
+    if (e.keyCode == 38) {
+      historyIndex++;
+      if (historyIndex > commandHistory.length - 1) historyIndex = commandHistory.length - 1;
+      tb.value = commandHistory[historyIndex];
+    }
+
+    // down arrow
+    if (e.keyCode == 40) {
+
+      // if you push the down arrow when history index is already 0, just blank the field and return.
+      historyIndex--;
+      if (historyIndex > -1) {
+        tb.value = commandHistory[historyIndex];
+      } else {
+        tb.value = '';
+      }
+      if (historyIndex < -1) historyIndex = -1;
+    }
+
+    // enter press
     if (e.keyCode == 13) {
-      var tb = document.getElementById("textData");
-      console.log("command: " + tb.value);
       socket.emit('command', {
         value: tb.value
       });
+      commandHistory.unshift(tb.value); // save command
+      commandHistory.splice(25); // only save 25 commands
+      historyIndex = -1;
       tb.value = '';
       return false;
     }
@@ -101,6 +145,25 @@
 </head>
 
 <body>
+  <!--
+  <table>
+    <tr>
+      <td>something</td>
+      <td>something</td>
+      <td>something</td>
+      </tr>
+    <tr>
+      <td>something</td>
+      <td>something</td>
+      <td>something</td>
+      </tr>
+    <tr>
+      <td>something</td>
+      <td>something</td>
+      <td>something</td>
+      </tr>
+      </table>
+      -->
   <div id="log">
     <!-- <textarea id="log" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly="true"></textarea> -->
   </div>

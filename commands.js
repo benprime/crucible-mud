@@ -186,7 +186,7 @@ module.exports = function(io) {
     output += '      <span class="mediumOrchid">look</span> <span class="purple">-</span> Look at current room.<br />';
     output += '    <span class="mediumOrchid">gossip</span> <span class="purple">-</span> Send messages to all connected players.<br />';
     output += '       <span class="mediumOrchid">who</span> <span class="purple">-</span> List all online players.';
-    output += '</pre><br /><br />';
+    output += '</pre>';
 
     if (socket.admin) {
       output += '<pre><span class="cyan">Admin commands:</span><br />';

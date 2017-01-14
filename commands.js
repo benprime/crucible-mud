@@ -2,10 +2,10 @@ var dirUtil = require('./direction');
 var globals = require('./globals');
 
 // adding prototype method to object... need to move this to more global libary
-Object.prototype.getKeyByValue = function(value) {
-  for (var prop in this) {
-    if (this.hasOwnProperty(prop)) {
-      if (this[prop] === value)
+function getKeyByValue(obj, value) {
+  for (var prop in obj) {
+    if (obj.hasOwnProperty(prop)) {
+      if (obj[prop] === value)
         return prop;
     }
   }
@@ -15,7 +15,7 @@ module.exports = function(io) {
   var adminUtil = require('./admin')(io);
 
   function GetSocketByUsername(username) {
-    var socketId = globals.USERNAMES.getKeyByValue(username);
+    var socketId = getKeyByValue(globals.USERNAMES, username);
     return io.sockets.connected[socketId];
   }
 

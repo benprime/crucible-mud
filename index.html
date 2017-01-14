@@ -5,6 +5,16 @@
   <style>
   body {
     background-color: black;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+  }
+
+  #flexbox {
+    height: 100%;
+    flex-flow: column;
+    display: flex;
   }
   
   table {
@@ -27,16 +37,28 @@
   #log {
     background-color: black;
     color: green;
-    width: 800px;
-    height: 400px;
+    
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+    height: 100%;
+
     font-family: Courier;
     overflow-y: scroll;
+    flex: 0 1 auto;
+  }
+
+  #inputArea {
+    flex: 0 1 25px;
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
   }
   
   input[type=text] {
     background-color: black;
     color: green;
-    width: 800px;
+    width: 100%;
     font-family: Courier;
   }
   
@@ -146,30 +168,11 @@
 </head>
 
 <body>
-  <!--
-  <table>
-    <tr>
-      <td>something</td>
-      <td>something</td>
-      <td>something</td>
-      </tr>
-    <tr>
-      <td>something</td>
-      <td>something</td>
-      <td>something</td>
-      </tr>
-    <tr>
-      <td>something</td>
-      <td>something</td>
-      <td>something</td>
-      </tr>
-      </table>
-      -->
-  <div id="log">
-    <!-- <textarea id="log" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly="true"></textarea> -->
-  </div>
-  <div>
-    <input id="textData" onkeydown="return sendData(event)" type="text" />
+  <div id="flexbox">
+    <div id="log"></div>
+    <div id="inputArea">
+      <input id="textData" onkeydown="return sendData(event)" type="text" />
+    </div>
   </div>
 </body>
 

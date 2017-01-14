@@ -194,9 +194,9 @@ module.exports = function(io) {
     output += '  <span class="mediumOrchid">Movement</span> <span class="purple">-</span> n,s,e,w,u,d,ne,nw,sw,se<br />';
     output += '      <span class="mediumOrchid">look</span> <span class="purple">-</span> Look at current room.<br />';
     output += '    <span class="mediumOrchid">gossip</span> <span class="purple">-</span> Send messages to all connected players.<br />';
-    output += '       <span class="mediumOrchid">who</span> <span class="purple">-</span> List all online players.';
-    output += '       <span class="mediumOrchid">say</span> <span class="purple">-</span> Send messages to players in current room.';
-    output += '                                                                           Note: starting any command with . will say that command.';
+    output += '       <span class="mediumOrchid">who</span> <span class="purple">-</span> List all online players.<br />';
+    output += '       <span class="mediumOrchid">say</span> <span class="purple">-</span> Send messages to players in current room.<br />';
+    output += '             Note: starting any command with . will say that command.<br />';
     output += '</pre>';
 
     if (socket.admin) {

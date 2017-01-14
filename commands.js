@@ -5,6 +5,21 @@ var globals = require('./globals');
 module.exports = function(io) {
   var adminUtil = require('./admin')(io);
 
+  function Who(socket) {
+
+    var usernames = [];
+    for (var socketId in io.sockets.sockets) {
+      //console.log("Socket: " + socket);
+      if (globals.USERNAMES[socketId]) {
+        usernames.push(globals.USERNAMES[socketId]);
+      }
+    }
+
+    var output = '<span class="cyan"> -=- ' + usernames.length + ' Players Online -=-</span><br />';
+    output += '<div class="mediumOrchid">' + usernames.join('<br />') + '</div>';
+    socket.emit('output', { message: output });
+  };
+
   function UsersInRoom(socket) {
     var clients = io.sockets.adapter.rooms[socket.room._id].sockets;
 
@@ -66,8 +81,11 @@ module.exports = function(io) {
         break;
       case 'gossip':
       case 'gos':
-      	Gossip(socket, data.value.replace(/^gos/i, '').replace(/^gossip/i, ''));
-      	break;
+        Gossip(socket, data.value.replace(/^gos/i, '').replace(/^gossip/i, ''));
+        break;
+      case 'who':
+        Who(socket);
+        break;
       default:
         Say(socket, data.value);
     }
@@ -116,16 +134,18 @@ module.exports = function(io) {
   }
 
   function Help(socket) {
-    var output = '<span class="cyan">Commands:</span><br />';
-    output += '  Movement: n,s,e,w,u,d,ne,nw,sw,se<br />';
-    output += '  look<br /><br />';
-    output += '  gossip<br /><br />';
+    var output = '<pre><span class="cyan">Commands:</span><br />';
+    output += '  <span class="mediumOrchid">Movement</span> <span class="purple">-</span> n,s,e,w,u,d,ne,nw,sw,se<br />';
+    output += '      <span class="mediumOrchid">look</span> <span class="purple">-</span> Look at current room.<br />';
+    output += '    <span class="mediumOrchid">gossip</span> <span class="purple">-</span> Send messages to all connected players.<br />';
+    output += '       <span class="mediumOrchid">who</span> <span class="purple">-</span> List all online players.';
+    output += '</pre><br /><br />';
 
     if (socket.admin) {
-      output += '<span class="cyan">Admin commands:</span><br />'
-      output += '  create room &lt;dir&gt;<br />'
-      output += '  set title &lt;new room title&gt;<br />'
-      output += '  set desc &lt;new room desc&gt;<br />'
+      output += '<pre><span class="cyan">Admin commands:</span><br />';
+      output += '  <span class="mediumOrchid">create room &lt;dir&gt;</span><br />';
+      output += '  <span class="mediumOrchid">set title &lt;new room title&gt;</span><br />';
+      output += '  <span class="mediumOrchid">set desc &lt;new room desc&gt;</span><br /></pre>';
     }
     socket.emit('output', { message: output });
   }

@@ -5,16 +5,7 @@ function UpdateDoor(fromRoomId, dir, toRoomId, callback) {
   // making an object for dynamic dictionary key
   update = {};
   update["exits." + dir] = toRoomId;
-
-  /*
-    console.log("--- Updating a door ---")
-    console.log("From room: " + fromRoomId);
-    console.log("To room: " + toRoomId);
-    console.log("Dir: " + dir);
-    console.log("update data: " + JSON.stringify(update));
-  */
   var result = globals.DB.collection('rooms').update({ _id: fromRoomId }, { $set: update }, callback);
-
 }
 
 function UpdateRoom(io, socket, property, value, callback) {
@@ -29,9 +20,6 @@ function RefreshRoom(io, socket, callback) {
   var roomsCollection = globals.DB.collection('rooms');
   roomsCollection.find({ _id: socket.room._id }).toArray(function(err, docs) {
     // refresh room for all users in the room
-    //var clients = io.sockets.adapter.rooms[socket.room._id].sockets;
-    console.log("THIS HAPPENED");
-
     for (var socketId in io.sockets.adapter.rooms[socket.room._id].sockets) {
       //var s = io.sockets.adapter.rooms[socket.room._id].sockets;
       //console.log("socket: " + JSON.stringify(s));

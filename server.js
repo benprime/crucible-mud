@@ -13,7 +13,7 @@ var mongo = require('mongodb').MongoClient;
 module.exports = io;
 
 function WelcomeMessage(socket) {
-
+  // Generated from: http://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=WELCOME%0AMUDDERS!
   var s = '<br /><br /><pre><span class="teal">';
   s += '██╗    ██╗███████╗██╗      ██████╗ ██████╗ ███╗   ███╗███████╗ <br />';
   s += '██║    ██║██╔════╝██║     ██╔════╝██╔═══██╗████╗ ████║██╔════╝ <br />';
@@ -33,10 +33,8 @@ function WelcomeMessage(socket) {
   for (i in bgChars) {
     s = s.replace(new RegExp(bgChars[i], 'g'), '<span class="mediumOrchid">' + bgChars[i] + '</span>');
   }
-  socket.emit('output', {message: s});
+  socket.emit('output', { message: s });
 }
-
-
 
 app.set('port', 3000);
 var url = 'mongodb://localhost:27017/mud';
@@ -60,14 +58,11 @@ mongo.connect(url, function(err, db) {
 
 
     socket.on('disconnect', function() {
-      //console.log(JSON.stringify(socket));
       socket.broadcast.emit('output', { message: globals.USERNAMES[socket.id] + ' has left the realm.' });
       delete globals.USERNAMES[socket.id];
-      //console.log('user disconnected');
     });
 
     socket.on('command', function(data) {
-
       switch (socket.state) {
         case globals.STATES.MUD:
           commands.CommandDispatch(socket, data);
@@ -80,17 +75,8 @@ mongo.connect(url, function(err, db) {
             commands.Look(socket);
           });
           break;
-
       }
-
-      if (socket.state != globals.STATES.MUD) {
-        return;
-      }
-
     });
-
-
-
 
   });
 

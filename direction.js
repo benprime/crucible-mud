@@ -90,7 +90,7 @@ module.exports = {
       case 'se':
       case 'southeast':
       case 's':
-      case 'sout':
+      case 'south':
       case 'sw':
       case 'southwest':
       case 'w':

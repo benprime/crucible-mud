@@ -1,15 +1,39 @@
 var dirUtil = require('./direction');
 var globals = require('./globals');
 
+// adding prototype method to object... need to move this to more global libary
+Object.prototype.getKeyByValue = function(value) {
+  for (var prop in this) {
+    if (this.hasOwnProperty(prop)) {
+      if (this[prop] === value)
+        return prop;
+    }
+  }
+}
 
 module.exports = function(io) {
   var adminUtil = require('./admin')(io);
+
+  function GetSocketByUsername(username) {
+    var socketId = globals.USERNAMES.getKeyByValue(username);
+    return io.sockets.connected[socketId];
+  }
+
+  function Teleport(socket, username, callback) {
+    var userSocket = GetSocketByUsername(username);
+    if (!userSocket) {
+      socket.emit('output', { message: 'Player not found.' });
+      return;
+    }
+
+    socket.room = userSocket.room;
+    if (callback) callback();
+  }
 
   function Who(socket) {
 
     var usernames = [];
     for (var socketId in io.sockets.sockets) {
-      //console.log("Socket: " + socket);
       if (globals.USERNAMES[socketId]) {
         usernames.push(globals.USERNAMES[socketId]);
       }
@@ -23,7 +47,9 @@ module.exports = function(io) {
   function Inventory(socket) {
     var output = '<span class="cyan">You are carrying: </span>';
     output += '<span class="silver">';
-    output += socket.inventory.length > 0 ? socket.inventory.map(function(item) {return item.name}).join(', ') : "Nothing.";
+    output += socket.inventory.length > 0 ? socket.inventory.map(function(item) {
+      return item.name
+    }).join(', ') : "Nothing.";
     output += '</span>';
     socket.emit('output', { message: output });
   }
@@ -85,6 +111,17 @@ module.exports = function(io) {
       case 'set':
         if (socket.admin) {
           adminUtil.SetDispatch(socket, command, data.value, function() {
+            Look(socket);
+          });
+        }
+        break;
+      case 'teleport':
+        if (socket.admin) {
+          if (command.length < 2) {
+            socket.emit('output', { message: 'Teleport to who?' });
+            return;
+          }
+          Teleport(socket, command[1], function() {
             Look(socket);
           });
         }

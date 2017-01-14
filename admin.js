@@ -1,5 +1,5 @@
 var dirUtil = require('./direction');
-var globals = require('./globals')
+var globals = require('./globals');
 
 function UpdateRoom(io, roomId, property, value, callback) {
   console.log("Updating room: " + roomId);
@@ -19,10 +19,7 @@ function RefreshRoom(io, roomId, callback) {
       var s = io.sockets.connected[socketId];
       s.room = docs[0];
     };
-    console.log("CALLBACK: " + callback);
-    if (callback) {
-      callback();
-    }
+    if (callback) callback();
   });
 }
 

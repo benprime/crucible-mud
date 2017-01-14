@@ -5,7 +5,7 @@ var serve = http.createServer(app);
 var io = require('socket.io')(serve);
 var dirUtil = require('./direction');
 var adminUtil = require('./admin')(io);
-var loginUtil = require('./login');
+var loginUtil = require('./login')(io);
 var globals = require('./globals');
 var commands = require('./commands')(io);
 var mongo = require('mongodb').MongoClient;
@@ -58,8 +58,11 @@ mongo.connect(url, function(err, db) {
 
 
     socket.on('disconnect', function() {
-      socket.broadcast.emit('output', { message: globals.USERNAMES[socket.id] + ' has left the realm.' });
-      delete globals.USERNAMES[socket.id];
+      // check to see if this user ever successfully logged in
+      if(socket.id in globals.USERNAMES) {
+        socket.broadcast.emit('output', { message: globals.USERNAMES[socket.id] + ' has left the realm.' });
+        delete globals.USERNAMES[socket.id];
+      }
     });
 
     socket.on('command', function(data) {

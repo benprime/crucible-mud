@@ -1,12 +1,12 @@
 module.exports = {
 
   Feedback: function(dir) {
-  	var displayDir = module.exports.DisplayDirection(dir);
-  	return "You move " + displayDir + "...";
+    var displayDir = module.exports.DisplayDirection(dir);
+    return "You move " + displayDir + "...";
   },
 
   LongToShort: function(dir) {
-  	switch(dir) {
+    switch (dir) {
       case 'north':
         return 'n';
       case 'northeast':
@@ -29,7 +29,7 @@ module.exports = {
         return 'd';
       default:
         return dir;
-  	}
+    }
   },
 
   OppositeDirection: function(dir) {
@@ -135,18 +135,18 @@ module.exports = {
   },
 
   DirectionToCoords: function(socket, dir) {
-  	var x = socket.room.x;
-  	var y = socket.room.y;
-  	var z = socket.room.z;
+    var x = socket.room.x;
+    var y = socket.room.y;
+    var z = socket.room.z;
 
-  	if( dir.includes('e') ) x++;
-  	if( dir.includes('w') ) x--;
-  	if( dir.includes('n') ) y++;
-  	if( dir.includes('s') ) y--;
-  	if( dir.includes('d') ) z--;
-  	if( dir.includes('u') ) z++;
+    if (dir.includes('e')) x++;
+    if (dir.includes('w')) x--;
+    if (dir.includes('n')) y++;
+    if (dir.includes('s')) y--;
+    if (dir.includes('d')) z--;
+    if (dir.includes('u')) z++;
 
-  	return {x: x, y: y, z: z};
+    return { x: x, y: y, z: z };
   }
 
 }

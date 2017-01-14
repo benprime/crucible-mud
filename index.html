@@ -100,24 +100,25 @@
   });
 
   function sendData(e) {
-
+    if (!e) e = window.event;
     var tb = document.getElementById("textData");
+    var keyCode = e.keyCode || e.which || e.charCode;
 
     // esc
-    if (e.keyCode === 27) {
+    if (keyCode === 27) {
       tb.value = '';
       historyIndex = -1;
     }
 
     // up arrow
-    if (e.keyCode == 38) {
+    if (keyCode == 38) {
       historyIndex++;
       if (historyIndex > commandHistory.length - 1) historyIndex = commandHistory.length - 1;
       tb.value = commandHistory[historyIndex];
     }
 
     // down arrow
-    if (e.keyCode == 40) {
+    if (keyCode == 40) {
 
       // if you push the down arrow when history index is already 0, just blank the field and return.
       historyIndex--;
@@ -130,7 +131,7 @@
     }
 
     // enter press
-    if (e.keyCode == 13) {
+    if (keyCode == 13) {
       socket.emit('command', {
         value: tb.value
       });
@@ -168,7 +169,7 @@
     <!-- <textarea id="log" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly="true"></textarea> -->
   </div>
   <div>
-    <input id="textData" onkeypress="return sendData(event)" type="text" />
+    <input id="textData" onkeydown="return sendData(event)" type="text" />
   </div>
 </body>
 

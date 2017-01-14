@@ -26,6 +26,8 @@ module.exports = function(io) {
       return;
     }
 
+    socket.leave(socket.room._id);
+    socket.join(userSocket.room._id);
     socket.room = userSocket.room;
     if (callback) callback();
   }
@@ -69,6 +71,12 @@ module.exports = function(io) {
   }
 
   function CommandDispatch(socket, data) {
+
+    // if first character is a period, just say string
+    if(data.value.substr(0, 1) === ".") {
+      Say(socket, data.value.substr(1));
+      return;
+    }
 
     // split on whitespace
     var command = data.value.split(/\s+/);
@@ -122,13 +130,14 @@ module.exports = function(io) {
             return;
           }
           Teleport(socket, command[1], function() {
+            socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' appears out of thin air!' });
             Look(socket);
           });
         }
         break;
       case 'gossip':
       case 'gos':
-        Gossip(socket, data.value.replace(/^gos/i, '').replace(/^gossip/i, ''));
+        Gossip(socket, data.value.replace(/^gossip/i, '').replace(/^gos/i, ''));
         break;
       case 'who':
         Who(socket);
@@ -186,6 +195,8 @@ module.exports = function(io) {
     output += '      <span class="mediumOrchid">look</span> <span class="purple">-</span> Look at current room.<br />';
     output += '    <span class="mediumOrchid">gossip</span> <span class="purple">-</span> Send messages to all connected players.<br />';
     output += '       <span class="mediumOrchid">who</span> <span class="purple">-</span> List all online players.';
+    output += '       <span class="mediumOrchid">say</span> <span class="purple">-</span> Send messages to players in current room.';
+    output += '                                                                           Note: starting any command with . will say that command.';
     output += '</pre>';
 
     if (socket.admin) {

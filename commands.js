@@ -73,8 +73,13 @@ module.exports = function(io) {
   function CommandDispatch(socket, data) {
 
     // if first character is a period, just say string
-    if(data.value.substr(0, 1) === ".") {
+    if (data.value.substr(0, 1) === ".") {
       Say(socket, data.value.substr(1));
+      return;
+    }
+
+    if (data.value.toLowerCase() === "i") {
+      Inventory(socket);
       return;
     }
 
@@ -99,7 +104,6 @@ module.exports = function(io) {
       case 'help':
         Help(socket);
         break;
-      case 'i':
       case 'inv':
       case 'inventory':
         Inventory(socket);
@@ -172,16 +176,45 @@ module.exports = function(io) {
     var roomsCollection = globals.DB.collection('rooms');
     roomsCollection.find({ _id: socket.room.exits[dir] }).toArray(function(err, docs) {
       if (docs.length == 0) {
+        var message = '';
+        
+        // send message to everyone in current room that player is running into stuff.
+        if (dir == "u") {
+          message = globals.USERNAMES[socket.id] + ' runs into the ceiling.';
+        } else if (dir == "d") {
+          message = globals.USERNAMES[socket.id] + ' runs into the floor';
+        } else {
+          message = globals.USERNAMES[socket.id] + ' runs into the wall to the ' + dirUtil.ExitName(dir);
+        }
+        socket.broadcast.to(socket.room._id).emit('output', { message: '<span class="silver">' + message + '.</span>' });
         socket.emit('output', { message: "There is no exit in that direction!" });
         return;
       }
 
-      socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' has left to the ' + dirUtil.DisplayDirection(dir) + '.' });
+      // send message to everyone in old room that player is leaving
+      if (dir == "u") {
+        message = globals.USERNAMES[socket.id] + ' has gone above.';
+      } else if (dir == "d") {
+        message = globals.USERNAMES[socket.id] + ' has gone below.';
+      } else {
+        message = globals.USERNAMES[socket.id] + ' has left to the ' + dirUtil.ExitName(dir);
+      }
+
+      socket.broadcast.to(socket.room._id).emit('output', { message: +'.' });
       socket.leave(socket.room._id);
 
       socket.room = docs[0];
       socket.join(socket.room._id);
-      socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' has entered from the ' + dirUtil.DisplayDirection(dirUtil.OppositeDirection(dir)) + '.' });
+
+      // send message to everyone is new room that player has arrived
+      if (dir == "u") {
+        message = globals.USERNAMES[socket.id] + ' has entered from above.';
+      } else if (dir == "d") {
+        message = globals.USERNAMES[socket.id] + ' has entered from below.';
+      } else {
+        message = globals.USERNAMES[socket.id] + ' has entered from the ' + dirUtil.ExitName(dirUtil.OppositeDirection(dir)) + '.';
+      }
+      socket.broadcast.to(socket.room._id).emit('output', { message: message });
 
       socket.emit('output', { message: dirUtil.Feedback(dir) });
       Look(socket);
@@ -226,7 +259,7 @@ module.exports = function(io) {
 
     if (Object.keys(exits).length > 0) {
       output += '<span class="green">Exits: ' + Object.keys(exits).map(function(dir) {
-        return dirUtil.DisplayDirection(dir)
+        return dirUtil.ExitName(dir)
       }).join(', ') + '</span>\n';
     }
 

@@ -1,7 +1,7 @@
 module.exports = {
 
   Feedback: function(dir) {
-    var displayDir = module.exports.DisplayDirection(dir);
+    var displayDir = module.exports.ExitName(dir);
     return "You move " + displayDir + "...";
   },
 
@@ -107,7 +107,8 @@ module.exports = {
     }
   },
 
-  DisplayDirection: function(dir) {
+  //used for building exits
+  ExitName: function(dir) {
     switch (dir) {
       case 'n':
         return 'north';

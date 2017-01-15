@@ -40,15 +40,18 @@ module.exports = function(io) {
           }
 
           if (targetSocketId == socket.id) {
-            socket.emit('output', { 'message': 'You cannot do actions on yourself.' });
-            return true;
-          }
-
-
-          var userInRoom = targetSocketId in io.sockets.adapter.rooms[socket.room._id].sockets;
-          if (!userInRoom) {
-            socket.emit('output', { 'message': 'You don\'t see ' + username + ' anywhere!' });
-            return true;
+            // if a user has tried to do an action on himself, just ignore the passed argument
+            username = null;
+            targetSocketId = null;
+            //socket.emit('output', { 'message': 'You cannot do actions on yourself.' });
+            //return true;
+          } else {
+          	// make sure the user is someone in the room
+            var userInRoom = targetSocketId in io.sockets.adapter.rooms[socket.room._id].sockets;
+            if (!userInRoom) {
+              socket.emit('output', { 'message': 'You don\'t see ' + username + ' anywhere!' });
+              return true;
+            }
           }
         }
 

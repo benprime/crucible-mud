@@ -164,16 +164,25 @@
       return false;
     }
   }
+
+  function focusInput() {
+    document.getElementById("textData").focus();
+  }
+  
   </script>
 </head>
 
 <body>
-  <div id="flexbox">
+  <div id="flexbox" onclick="focusInput()">
     <div id="log"></div>
     <div id="inputArea">
       <input id="textData" onkeydown="return sendData(event)" type="text" />
     </div>
   </div>
 </body>
-
+<script>
+  (function() {
+    focusInput();
+  })();
+</script>
 </html>

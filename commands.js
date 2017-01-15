@@ -13,6 +13,7 @@ function getKeyByValue(obj, value) {
 
 module.exports = function(io) {
   var adminUtil = require('./admin')(io);
+  var actions = require('./actions')(io);
 
   function GetSocketByUsername(username) {
     var socketId = getKeyByValue(globals.USERNAMES, username);
@@ -83,9 +84,15 @@ module.exports = function(io) {
       return;
     }
 
+
     // split on whitespace
     var command = data.value.split(/\s+/);
     var action = command[0].toLowerCase();
+
+    if(actions.actionDispatcher(socket, action, command.length > 1 ? command[1] : null))
+    {
+      return;
+    }
 
     // on blank command string, just look.
     if (command.length == 1 && action == '') {
@@ -182,11 +189,11 @@ module.exports = function(io) {
         if (dir == "u") {
           message = globals.USERNAMES[socket.id] + ' runs into the ceiling.';
         } else if (dir == "d") {
-          message = globals.USERNAMES[socket.id] + ' runs into the floor';
+          message = globals.USERNAMES[socket.id] + ' runs into the floor.';
         } else {
-          message = globals.USERNAMES[socket.id] + ' runs into the wall to the ' + dirUtil.ExitName(dir);
+          message = globals.USERNAMES[socket.id] + ' runs into the wall to the ' + dirUtil.ExitName(dir) +'.';
         }
-        socket.broadcast.to(socket.room._id).emit('output', { message: '<span class="silver">' + message + '.</span>' });
+        socket.broadcast.to(socket.room._id).emit('output', { message: '<span class="silver">' + message + '</span>' });
         socket.emit('output', { message: "There is no exit in that direction!" });
         return;
       }
@@ -208,9 +215,9 @@ module.exports = function(io) {
 
       // send message to everyone is new room that player has arrived
       if (dir == "u") {
-        message = globals.USERNAMES[socket.id] + ' has entered from above.';
-      } else if (dir == "d") {
         message = globals.USERNAMES[socket.id] + ' has entered from below.';
+      } else if (dir == "d") {
+        message = globals.USERNAMES[socket.id] + ' has entered from above.';
       } else {
         message = globals.USERNAMES[socket.id] + ' has entered from the ' + dirUtil.ExitName(dirUtil.OppositeDirection(dir)) + '.';
       }
@@ -229,7 +236,8 @@ module.exports = function(io) {
     output += '    <span class="mediumOrchid">gossip</span> <span class="purple">-</span> Send messages to all connected players.<br />';
     output += '       <span class="mediumOrchid">who</span> <span class="purple">-</span> List all online players.<br />';
     output += '       <span class="mediumOrchid">say</span> <span class="purple">-</span> Send messages to players in current room.<br />';
-    output += '             Note: starting any command with . will say that command.<br />';
+    output += '             Note: starting any command with . will say that command.<br /><br>';
+    output += '<span class="cyan">Actions:</span><br /><span class="silver">'+ Object.keys(actions.actions).join('<span class="mediumOrchid">, </span>')+'</span><br />';
     output += '</pre>';
 
     if (socket.admin) {

@@ -268,7 +268,7 @@ module.exports = function(io) {
     output += '       <span class="mediumOrchid">who</span> <span class="purple">-</span> List all online players.<br />';
     output += '       <span class="mediumOrchid">say</span> <span class="purple">-</span> Send messages to players in current room.<br />';
     output += '             Note: starting any command with . will say that command.<br /><br>';
-    output += '<span class="cyan">Actions:</span><br /><span class="silver">' + Object.keys(actionData.actions).join('<span class="mediumOrchid">, </span>') + '</span><br /></br />';
+    output += '<span class="cyan">Actions:</span><br /><span class="silver">' + Object.keys(actionData.actions).sort().join('<span class="mediumOrchid">, </span>') + '</span><br /></br />';
 
     if (socket.admin) {
       output += '<span class="cyan">Admin commands:</span><br />';

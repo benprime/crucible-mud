@@ -1,4 +1,5 @@
 var globals = require('./globals');
+var actionsData = require('./actionData');
 
 // generalized function again
 if (!String.prototype.format) {
@@ -9,54 +10,6 @@ if (!String.prototype.format) {
     });
   };
 }
-
-// this might go in the database later to be managed by admins
-// todo: are there any targetted actions that are not allowed? I don't think so.
-// rules: message goes to socket taking action, roomMessage goes to everyone else, targetMessage goes to target
-var actions = {
-  "dance": {
-    "solo": {
-      "roomMessage": "{0} dances a little jig!",
-      "sourceMessage": "You dance a little jig!"
-    },
-    "target": {
-      "targetMessage": "{0} dances with you around the room!",
-      "roomMessage": "{0} dances with {1} around the room!",
-      "sourceMessage": "You dance with {1} around the room!"
-    }
-  },
-  "kiss": {
-    "solo": {
-      "sourceMessage": "Who do you want to kiss?"
-    },
-    "target": {
-      "targetMessage": "{0} kisses you passionalety!",
-      "roomMessage": "{0} kisses {1} passionately!",
-      "sourceMessage": "You kiss {1} passionately!"
-    }
-  },
-  "slap": {
-    "solo": {
-      "sourceMessage": "Who or what do you want to slap?"
-    },
-    "target": {
-      "targetMessage": "{0} slaps you across the face!",
-      "roomMessage": "{0} slaps {1} across the face!",
-      "sourceMessage": "You slap {1} across the face!"
-    }
-  },
-  "whistle": {
-    "solo": {
-      "sourceMessage": "You whistle a little tune.",
-      "roomMessage": "{0} whistles a little tune."
-    },
-    "target": {
-      "targetMessage": "{0} whistles at you.",
-      "roomMessage": "{0} whistles at {1}.",
-      "sourceMessage": "You whistle at {1}."
-    }
-  }
-};
 
 module.exports = function(io) {
   // duplicate function from elsewhere
@@ -75,9 +28,8 @@ module.exports = function(io) {
   }
 
   return {
-    actions: actions,
     actionDispatcher: function(socket, action, username) {
-      if (action in actions) {
+      if (action in actionsData.actions) {
 
         // user is attempting to action another user
         if (username) {
@@ -99,7 +51,8 @@ module.exports = function(io) {
             return true;
           }
         }
-        var actionMessages = actions[action];
+
+        var actionMessages = actionsData.actions[action];
         var messages = username ? actionMessages['target'] : actionMessages['solo'];
         var targetSocket = username ? GetSocketByUsername(username) : null;
 

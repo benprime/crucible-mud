@@ -1,5 +1,6 @@
 var dirUtil = require('./direction');
 var globals = require('./globals');
+var actionData = require('./actionData');
 
 // adding prototype method to object... need to move this to more global libary
 function getKeyByValue(obj, value) {
@@ -230,23 +231,22 @@ module.exports = function(io) {
   }
 
   function Help(socket) {
-    var output = '<pre><span class="cyan">Commands:</span><br />';
+    var output = '<span class="cyan">Commands:</span><br />';
     output += '  <span class="mediumOrchid">Movement</span> <span class="purple">-</span> n,s,e,w,u,d,ne,nw,sw,se<br />';
     output += '      <span class="mediumOrchid">look</span> <span class="purple">-</span> Look at current room.<br />';
     output += '    <span class="mediumOrchid">gossip</span> <span class="purple">-</span> Send messages to all connected players.<br />';
     output += '       <span class="mediumOrchid">who</span> <span class="purple">-</span> List all online players.<br />';
     output += '       <span class="mediumOrchid">say</span> <span class="purple">-</span> Send messages to players in current room.<br />';
     output += '             Note: starting any command with . will say that command.<br /><br>';
-    output += '<span class="cyan">Actions:</span><br /><span class="silver">'+ Object.keys(actions.actions).join('<span class="mediumOrchid">, </span>')+'</span><br />';
-    output += '</pre>';
+    output += '<span class="cyan">Actions:</span><br /><span class="silver">'+ Object.keys(actionData.actions).join('<span class="mediumOrchid">, </span>')+'</span><br /></br />';
 
     if (socket.admin) {
-      output += '<pre><span class="cyan">Admin commands:</span><br />';
+      output += '<span class="cyan">Admin commands:</span><br />';
       output += '  <span class="mediumOrchid">create room &lt;dir&gt;</span><br />';
       output += '  <span class="mediumOrchid">set room name &lt;new room name&gt;</span><br />';
       output += '  <span class="mediumOrchid">set room desc &lt;new room desc&gt;</span><br />';
       output += '  <span class="mediumOrchid">create item &lt;item name&gt;</span><br />';
-      output += '  <span class="mediumOrchid">teleport &lt;username&gt;</span><br /></pre>';
+      output += '  <span class="mediumOrchid">teleport &lt;username&gt;</span><br />';
     }
     socket.emit('output', { message: output });
   }

@@ -58,6 +58,30 @@ module.exports = function(io) {
     socket.emit('output', { message: output });
   }
 
+  function Telepathy(socket, data) {
+    var re = /\/(\w+)\s+(.+)/
+    var tokens = data.match(re);
+    if (tokens && tokens.length > 2) {
+      var username = tokens[1];
+      var message = tokens[2];
+
+      var userSocket = GetSocketByUsername(username);
+      if (!userSocket) {
+        socket.emit('output', { 'message': 'Invalid username.' });
+        return;
+      }
+      var sender = globals.USERNAMES[socket.id];
+      
+      // why doesn't this work? Trying to get the propert casing.
+      //var receiver = globals.USERNAMES[userSocket];
+
+      userSocket.emit('output', { 'message': sender + ' telepaths: ' + message });
+      socket.emit('output', { 'message': 'Telepath to ' + username + ': ' + message });
+    } else {
+      socket.emit('output', { 'message': 'Usage: /&lt;username&gt; &lt;message&gt;' });
+    }
+  }
+
   function UsersInRoom(socket) {
     var clients = io.sockets.adapter.rooms[socket.room._id].sockets;
 
@@ -72,26 +96,32 @@ module.exports = function(io) {
     return usernames.join('<span class="mediumOrchid">, </span>');
   }
 
-  function CommandDispatch(socket, data) {
+  function CommandDispatch(socket, inputData) {
+
+    var input = inputData.value.trim();
 
     // if first character is a period, just say string
-    if (data.value.substr(0, 1) === ".") {
-      Say(socket, data.value.substr(1));
+    if (input.substr(0, 1) === ".") {
+      Say(socket, input.substr(1));
       return;
     }
 
-    if (data.value.toLowerCase() === "i") {
+    if (input.substr(0, 1) === "/") {
+      Telepathy(socket, input);
+      return;
+    }
+
+    if (input.toLowerCase() === "i") {
       Inventory(socket);
       return;
     }
 
 
     // split on whitespace
-    var command = data.value.split(/\s+/);
+    var command = input.split(/\s+/);
     var action = command[0].toLowerCase();
 
-    if(actions.actionDispatcher(socket, action, command.length > 1 ? command[1] : null))
-    {
+    if (actions.actionDispatcher(socket, action, command.length > 1 ? command[1] : null)) {
       return;
     }
 
@@ -123,14 +153,14 @@ module.exports = function(io) {
         break;
       case 'create':
         if (socket.admin) {
-          adminUtil.CreateDispatch(socket, command, data.value, function() {
+          adminUtil.CreateDispatch(socket, command, input, function() {
             Look(socket);
           });
         }
         break;
       case 'set':
         if (socket.admin) {
-          adminUtil.SetDispatch(socket, command, data.value, function() {
+          adminUtil.SetDispatch(socket, command, input, function() {
             Look(socket);
           });
         }
@@ -149,13 +179,13 @@ module.exports = function(io) {
         break;
       case 'gossip':
       case 'gos':
-        Gossip(socket, data.value.replace(/^gossip/i, '').replace(/^gos/i, ''));
+        Gossip(socket, input.replace(/^gossip/i, '').replace(/^gos/i, ''));
         break;
       case 'who':
         Who(socket);
         break;
       default:
-        Say(socket, data.value);
+        Say(socket, input);
     }
   }
 
@@ -185,14 +215,14 @@ module.exports = function(io) {
     roomsCollection.find({ _id: socket.room.exits[dir] }).toArray(function(err, docs) {
       if (docs.length == 0) {
         var message = '';
-        
+
         // send message to everyone in current room that player is running into stuff.
         if (dir == "u") {
           message = globals.USERNAMES[socket.id] + ' runs into the ceiling.';
         } else if (dir == "d") {
           message = globals.USERNAMES[socket.id] + ' runs into the floor.';
         } else {
-          message = globals.USERNAMES[socket.id] + ' runs into the wall to the ' + dirUtil.ExitName(dir) +'.';
+          message = globals.USERNAMES[socket.id] + ' runs into the wall to the ' + dirUtil.ExitName(dir) + '.';
         }
         socket.broadcast.to(socket.room._id).emit('output', { message: '<span class="silver">' + message + '</span>' });
         socket.emit('output', { message: "There is no exit in that direction!" });
@@ -238,7 +268,7 @@ module.exports = function(io) {
     output += '       <span class="mediumOrchid">who</span> <span class="purple">-</span> List all online players.<br />';
     output += '       <span class="mediumOrchid">say</span> <span class="purple">-</span> Send messages to players in current room.<br />';
     output += '             Note: starting any command with . will say that command.<br /><br>';
-    output += '<span class="cyan">Actions:</span><br /><span class="silver">'+ Object.keys(actionData.actions).join('<span class="mediumOrchid">, </span>')+'</span><br /></br />';
+    output += '<span class="cyan">Actions:</span><br /><span class="silver">' + Object.keys(actionData.actions).join('<span class="mediumOrchid">, </span>') + '</span><br /></br />';
 
     if (socket.admin) {
       output += '<span class="cyan">Admin commands:</span><br />';

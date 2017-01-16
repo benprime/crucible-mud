@@ -71,7 +71,7 @@ module.exports = function(io) {
         return;
       }
       var sender = globals.USERNAMES[socket.id];
-      
+
       // why doesn't this work? Trying to get the propert casing.
       //var receiver = globals.USERNAMES[userSocket];
 
@@ -111,11 +111,13 @@ module.exports = function(io) {
       return;
     }
 
+    // inventory as a separate check here, to stop people from
+    // having and inventory happen on every statement they start
+    // with I, ie: "i was doing something"
     if (input.toLowerCase() === "i") {
       Inventory(socket);
       return;
     }
-
 
     // split on whitespace
     var command = input.split(/\s+/);
@@ -208,24 +210,41 @@ module.exports = function(io) {
     io.emit('output', { message: output });
   }
 
+  function HitWall(socket, dir) {
+    var message = '';
+
+    // send message to everyone in current room that player is running into stuff.
+    if (dir == "u") {
+      message = globals.USERNAMES[socket.id] + ' runs into the ceiling.';
+    } else if (dir == "d") {
+      message = globals.USERNAMES[socket.id] + ' runs into the floor.';
+    } else {
+      message = globals.USERNAMES[socket.id] + ' runs into the wall to the ' + dirUtil.ExitName(dir) + '.';
+    }
+    socket.broadcast.to(socket.room._id).emit('output', { message: '<span class="silver">' + message + '</span>' });
+    socket.emit('output', { message: "There is no exit in that direction!" });
+  }
+
   function Move(socket, dir) {
     dir = dir.toLowerCase();
-    dir = dirUtil.LongToShort(dir);
-    var roomsCollection = globals.DB.collection('rooms');
-    roomsCollection.find({ _id: socket.room.exits[dir] }).toArray(function(err, docs) {
-      if (docs.length == 0) {
-        var message = '';
 
-        // send message to everyone in current room that player is running into stuff.
-        if (dir == "u") {
-          message = globals.USERNAMES[socket.id] + ' runs into the ceiling.';
-        } else if (dir == "d") {
-          message = globals.USERNAMES[socket.id] + ' runs into the floor.';
-        } else {
-          message = globals.USERNAMES[socket.id] + ' runs into the wall to the ' + dirUtil.ExitName(dir) + '.';
-        }
-        socket.broadcast.to(socket.room._id).emit('output', { message: '<span class="silver">' + message + '</span>' });
-        socket.emit('output', { message: "There is no exit in that direction!" });
+    // changes "north" to "n" (just returns "n" if that's what's passed in)
+    dir = dirUtil.LongToShort(dir);
+
+    // valid exit in that direction?
+    var door = socket.room.exits.find(door => door.dir === dir);
+    if (!door) {
+      HitWall(socket, dir);
+      return;
+    }
+
+    var roomsCollection = globals.DB.collection('rooms');
+    roomsCollection.find({ _id: door.roomId }).toArray(function(err, docs) {
+      var message = '';
+      if (docs.length == 0) {
+        // hrmm if the exit was just validated, this should never happen.
+        HitWall(socket, dir);
+        console.log("WARNING: Query couldn't find next room when going through a door.")
         return;
       }
 
@@ -282,7 +301,7 @@ module.exports = function(io) {
   }
 
   function Look(socket, short) {
-    var exits = socket.room.exits || {};
+    var exits = socket.room.exits || [];
 
     var output = '<span class="cyan">' + socket.room.name + '</span>\n';
 
@@ -295,9 +314,9 @@ module.exports = function(io) {
       output += '<span class="purple">Also here: <span class="teal">' + otherUsers + '</span>.</span>\n';
     }
 
-    if (Object.keys(exits).length > 0) {
-      output += '<span class="green">Exits: ' + Object.keys(exits).map(function(dir) {
-        return dirUtil.ExitName(dir)
+    if (exits.length > 0) {
+      output += '<span class="green">Exits: ' + exits.map(function(door) {
+        return dirUtil.ExitName(door.dir);
       }).join(', ') + '</span>\n';
     }
 

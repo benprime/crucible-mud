@@ -38,7 +38,8 @@ module.exports = function(io) {
       if (!socket.userId && (socket.state == globals.STATES.LOGIN_USERNAME)) {
         var userCollection = globals.DB.collection('users');
         console.log("Searching for user... " + JSON.stringify(username));
-        userCollection.find({ username: username.value }).toArray(function(err, docs) {
+        var userRegEx = new RegExp("^"+username.value+"$","i");
+        userCollection.find({ username: userRegEx }).toArray(function(err, docs) {
           if (docs.length == 0) {
             socket.emit('output', { message: "Unknown user, please try again." });
           } else {

@@ -58,6 +58,28 @@ module.exports = function(io) {
     socket.emit('output', { message: output });
   }
 
+  // emits "You hear movement to the <dir>" to all adjacent rooms
+  function MovementSounds(socket, fromRoomId) {
+    // todo: hrmm, check if the room exists in socket io first?
+    // could save processing time... since we don't need to write to sockets if
+    // no one is in those rooms...
+    socket.room.exits.map(function(door) {
+      if (door.roomId.toString() == fromRoomId.toString()) {
+        return;
+      }
+      var message = '';
+      if (door.dir == "u") {
+        message = "You hear movement from below.";
+      } else if (door.dir == "d") {
+        message = "You hear movement from above.";
+      } else {
+        message = "You hear movement to the " + dirUtil.ExitName(dirUtil.OppositeDirection(door.dir)) + '.';
+      }
+
+      socket.broadcast.to(door.roomId).emit('output', { message: message });
+    });
+  }
+
   function Telepathy(socket, data) {
     var re = /\/(\w+)\s+(.+)/
     var tokens = data.match(re);
@@ -83,6 +105,9 @@ module.exports = function(io) {
   }
 
   function UsersInRoom(socket) {
+    if (!socket.room._id in io.sockets.adapter.rooms) {
+      return [];
+    }
     var clients = io.sockets.adapter.rooms[socket.room._id].sockets;
 
     // remove current user
@@ -181,7 +206,7 @@ module.exports = function(io) {
         break;
       case 'gossip':
       case 'gos':
-        Gossip(socket, input.replace(/^gossip/i, '').replace(/^gos/i, ''));
+        Gossip(socket, input.replace(/^gossip\s+/i, '').replace(/^gos\s+/i, ''));
         break;
       case 'who':
         Who(socket);
@@ -254,15 +279,19 @@ module.exports = function(io) {
       } else if (dir == "d") {
         message = globals.USERNAMES[socket.id] + ' has gone below.';
       } else {
-        message = globals.USERNAMES[socket.id] + ' has left to the ' + dirUtil.ExitName(dir);
+        message = globals.USERNAMES[socket.id] + ' has left to the ' + dirUtil.ExitName(dir) + '.';
       }
-
-      socket.broadcast.to(socket.room._id).emit('output', { message: +'.' });
+      socket.broadcast.to(socket.room._id).emit('output', { message: message });
+      var fromRoomId = socket.room._id;
       socket.leave(socket.room._id);
 
       socket.room = docs[0];
       socket.join(socket.room._id);
 
+      console.log("movement message");
+      MovementSounds(socket, fromRoomId);
+
+      console.log("entrance message");
       // send message to everyone is new room that player has arrived
       if (dir == "u") {
         message = globals.USERNAMES[socket.id] + ' has entered from below.';
@@ -273,6 +302,7 @@ module.exports = function(io) {
       }
       socket.broadcast.to(socket.room._id).emit('output', { message: message });
 
+      // You have moved south...
       socket.emit('output', { message: dirUtil.Feedback(dir) });
       Look(socket);
     });
@@ -280,22 +310,38 @@ module.exports = function(io) {
   }
 
   function Help(socket) {
-    var output = '<span class="cyan">Commands:</span><br />';
-    output += '  <span class="mediumOrchid">Movement</span> <span class="purple">-</span> n,s,e,w,u,d,ne,nw,sw,se<br />';
-    output += '      <span class="mediumOrchid">look</span> <span class="purple">-</span> Look at current room.<br />';
-    output += '    <span class="mediumOrchid">gossip</span> <span class="purple">-</span> Send messages to all connected players.<br />';
-    output += '       <span class="mediumOrchid">who</span> <span class="purple">-</span> List all online players.<br />';
-    output += '       <span class="mediumOrchid">say</span> <span class="purple">-</span> Send messages to players in current room.<br />';
-    output += '             Note: starting any command with . will say that command.<br /><br>';
-    output += '<span class="cyan">Actions:</span><br /><span class="silver">' + Object.keys(actionData.actions).sort().join('<span class="mediumOrchid">, </span>') + '</span><br /></br />';
+    var output = '';
+    output += '<span class="cyan">Movement:</span><br>';
+    output += '<span class="mediumOrchid">n<span class="purple"> | </span>north</span> <span class="purple">-</span> Move north.<br />';
+    output += '<span class="mediumOrchid">s<span class="purple"> | </span>south</span> <span class="purple">-</span> Move south.<br />';
+    output += '<span class="mediumOrchid">e<span class="purple"> | </span>east</span> <span class="purple">-</span> Move east.<br />';
+    output += '<span class="mediumOrchid">w<span class="purple"> | </span>west</span> <span class="purple">-</span> Move west.<br />';
+    output += '<span class="mediumOrchid">ne<span class="purple"> | </span>northeast</span> <span class="purple">-</span> Move northeast.<br />';
+    output += '<span class="mediumOrchid">se<span class="purple"> | </span>southeast</span> <span class="purple">-</span> Move southeast.<br />';
+    output += '<span class="mediumOrchid">nw<span class="purple"> | </span>northwest</span> <span class="purple">-</span> Move northwest.<br />';
+    output += '<span class="mediumOrchid">sw<span class="purple"> | </span>southwest</span> <span class="purple">-</span> Move southwest.<br />';
+    output += '<span class="mediumOrchid">u<span class="purple"> | </span>up</span> <span class="purple">-</span> Move up.<br />';
+    output += '<span class="mediumOrchid">d<span class="purple"> | </span>down</span> <span class="purple">-</span> Move down.<br /><br />';
+
+    output += '<span class="cyan">Commands:</span><br>';
+    output += '<span class="mediumOrchid">l <span class="purple">|</span> look</span> <span class="purple">-</span> Look at current room.<br />';
+    output += '<span class="mediumOrchid">who</span> <span class="purple">-</span> List all online players.<br /><br>';
+
+    output += '<span class="cyan">Communication:</span><br>';
+    output += '<span class="mediumOrchid">.<message></span> <span class="purple">-</span> Start command with . to speak to users in current room.<br />';
+    output += '<span class="mediumOrchid">/&lt;username&gt; <message></span> <span class="purple">-</span> Send message directly to a single player.<br />';
+    output += '<span class="mediumOrchid">gossip &lt;message&gt;</span> <span class="purple">-</span> Send messages to all connected players.<br />';
+
+    output += '<br><span class="cyan">Actions:</span><br />';
+    output += '<span class="silver">' + Object.keys(actionData.actions).sort().join('<span class="mediumOrchid">, </span>') + '</span><br /></br />';
 
     if (socket.admin) {
       output += '<span class="cyan">Admin commands:</span><br />';
-      output += '  <span class="mediumOrchid">create room &lt;dir&gt;</span><br />';
-      output += '  <span class="mediumOrchid">set room name &lt;new room name&gt;</span><br />';
-      output += '  <span class="mediumOrchid">set room desc &lt;new room desc&gt;</span><br />';
-      output += '  <span class="mediumOrchid">create item &lt;item name&gt;</span><br />';
-      output += '  <span class="mediumOrchid">teleport &lt;username&gt;</span><br />';
+      output += '<span class="mediumOrchid">create room &lt;dir&gt;</span><br />';
+      output += '<span class="mediumOrchid">set room name &lt;new room name&gt;</span><br />';
+      output += '<span class="mediumOrchid">set room desc &lt;new room desc&gt;</span><br />';
+      output += '<span class="mediumOrchid">create item &lt;item name&gt;</span><br />';
+      output += '<span class="mediumOrchid">teleport &lt;username&gt;</span><br />';
     }
     socket.emit('output', { message: output });
   }

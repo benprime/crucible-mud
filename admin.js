@@ -29,7 +29,7 @@ module.exports = function(io) {
         switch (subject) {
           case 'room':
             var dir = args[0];
-            CreateRoom(io, socket, args, function() {
+            rooms.CreateRoom(io, socket, args, function() {
               socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' has created a room to the ' + dirUtil.ExitName(dir) + '.' });
               lookCallback();
             });

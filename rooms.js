@@ -50,7 +50,7 @@ module.exports = {
     // the latest mongo data before we attempt to create a door that may already exists
     // based on some network hang?
     // (two admins trying to create a door, in the same room, in the same direction, at the same time)
-    rooms.RefreshRoom(io, socket.room._id, function() {
+    module.exports.RefreshRoom(io, socket.room._id, function() {
 
 
       // check if the door already exists (if door exists, room must)
@@ -71,8 +71,8 @@ module.exports = {
 
             // create both doors
             // dirty async callback spaghetti... refactor with async library?
-            rooms.CreateDoor(io, socket.room._id, dir, newRoom._id, function() {
-              rooms.CreateDoor(io, newRoom._id, dirUtil.OppositeDirection(dir), socket.room._id, callback);
+            module.exports.CreateDoor(io, socket.room._id, dir, newRoom._id, function() {
+              module.exports.CreateDoor(io, newRoom._id, dirUtil.OppositeDirection(dir), socket.room._id, callback);
             });
 
           } else {
@@ -97,7 +97,7 @@ module.exports = {
                 return;
               }
               var toRoomId = records['insertedIds'][0];
-              rooms.CreateDoor(io, socket.room._id, dir, toRoomId, callback);
+              module.exports.CreateDoor(io, socket.room._id, dir, toRoomId, callback);
             });
           }
         });

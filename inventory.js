@@ -33,6 +33,7 @@ module.exports = function(io) {
           // refresh the room for all players currently joined to it
           rooms.RefreshRoom(io, socket.room._id, function() {
             socket.emit("output", { message: "Item dropped." })
+            socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' drops ' + item.name + '.'});
             if (callback) callback();
           });
         });
@@ -60,6 +61,7 @@ module.exports = function(io) {
             // add item to player's current inventory
             socket.inventory.push(item);
             socket.emit("output", { message: "Taken." })
+            socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' takes ' + item.name + '.' });
             if (callback) callback();
           });
         });

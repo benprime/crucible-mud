@@ -80,6 +80,9 @@ module.exports = function(io) {
             }
             socket.state = globals.STATES.MUD;
 
+
+            socket.emit('output', { message: "<br>Welcome to CrucibleMUD!<br>" });
+
             // todo: currently these messages go to people who haven't even logged in... change that.
             socket.broadcast.emit('output', { message: globals.USERNAMES[socket.id] + ' has entered the realm.' });
 

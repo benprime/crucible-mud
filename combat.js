@@ -33,7 +33,6 @@ module.exports = function(io) {
         //console.log(socket.attackInterval);
         //console.log(socket.lastAttack);
         //console.log('-------------------------');
-
       }
 
     }

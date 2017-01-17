@@ -15,6 +15,7 @@ function getKeyByValue(obj, value) {
 module.exports = function(io) {
   var adminUtil = require('./admin')(io);
   var actions = require('./actions')(io);
+  var inventory = require('./inventory')(io);
 
   function GetSocketByUsername(username) {
     var socketId = getKeyByValue(globals.USERNAMES, username);
@@ -172,6 +173,21 @@ module.exports = function(io) {
       case 'inv':
       case 'inventory':
         Inventory(socket);
+        break;
+      case 'take':
+        inventory.TakeItem(socket, input.replace(/^take\s+/i, ''), function() {
+          //Look(socket);
+        });
+        break;
+      case 'get':
+        inventory.TakeItem(socket, input.replace(/^get\s+/i, ''), function() {
+          //Look(socket);
+        });
+        break;
+      case 'drop':
+        inventory.DropItem(socket, input.replace(/^drop\s+/i, ''), function() {
+          //Look(socket);
+        });
         break;
       case 'l':
       case 'look':
@@ -366,11 +382,18 @@ module.exports = function(io) {
 
   function Look(socket, short) {
     var exits = socket.room.exits || [];
+    var inventory = socket.room.inventory || [];
 
     var output = '<span class="cyan">' + socket.room.name + '</span>\n';
 
     if (!short) {
       output += '<span class="silver">' + socket.room.desc + '</span>\n';
+    }
+
+    if(inventory.length > 0) {
+      output += '<span class="darkcyan">You notice: ' + inventory.map(function(item) {
+        return item.name;
+      }).join(', ') + '.</span>\n';
     }
 
     var otherUsers = UsersInRoom(socket);

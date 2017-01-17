@@ -10,7 +10,7 @@
     padding: 0px;
     border: 0px;
   }
-
+  
   #flexbox {
     height: 100%;
     flex-flow: column;
@@ -37,17 +37,15 @@
   #log {
     background-color: black;
     color: green;
-    
     margin: 0px;
     padding: 0px;
     border: 0px;
     height: 100%;
-
     font-family: Courier;
     overflow-y: scroll;
     flex: 0 1 auto;
   }
-
+  
   #inputArea {
     flex: 0 1 25px;
     margin: 0px;
@@ -57,7 +55,7 @@
   
   input[type=text] {
     background-color: black;
-    color: green;
+    color: gainsboro;
     width: 100%;
     font-family: Courier;
   }
@@ -104,6 +102,14 @@
   
   .mediumOrchid {
     color: mediumOrchid;
+  }
+  
+  .olive {
+    color: olive;
+  }
+  
+  .gainsboro {
+    color: gainsboro;
   }
   </style>
   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
@@ -168,7 +174,6 @@
   function focusInput() {
     document.getElementById("textData").focus();
   }
-  
   </script>
 </head>
 
@@ -181,8 +186,9 @@
   </div>
 </body>
 <script>
-  (function() {
-    focusInput();
-  })();
+(function() {
+  focusInput();
+})();
 </script>
+
 </html>

@@ -8,33 +8,9 @@ var adminUtil = require('./admin')(io);
 var loginUtil = require('./login')(io);
 var globals = require('./globals');
 var commands = require('./commands')(io);
+var combat = require('./combat')(io);
 var mongo = require('mongodb').MongoClient;
-
-module.exports = io;
-
-function WelcomeMessage(socket) {
-  // Generated from: http://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=WELCOME%0AMUDDERS!
-  var s = '<br /><br /><pre><span class="teal">';
-  s += '██╗    ██╗███████╗██╗      ██████╗ ██████╗ ███╗   ███╗███████╗ <br />';
-  s += '██║    ██║██╔════╝██║     ██╔════╝██╔═══██╗████╗ ████║██╔════╝ <br />';
-  s += '██║ █╗ ██║█████╗  ██║     ██║     ██║   ██║██╔████╔██║█████╗   <br />';
-  s += '██║███╗██║██╔══╝  ██║     ██║     ██║   ██║██║╚██╔╝██║██╔══╝   <br />';
-  s += '╚███╔███╔╝███████╗███████╗╚██████╗╚██████╔╝██║ ╚═╝ ██║███████╗ <br />';
-  s += ' ╚══╝╚══╝ ╚══════╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝ <br />';
-  s += '<br />';
-  s += '███╗   ███╗██╗   ██╗██████╗ ██████╗ ███████╗██████╗ ███████╗██╗<br />';
-  s += '████╗ ████║██║   ██║██╔══██╗██╔══██╗██╔════╝██╔══██╗██╔════╝██║<br />';
-  s += '██╔████╔██║██║   ██║██║  ██║██║  ██║█████╗  ██████╔╝███████╗██║<br />';
-  s += '██║╚██╔╝██║██║   ██║██║  ██║██║  ██║██╔══╝  ██╔══██╗╚════██║╚═╝<br />';
-  s += '██║ ╚═╝ ██║╚██████╔╝██████╔╝██████╔╝███████╗██║  ██║███████║██╗<br />';
-  s += '╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝╚═╝</span><br /></pre>';
-
-  var bgChars = ['╔', '╗', '║', '╚', '╝', '═'];
-  for (i in bgChars) {
-    s = s.replace(new RegExp(bgChars[i], 'g'), '<span class="mediumOrchid">' + bgChars[i] + '</span>');
-  }
-  socket.emit('output', { message: s });
-}
+var welcome = require('./welcome');
 
 app.set('port', 3000);
 var url = 'mongodb://localhost:27017/mud';
@@ -51,7 +27,7 @@ mongo.connect(url, function(err, db) {
   io.on('connection', function(socket) {
     socket.state = globals.STATES.LOGIN_USERNAME;
     socket.emit('output', { message: "Connected." });
-    WelcomeMessage(socket);
+    welcome.WelcomeMessage(socket);
     socket.emit('output', { message: "Enter username:" });
 
 

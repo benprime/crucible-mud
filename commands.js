@@ -176,7 +176,12 @@ module.exports = function(io) {
       case 'l':
       case 'look':
         Look(socket);
+        break;
       case 'attack':
+        Attack(socket);
+        break;
+      case 'break':
+        Break(socket);
         break;
       case 'create':
         if (socket.admin) {
@@ -288,10 +293,8 @@ module.exports = function(io) {
       socket.room = docs[0];
       socket.join(socket.room._id);
 
-      console.log("movement message");
       MovementSounds(socket, fromRoomId);
 
-      console.log("entrance message");
       // send message to everyone is new room that player has arrived
       if (dir == "u") {
         message = globals.USERNAMES[socket.id] + ' has entered from below.';
@@ -344,6 +347,17 @@ module.exports = function(io) {
       output += '<span class="mediumOrchid">teleport &lt;username&gt;</span><br />';
     }
     socket.emit('output', { message: output });
+  }
+
+  function Attack(socket) {
+    socket.emit("output", { message: "<span class=\"olive\">*** Combat Engaged ***</span>" });
+    socket.attackInterval = 1500;
+  }
+
+  function Break(socket) {
+    socket.attackInterval = undefined;
+    socket.lastAttack = undefined;
+    socket.emit("output", { message: "<span class=\"olive\">*** Combat Disengaged ***</span>" });
   }
 
   function Look(socket, short) {

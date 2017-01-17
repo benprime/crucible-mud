@@ -1,0 +1,24 @@
+<html>
+
+<head>
+  <title>MUD</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+</head>
+
+<body>
+  <div id="flexbox" onclick="focusInput()">
+    <div id="log"></div>
+    <div id="inputArea">
+      <input id="textData" onkeydown="return sendData(event)" type="text" />
+    </div>
+  </div>
+</body>
+<script>
+(function() {
+  focusInput();
+})();
+</script>
+
+</html>

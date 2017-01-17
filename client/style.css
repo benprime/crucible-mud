@@ -1,0 +1,108 @@
+  body {
+    background-color: black;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+  }
+  
+  #flexbox {
+    height: 100%;
+    flex-flow: column;
+    display: flex;
+  }
+  
+  table {
+    border: 0px;
+  }
+  
+  tr {
+    border: 0px;
+  }
+  
+  td {
+    font-family: Courier;
+    border: solid white 1px;
+  }
+  
+  pre {
+    font-family: Courier;
+  }
+  
+  #log {
+    background-color: black;
+    color: green;
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+    height: 100%;
+    font-family: Courier;
+    overflow-y: scroll;
+    flex: 0 1 auto;
+  }
+  
+  #inputArea {
+    flex: 0 1 25px;
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+  }
+  
+  input[type=text] {
+    background-color: black;
+    color: gainsboro;
+    width: 100%;
+    font-family: Courier;
+  }
+  
+  .green {
+    color: green;
+  }
+  
+  .red {
+    color: red;
+  }
+  
+  .aqua {
+    color: aqua;
+  }
+  
+  .cyan {
+    color: cyan;
+  }
+  
+  .darkCyan {
+    color: darkcyan;
+  }
+  
+  .gray {
+    color: gray;
+  }
+  
+  .silver {
+    color: silver;
+  }
+  
+  .white {
+    color: white;
+  }
+  
+  .purple {
+    color: purple;
+  }
+  
+  .teal {
+    color: teal;
+  }
+  
+  .mediumOrchid {
+    color: mediumOrchid;
+  }
+  
+  .olive {
+    color: olive;
+  }
+  
+  .gainsboro {
+    color: gainsboro;
+  }

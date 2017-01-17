@@ -30,15 +30,9 @@ mongo.connect(url, function(err, db) {
     welcome.WelcomeMessage(socket);
     socket.emit('output', { message: "Enter username:" });
 
-
-
     socket.on('disconnect', function() {
       // check to see if this user ever successfully logged in
       if (socket.id in globals.USERNAMES) {
-        // save current room to user data
-        //todo: Hrmm, if the server crashes, everyone's current location will be lost... perhaps write to mongo on every move.
-        var result = globals.DB.collection('users').update({ _id: socket.userId }, { $set: { "roomId": socket.room._id } });
-
         socket.broadcast.emit('output', { message: globals.USERNAMES[socket.id] + ' has left the realm.' });
         delete globals.USERNAMES[socket.id];
       }

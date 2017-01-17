@@ -290,8 +290,12 @@ module.exports = function(io) {
       var fromRoomId = socket.room._id;
       socket.leave(socket.room._id);
 
+      // update user session
       socket.room = docs[0];
       socket.join(socket.room._id);
+
+      // update mongodb
+      globals.DB.collection('users').update({ _id: socket.userId }, { $set: { "roomId": socket.room._id } });
 
       MovementSounds(socket, fromRoomId);
 

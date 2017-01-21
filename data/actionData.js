@@ -226,7 +226,7 @@ module.exports = {
         "sourceMessage": "You slap yourself!"
       },
       "target": {
-        "targetMessage": "{0} slaps you!!",
+        "targetMessage": "{0} slaps you!",
         "roomMessage": "{0} slaps {1}!",
         "sourceMessage": "You slap {1}!"
       }

@@ -3,10 +3,11 @@ var rooms = require('./rooms');
 
 function GetFirst(inventory, itemName) {
   if (!inventory) return null;
-  var items = inventory.filter(function(item) {
+
+  var item = inventory.find(function(item) {
     return item.name.toLowerCase() === itemName.toLowerCase();
   });
-  return items.length > 0 ? items[0] : null;
+  return item;
 };
 
 module.exports = function(io) {
@@ -52,6 +53,12 @@ module.exports = function(io) {
         socket.emit("output", { message: "You don't see that item here." })
         return;
       }
+
+      if(item.fixed) {
+        socket.emit("output", { message: "You cannot take that!" })
+        return;
+      }
+
       // remove from room in mongo
       globals.DB.collection('rooms').update({ _id: socket.room._id }, { $pull: { inventory: { _id: item._id } } }, function() {
         // refresh the room for all players currently joined to it
@@ -66,6 +73,19 @@ module.exports = function(io) {
           });
         });
       });
+    },
+    SetItem: function(socket, itemName, property, value)
+    {
+      if(!socket.admin) return;
+
+      var item = GetFirst(socket.inventory, itemName) || GetFirst(socket.room.inventory, itemName);
+      if(!item) {
+        socket.emit("output", {message: "You don't see that anywhere!"});
+        return;
+      }
+
+      // todo: finish this method and save to the database
+      item.property = value;
     }
   }
 }

@@ -1,6 +1,6 @@
 var dirUtil = require('./direction');
 var globals = require('./globals');
-var actionData = require('./actionData');
+var actionData = require('./data/actionData');
 
 // adding prototype method to object... need to move this to more global libary
 function getKeyByValue(obj, value) {
@@ -15,7 +15,8 @@ function getKeyByValue(obj, value) {
 module.exports = function(io) {
   var adminUtil = require('./admin')(io);
   var actions = require('./actions')(io);
-  var inventory = require('./inventory')(io);
+  var items = require('./items')(io);
+  var combat = require('./combat')(io);
 
   function GetSocketByUsername(username) {
     var socketId = getKeyByValue(globals.USERNAMES, username);
@@ -119,7 +120,7 @@ module.exports = function(io) {
     var usernames = otherUsers.map(function(socketId) {
       return globals.USERNAMES[socketId];
     });
-    return usernames.join('<span class="mediumOrchid">, </span>');
+    return usernames;
   }
 
   function CommandDispatch(socket, inputData) {
@@ -175,17 +176,17 @@ module.exports = function(io) {
         Inventory(socket);
         break;
       case 'take':
-        inventory.TakeItem(socket, input.replace(/^take\s+/i, ''), function() {
+        items.TakeItem(socket, input.replace(/^take\s+/i, ''), function() {
           //Look(socket);
         });
         break;
       case 'get':
-        inventory.TakeItem(socket, input.replace(/^get\s+/i, ''), function() {
+        items.TakeItem(socket, input.replace(/^get\s+/i, ''), function() {
           //Look(socket);
         });
         break;
       case 'drop':
-        inventory.DropItem(socket, input.replace(/^drop\s+/i, ''), function() {
+        items.DropItem(socket, input.replace(/^drop\s+/i, ''), function() {
           //Look(socket);
         });
         break;
@@ -194,11 +195,20 @@ module.exports = function(io) {
         Look(socket);
         break;
       case 'attack':
-        Attack(socket);
+        combat.Attack(socket, input.replace(/^attack\s+/i, '').trim().toLowerCase());
         break;
       case 'break':
-        Break(socket);
+        combat.Break(socket);
         break;
+      case 'gossip':
+      case 'gos':
+        Gossip(socket, input.replace(/^gossip\s+/i, '').replace(/^gos\s+/i, ''));
+        break;
+      case 'who':
+        Who(socket);
+        break;
+
+        // ---- ADMIN COMMANDS ----        
       case 'create':
         if (socket.admin) {
           adminUtil.CreateDispatch(socket, command, input, function() {
@@ -225,13 +235,13 @@ module.exports = function(io) {
           });
         }
         break;
-      case 'gossip':
-      case 'gos':
-        Gossip(socket, input.replace(/^gossip\s+/i, '').replace(/^gos\s+/i, ''));
+      case 'spawn':
+        adminUtil.Spawn(socket, command[1], function() {
+          Look(socket);
+        });
         break;
-      case 'who':
-        Who(socket);
-        break;
+        // ---- END ADMIN COMMANDS ----
+
       default:
         Say(socket, input);
     }
@@ -369,17 +379,6 @@ module.exports = function(io) {
     socket.emit('output', { message: output });
   }
 
-  function Attack(socket) {
-    socket.emit("output", { message: "<span class=\"olive\">*** Combat Engaged ***</span>" });
-    socket.attackInterval = 1500;
-  }
-
-  function Break(socket) {
-    socket.attackInterval = undefined;
-    socket.lastAttack = undefined;
-    socket.emit("output", { message: "<span class=\"olive\">*** Combat Disengaged ***</span>" });
-  }
-
   function Look(socket, short) {
     var exits = socket.room.exits || [];
     var inventory = socket.room.inventory || [];
@@ -390,15 +389,25 @@ module.exports = function(io) {
       output += '<span class="silver">' + socket.room.desc + '</span>\n';
     }
 
-    if(inventory.length > 0) {
+    if (inventory.length > 0) {
       output += '<span class="darkcyan">You notice: ' + inventory.map(function(item) {
         return item.name;
       }).join(', ') + '.</span>\n';
     }
 
-    var otherUsers = UsersInRoom(socket);
-    if (otherUsers) {
-      output += '<span class="purple">Also here: <span class="teal">' + otherUsers + '</span>.</span>\n';
+    var names = UsersInRoom(socket);
+
+    var mobInRoom = globals.MOBS[socket.room._id] || [];
+    var mobNames = mobInRoom.map(function(mob) {
+      return mob.displayName
+    });
+    console.log("names: " + JSON.stringify(names));
+    console.log("mobNames: " + JSON.stringify(mobNames));
+    if (mobNames) { names = names.concat(mobNames); }
+    var displayNames = names.join('<span class="mediumOrchid">, </span>');
+
+    if (displayNames) {
+      output += '<span class="purple">Also here: <span class="teal">' + displayNames + '</span>.</span>\n';
     }
 
     if (exits.length > 0) {

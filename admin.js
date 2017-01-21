@@ -2,9 +2,10 @@ var dirUtil = require('./direction');
 var globals = require('./globals');
 var rooms = require('./rooms');
 var ObjectId = require('mongodb').ObjectID;
+var mobData = require('./data/mobData')
 
 module.exports = function(io) {
-  var inventory = require('./inventory')(io);
+  var items = require('./items')(io);
 
   //TODO: update this to create an item instance from the item catalog
   function CreateItem(socket, name, callback) {
@@ -14,7 +15,7 @@ module.exports = function(io) {
       "desc": "Default description."
     };
 
-    inventory.CreateItem(socket, item, function() {
+    items.CreateItem(socket, item, function() {
       socket.emit('output', { message: 'Item added to inventory.' });
       socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' has created a ' + name + ' out of thin air.' });
     });
@@ -22,6 +23,7 @@ module.exports = function(io) {
 
   return {
     CreateDispatch: function(socket, command, commandString, lookCallback) {
+      if(!socket.admin) return;
       if (command.length > 2) {
         var subject = command[1].toLowerCase();
         var args = command.slice(2); // pop off "create" and subject.
@@ -45,6 +47,7 @@ module.exports = function(io) {
     },
 
     SetDispatch: function(socket, command, commandString, lookCallback) {
+      if(!socket.admin) return;
       if (command.length >= 3) {
         var subject = command[1].toLowerCase();
         var property = command[2].toLowerCase();
@@ -74,6 +77,25 @@ module.exports = function(io) {
             socket.emit('output', { message: "Invalid command." });
         }
       }
+    },
+
+    Spawn: function(socket, mobTypeName, callback) {
+      if(!socket.admin) return;
+
+      var createType = mobData.catalog.find(function(mob) {
+        return mob.name.toLowerCase() == mobTypeName.toLowerCase();
+      });
+
+      if(!createType) {
+        socket.emit('output', {message: "Unknown mob type."})
+        return;
+      }
+
+      if(!globals.MOBS[socket.room._id]) globals.MOBS[socket.room._id] = [];
+
+      globals.MOBS[socket.room._id].push(createType);
+
+      if(callback) callback();
     }
   };
 }

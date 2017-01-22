@@ -1,5 +1,4 @@
 var globals = require('./globals');
-
 module.exports = function(io) {
 
   function CheckIfUserAlreadyLoggedIn(socket, username) {

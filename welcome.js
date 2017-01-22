@@ -46,11 +46,4 @@ s = '<pre><div><span style="color:#b12020;">   ▄████████  ▄�
     s += '<div><span style="color:#d76638;">                                                                  </span></div></pre>';
     socket.emit('output', { message: s });
   }
-
-
-
-
-
-
-
 }

@@ -1,4 +1,5 @@
 var globals = require('./globals');
+
 // Base round will be 4000 millseconds.
 // An average dexterity character, with an "average" weapon will attack every 4 seconds.
 
@@ -12,8 +13,9 @@ var globals = require('./globals');
 
 // spawn checks have to hit mongo... they can run at a much slower framerate (every 10 seconds or something).
 var MSG_COLOR = 'darkcyan';
-var DMG_COLOR = 'red';
+var DMG_COLOR = 'firebrick';
 
+//TODO: move these all into prototype functions of an actor base class
 function readyToAttack(obj, now) {
   return obj.attackInterval && (!obj.lastAttack || obj.lastAttack + obj.attackInterval <= now);
 }
@@ -24,6 +26,11 @@ function readyToTaunt(obj, now) {
 
 function readyToIdle(obj, now) {
   return obj.idleInterval && (!obj.lastIdle || obj.lastIdle + obj.idleInterval <= now);
+}
+
+function attackRoll(obj) {
+  // just return 0 or 1 for now
+  return getRandomNumber(0, 2);
 }
 
 // max is not inclusive
@@ -48,8 +55,19 @@ module.exports = function(io) {
         // if socket is in combat
         if (readyToAttack(socket, now)) {
           socket.lastAttack = now;
-          socket.emit("output", { message: "<span class=\"" + MSG_COLOR + "\">You hit " + socket.attackTarget + " for 0 damage!</span>" });
-          socket.broadcast.to(socket.room._id).emit("output", { message: username + " hits " + socket.attackTarget + " for 0 damage!" });
+
+          // todo: someday this logic will need a target message when there is PVP
+          if (attackRoll(socket)) {
+            var actorMessage = "<span class=\"" + DMG_COLOR + "\">You hit " + socket.attackTarget + " for 0 damage!</span>".format(socket.attackTarget);
+            var roomMessage = "<span class=\"" + DMG_COLOR + "\">The {0} hits {1} for 0 damage!</span>".format(username, socket.attackTarget);
+          } else {
+            var actorMessage = "<span class=\"" + MSG_COLOR + "\">You swing at the {0} but miss!</span>".format(socket.attackTarget);
+            var roomMessage = "<span class=\"" + MSG_COLOR + "\">{0} swings at the {1} but misses!</span>".format(username, socket.attackTarget);
+          }
+
+
+          socket.emit("output", { message: actorMessage });
+          socket.broadcast.to(socket.room._id).emit("output", { message: roomMessage });
         }
 
         //console.log(username);
@@ -68,9 +86,22 @@ module.exports = function(io) {
       // foreach mob
       for (i in globals.MOBS[roomId]) {
         var mob = globals.MOBS[roomId][i];
+
+
+        // TODO: right now the mobs are attacking on timer, regardless of target, or whether anyone is in the room.
+        // need to check room for players... then attack random one... or perhaps one not attacked?
         if (readyToAttack(mob, now)) {
           mob.lastAttack = now;
-          var message = "<span class=\"" + MSG_COLOR + "\">The {0} hits you for 0 damage!</span>".format(mob.displayName);
+
+          // TODO: THIS IS BROKEN
+          // need to save attack target in the mobs attack.... and perhaps save username or socket id so we know who
+          // to send a message to...
+          if (attackRoll(mob)) {
+            var message = "<span class=\"" + DMG_COLOR + "\">The {0} hits you for 0 damage!</span>".format(mob.displayName);
+          } else {
+            var message = "<span class=\"" + MSG_COLOR + "\">The {0} swings at you but misses!</span>".format(mob.displayName);
+          }
+
           io.to(roomId).emit("output", { message: message });
         }
 
@@ -81,8 +112,9 @@ module.exports = function(io) {
           var taunt = mob.taunts[tauntIndex];
           taunt = taunt.format(mob.displayName);
           mob.lastTaunt = now;
-          socket.emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });
-          socket.broadcast.to(socket.room._id).emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });
+
+          //socket.emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });
+          //socket.broadcast.to(socket.room._id).emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });
         }
 
         /*

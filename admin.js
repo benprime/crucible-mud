@@ -1,11 +1,12 @@
 var dirUtil = require('./direction');
-var globals = require('./globals');
-var rooms = require('./rooms');
 var ObjectId = require('mongodb').ObjectID;
 var mobData = require('./data/mobData')
+var globals = require('./globals');
+var rooms = require('./rooms');
 
 module.exports = function(io) {
   var items = require('./items')(io);
+
 
   //TODO: update this to create an item instance from the item catalog
   function CreateItem(socket, name, callback) {

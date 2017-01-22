@@ -1,30 +1,14 @@
-var globals = require('./globals');
 var actionsData = require('./data/actionData');
+var globals = require('./globals');
 
-// generalized function again
 module.exports = function(io) {
-  // duplicate function from elsewhere
-  function getKeyByValue(obj, value) {
-    for (var prop in obj) {
-      if (obj.hasOwnProperty(prop)) {
-        if (obj[prop] === value)
-          return prop;
-      }
-    }
-  }
-
-  function GetSocketByUsername(username) {
-    var socketId = getKeyByValue(globals.USERNAMES, username);
-    return io.sockets.connected[socketId];
-  }
-
   return {
     actionDispatcher: function(socket, action, username) {
       if (action in actionsData.actions) {
 
         // user is attempting to action another user
         if (username) {
-          var targetSocketId = getKeyByValue(globals.USERNAMES, username);
+          var targetSocketId = globals.USERNAMES.getKeyByValue(username);
           if (!targetSocketId) {
             socket.emit('output', { 'message': 'Unknown user: ' + username });
             return true;
@@ -48,7 +32,7 @@ module.exports = function(io) {
 
         var actionMessages = actionsData.actions[action];
         var messages = username ? actionMessages['target'] : actionMessages['solo'];
-        var targetSocket = username ? GetSocketByUsername(username) : null;
+        var targetSocket = username ? globals.GetSocketByUsername(io, username) : null;
 
         var fromUser = globals.USERNAMES[socket.id];
         var toUser = targetSocket ? globals.USERNAMES[targetSocket.id] : null;

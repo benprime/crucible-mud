@@ -3,14 +3,14 @@ var app = express();
 var http = require('http');
 var serve = http.createServer(app);
 var io = require('socket.io')(serve);
+var globals = require('./globals');
 var dirUtil = require('./direction');
 var adminUtil = require('./admin')(io);
-var loginUtil = require('./login')(io);
-var globals = require('./globals');
 var commands = require('./commands')(io);
 var combat = require('./combat')(io);
 var mongo = require('mongodb').MongoClient;
 var welcome = require('./welcome');
+var loginUtil = require('./login')(io);
 
 app.set('port', 3000);
 var url = 'mongodb://localhost:27017/mud';

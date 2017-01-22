@@ -1,16 +1,8 @@
 var globals = require('./globals');
 var rooms = require('./rooms');
 
-function GetFirst(inventory, itemName) {
-  if (!inventory) return null;
-
-  var item = inventory.find(function(item) {
-    return item.name.toLowerCase() === itemName.toLowerCase();
-  });
-  return item;
-};
-
 module.exports = function(io) {
+
   return {
     // returns first item that matches name
     CreateItem: function(socket, item, callback) {
@@ -22,7 +14,7 @@ module.exports = function(io) {
       });
     },
     DropItem: function(socket, itemName, callback) {
-      var item = GetFirst(socket.inventory, itemName);
+      var item = socket.inventory.GetFirstByName(itemName);
       if (!item) {
         socket.emit("output", { message: "You don't seem to have a " + itemName + "." })
         return;
@@ -34,7 +26,7 @@ module.exports = function(io) {
           // refresh the room for all players currently joined to it
           rooms.RefreshRoom(io, socket.room._id, function() {
             socket.emit("output", { message: "Item dropped." })
-            socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' drops ' + item.name + '.'});
+            socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' drops ' + item.name + '.' });
             if (callback) callback();
           });
         });
@@ -48,13 +40,13 @@ module.exports = function(io) {
 
     },
     TakeItem: function(socket, itemName, callback) {
-      var item = GetFirst(socket.room.inventory, itemName);
+      var item = socket.room.inventory.GetFirstByName(itemName);
       if (!item) {
         socket.emit("output", { message: "You don't see that item here." })
         return;
       }
 
-      if(item.fixed) {
+      if (item.fixed) {
         socket.emit("output", { message: "You cannot take that!" })
         return;
       }
@@ -74,13 +66,12 @@ module.exports = function(io) {
         });
       });
     },
-    SetItem: function(socket, itemName, property, value)
-    {
-      if(!socket.admin) return;
+    SetItem: function(socket, itemName, property, value) {
+      if (!socket.admin) return;
 
-      var item = GetFirst(socket.inventory, itemName) || GetFirst(socket.room.inventory, itemName);
-      if(!item) {
-        socket.emit("output", {message: "You don't see that anywhere!"});
+      var item = socket.inventory.GetFirstByName(itemName) || socket.room.inventory.GetFirstByName(itemName);
+      if (!item) {
+        socket.emit("output", { message: "You don't see that anywhere!" });
         return;
       }
 

@@ -1,16 +1,6 @@
-var dirUtil = require('./direction');
 var globals = require('./globals');
+var dirUtil = require('./direction');
 var actionData = require('./data/actionData');
-
-// adding prototype method to object... need to move this to more global libary
-function getKeyByValue(obj, value) {
-  for (var prop in obj) {
-    if (obj.hasOwnProperty(prop)) {
-      if (obj[prop] === value)
-        return prop;
-    }
-  }
-}
 
 module.exports = function(io) {
   var adminUtil = require('./admin')(io);
@@ -18,13 +8,8 @@ module.exports = function(io) {
   var items = require('./items')(io);
   var combat = require('./combat')(io);
 
-  function GetSocketByUsername(username) {
-    var socketId = getKeyByValue(globals.USERNAMES, username);
-    return io.sockets.connected[socketId];
-  }
-
   function Teleport(socket, username, callback) {
-    var userSocket = GetSocketByUsername(username);
+    var userSocket = globals.GetSocketByUsername(io, username);
     if (!userSocket) {
       socket.emit('output', { message: 'Player not found.' });
       return;
@@ -40,6 +25,7 @@ module.exports = function(io) {
 
     var usernames = [];
     for (var socketId in io.sockets.sockets) {
+      console.log(socketId);
       if (globals.USERNAMES[socketId]) {
         usernames.push(globals.USERNAMES[socketId]);
       }
@@ -89,7 +75,7 @@ module.exports = function(io) {
       var username = tokens[1];
       var message = tokens[2];
 
-      var userSocket = GetSocketByUsername(username);
+      var userSocket = globals.GetSocketByUsername(io, username);
       if (!userSocket) {
         socket.emit('output', { 'message': 'Invalid username.' });
         return;

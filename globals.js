@@ -7,6 +7,29 @@ if (!String.prototype.format) {
   };
 }
 
+if (!Object.prototype.getKeyByValue) {
+  Object.defineProperty(Object.prototype, 'getKeyByValue', {
+    value: function(obj, value) {
+      for (var prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+          if (obj[prop] === value)
+            return prop;
+        }
+      }
+    },
+    enumerable: false
+  });
+}
+
+if (!Array.prototype.GetFirstByName) {
+  Array.prototype.GetFirstByName = function(name) {
+    var item = this.find(function(item) {
+      return item.name.toLowerCase() === name.toLowerCase();
+    });
+    return item;
+  };
+}
+
 module.exports = {
   STATES: {
     LOGIN_USERNAME: 0,
@@ -67,5 +90,9 @@ module.exports = {
       socket.emit("output", { message: "You don't see that here!" });
       return;
     }
+  },
+  GetSocketByUsername: function(io, username) {
+    var socketId = module.exports.USERNAMES.getKeyByValue(username);
+    return io.sockets.connected[socketId];
   }
-}
+};

@@ -1,11 +1,13 @@
+'use strict';
+
 module.exports = {
 
-  Feedback: function(dir) {
-    var displayDir = module.exports.ExitName(dir);
-    return "You move " + displayDir + "...";
+  Feedback(dir) {
+    const displayDir = module.exports.ExitName(dir);
+    return `You move ${displayDir}...`;
   },
 
-  LongToShort: function(dir) {
+  LongToShort(dir) {
     switch (dir) {
       case 'north':
         return 'n';
@@ -32,7 +34,7 @@ module.exports = {
     }
   },
 
-  OppositeDirection: function(dir) {
+  OppositeDirection(dir) {
     switch (dir) {
       case 'n':
         return 's';
@@ -55,12 +57,12 @@ module.exports = {
       case 'd':
         return 'u';
       default:
-        return "WHAT";
+        return 'WHAT';
     }
   },
 
   // this is for database inputs and such
-  ValidDirection: function(dir) {
+  ValidDirection(dir) {
     switch (dir) {
       case 'n':
       case 'ne':
@@ -79,7 +81,7 @@ module.exports = {
   },
 
   // this is for user input
-  ValidDirectionInput: function(dir) {
+  ValidDirectionInput(dir) {
     switch (dir) {
       case 'n':
       case 'north':
@@ -107,8 +109,8 @@ module.exports = {
     }
   },
 
-  //used for building exits
-  ExitName: function(dir) {
+  // used for building exits
+  ExitName(dir) {
     switch (dir) {
       case 'n':
         return 'north';
@@ -135,19 +137,19 @@ module.exports = {
     }
   },
 
-  DirectionToCoords: function(socket, dir) {
-    var x = socket.room.x;
-    var y = socket.room.y;
-    var z = socket.room.z;
+  DirectionToCoords(socket, dir) {
+    let x = socket.room.x;
+    let y = socket.room.y;
+    let z = socket.room.z;
 
-    if (dir.includes('e')) x++;
-    if (dir.includes('w')) x--;
-    if (dir.includes('n')) y++;
-    if (dir.includes('s')) y--;
-    if (dir.includes('d')) z--;
-    if (dir.includes('u')) z++;
+    if (dir.includes('e')) x += 1;
+    if (dir.includes('w')) x -= 1;
+    if (dir.includes('n')) y += 1;
+    if (dir.includes('s')) y -= 1;
+    if (dir.includes('u')) z += 1;
+    if (dir.includes('d')) z -= 1;
 
-    return { x: x, y: y, z: z };
-  }
+    return { x, y, z };
+  },
 
-}
+};

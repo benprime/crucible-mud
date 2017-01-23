@@ -1,15 +1,17 @@
-var globals = require('./globals');
-var dirUtil = require('./direction');
-var actionData = require('./data/actionData');
+'use strict';
 
-module.exports = function(io) {
-  var adminUtil = require('./admin')(io);
-  var actions = require('./actions')(io);
-  var items = require('./items')(io);
-  var combat = require('./combat')(io);
+const globals = require('./globals');
+const dirUtil = require('./direction');
+const actionData = require('./data/actionData');
+
+module.exports = function CommandExports(io) {
+  const adminUtil = require('./admin')(io);
+  const actions = require('./actions')(io);
+  const items = require('./items')(io);
+  const combat = require('./combat')(io);
 
   function Teleport(socket, username, callback) {
-    var userSocket = globals.GetSocketByUsername(io, username);
+    const userSocket = globals.GetSocketByUsername(io, username);
     if (!userSocket) {
       socket.emit('output', { message: 'Player not found.' });
       return;
@@ -22,26 +24,32 @@ module.exports = function(io) {
   }
 
   function Who(socket) {
+    const usernames = [];
 
-    var usernames = [];
-    for (var socketId in io.sockets.sockets) {
-      console.log(socketId);
+    Object.keys(io.sockets.sockets).forEach((socketId) => {
+      // check if user logged in
       if (globals.USERNAMES[socketId]) {
         usernames.push(globals.USERNAMES[socketId]);
       }
-    }
+    });
 
-    var output = '<span class="cyan"> -=- ' + usernames.length + ' Players Online -=-</span><br />';
-    output += '<div class="mediumOrchid">' + usernames.join('<br />') + '</div>';
+    let output = `<span class="cyan"> -=- ${usernames.length} Players Online -=-</span><br />`;
+    output += `<div class="mediumOrchid">${usernames.join('<br />')}</div>`;
     socket.emit('output', { message: output });
   }
 
   function Inventory(socket) {
-    var output = '<span class="cyan">You are carrying: </span>';
+    console.log(socket.inventory);
+    const inv = socket.inventory || [];
+    let invOutput = inv.map(item => item.name).join(', ');
+    console.log(invOutput);
+    if (!invOutput) {
+      invOutput = 'Nothing.';
+    }
+
+    let output = '<span class="cyan">You are carrying: </span>';
     output += '<span class="silver">';
-    output += socket.inventory.length > 0 ? socket.inventory.map(function(item) {
-      return item.name
-    }).join(', ') : "Nothing.";
+    output += invOutput;
     output += '</span>';
     socket.emit('output', { message: output });
   }
@@ -51,255 +59,126 @@ module.exports = function(io) {
     // todo: hrmm, check if the room exists in socket io first?
     // could save processing time... since we don't need to write to sockets if
     // no one is in those rooms...
-    socket.room.exits.map(function(door) {
-      if (door.roomId.toString() == fromRoomId.toString()) {
+    socket.room.exits.forEach((door) => {
+      if (door.roomId.toString() === fromRoomId.toString()) {
         return;
       }
-      var message = '';
-      if (door.dir == "u") {
-        message = "You hear movement from below.";
-      } else if (door.dir == "d") {
-        message = "You hear movement from above.";
+      let message = '';
+      if (door.dir === 'u') {
+        message = 'You hear movement from below.';
+      } else if (door.dir === 'd') {
+        message = 'You hear movement from above.';
       } else {
-        message = "You hear movement to the " + dirUtil.ExitName(dirUtil.OppositeDirection(door.dir)) + '.';
+        message = `You hear movement to the ${dirUtil.ExitName(dirUtil.OppositeDirection(door.dir))}.`;
       }
 
-      socket.broadcast.to(door.roomId).emit('output', { message: message });
+      // ES6 object literal shorthand syntax... message here becomes message: message
+      socket.broadcast.to(door.roomId).emit('output', { message });
     });
   }
 
   function Telepathy(socket, data) {
-    var re = /\/(\w+)\s+(.+)/
-    var tokens = data.match(re);
+    const re = /\/(\w+)\s+(.+)/;
+    const tokens = data.match(re);
     if (tokens && tokens.length > 2) {
-      var username = tokens[1];
-      var message = tokens[2];
+      const username = tokens[1];
+      const message = tokens[2];
 
-      var userSocket = globals.GetSocketByUsername(io, username);
+      const userSocket = globals.GetSocketByUsername(io, username);
       if (!userSocket) {
-        socket.emit('output', { 'message': 'Invalid username.' });
+        socket.emit('output', { message: 'Invalid username.' });
         return;
       }
-      var sender = globals.USERNAMES[socket.id];
+      const sender = globals.USERNAMES[socket.id];
 
-      // why doesn't this work? Trying to get the propert casing.
-      //var receiver = globals.USERNAMES[userSocket];
-
-      userSocket.emit('output', { 'message': sender + ' telepaths: ' + message });
-      socket.emit('output', { 'message': 'Telepath to ' + username + ': ' + message });
+      userSocket.emit('output', { message: `${sender} telepaths: ${message}` });
+      socket.emit('output', { message: `Telepath to ${username}: ${message}` });
     } else {
-      socket.emit('output', { 'message': 'Usage: /&lt;username&gt; &lt;message&gt;' });
+      socket.emit('output', { message: 'Usage: /&lt;username&gt; &lt;message&gt;' });
     }
   }
 
   function UsersInRoom(socket) {
-    if (!socket.room._id in io.sockets.adapter.rooms) {
+    if (!(socket.room._id in io.sockets.adapter.rooms)) {
       return [];
     }
-    var clients = io.sockets.adapter.rooms[socket.room._id].sockets;
+    const clients = io.sockets.adapter.rooms[socket.room._id].sockets;
 
     // remove current user
-    var otherUsers = Object.keys(clients).filter(function(socketId) {
-      return socketId != socket.id;
-    });
+    const otherUsers = Object.keys(clients).filter(socketId => socketId !== socket.id);
 
-    var usernames = otherUsers.map(function(socketId) {
-      return globals.USERNAMES[socketId];
-    });
+    const usernames = otherUsers.map(socketId => globals.USERNAMES[socketId]);
     return usernames;
   }
 
-  function CommandDispatch(socket, inputData) {
-
-    var input = inputData.value.trim();
-
-    // if first character is a period, just say string
-    if (input.substr(0, 1) === ".") {
-      Say(socket, input.substr(1));
-      return;
-    }
-
-    if (input.substr(0, 1) === "/") {
-      Telepathy(socket, input);
-      return;
-    }
-
-    // inventory as a separate check here, to stop people from
-    // having and inventory happen on every statement they start
-    // with I, ie: "i was doing something"
-    if (input.toLowerCase() === "i") {
-      Inventory(socket);
-      return;
-    }
-
-    // split on whitespace
-    var command = input.split(/\s+/);
-    var action = command[0].toLowerCase();
-
-    if (actions.actionDispatcher(socket, action, command.length > 1 ? command[1] : null)) {
-      return;
-    }
-
-    // on blank command string, just look.
-    if (command.length == 1 && action == '') {
-      Look(socket, true);
-      return;
-    }
-
-    if (dirUtil.ValidDirectionInput(action)) {
-      Move(socket, action);
-      return;
-    }
-
-    switch (action) {
-      case 'h':
-      case '?':
-      case 'help':
-        Help(socket);
-        break;
-      case 'inv':
-      case 'inventory':
-        Inventory(socket);
-        break;
-      case 'take':
-        items.TakeItem(socket, input.replace(/^take\s+/i, ''), function() {
-          //Look(socket);
-        });
-        break;
-      case 'get':
-        items.TakeItem(socket, input.replace(/^get\s+/i, ''), function() {
-          //Look(socket);
-        });
-        break;
-      case 'drop':
-        items.DropItem(socket, input.replace(/^drop\s+/i, ''), function() {
-          //Look(socket);
-        });
-        break;
-      case 'l':
-      case 'look':
-        Look(socket);
-        break;
-      case 'attack':
-        combat.Attack(socket, input.replace(/^attack\s+/i, '').trim().toLowerCase());
-        break;
-      case 'break':
-        combat.Break(socket);
-        break;
-      case 'gossip':
-      case 'gos':
-        Gossip(socket, input.replace(/^gossip\s+/i, '').replace(/^gos\s+/i, ''));
-        break;
-      case 'who':
-        Who(socket);
-        break;
-
-        // ---- ADMIN COMMANDS ----        
-      case 'create':
-        if (socket.admin) {
-          adminUtil.CreateDispatch(socket, command, input, function() {
-            Look(socket);
-          });
-        }
-        break;
-      case 'set':
-        if (socket.admin) {
-          adminUtil.SetDispatch(socket, command, input, function() {
-            Look(socket);
-          });
-        }
-        break;
-      case 'teleport':
-        if (socket.admin) {
-          if (command.length < 2) {
-            socket.emit('output', { message: 'Teleport to who?' });
-            return;
-          }
-          Teleport(socket, command[1], function() {
-            socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' appears out of thin air!' });
-            Look(socket);
-          });
-        }
-        break;
-      case 'spawn':
-        adminUtil.Spawn(socket, command[1], function() {
-          Look(socket);
-        });
-        break;
-        // ---- END ADMIN COMMANDS ----
-
-      default:
-        Say(socket, input);
-    }
-  }
 
   function Say(socket, message) {
-    message = message.replace(/</g, '&lt;');
-    message = message.replace(/>/g, '&gt;');
+    let safeMessage = message.replace(/</g, '&lt;');
+    safeMessage = safeMessage.replace(/>/g, '&gt;');
 
     // to sending socket
-    socket.emit('output', { message: 'You say "' + message + '"' });
+    socket.emit('output', { message: `You say "${safeMessage}"` });
 
     // everyone else
-    socket.broadcast.to(socket.room._id).emit('output', { message: globals.USERNAMES[socket.id] + ' says "' + message + '"' });
+    socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} says "${safeMessage}"` });
   }
 
   function Gossip(socket, message) {
-    message = message.replace(/</g, '&lt;');
-    message = message.replace(/>/g, '&gt;');
+    let safeMessage = message.replace(/</g, '&lt;');
+    safeMessage = safeMessage.replace(/>/g, '&gt;');
 
-    var output = '<span class="silver">' + globals.USERNAMES[socket.id] + ' gossips: </span><span class="mediumOrchid">' + message + '</span>';
+    const output = `<span class="silver">${globals.USERNAMES[socket.id]} gossips: </span><span class="mediumOrchid">${safeMessage}</span>`;
     io.emit('output', { message: output });
   }
 
   function HitWall(socket, dir) {
-    var message = '';
+    let message = '';
 
     // send message to everyone in current room that player is running into stuff.
-    if (dir == "u") {
-      message = globals.USERNAMES[socket.id] + ' runs into the ceiling.';
-    } else if (dir == "d") {
-      message = globals.USERNAMES[socket.id] + ' runs into the floor.';
+    if (dir === 'u') {
+      message = `${globals.USERNAMES[socket.id]} runs into the ceiling.`;
+    } else if (dir === 'd') {
+      message = `${globals.USERNAMES[socket.id]} runs into the floor.`;
     } else {
-      message = globals.USERNAMES[socket.id] + ' runs into the wall to the ' + dirUtil.ExitName(dir) + '.';
+      message = `${globals.USERNAMES[socket.id]} runs into the wall to the ${dirUtil.ExitName(dir)}.`;
     }
-    socket.broadcast.to(socket.room._id).emit('output', { message: '<span class="silver">' + message + '</span>' });
-    socket.emit('output', { message: "There is no exit in that direction!" });
+    socket.broadcast.to(socket.room._id).emit('output', { message: `<span class="silver">${message}</span>` });
+    socket.emit('output', { message: 'There is no exit in that direction!' });
   }
 
   function Move(socket, dir) {
-    dir = dir.toLowerCase();
+    let d = dir.toLowerCase();
 
     // changes "north" to "n" (just returns "n" if that's what's passed in)
-    dir = dirUtil.LongToShort(dir);
+    d = dirUtil.LongToShort(d);
 
     // valid exit in that direction?
-    var door = socket.room.exits.find(door => door.dir === dir);
+    const door = socket.room.exits.find(exitDoor => exitDoor.dir === d);
     if (!door) {
-      HitWall(socket, dir);
+      HitWall(socket, d);
       return;
     }
 
-    var roomsCollection = globals.DB.collection('rooms');
-    roomsCollection.find({ _id: door.roomId }).toArray(function(err, docs) {
-      var message = '';
-      if (docs.length == 0) {
+    const roomsCollection = globals.DB.collection('rooms');
+    roomsCollection.find({ _id: door.roomId }).toArray((err, docs) => {
+      let message = '';
+      if (docs.length === 0) {
         // hrmm if the exit was just validated, this should never happen.
         HitWall(socket, dir);
-        console.log("WARNING: Query couldn't find next room when going through a door.")
+        console.log("WARNING: Query couldn't find next room when going through a door.");
         return;
       }
 
       // send message to everyone in old room that player is leaving
-      if (dir == "u") {
-        message = globals.USERNAMES[socket.id] + ' has gone above.';
-      } else if (dir == "d") {
-        message = globals.USERNAMES[socket.id] + ' has gone below.';
+      if (dir === 'u') {
+        message = `${globals.USERNAMES[socket.id]} has gone above.`;
+      } else if (dir === 'd') {
+        message = `${globals.USERNAMES[socket.id]} has gone below.`;
       } else {
-        message = globals.USERNAMES[socket.id] + ' has left to the ' + dirUtil.ExitName(dir) + '.';
+        message = `${globals.USERNAMES[socket.id]} has left to the ${dirUtil.ExitName(dir)}.`;
       }
-      socket.broadcast.to(socket.room._id).emit('output', { message: message });
-      var fromRoomId = socket.room._id;
+      socket.broadcast.to(socket.room._id).emit('output', { message });
+      const fromRoomId = socket.room._id;
       socket.leave(socket.room._id);
 
       // update user session
@@ -307,29 +186,28 @@ module.exports = function(io) {
       socket.join(socket.room._id);
 
       // update mongodb
-      globals.DB.collection('users').update({ _id: socket.userId }, { $set: { "roomId": socket.room._id } });
+      globals.DB.collection('users').update({ _id: socket.userId }, { $set: { roomId: socket.room._id } });
 
       MovementSounds(socket, fromRoomId);
 
       // send message to everyone is new room that player has arrived
-      if (dir == "u") {
-        message = globals.USERNAMES[socket.id] + ' has entered from below.';
-      } else if (dir == "d") {
-        message = globals.USERNAMES[socket.id] + ' has entered from above.';
+      if (dir === 'u') {
+        message = `${globals.USERNAMES[socket.id]} has entered from below.`;
+      } else if (dir === 'd') {
+        message = `${globals.USERNAMES[socket.id]} has entered from above.`;
       } else {
-        message = globals.USERNAMES[socket.id] + ' has entered from the ' + dirUtil.ExitName(dirUtil.OppositeDirection(dir)) + '.';
+        message = `${globals.USERNAMES[socket.id]} has entered from the ${dirUtil.ExitName(dirUtil.OppositeDirection(dir))}.`;
       }
-      socket.broadcast.to(socket.room._id).emit('output', { message: message });
+      socket.broadcast.to(socket.room._id).emit('output', { message });
 
       // You have moved south...
       socket.emit('output', { message: dirUtil.Feedback(dir) });
       Look(socket);
     });
-
   }
 
   function Help(socket) {
-    var output = '';
+    let output = '';
     output += '<span class="cyan">Movement:</span><br>';
     output += '<span class="mediumOrchid">n<span class="purple"> | </span>north</span> <span class="purple">-</span> Move north.<br />';
     output += '<span class="mediumOrchid">s<span class="purple"> | </span>south</span> <span class="purple">-</span> Move south.<br />';
@@ -352,7 +230,7 @@ module.exports = function(io) {
     output += '<span class="mediumOrchid">gossip &lt;message&gt;</span> <span class="purple">-</span> Send messages to all connected players.<br />';
 
     output += '<br><span class="cyan">Actions:</span><br />';
-    output += '<span class="silver">' + Object.keys(actionData.actions).sort().join('<span class="mediumOrchid">, </span>') + '</span><br /></br />';
+    output += `<span class="silver">${Object.keys(actionData.actions).sort().join('<span class="mediumOrchid">, </span>')}</span><br /></br />`;
 
     if (socket.admin) {
       output += '<span class="cyan">Admin commands:</span><br />';
@@ -366,48 +244,165 @@ module.exports = function(io) {
   }
 
   function Look(socket, short) {
-    var exits = socket.room.exits || [];
-    var inventory = socket.room.inventory || [];
+    const exits = socket.room.exits || [];
+    const inventory = socket.room.inventory || [];
 
-    var output = '<span class="cyan">' + socket.room.name + '</span>\n';
+    let output = `<span class="cyan">${socket.room.name}</span>\n`;
 
     if (!short) {
-      output += '<span class="silver">' + socket.room.desc + '</span>\n';
+      output += `<span class="silver">${socket.room.desc}</span>\n`;
     }
 
     if (inventory.length > 0) {
-      output += '<span class="darkcyan">You notice: ' + inventory.map(function(item) {
-        return item.name;
-      }).join(', ') + '.</span>\n';
+      output += `<span class="darkcyan">You notice: ${inventory.map(item => item.name).join(', ')}.</span>\n`;
     }
 
-    var names = UsersInRoom(socket);
+    let names = UsersInRoom(socket);
 
-    var mobInRoom = globals.MOBS[socket.room._id] || [];
-    var mobNames = mobInRoom.map(function(mob) {
-      return mob.displayName
-    });
-    console.log("names: " + JSON.stringify(names));
-    console.log("mobNames: " + JSON.stringify(mobNames));
+    const mobInRoom = globals.MOBS[socket.room._id] || [];
+    const mobNames = mobInRoom.map(mob => mob.displayName);
+    console.log(`names: ${JSON.stringify(names)}`);
+    console.log(`mobNames: ${JSON.stringify(mobNames)}`);
     if (mobNames) { names = names.concat(mobNames); }
-    var displayNames = names.join('<span class="mediumOrchid">, </span>');
+    const displayNames = names.join('<span class="mediumOrchid">, </span>');
 
     if (displayNames) {
-      output += '<span class="purple">Also here: <span class="teal">' + displayNames + '</span>.</span>\n';
+      output += `<span class="purple">Also here: <span class="teal">${displayNames}</span>.</span>\n`;
     }
 
     if (exits.length > 0) {
-      output += '<span class="green">Exits: ' + exits.map(function(door) {
-        return dirUtil.ExitName(door.dir);
-      }).join(', ') + '</span>\n';
+      output += `<span class="green">Exits: ${exits.map(door => dirUtil.ExitName(door.dir)).join(', ')}</span>\n`;
     }
 
-    socket.emit("output", { message: output });
+    socket.emit('output', { message: output });
+  }
+
+  function CommandDispatch(socket, inputData) {
+    const input = inputData.value.trim();
+
+    // if first character is a period, just say string
+    if (input.substr(0, 1) === '.') {
+      Say(socket, input.substr(1));
+      return;
+    }
+
+    if (input.substr(0, 1) === '/') {
+      Telepathy(socket, input);
+      return;
+    }
+
+    // inventory as a separate check here, to stop people from
+    // having and inventory happen on every statement they start
+    // with I, ie: "i was doing something"
+    if (input.toLowerCase() === 'i') {
+      Inventory(socket);
+      return;
+    }
+
+    // split on whitespace
+    const command = input.split(/\s+/);
+    const action = command[0].toLowerCase();
+
+    if (actions.actionDispatcher(socket, action, command.length > 1 ? command[1] : null)) {
+      return;
+    }
+
+    // on blank command string, just look.
+    if (command.length === 1 && action === '') {
+      Look(socket, true);
+      return;
+    }
+
+    if (dirUtil.ValidDirectionInput(action)) {
+      Move(socket, action);
+      return;
+    }
+
+    switch (action) {
+      case 'h':
+      case '?':
+      case 'help':
+        Help(socket);
+        break;
+      case 'inv':
+      case 'inventory':
+        Inventory(socket);
+        break;
+      case 'take':
+        items.TakeItem(socket, input.replace(/^take\s+/i, ''), () => {
+          // Look(socket);
+        });
+        break;
+      case 'get':
+        items.TakeItem(socket, input.replace(/^get\s+/i, ''), () => {
+          // Look(socket);
+        });
+        break;
+      case 'drop':
+        items.DropItem(socket, input.replace(/^drop\s+/i, ''), () => {
+          // Look(socket);
+        });
+        break;
+      case 'l':
+      case 'look':
+        Look(socket);
+        break;
+      case 'attack':
+        combat.Attack(socket, input.replace(/^attack\s+/i, '').trim().toLowerCase());
+        break;
+      case 'break':
+        combat.Break(socket);
+        break;
+      case 'gossip':
+      case 'gos':
+        Gossip(socket, input.replace(/^gossip\s+/i, '').replace(/^gos\s+/i, ''));
+        break;
+      case 'who':
+        Who(socket);
+        break;
+
+        // ---- ADMIN COMMANDS ----
+      case 'create':
+        if (socket.admin) {
+          adminUtil.CreateDispatch(socket, command, input, () => {
+            Look(socket);
+          });
+        }
+        break;
+      case 'set':
+        if (socket.admin) {
+          adminUtil.SetDispatch(socket, command, input, () => {
+            Look(socket);
+          });
+        }
+        break;
+      case 'teleport':
+        if (socket.admin) {
+          if (command.length < 2) {
+            socket.emit('output', { message: 'Teleport to who?' });
+            return;
+          }
+          Teleport(socket, command[1], () => {
+            socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} appears out of thin air!` });
+            Look(socket);
+          });
+        }
+        break;
+      case 'spawn':
+        adminUtil.Spawn(socket, command[1], () => {
+          Look(socket);
+        });
+        break;
+        // ---- END ADMIN COMMANDS ----
+
+      default:
+        Say(socket, input);
+    }
   }
 
   // public functions
   return {
-    CommandDispatch: CommandDispatch,
-    Look: Look
-  }
-}
+    CommandDispatch,
+    Look,
+  };
+};

@@ -1,4 +1,6 @@
-var globals = require('./globals');
+'use strict';
+
+const globals = require('./globals');
 
 // Base round will be 4000 millseconds.
 // An average dexterity character, with an "average" weapon will attack every 4 seconds.
@@ -12,10 +14,10 @@ var globals = require('./globals');
 // for each combat frame. Not that we need it, but we could run the combat at 30fps.
 
 // spawn checks have to hit mongo... they can run at a much slower framerate (every 10 seconds or something).
-var MSG_COLOR = 'darkcyan';
-var DMG_COLOR = 'firebrick';
+const MSG_COLOR = 'darkcyan';
+const DMG_COLOR = 'firebrick';
 
-//TODO: move these all into prototype functions of an actor base class
+// TODO: move these all into prototype functions of an actor base class
 function readyToAttack(obj, now) {
   return obj.attackInterval && (!obj.lastAttack || obj.lastAttack + obj.attackInterval <= now);
 }
@@ -40,52 +42,52 @@ function getRandomNumber(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-module.exports = function(io) {
-
-  setInterval(function() {
+module.exports = function (io) {
+  setInterval(() => {
     // getting "now" only once per iteration, so timestamps all match
     // todo: this may aggrevate (and snowball) peformance problems.... (if it falls behind heavily)
-    var now = Date.now();
+    const now = Date.now();
     // check all players...
-    for (var socketId in io.sockets.connected) {
+    for (const socketId in io.sockets.connected) {
       // if socket is a logged in user
-      var username = globals.USERNAMES[socketId];
+      const username = globals.USERNAMES[socketId];
       if (username) {
-        var socket = io.sockets.connected[socketId];
+        const socket = io.sockets.connected[socketId];
         // if socket is in combat
         if (readyToAttack(socket, now)) {
           socket.lastAttack = now;
 
           // todo: someday this logic will need a target message when there is PVP
+          let actorMessage = '';
+          let roomMessage = '';
           if (attackRoll(socket)) {
-            var actorMessage = "<span class=\"" + DMG_COLOR + "\">You hit " + socket.attackTarget + " for 0 damage!</span>".format(socket.attackTarget);
-            var roomMessage = "<span class=\"" + DMG_COLOR + "\">The {0} hits {1} for 0 damage!</span>".format(username, socket.attackTarget);
+            actorMessage = `<span class="${DMG_COLOR}">You hit ${socket.attackTarget}${' for 0 damage!</span>'.format(socket.attackTarget)}`;
+            roomMessage = `<span class="${DMG_COLOR}${'">The {0} hits {1} for 0 damage!</span>'.format(username, socket.attackTarget)}`;
           } else {
-            var actorMessage = "<span class=\"" + MSG_COLOR + "\">You swing at the {0} but miss!</span>".format(socket.attackTarget);
-            var roomMessage = "<span class=\"" + MSG_COLOR + "\">{0} swings at the {1} but misses!</span>".format(username, socket.attackTarget);
+            actorMessage = `<span class="${MSG_COLOR}${'">You swing at the {0} but miss!</span>'.format(socket.attackTarget)}`;
+            roomMessage = `<span class="${MSG_COLOR}${'">{0} swings at the {1} but misses!</span>'.format(username, socket.attackTarget)}`;
           }
 
 
-          socket.emit("output", { message: actorMessage });
-          socket.broadcast.to(socket.room._id).emit("output", { message: roomMessage });
+          socket.emit('output', { message: actorMessage });
+          socket.broadcast.to(socket.room._id).emit('output', { message: roomMessage });
         }
 
-        //console.log(username);
-        //console.log(socket.attackInterval);
-        //console.log(socket.lastAttack);
-        //console.log('-------------------------');
+        // console.log(username);
+        // console.log(socket.attackInterval);
+        // console.log(socket.lastAttack);
+        // console.log('-------------------------');
       }
-
     }
 
     // check all mobs!
     // todo: probably just grab all the mobs that are currently in combat (right now just grabbing all of them)
 
-    // foreach room 
-    for (roomId in globals.MOBS) {
+    // foreach room
+    for (const roomId in globals.MOBS) {
       // foreach mob
-      for (i in globals.MOBS[roomId]) {
-        var mob = globals.MOBS[roomId][i];
+      for (const i in globals.MOBS[roomId]) {
+        const mob = globals.MOBS[roomId][i];
 
 
         // TODO: right now the mobs are attacking on timer, regardless of target, or whether anyone is in the room.
@@ -96,59 +98,55 @@ module.exports = function(io) {
           // TODO: THIS IS BROKEN
           // need to save attack target in the mobs attack.... and perhaps save username or socket id so we know who
           // to send a message to...
+          let message = '';
           if (attackRoll(mob)) {
-            var message = "<span class=\"" + DMG_COLOR + "\">The {0} hits you for 0 damage!</span>".format(mob.displayName);
+            message = `<span class="${DMG_COLOR}${'">The {0} hits you for 0 damage!</span>'.format(mob.displayName)}`;
           } else {
-            var message = "<span class=\"" + MSG_COLOR + "\">The {0} swings at you but misses!</span>".format(mob.displayName);
+            message = `<span class="${MSG_COLOR}${'">The {0} swings at you but misses!</span>'.format(mob.displayName)}`;
           }
 
-          io.to(roomId).emit("output", { message: message });
+          io.to(roomId).emit('output', { message });
         }
 
         // todo: mobs should only taunt when attacking... need to add attackTarget logic to mobs
-        //if (mob.attackTarget && readyToTaunt(mob, now)) {
+        // if (mob.attackTarget && readyToTaunt(mob, now)) {
         if (readyToTaunt(mob, now)) {
-          var tauntIndex = getRandomNumber(0, mob.taunts.length);
-          var taunt = mob.taunts[tauntIndex];
+          const tauntIndex = getRandomNumber(0, mob.taunts.length);
+          let taunt = mob.taunts[tauntIndex];
           taunt = taunt.format(mob.displayName);
           mob.lastTaunt = now;
 
-          //socket.emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });
-          //socket.broadcast.to(socket.room._id).emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });
+          // socket.emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });
+          // socket.broadcast.to(socket.room._id).emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });
         }
 
         /*
         if (readyToIdle(mob, now)) {
-          var idleIndex = getRandomNumber(0, mob.idleActions.length);
-          var idleAction = mob.idleActions[idleIndex];
+          let idleIndex = getRandomNumber(0, mob.idleActions.length);
+          let idleAction = mob.idleActions[idleIndex];
           mob.lastIdle = now;
           socket.emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + idleAction + "</span>" });
           socket.broadcast.to(socket.room._id).emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + idleAction + "</span>" });
         }
         */
-
       }
-
     }
-
   }, 500);
 
   return {
-    Attack: function(socket, targetName) {
-      console.log("Trying to attack the: " + targetName)
+    Attack(socket, targetName) {
+      console.log(`Trying to attack the: ${targetName}`);
         // autocomplete name
-      var targetName = globals.ResolveName(socket, targetName);
-      console.log("Auto completed name: " + targetName);
+      const resolvedName = globals.ResolveName(socket, targetName);
+      console.log(`Auto completed name: ${resolvedName}`);
 
-      var mobInRoom = globals.MOBS[socket.room._id] || [];
-      var target = mobInRoom.find(function(mob) {
-        return mob.displayName === targetName;
-      });
-      console.log("mobInRoom: " + JSON.stringify(mobInRoom));
-      console.log("target: " + target);
+      const mobInRoom = globals.MOBS[socket.room._id] || [];
+      const target = mobInRoom.find(mob => mob.displayName === resolvedName);
+      console.log(`mobInRoom: ${JSON.stringify(mobInRoom)}`);
+      console.log(`target: ${target}`);
 
       if (!target) {
-        //socket.emit("output", { message: "You don't see that here!" });
+        // socket.emit("output", { message: "You don't see that here!" });
         return;
       }
 
@@ -156,29 +154,29 @@ module.exports = function(io) {
       TODO: YOU CAN'T ATTACK PLAYERS UNTIL THERE IS A CHARACTER OBJECT BEING STORED SOMEWHERE FOR THEM
       if (!target) {
         // todo: this needs to be able to find a "character object..."
-        var targetUserName = UsersInRoom(socket).find(function(user) {
+        let targetUserName = UsersInRoom(socket).find(function(user) {
           return user === targetName;
         });
       }
       */
 
-      var username = globals.USERNAMES[socket.id];
+      const username = globals.USERNAMES[socket.id];
 
-      socket.emit("output", { message: "<span class=\"olive\">*** Combat Engaged ***</span>" });
-      socket.broadcast.to(socket.room._id).emit("output", { message: username + " moves to attack " + targetName + "!" });
+      socket.emit('output', { message: '<span class="olive">*** Combat Engaged ***</span>' });
+      socket.broadcast.to(socket.room._id).emit('output', { message: `${username} moves to attack ${resolvedName}!` });
       socket.attackInterval = 1500;
-      socket.attackTarget = targetName;
+      socket.attackTarget = resolvedName;
     },
 
-    Break: function(socket) {
+    Break(socket) {
       socket.attackInterval = undefined;
       socket.lastAttack = undefined;
       socket.attackTarget = undefined;
-      var username = globals.USERNAMES[socket.id];
+      const username = globals.USERNAMES[socket.id];
 
       // todo: Probably save attack target id, make sure we're continually attacking the same mob instance.
-      socket.broadcast.to(socket.room._id).emit("output", { message: username + " breaks off his attack." });
-      socket.emit("output", { message: "<span class=\"olive\">*** Combat Disengaged ***</span>" });
-    }
+      socket.broadcast.to(socket.room._id).emit('output', { message: `${username} breaks off his attack.` });
+      socket.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
+    },
   };
-}
+};

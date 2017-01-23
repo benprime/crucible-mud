@@ -45,27 +45,18 @@ module.exports = (io) => {
         if (messages.roomMessage) {
           const room = io.sockets.adapter.rooms[socket.room._id];
 
-          for (const socketId in room.sockets) {
+          Object.keys(room.sockets).forEach((socketId) => {
             // if you have a sourceMessage, don't send room message to source socket
             if (messages.sourceMessage && socketId === socket.id) {
-              continue;
+              return;
             }
 
             // not to target user's socket
-            if (targetSocket && messages.targetMessage && socketId == targetSocket.id) {
-              continue;
+            if (targetSocket && messages.targetMessage && socketId === targetSocket.id) {
+              return;
             }
             io.to(socketId).emit('output', { message: messages.roomMessage.format(fromUser, toUser) });
-          }
-
-          // if this action has a target specific message, don't send to target
-          /*
-          if (targetSocket && messages.targetMessage) {
-            let recipients = recipients.except(targetSocket.id);
-          }
-
-          recipients.emit('output', { 'message': messages.roomMessage.format(fromUser, toUser) });
-          */
+          });
         }
 
         if (targetSocket && messages.targetMessage) {

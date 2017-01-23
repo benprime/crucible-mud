@@ -9,10 +9,10 @@ if (!String.prototype.format) {
 
 if (!Object.prototype.getKeyByValue) {
   Object.defineProperty(Object.prototype, 'getKeyByValue', {
-    value: (obj, value) => {
-      for (const prop in obj) {
-        if (obj.hasOwnProperty(prop)) {
-          if (obj[prop] === value) { return prop; }
+    value: function(value) {
+      for (const prop in this) {
+        if (this.hasOwnProperty(prop)) {
+          if (this[prop] === value) { return prop; }
         }
       }
     },

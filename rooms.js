@@ -46,13 +46,15 @@ module.exports = {
   },
 
   CreateRoom(io, socket, args, callback) {
-    const dir = args[0];
+    let dir = args[0];
 
     // validate input
-    if (!dirUtil.ValidDirection(dir)) {
+    if (!dirUtil.ValidDirectionInput(dir)) {
       socket.emit('output', { message: 'Not valid.' });
       return;
     }
+
+    dir = dirUtil.LongToShort(dir);
 
     // This refresh is a little paranoid... but just trying to make sure we have
     // the latest mongo data before we attempt to create a door that may already exists

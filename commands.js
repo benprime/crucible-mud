@@ -393,6 +393,9 @@ module.exports = function CommandExports(io) {
           Look(socket);
         });
         break;
+      case 'list':
+        adminUtil.ListMobs(socket);
+        break;
         // ---- END ADMIN COMMANDS ----
 
       default:

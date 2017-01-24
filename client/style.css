@@ -15,6 +15,13 @@
   table {
     border: 0px;
   }
+
+  th {
+    color: green;
+    border-bottom: solid white 1px;
+    border-right: solid white 1px;
+    border-top: solid white 1px;
+  }
   
   tr {
     border: 0px;
@@ -22,7 +29,10 @@
   
   td {
     font-family: Courier;
-    border: solid white 1px;
+    border-bottom: solid white 1px;
+    border-right: solid white 1px;
+    color: green;
+    padding: 2px;
   }
   
   pre {

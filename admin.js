@@ -6,7 +6,7 @@ const mobData = require('./data/mobData');
 const globals = require('./globals');
 const rooms = require('./rooms');
 
-module.exports = function (io) {
+module.exports = function(io) {
   const items = require('./items')(io);
 
 
@@ -57,35 +57,59 @@ module.exports = function (io) {
 
         switch (subject) {
           case 'room':
-            const roomPropertyWhiteList = ['name', 'desc'];
-            if (roomPropertyWhiteList.indexOf(property) === -1) {
-              socket.emit('output', { message: 'Invalid property.' });
-              return;
+            {
+              const roomPropertyWhiteList = ['name', 'desc'];
+              if (roomPropertyWhiteList.indexOf(property) === -1) {
+                socket.emit('output', { message: 'Invalid property.' });
+                return;
+              }
+
+              // replace all instances of multiple spaces with a single space
+              let value = commandString.replace(/\s+/g, ' ').trim();
+              value = value.replace(`set room ${property} `, '');
+
+              rooms.UpdateRoom(io, socket.room._id, property, value, () => {
+                socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} has altered the fabric of reality.` });
+                lookCallback();
+              });
+              break;
             }
-
-            // replace all instances of multiple spaces with a single space
-            let value = commandString.replace(/\s+/g, ' ').trim();
-            value = value.replace(`set room ${property} `, '');
-
-            rooms.UpdateRoom(io, socket.room._id, property, value, () => {
-              socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} has altered the fabric of reality.` });
-              lookCallback();
-            });
-            break;
-
           case 'item':
-            socket.emit('output', { message: 'Not implemented.' });
-            break;
+            {
+              socket.emit('output', { message: 'Not implemented.' });
+              break;
+            }
           default:
-            socket.emit('output', { message: 'Invalid command.' });
+            {
+              socket.emit('output', { message: 'Invalid command.' });
+            }
         }
       }
+    },
+
+    ListMobs(socket) {
+      if (!socket.admin) return;
+
+      let output = '<table><tr><th>Name</th><th>Display Name</th></tr>';
+
+      const mobTable = mobData.catalog.map(mob => `<tr><td>${mob.name}</td><td>${mob.displayName}</td></tr>`).join('\n');
+      output += mobTable;
+
+      output += '</table>';
+      console.log(output);
+
+      socket.emit('output', { message: output });
     },
 
     Spawn(socket, mobTypeName, callback) {
       if (!socket.admin) return;
 
-      const createType = mobData.catalog.find(mob => mob.name.toLowerCase() == mobTypeName.toLowerCase());
+      if (!mobTypeName) {
+        socket.emit('output', { message: 'Must pass mob type.' });
+        return;
+      }
+
+      const createType = mobData.catalog.find(mob => mob.name.toLowerCase() === mobTypeName.toLowerCase());
 
       if (!createType) {
         socket.emit('output', { message: 'Unknown mob type.' });
@@ -95,6 +119,8 @@ module.exports = function (io) {
       if (!globals.MOBS[socket.room._id]) globals.MOBS[socket.room._id] = [];
 
       globals.MOBS[socket.room._id].push(createType);
+      socket.emit('output', { message: 'Summoning successful.' });
+      socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} waves his hand and a ${createType.displayName} appears!` });
 
       if (callback) callback();
     },

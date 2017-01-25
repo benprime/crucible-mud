@@ -55,14 +55,28 @@ module.exports = function CommandExports(io) {
   }
 
   // emits "You hear movement to the <dir>" to all adjacent rooms
-  function MovementSounds(socket, fromRoomId) {
+  function MovementSounds(socket, excludeDir) {
     // todo: hrmm, check if the room exists in socket io first?
+    // I think the room doesn't exist in socket io if no one is currently joined to it.
     // could save processing time... since we don't need to write to sockets if
     // no one is in those rooms...
+
+    // todo: currently not sending sounds to fromRoom or toRoom,
+    // since those rooms get the standard "leaving" and "entering"
+    // messages. This may change when sneaking is implemented.
+
+    // fromRoomId is your current room (before move)
     socket.room.exits.forEach((door) => {
+      /*
       if (door.roomId.toString() === fromRoomId.toString()) {
         return;
       }
+      */
+
+      if (excludeDir && door.dir === excludeDir) {
+        return;
+      }
+
       let message = '';
       if (door.dir === 'u') {
         message = 'You hear movement from below.';
@@ -75,6 +89,27 @@ module.exports = function CommandExports(io) {
       // ES6 object literal shorthand syntax... message here becomes message: message
       socket.broadcast.to(door.roomId).emit('output', { message });
     });
+  }
+
+  function Yell(socket, message) {
+    socket.room.exits.forEach((door) => {
+      let preMsg = '';
+      if (door.dir === 'u') {
+        preMsg = 'Someone yells from below ';
+      } else if (door.dir === 'd') {
+        preMsg = 'Someone yells from above ';
+      } else {
+        preMsg = `Someone yells from the ${dirUtil.ExitName(dirUtil.OppositeDirection(door.dir))} `;
+      }
+
+      var surroundMsg = `${preMsg} "${message}"`;
+
+      socket.broadcast.to(door.roomId).emit('output', { message: surroundMsg });
+    });
+
+
+    socket.emit('output', { message: `You yell "${message}"` });
+    socket.broadcast.to(socket.room._id).emit('output', { message: `You yell "${message}"` });
   }
 
   function Telepathy(socket, data) {
@@ -178,17 +213,18 @@ module.exports = function CommandExports(io) {
         message = `${globals.USERNAMES[socket.id]} has left to the ${dirUtil.ExitName(dir)}.`;
       }
       socket.broadcast.to(socket.room._id).emit('output', { message });
-      const fromRoomId = socket.room._id;
+      MovementSounds(socket, d);
       socket.leave(socket.room._id);
 
       // update user session
       socket.room = docs[0];
       socket.join(socket.room._id);
+      MovementSounds(socket, dirUtil.OppositeDirection(d));
 
       // update mongodb
       globals.DB.collection('users').update({ _id: socket.userId }, { $set: { roomId: socket.room._id } });
 
-      MovementSounds(socket, fromRoomId);
+
 
       // send message to everyone is new room that player has arrived
       if (dir === 'u') {
@@ -224,8 +260,13 @@ module.exports = function CommandExports(io) {
     output += '<span class="mediumOrchid">l <span class="purple">|</span> look</span> <span class="purple">-</span> Look at current room.<br />';
     output += '<span class="mediumOrchid">who</span> <span class="purple">-</span> List all online players.<br /><br>';
 
+    output += '<span class="cyan">Combat:</span><br>';
+    output += '<span class="mediumOrchid">attack <span class="purple">|</span> a</span> <span class="purple">-</span> attack &lt;target&gt;<br />';
+    output += '<span class="mediumOrchid">break <span class="purple">|</span> br</span> <span class="purple">-</span> Break off current attack.<br /><br>';
+
     output += '<span class="cyan">Communication:</span><br>';
     output += '<span class="mediumOrchid">.<message></span> <span class="purple">-</span> Start command with . to speak to users in current room.<br />';
+    output += '<span class="mediumOrchid">"<message></span> <span class="purple">-</span> Yell to this room and all adjacent rooms.<br />';
     output += '<span class="mediumOrchid">/&lt;username&gt; <message></span> <span class="purple">-</span> Send message directly to a single player.<br />';
     output += '<span class="mediumOrchid">gossip &lt;message&gt;</span> <span class="purple">-</span> Send messages to all connected players.<br />';
 
@@ -239,6 +280,8 @@ module.exports = function CommandExports(io) {
       output += '<span class="mediumOrchid">set room desc &lt;new room desc&gt;</span><br />';
       output += '<span class="mediumOrchid">create item &lt;item name&gt;</span><br />';
       output += '<span class="mediumOrchid">teleport &lt;username&gt;</span><br />';
+      output += '<span class="mediumOrchid">list - list mob catalog</span><br />';
+      output += '<span class="mediumOrchid">spawn <mobType> - spawn &lt;mobType&gt;</span><br />';
     }
     socket.emit('output', { message: output });
   }
@@ -283,6 +326,11 @@ module.exports = function CommandExports(io) {
     // if first character is a period, just say string
     if (input.substr(0, 1) === '.') {
       Say(socket, input.substr(1));
+      return;
+    }
+
+    if (input.substr(0, 1) === '"') {
+      Yell(socket, input.replace(/^"?(.+?)"?$/, '$1'));
       return;
     }
 

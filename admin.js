@@ -6,7 +6,7 @@ const mobData = require('./data/mobData');
 const globals = require('./globals');
 const rooms = require('./rooms');
 
-module.exports = function (io) {
+module.exports = function(io) {
   const items = require('./items')(io);
 
 
@@ -21,7 +21,7 @@ module.exports = function (io) {
     items.CreateItem(socket, item, () => {
       socket.emit('output', { message: 'Item added to inventory.' });
       socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} has created a ${name} out of thin air.` });
-      if(callback) callback();
+      if (callback) callback();
     });
   }
 
@@ -33,19 +33,21 @@ module.exports = function (io) {
         const args = command.slice(2); // pop off "create" and subject.
 
         switch (subject) {
-          case 'room': {
-            const dir = args[0];
-            rooms.CreateRoom(io, socket, args, () => {
-              socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} has created a room to the ${dirUtil.ExitName(dir)}.` });
-              lookCallback();
-            });
-            break;
-          }
-          case 'item': {
-            const name = commandString.replace(/^create\s+item\s+/i, '').trim();
-            CreateItem(socket, name);
-            break;
-          }
+          case 'room':
+            {
+              const dir = args[0];
+              rooms.CreateRoom(io, socket, args, () => {
+                socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} has created a room to the ${dirUtil.ExitName(dir)}.` });
+                lookCallback();
+              });
+              break;
+            }
+          case 'item':
+            {
+              const name = commandString.replace(/^create\s+item\s+/i, '').trim();
+              CreateItem(socket, name);
+              break;
+            }
           default:
             socket.emit('output', { message: 'Invalid command.' });
         }

@@ -1,7 +1,7 @@
   var commandHistory = [];
   var historyIndex = -1;
 
-  var socket = io("http://localhost:3000");
+  var socket = io("http://www.cruciblemud.com:3000");
 
   socket.on('output', function(data) {
     var ta = document.getElementById('log');

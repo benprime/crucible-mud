@@ -9,7 +9,7 @@ if (!String.prototype.format) {
 
 if (!Object.prototype.getKeyByValue) {
   Object.defineProperty(Object.prototype, 'getKeyByValue', {
-    value: function(value) {
+    value(value) {
       for (const prop in this) {
         if (this.hasOwnProperty(prop)) {
           if (this[prop] === value) { return prop; }
@@ -21,7 +21,7 @@ if (!Object.prototype.getKeyByValue) {
 }
 
 if (!Array.prototype.GetFirstByName) {
-  Array.prototype.GetFirstByName = function(name) {
+  Array.prototype.GetFirstByName = function (name) {
     const item = this.find(i => i.name.toLowerCase() === name.toLowerCase());
     return item;
   };

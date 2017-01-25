@@ -37,9 +37,7 @@ function attackRoll(obj) {
 
 // max is not inclusive
 function getRandomNumber(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min)) + min;
+  return Math.floor(Math.random() * (Math.ceil(min) - Math.floor(max))) + min;
 }
 
 module.exports = function (io) {

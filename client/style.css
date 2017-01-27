@@ -15,12 +15,16 @@
   table {
     border: 0px;
   }
-
+  
   th {
     color: green;
     border-bottom: solid white 1px;
     border-right: solid white 1px;
     border-top: solid white 1px;
+  }
+  
+  th:first-child {
+    border-left: solid white 1px;
   }
   
   tr {
@@ -35,6 +39,10 @@
     padding: 2px;
   }
   
+  td:first-child {
+    border-left: solid white 1px;
+  }
+  
   pre {
     font-family: Courier;
   }
@@ -43,12 +51,12 @@
     background-color: black;
     color: green;
     margin: 0px;
-    padding: 0px;
     border: 0px;
     height: 100%;
     font-family: Courier;
     overflow-y: scroll;
     flex: 0 1 auto;
+    padding: 10px;
   }
   
   #inputArea {

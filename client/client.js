@@ -44,12 +44,20 @@
 
     // enter press
     if (keyCode == 13) {
+      var input = tb.value.trim();
       socket.emit('command', {
-        value: tb.value
+        value: input
       });
-      commandHistory.unshift(tb.value); // save command
-      commandHistory.splice(25); // only save 25 commands
-      historyIndex = -1;
+      // only save command if it wasn't blank
+      if (tb.value && input !== '') {
+        // only save command if it doesn't match the last one
+        if(commandHistory.length == 0 || commandHistory[0] != input)
+        {
+          commandHistory.unshift(input); // save command
+          commandHistory.splice(25); // only save 25 commands
+          historyIndex = -1;
+        }
+      }
       tb.value = '';
       return false;
     }

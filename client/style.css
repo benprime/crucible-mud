@@ -32,7 +32,7 @@
   }
   
   td {
-    font-family: Courier;
+    font-family: monospace;
     border-bottom: solid white 1px;
     border-right: solid white 1px;
     color: green;
@@ -44,7 +44,7 @@
   }
   
   pre {
-    font-family: Courier;
+    font-family: monospace;
   }
   
   #log {
@@ -53,7 +53,7 @@
     margin: 0px;
     border: 0px;
     height: 100%;
-    font-family: Courier;
+    font-family: monospace;
     overflow-y: scroll;
     flex: 0 1 auto;
     padding: 10px;
@@ -70,7 +70,7 @@
     background-color: black;
     color: gainsboro;
     width: 100%;
-    font-family: Courier;
+    font-family: monospace;
   }
   
   .green {

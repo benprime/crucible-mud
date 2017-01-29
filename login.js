@@ -16,6 +16,9 @@ module.exports = function (io) {
   }
 
   function GetStartingRoom(socket, callback) {
+    // TODO: may change this soon... currently the only reason not to is to detect when a
+    // starting room has not been setup in the data.
+    // var findParams = socket.roomId ? { _id: socket.roomId } : { x: 0, y: 0, z: 0 };
     const roomsCollection = globals.DB.collection('rooms');
     roomsCollection.find({ _id: socket.roomId }).toArray((err, docs) => {
       if (docs.length == 0) {

@@ -4,6 +4,20 @@ const globals = require('./globals');
 const dirUtil = require('./direction');
 
 module.exports = {
+/*
+  GetRoomById(roomId, callback) {
+    const roomsCollection = globals.DB.collection('rooms');
+    roomsCollection.find({ _id: roomId }).toArray((err, docs) => {
+      if (docs.length == 0) {
+        callback(null);
+      } else {
+        callback(docs[0]);
+      }
+    });
+  },
+*/
+  // Refreshes room for everyone currently in it.
+  // Used when mobs, items, or exits are added to the room.
   RefreshRoom(io, roomId, callback) {
     const roomsCollection = globals.DB.collection('rooms');
     roomsCollection.find({ _id: roomId }).toArray((err, docs) => {

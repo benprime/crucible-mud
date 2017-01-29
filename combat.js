@@ -16,6 +16,8 @@ const globals = require('./globals');
 // spawn checks have to hit mongo... they can run at a much slower framerate (every 10 seconds or something).
 const MSG_COLOR = 'darkcyan';
 const DMG_COLOR = 'firebrick';
+const COMBAT_INTERVAL = 500;
+
 
 // TODO: move these all into prototype functions of an actor base class
 function readyToAttack(obj, now) {
@@ -37,10 +39,45 @@ function attackRoll(obj) {
 
 // max is not inclusive
 function getRandomNumber(min, max) {
-  return Math.floor(Math.random() * (Math.ceil(min) - Math.floor(max))) + min;
+  return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min))) + min;
 }
 
-module.exports = function (io) {
+
+module.exports = function(io) {
+  function selectTarget(roomid, mob) {
+    // if everyone has disconnected from a room (but mobs still there) the room will not be defined.
+    const room = io.sockets.adapter.rooms[roomid];
+    
+    // if there is at least one player in the room
+    if (room) {
+      // todo: check if this player has left or died or whatever.
+      if(!mob.attackTarget) {
+        const clients = room.sockets;
+        const socketsInRoom = Object.keys(clients);
+        const targetIndex = getRandomNumber(0, socketsInRoom.length);
+        const socketId = socketsInRoom[targetIndex];
+
+        //todo: I guess attack target can be the socketId? hrmm...
+        mob.attackTarget = socketId;
+        const username = globals.USERNAMES[socketId];
+        io.to(roomid).emit('output', { message: `The ${mob.displayName} moves to attack ${username}!`});
+        // todo: send to user socket as "moves to attack you" change the above to the emit to a socket broadcast.
+
+
+        console.log(targetIndex);
+        console.log(socketId);
+      }
+    }
+
+    // this one will get only "true" as a value for the socket
+    //console.log(io.sockets.adapter.rooms[roomid].sockets[socketId]);
+
+    // this one will get all the attached data we've been setting
+    //const socket = io.sockets.connected[socketId];
+
+    // get the room object
+  }
+
   setInterval(() => {
     // getting "now" only once per iteration, so timestamps all match
     // todo: this may aggrevate (and snowball) peformance problems.... (if it falls behind heavily)
@@ -66,7 +103,6 @@ module.exports = function (io) {
             roomMessage = `<span class="${MSG_COLOR}${'">{0} swings at the {1} but misses!</span>'.format(username, socket.attackTarget)}`;
           }
 
-
           socket.emit('output', { message: actorMessage });
           socket.broadcast.to(socket.room._id).emit('output', { message: roomMessage });
         }
@@ -91,6 +127,7 @@ module.exports = function (io) {
         // TODO: right now the mobs are attacking on timer, regardless of target, or whether anyone is in the room.
         // need to check room for players... then attack random one... or perhaps one not attacked?
         if (readyToAttack(mob, now)) {
+          selectTarget(roomId, mob);
           mob.lastAttack = now;
 
           // TODO: THIS IS BROKEN
@@ -113,6 +150,7 @@ module.exports = function (io) {
           let taunt = mob.taunts[tauntIndex];
           taunt = taunt.format(mob.displayName);
           mob.lastTaunt = now;
+          io.to(roomId).emit("output", { message: taunt });
 
           // socket.emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });
           // socket.broadcast.to(socket.room._id).emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });
@@ -129,12 +167,12 @@ module.exports = function (io) {
         */
       }
     }
-  }, 500);
+  }, COMBAT_INTERVAL);
 
   return {
     Attack(socket, targetName) {
       console.log(`Trying to attack the: ${targetName}`);
-        // autocomplete name
+      // autocomplete name
       const resolvedName = globals.ResolveName(socket, targetName);
       console.log(`Auto completed name: ${resolvedName}`);
 

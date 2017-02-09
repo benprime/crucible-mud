@@ -101,7 +101,7 @@ module.exports = function(io) {
       output += mobTable;
 
       output += '</table>';
-      console.log(output);
+      //console.log(output);
 
       socket.emit('output', { message: output });
     },
@@ -123,7 +123,11 @@ module.exports = function(io) {
 
       if (!globals.MOBS[socket.room._id]) globals.MOBS[socket.room._id] = [];
 
-      globals.MOBS[socket.room._id].push(createType);
+      // clone the create type and give it an id
+      var mobInstance = Object.assign({ _id: new ObjectId().toString() }, createType);
+
+      globals.MOBS[socket.room._id].push(mobInstance);
+      //console.log(JSON.stringify(globals.MOBS[socket.room._id]));
       socket.emit('output', { message: 'Summoning successful.' });
       socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} waves his hand and a ${createType.displayName} appears!` });
 

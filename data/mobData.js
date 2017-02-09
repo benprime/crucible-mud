@@ -17,6 +17,7 @@ module.exports = {
     attackInterval: 4000,
     hitDice: "1d4",
     hp: 10,
+    xp: 20,
     minDamage: 1,
     maxDamage: 3,
     tauntInterval: 12000, // every 3 rounds
@@ -31,6 +32,7 @@ module.exports = {
     displayName: "enchanted sparring dummy",
     attackInterval: 0, // no attacks
     hp: 20,
+    xp: 20,
     hitDice: "4d6",
     idleInterval: 60000, // every minute
     idleActions: [

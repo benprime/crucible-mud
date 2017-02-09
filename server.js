@@ -11,7 +11,7 @@ const globals = require('./globals');
 //const dirUtil = require('./direction');
 //const adminUtil = require('./admin')(io);
 const commands = require('./commands')(io);
-//const combat = require('./combat')(io);
+const combat = require('./combat')(io);
 const mongo = require('mongodb').MongoClient;
 const welcome = require('./welcome');
 const loginUtil = require('./login')(io);
@@ -37,6 +37,7 @@ mongo.connect(url, (err, db) => {
     socket.on('disconnect', () => {
       // check to see if this user ever successfully logged in
       if (socket.id in globals.USERNAMES) {
+        combat.MobDisengage(socket);
         socket.broadcast.emit('output', { message: `${globals.USERNAMES[socket.id]} has left the realm.` });
         delete globals.USERNAMES[socket.id];
       }

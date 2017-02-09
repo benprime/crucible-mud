@@ -212,6 +212,11 @@ module.exports = function CommandExports(io) {
       } else {
         message = `${globals.USERNAMES[socket.id]} has left to the ${dirUtil.ExitName(dir)}.`;
       }
+
+      // stop mobs attacking this user (since he is leaving the room)
+      combat.Break(socket);
+      combat.MobDisengage(socket);
+
       socket.broadcast.to(socket.room._id).emit('output', { message });
       MovementSounds(socket, d);
       socket.leave(socket.room._id);

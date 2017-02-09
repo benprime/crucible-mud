@@ -3,7 +3,8 @@
 module.exports = {
 
   Feedback(dir) {
-    const displayDir = module.exports.ExitName(dir);
+    const shortDir = module.exports.LongToShort(dir);
+    const displayDir = module.exports.ExitName(shortDir);
     return `You move ${displayDir}...`;
   },
 

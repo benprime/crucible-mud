@@ -17,6 +17,7 @@ module.exports = function CommandExports(io) {
       return;
     }
 
+    combat.Break(socket);
     socket.leave(socket.room._id);
     socket.join(userSocket.room._id);
     socket.room = userSocket.room;
@@ -308,7 +309,7 @@ module.exports = function CommandExports(io) {
     let names = UsersInRoom(socket);
 
     const mobInRoom = globals.MOBS[socket.room._id] || [];
-    const mobNames = mobInRoom.map(mob => mob.displayName);
+    const mobNames = mobInRoom.map(mob => mob.displayName + ' ' + mob.hp);
     console.log(`names: ${JSON.stringify(names)}`);
     console.log(`mobNames: ${JSON.stringify(mobNames)}`);
     if (mobNames) { names = names.concat(mobNames); }
@@ -323,6 +324,7 @@ module.exports = function CommandExports(io) {
     }
 
     socket.emit('output', { message: output });
+    console.log("MY ATTACK TARGET: " + socket.attackTarget);
   }
 
   function CommandDispatch(socket, inputData) {

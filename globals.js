@@ -41,24 +41,16 @@ module.exports = {
     const re = new RegExp(`^${pattern}`, 'i');
     return array.filter(value => !!re.exec(value));
   },
-  ResolveName: (socket, nameString) => {
-    // todo: currently only "mob" is implemented for ResolveName
+  ResolveName: (socket, nameString, list) => {
     const name = nameString.trim().toLowerCase();
+    //console.log("nameString", nameString);
 
-    // check mob
-    const mobInRoom = module.exports.MOBS[socket.room._id] || [];
-    const mobNames = mobInRoom.map(mob => mob.displayName);
-
-    // console.log("List: " + JSON.stringify(mobNames));
-
-    // for mob names, we make the array unique
+    //console.log("list", JSON.stringify(list));
     // (if there are two or more of the same creature, we just pick the first one)
-    const uniqueMobNameList = mobNames.filter((mob, i, list) => list.indexOf(mob) === i);
-
-    // console.log("List: " + JSON.stringify(uniqueMobNameList));
-
+    const uniqueMobNameList = list.filter((item, i, list) => list.indexOf(item) === i);
+    //console.log("uniqueMobNameList", JSON.stringify(uniqueMobNameList));
     const filteredNames = module.exports.FilterMatch(uniqueMobNameList, name);
-    // console.log("List: " + JSON.stringify(filteredNames));
+    //console.log("filteredNames", JSON.stringify(filteredNames));
 
     if (filteredNames.length > 1) {
       socket.emit('output', { message: 'Not specific enough!' });

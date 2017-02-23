@@ -6,7 +6,7 @@ const globals = require('./globals');
 module.exports = io => ({
   actionDispatcher(socket, action, username) {
     if (action in actionsData.actions) {
-        // user is attempting to action another user
+      // user is attempting to action another user
       if (username) {
         let targetSocketId = globals.USERNAMES.getKeyByValue(username);
         if (!targetSocketId) {
@@ -15,13 +15,13 @@ module.exports = io => ({
         }
 
         if (targetSocketId === socket.id) {
-            // if a user has tried to do an action on himself, just ignore the passed argument
+          // if a user has tried to do an action on himself, just ignore the passed argument
           username = null;
           targetSocketId = null;
-            // socket.emit('output', { 'message': 'You cannot do actions on yourself.' });
-            // return true;
+          // socket.emit('output', { 'message': 'You cannot do actions on yourself.' });
+          // return true;
         } else {
-            // make sure the user is someone in the room
+          // make sure the user is someone in the room
           const userInRoom = targetSocketId in io.sockets.adapter.rooms[socket.room._id].sockets;
           if (!userInRoom) {
             socket.emit('output', { message: `You don't see ${username} anywhere!` });
@@ -45,12 +45,12 @@ module.exports = io => ({
         const room = io.sockets.adapter.rooms[socket.room._id];
 
         Object.keys(room.sockets).forEach((socketId) => {
-            // if you have a sourceMessage, don't send room message to source socket
+          // if you have a sourceMessage, don't send room message to source socket
           if (messages.sourceMessage && socketId === socket.id) {
             return;
           }
 
-            // not to target user's socket
+          // not to target user's socket
           if (targetSocket && messages.targetMessage && socketId === targetSocket.id) {
             return;
           }

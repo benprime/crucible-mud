@@ -2,47 +2,25 @@
 
 const globals = require('./globals');
 const dirUtil = require('./direction');
+const Room = require('./models/room');
 
 module.exports = {
-/*
-  GetRoomById(roomId, callback) {
-    const roomsCollection = globals.DB.collection('rooms');
-    roomsCollection.find({ _id: roomId }).toArray((err, docs) => {
-      if (docs.length == 0) {
-        callback(null);
-      } else {
-        callback(docs[0]);
-      }
-    });
-  },
-*/
   // Refreshes room for everyone currently in it.
   // Used when mobs, items, or exits are added to the room.
-  RefreshRoom(io, roomId, callback) {
-    const roomsCollection = globals.DB.collection('rooms');
-    roomsCollection.find({ _id: roomId }).toArray((err, docs) => {
+  RefreshRoom(io, room, callback) {
       // refresh room for all users in the room
-      const room = io.sockets.adapter.rooms[roomId];
-
-      // room will not be defined if no one is currently subscribed
-      // to it (or perhaps has never been joined yet)
-      if (room) {
-        // refresh room for every user currently in that room
-
-        // console.log(JSON.stringify(io.sockets.adapter.rooms[roomId].sockets));
-
-        Object.keys(io.sockets.adapter.rooms[roomId].sockets).forEach((socketId) => {
+      const ioRoom = io.sockets.adapter.rooms[room.id];
+      if (ioRoom) {
+        Object.keys(io.sockets.adapter.rooms[room.id].sockets).forEach((socketId) => {
           const s = io.sockets.connected[socketId];
-          s.room = docs[0];
+          s.room = room;
         });
         if (callback) callback();
       }
-    });
   },
 
   CreateDoor(io, fromRoomId, dir, toRoomId, callback) {
-    // TODO: maybe add a check to make sure it doesn't duplicate doors here?
-    globals.DB.collection('rooms').update({ _id: fromRoomId }, { $addToSet: { exits: { dir, roomId: toRoomId } } }, () => {
+    Room.update({ _id: fromRoomId }, { $addToSet: { exits: { dir, roomId: toRoomId } } }, () => {
       console.log(`Adding door to room: ${fromRoomId}, in direction: ${dir}`);
       module.exports.RefreshRoom(io, fromRoomId, callback);
     });

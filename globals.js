@@ -35,6 +35,7 @@ module.exports = {
   },
 
   USERNAMES: {},
+  USERS: {},
   DB: {},
   MOBS: {},
   FilterMatch: (array, pattern) => {

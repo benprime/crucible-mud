@@ -1,8 +1,10 @@
 'use strict';
 
 const globals = require('./globals');
+const roomModel = require('./models/room');
+const userModel = require('./models/user');
 
-module.exports = function (io) {
+module.exports = function(io) {
   function CheckIfUserAlreadyLoggedIn(socket, username) {
     for (const socketId in io.sockets.sockets) {
       if (globals.USERNAMES[socketId] == username) {
@@ -13,27 +15,6 @@ module.exports = function (io) {
       }
     }
     return false;
-  }
-
-  function GetStartingRoom(socket, callback) {
-    // TODO: may change this soon... currently the only reason not to is to detect when a
-    // starting room has not been setup in the data.
-    // var findParams = socket.roomId ? { _id: socket.roomId } : { x: 0, y: 0, z: 0 };
-    const roomsCollection = globals.DB.collection('rooms');
-    roomsCollection.find({ _id: socket.roomId }).toArray((err, docs) => {
-      if (docs.length == 0) {
-        // if the user doesn't have a room saved (first login), default to starting room
-        roomsCollection.find({ x: 0, y: 0, z: 0 }).toArray((err, docs) => {
-          if (docs.length == 0) {
-            console.log('No starting room found!');
-            return;
-          }
-          callback(docs[0]);
-        });
-      } else {
-        callback(docs[0]);
-      }
-    });
   }
 
   return {
@@ -58,43 +39,52 @@ module.exports = function (io) {
 
     LoginPassword(socket, password, callback) {
       if (!socket.userId && (socket.state == globals.STATES.LOGIN_PASSWORD)) {
-        const userCollection = globals.DB.collection('users');
-        userCollection.find({ username: socket.tempUsername, password: password.value }).toArray((err, docs) => {
-          if (docs.length == 0) {
-            socket.emit('output', { message: 'Wrong password, please try again.' });
-          } else {
+
+        userModel.findOne({ username: socket.tempUsername, password: password.value })
+          .populate('room')
+          .exec(function(err, user) {
+            if (err) return console.error(err);
+
+            if (!user) {
+              socket.emit('output', { message: 'Wrong password, please try again.' });
+              return;
+            }
+
             console.log('Successful password.');
+
+            // todo: this will get removed
             const error = CheckIfUserAlreadyLoggedIn(socket, socket.tempUsername);
             if (error) {
               return;
             }
 
-            // todo: maybe we don't need states for username and password separately. We can just check socket.username
             delete socket.tempUsername;
-            const user = docs[0];
-            globals.USERNAMES[socket.id] = user.username;
+            globals.USERS[socket.id] = user;
+            //globals.USERNAMES[socket.id] = user.username;
+
             socket.userId = user._id;
             socket.admin = user.admin;
             socket.inventory = user.inventory || [];
-            if (user.roomId) {
-              socket.roomId = user.roomId;
-            }
+
+
+
             socket.state = globals.STATES.MUD;
-
-
             socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
 
             // todo: currently these messages go to people who haven't even logged in... change that.
             socket.broadcast.emit('output', { message: `${globals.USERNAMES[socket.id]} has entered the realm.` });
 
-            // lookup room data
-            GetStartingRoom(socket, (room) => {
-              socket.room = room;
-              socket.join(socket.room._id);
-              callback(socket);
-            });
-          }
-        });
+            if (user.room) {
+              socket.room = user.room;
+              if (callback) callback(socket);
+            } else {
+              roomModel.byCoords(0, 0, 0, function(err, room) {
+                socket.room = room;
+                console.log(JSON.stringify(room));
+                if (callback) callback(socket);
+              });
+            }
+          });
       }
     },
   };

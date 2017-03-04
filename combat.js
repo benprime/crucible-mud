@@ -60,15 +60,24 @@ module.exports = function(io) {
     if (room) {
       // todo: check if this player has left or died or whatever.
       if (!mob.attackTarget) {
+        console.log("Finding mob attack target...");
+
+        // select random player to attack
         const clients = room.sockets;
         const socketsInRoom = Object.keys(clients);
         const targetIndex = getRandomNumber(0, socketsInRoom.length);
         const socketId = socketsInRoom[targetIndex];
+        console.log("target's socket id: " + socketId)
+
+        // get player socket
+        const socket = io.sockets.connected[socketId];
 
         //todo: I guess attack target can be the socketId? hrmm...
-        mob.attackTarget = socketId;
+        mob.attackTarget = socket;
         const username = globals.USERNAMES[socketId];
-        io.to(roomid).emit('output', { message: `The ${mob.displayName} moves to attack ${username}!` });
+
+        socket.broadcast.to(roomid).emit('output', { message: `The ${mob.displayName} moves to attack ${username}!` });
+        socket.emit('output', { message: `The ${mob.displayName} moves to attack you!` });
         // todo: send to user socket as "moves to attack you" change the above to the emit to a socket broadcast.
 
 
@@ -89,25 +98,41 @@ module.exports = function(io) {
   function MobDamage(socket, mob, damage) {
     mob.hp -= damage;
     if (mob.hp <= 0) {
-      socket.to(socket.room._id).emit("The creature collapses.")
+      io.to(socket.room._id).emit('output', { message: 'The creature collapses.' });
       socket.emit('output', { message: `You gain ${mob.xp} experience.` });
-      socket.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
 
       const mobInRoom = globals.MOBS[socket.room._id] || [];
-      //const mob = mobInRoom.find(m => socket.attackTarget._id === m._id);
-      //console.log("found mob", mob);
-      // need to generate ids for the mob instances... this isn't going to work long term.
-      //globals.MOBS[socket.room._id]
-
-      const i = mobInRoom.indexOf(mob);
-      //console.log("found index", i);
-
+      let i = mobInRoom.indexOf(mob);
       globals.MOBS[socket.room._id].splice(i, 1);
+
       socket.attackTarget = null;
+      socket.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
+
+      // loop through sockets in room... remove this mob from all other attack targets
+      const room = io.sockets.adapter.rooms[socket.room._id];
+      Object.keys(room.sockets).forEach((socketId) => {
+        let otherSocket = io.sockets.connected[socketId];
+        if(otherSocket.attackTarget === mob)
+        {
+          otherSocket.attackTarget = null;
+          otherSocket.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
+        }
+      });
+
+
+      // todo... this may require a refresh room...
     }
   }
 
+
   setInterval(() => {
+    // leaving this here for a bit so I can check that this only gets setup once
+    // and not per connection or something...
+
+
+    // todo: check to make sure this is firing at a reasonable rate
+    // console.log("combat frame");
+
     // getting "now" only once per iteration, so timestamps all match
     // todo: this may aggrevate (and snowball) peformance problems.... (if it falls behind heavily)
     const now = Date.now();
@@ -141,6 +166,7 @@ module.exports = function(io) {
 
           socket.emit('output', { message: actorMessage });
           socket.broadcast.to(socket.room._id).emit('output', { message: roomMessage });
+
           if (attackResult && socket.attackTarget) {
             MobDamage(socket, socket.attackTarget, playerDmg);
           }
@@ -166,23 +192,38 @@ module.exports = function(io) {
         // TODO: right now the mobs are attacking on timer, regardless of target, or whether anyone is in the room.
         // need to check room for players... then attack random one... or perhaps one not attacked?
         if (readyToAttack(mob, now)) {
+          console.log("mob ready to attack")
           selectTarget(roomId, mob);
+          console.log("mob target:" + mob.attackTarget)
           mob.lastAttack = now;
 
           // TODO: THIS IS BROKEN
           // need to save attack target in the mobs attack.... and perhaps save username or socket id so we know who
           // to send a message to...
-          let message = '';
           const dmg = 0;
+
+
+          let socket = mob.attackTarget;
+
+          let playerMessage = '';
+          let roomMessage = '';
+          var playerName = globals.USERNAMES[socket.id];
           if (attackRoll(mob)) {
-            message = `<span class="${DMG_COLOR}">The ${mob.displayName} hits you for ${dmg} damage!</span>`;
+            playerMessage = `<span class="${DMG_COLOR}">${mob.displayName} hits you for ${dmg} damage!</span>`;
+            roomMessage = `<span class="${DMG_COLOR}">The ${mob.displayName} hits ${playerName} for ${dmg} damage!</span>`;
           } else {
-            message = `<span class="${MSG_COLOR}">The ${mob.displayName} swings at you but misses!</span>`;
+            playerMessage = `<span class="${MSG_COLOR}">The ${mob.displayName} swings at you, but misses!</span>`;
+            roomMessage = `<span class="${MSG_COLOR}">The ${mob.displayName} swings at ${playerName}, but misses!</span>`;
           }
 
           // TODO: this will have to handle all damage and experience stuff...
 
-          io.to(roomId).emit('output', { message });
+          // todo: should not rely on target player's socket to inform other players of combat stuffs.
+          // If the player disconnects, game should still inform players. Perhaps just loop through all sockets in room (like in actions.)
+          socket.emit('output', { message: playerMessage });
+          socket.broadcast.to(socket.room._id).emit('output', { message: roomMessage });
+
+          //io.to(roomId).emit('output', { message });
         }
 
         // todo: mobs should only taunt when attacking... need to add attackTarget logic to mobs
@@ -215,16 +256,18 @@ module.exports = function(io) {
     Attack(socket, targetName) {
       console.log(`Trying to attack the: ${targetName}`);
       // autocomplete name
-      const resolvedName = globals.ResolveName(socket, targetName);
-      //console.log(`Auto completed name: ${resolvedName}`);
-
       const mobInRoom = globals.MOBS[socket.room._id] || [];
+      const mobNames = mobInRoom.map(mob => mob.displayName);
+      const resolvedName = globals.ResolveName(socket, targetName, mobNames);
+      
+      console.log(`Auto completed name: ${resolvedName}`);
+
       const target = mobInRoom.find(mob => mob.displayName === resolvedName);
       //console.log(`mobInRoom: ${JSON.stringify(mobInRoom)}`);
       //console.log(`target: ${JSON.stringify(target)}`);
 
       if (!target) {
-        // socket.emit("output", { message: "You don't see that here!" });
+        socket.emit("output", { message: "You don't see that here!" });
         return;
       }
 
@@ -247,7 +290,6 @@ module.exports = function(io) {
       socket.attackInterval = 4000;
       //socket.attackTarget = resolvedName;
     },
-
 
     Break(socket) {
       if (socket.attackTarget) {

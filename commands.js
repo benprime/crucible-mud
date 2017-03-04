@@ -422,6 +422,13 @@ module.exports = function CommandExports(io) {
           });
         }
         break;
+      case 'destroy':
+        if (socket.admin) {
+          adminUtil.DestroyDispatch(socket, command, input, () => {
+            Look(socket);
+          });
+        }
+        break;
       case 'set':
         if (socket.admin) {
           adminUtil.SetDispatch(socket, command, input, () => {

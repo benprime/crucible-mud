@@ -24,6 +24,14 @@ module.exports = function(io) {
       if (callback) callback();
     });
   }
+  
+  function DestroyItem(socket, name, callback) {
+    items.DestroyItem(socket, item, () => {
+      socket.emit('output', { message: 'Item destroyed.' });
+      socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} makes ${name} vanish from existence` });
+      if (callback) callback();
+    });
+  }
 
   return {
     CreateDispatch(socket, command, commandString, lookCallback) {
@@ -46,6 +54,32 @@ module.exports = function(io) {
             {
               const name = commandString.replace(/^create\s+item\s+/i, '').trim();
               CreateItem(socket, name);
+              break;
+            }
+          default:
+            socket.emit('output', { message: 'Invalid command.' });
+        }
+      }
+    },
+	
+    DestroyDispatch(socket, command, commandString, lookCallback) {
+      if (!socket.admin) return;
+      if (command.length > 2) {
+        const subject = command[1].toLowerCase();
+        const args = command.slice(2); // pop off "destroy" and subject.
+
+        switch (subject) {
+          case 'room':
+            {
+              //TODO: destroy rooms - make sure to seal all dangling doors from room
+			  socket.emit('output', { message: 'Command not fully prepared yet!'});
+			  break;
+            }
+          case 'item':
+            {
+              const name = commandString.replace(/^destroy\s+item\s+/i, '').trim();
+			  socket.emit('output', { message: `Destroying ${name}`});
+              DestroyItem(socket, name);
               break;
             }
           default:

@@ -17,7 +17,7 @@ const welcome = require('./welcome');
 const loginUtil = require('./login')(io);
 
 app.set('port', 3000);
-const url = 'mongodb://localhost:27017/mud';
+const url = 'mongodb://localhost:27017/test';
 
 mongo.connect(url, (err, db) => {
   if (!db) {

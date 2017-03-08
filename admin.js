@@ -25,7 +25,7 @@ module.exports = function(io) {
     });
   }
   
-  function DestroyItem(socket, name, callback) {
+  function DestroyItem(socket, item, callback) {
     items.DestroyItem(socket, item, () => {
       socket.emit('output', { message: 'Item destroyed.' });
       socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} makes ${name} vanish from existence` });
@@ -78,7 +78,7 @@ module.exports = function(io) {
           case 'item':
             {
               const name = commandString.replace(/^destroy\s+item\s+/i, '').trim();
-			  socket.emit('output', { message: `Destroying ${name}`});
+			  //socket.emit('output', { message: `Destroying ${name}`});
               DestroyItem(socket, name);
               break;
             }

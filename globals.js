@@ -1,7 +1,7 @@
 'use strict';
 
 if (!String.prototype.format) {
-  String.prototype.format = function () {
+  String.prototype.format = function() {
     const args = arguments;
     return this.replace(/{(\d+)}/g, (match, number) => (typeof args[number] !== 'undefined') ? args[number] : match);
   };
@@ -12,7 +12,8 @@ if (!Object.prototype.getKeyByValue) {
     value(value) {
       for (const prop in this) {
         if (this.hasOwnProperty(prop)) {
-          if (this[prop] === value) { return prop; }
+          if (this[prop] === value) {
+            return prop; }
         }
       }
     },
@@ -21,11 +22,13 @@ if (!Object.prototype.getKeyByValue) {
 }
 
 if (!Array.prototype.GetFirstByName) {
-  Array.prototype.GetFirstByName = function (name) {
+  Array.prototype.GetFirstByName = function(name) {
     const item = this.find(i => i.name.toLowerCase() === name.toLowerCase());
     return item;
   };
 }
+
+
 
 module.exports = {
   STATES: {
@@ -34,14 +37,27 @@ module.exports = {
     MUD: 2,
   },
 
-  USERNAMES: {},
   USERS: {},
-  DB: {},
   MOBS: {},
+
+  UsersInRoom(socket, room) {
+    if (!(room.id in global.io.sockets.adapter.rooms)) {
+      return [];
+    }
+    const clients = global.io.sockets.adapter.rooms[socket.roomId].sockets;
+
+    // remove current user
+    const otherUsers = Object.keys(clients).filter(socketId => socketId !== socket.id);
+
+    const usernames = otherUsers.map(socketId => otherUsers[socketId].user.username);
+    return usernames;
+  },
+
   FilterMatch: (array, pattern) => {
     const re = new RegExp(`^${pattern}`, 'i');
     return array.filter(value => !!re.exec(value));
   },
+
   ResolveName: (socket, nameString, list) => {
     const name = nameString.trim().toLowerCase();
     //console.log("nameString", nameString);
@@ -63,8 +79,10 @@ module.exports = {
     // got it
     return filteredNames[0];
   },
+
   GetSocketByUsername: (io, username) => {
-    const socketId = module.exports.USERNAMES.getKeyByValue(username);
-    return io.sockets.connected[socketId];
+    const sockets = Object.keys(io.sockets.sockets);
+    const socket = sockets.find(s => s.user.username.toLowerCase() === username.toLowerCase());
+    return socket;
   },
 };

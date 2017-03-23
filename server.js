@@ -6,13 +6,15 @@ const app = express();
 const http = require('http');
 
 const serve = http.createServer(app);
+// convert to global.io... see if we can remove all the references of passing this around
 const io = require('socket.io')(serve);
 
 const globals = require('./globals');
-const commands = require('./commands')(io);
-const combat = require('./combat')(io);
+const commands = require('./commands/');
+const combat = require('./combat');
 const welcome = require('./welcome');
-const loginUtil = require('./login')(io);
+const loginUtil = require('./login');
+const look = require('./commands/look');
 
 app.set('port', 3000);
 
@@ -61,21 +63,25 @@ db.once('open', function() {
     });
 
     socket.on('command', (data) => {
+      // todo: remove state logic when there is a login process
       switch (socket.state) {
         case globals.STATES.MUD:
-          commands.CommandDispatch(socket, data);
+          commands.Dispatch(socket, data.value);
           break;
         case globals.STATES.LOGIN_USERNAME:
           loginUtil.LoginUsername(socket, data);
           break;
         case globals.STATES.LOGIN_PASSWORD:
-          loginUtil.LoginPassword(socket, data, (socket) => {
-            commands.Look(socket);
+          loginUtil.LoginPassword(socket, data, () => {
+            look.execute(socket);
           });
           break;
       }
     });
   });
+
+  global.db = db;
+  global.io = io;
 
   serve.listen(app.get('port'), () => {
     console.log(`Express server listening on port ${app.get('port')}`);

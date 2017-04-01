@@ -3,7 +3,10 @@
 module.exports = {
   name: 'teleport',
 
-  patterns: [/teleport/i],
+  patterns: [
+    /teleport\s+(\w+)$/i,
+    /tele\s+(\w+)$/i
+  ],
 
   /*
         if (socket.admin) {

@@ -9,6 +9,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
+    module.exports.execute(socket, match[1]);
   },
 
   execute(socket, message) {

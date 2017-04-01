@@ -37,19 +37,7 @@ module.exports = {
 
           console.log('Successful password.');
 
-          // todo: this will get removed
-          /*
-          const error = CheckIfUserAlreadyLoggedIn(socket, socket.tempUsername);
-          if (error) {
-            return;
-          }
-          */
           delete socket.tempUsername;
-
-          // TODO: REMOVE THESE
-          //socket.userId = user._id;
-          //socket.admin = user.admin;
-          //socket.inventory = user.inventory || [];
 
           // THIS SHOULD BE THE ONLY USER STATE MANAGEMENT
           socket.user = user;
@@ -71,6 +59,7 @@ module.exports = {
             roomModel.byCoords({ x: 0, y: 0, z: 0 }, function(err, room) {
               console.log("Default room", room);
               socket.user.roomId = room.id;
+              socket.join(room.id);
               console.log(JSON.stringify(room));
               if (callback) callback();
             });

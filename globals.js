@@ -9,33 +9,21 @@ global.STATES = {
 
 global.UsersInRoom = function(roomId) {
   if (!(roomId in global.io.sockets.adapter.rooms)) {
+    console.log("Room not found, returning blank list for users.");
     return [];
   }
 
-  //let ioRoom = global.io.sockets.adapter.rooms[socket.roomId];
-
-  // room should never be undefined here because, socket is in room.
   const clients = global.io.sockets.adapter.rooms[roomId].sockets;
+  const otherUsers = Object.keys(clients);
 
-  // remove current user
-  //const otherUsers = Object.keys(clients).filter(socketId => socketId !== socket.id);
+  //console.log("other users: ", JSON.stringify(otherUsers));
 
-  const usernames = clients.map(socket => socket.user.username);
-
-  //const usernames = otherUsers.map(socketId => otherUsers[socketId].user.username);
-  return usernames;
+  // return array of string usernames
+  return otherUsers.map(socketId => global.io.sockets.connected[socketId].user.username);
 };
 
-global.UserInRoom = function(socket, username) {
-  if (!(socket.user.roomId in global.io.sockets.adapter.rooms)) {
-    return false;
-  }
-  const clients = global.io.sockets.adapter.rooms[socket.user.roomId].sockets;
-
-  // remove current user
-  const otherUsers = Object.keys(clients).filter(socketId => socketId !== socket.id);
-
-  const usernames = otherUsers.map(socketId => otherUsers[socketId].user.username);
+global.UserInRoom = function(roomId, username) {
+  const usernames = global.UsersInRoom(roomId);
   return usernames.indexOf(username) > -1;
 };
 
@@ -68,7 +56,14 @@ global.ResolveName = (socket, nameString, list) => {
 
 global.GetSocketByUsername = (username) => {
   const sockets = Object.keys(global.io.sockets.sockets);
-  const socket = sockets.find(s => s.user.username.toLowerCase() === username.toLowerCase());
+  let socket = null;
+  sockets.forEach((socketId) => {
+    let s = global.io.sockets.connected[socketId];
+    if (s.user && s.user.username.toLowerCase() === username.toLowerCase()) {
+      socket = s;
+      return;
+    }
+  });
   return socket;
 };
 

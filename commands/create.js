@@ -1,6 +1,8 @@
 'use strict';
 
 const roomManager = require('../roomManager');
+const Room = require('../models/room');
+
 
 /*
     CreateItem(socket, item, callback) {
@@ -37,12 +39,30 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    roomManager.getRoomById(socket.user.roomId, (room) => {
-
-    });
+    const type = match[1].toLowerCase();
+    const param = match[2];
+    module.exports.execute(socket, type, param);
   },
 
-  execute(socket, input) {
+  execute(socket, type, param) {
+    roomManager.getRoomById(socket.user.roomId, (room) => {
+      console.log("create type: ", type);
+      if(type === 'room') {
+        const dir = param.toLowerCase();
+        room.createRoom(dir, function() {
+          console.log("it worked.");
+        });
+
+      }
+      else if(type === 'item') {
+        const name = param;
+      } else {
+        // todo: global error function for red text?
+        console.log("Invalid create type");
+        return;
+      }
+
+    });
   },
 
   help() {},

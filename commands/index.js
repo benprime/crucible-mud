@@ -1,5 +1,7 @@
 'use strict';
 
+const actionHandler = require('../actionHandler');
+
 let handlers = [];
 //todo: perhaps this should live in a config file?
 let defaultCommand;
@@ -43,6 +45,20 @@ module.exports = {
           handlers[h].dispatch(socket, match);
           return;
         }
+      }
+    }
+
+    // todo: perhaps move the actions into their own command handler?
+    // using regex to parse that many commands on every enter press may be a bad idea...
+    
+    const actionRegex = /^(\w+)\s?(.*)$/i;
+    let match = input.match(actionRegex);
+    if(match) {
+      let action = match[1];
+      let username = match[2];
+      var actionFound = actionHandler.actionDispatcher(socket, action, username);
+      if(actionFound) {
+        return;
       }
     }
 

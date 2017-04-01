@@ -42,7 +42,9 @@ module.exports = {
             output += `<span class='darkcyan'>You notice: ${inventory.map(item => item.name).join(', ')}.</span>\n`;
           }
       */
-      let names = global.UsersInRoom(socket, room);
+      let names = global.UsersInRoom(room.id).filter(name => name !== socket.user.username);
+
+      console.log("Users in room names: ", names);
 
 
 

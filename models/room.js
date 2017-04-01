@@ -155,15 +155,20 @@ RoomSchema.methods.createRoom = function(dir, cb) {
 
   // see if room exists at the coords
   var targetCoords = this.dirToCoords(dir);
-  roomModel.byCoords(targetCoords, function(room) {
+  const fromRoom = this;
+
+  roomModel.byCoords(targetCoords, function(targetRoom) {
     const oppDir = roomModel.oppositeDirection(dir);
-    if (room) {
-      this.addDoor(dir, room.id);
-      room.addDoor(oppDir, this.id);
-      this.save();
-      room.save();
+    if (targetRoom) {
+      fromRoom.addDoor(dir, targetRoom.id);
+      targetRoom.addDoor(oppDir, fromRoom.id);
+      fromRoom.save();
+      targetRoom.save();
     } else {
-      let room = new Room({
+      // if room does not exist, create a new room
+      // with a door to this room
+      console.log("from room:", fromRoom);
+      targetRoom = new Room({
         name: 'Default Room Name',
         desc: 'Room Description',
         x: targetCoords.x,
@@ -171,13 +176,14 @@ RoomSchema.methods.createRoom = function(dir, cb) {
         z: targetCoords.z,
         exits: [{
           dir: oppDir,
-          roomId: this.id,
+          roomId: fromRoom.id,
         }],
       });
 
-      room.save(function(err, updatedRoom) {
-        this.addDoor(dir, updatedRoom.id);
-        this.save();
+      // update this room with door to new room
+      targetRoom.save(function(err, updatedRoom) {
+        fromRoom.addDoor(dir, updatedRoom.id);
+        fromRoom.save();
       });
 
     }
@@ -186,17 +192,20 @@ RoomSchema.methods.createRoom = function(dir, cb) {
   });
 }
 
-
 /**
  * Post-Hook Save Magic Middleware
  */
 // TODO: change this to a pre call? It can update the state BEFORE we save to mongo for faster game play.
+/*
 RoomSchema.post('save', function(room) {
+  console.log("ROOM MANAGER: ", roomManager)
   roomManager.updateRoomState(room);
-  console.log('%s has been saved', room._id);
   console.log('%s has been saved', room.id);
 });
+*/
 
 const Room = mongoose.model('Room', RoomSchema);
+
+
 
 module.exports = Room;

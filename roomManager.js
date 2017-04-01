@@ -9,11 +9,13 @@ const roomsWithMobs = [];
 module.exports = {
   getRoomById(roomId, cb) {
     if (roomId in rooms) {
+      console.log("found room in cache");
       cb(rooms[roomId]);
       return;
     }
 
     return roomModel.findById(roomId, function(err, room) {
+      console.log("room lookup");
       rooms[roomId] = room;
       if (err) {
         console.log(err);

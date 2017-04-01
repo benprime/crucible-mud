@@ -5,10 +5,13 @@ const roomManager = require('../roomManager');
 module.exports = {
   name: 'attack',
 
-  patterns: [],
+  patterns: [
+    /a\s+(\.+)$/i,
+    /attack\s+(\.+)$/i,
+  ],
 
   dispatch(socket, match) {
-
+    module.exports.execute(match[1]);
   },
 
   execute(socket, targetName) {

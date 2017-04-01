@@ -15,12 +15,12 @@ module.exports = {
       const username = tokens[1];
       const message = tokens[2];
 
-      const userSocket = globals.GetSocketByUsername(username);
+      const userSocket = global.GetSocketByUsername(username);
       if (!userSocket) {
         socket.emit('output', { message: 'Invalid username.' });
         return;
       }
-      const sender = globals.USERNAMES[socket.id];
+      const sender = socket.user.username;
 
       userSocket.emit('output', { message: `${sender} telepaths: ${message}` });
       socket.emit('output', { message: `Telepath to ${username}: ${message}` });

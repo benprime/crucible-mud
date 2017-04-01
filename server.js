@@ -51,7 +51,6 @@ db.once('open', function() {
     socket.on('disconnect', () => {
       // if this user ever successfully logged in, clean up
       if (socket.user) {
-        combat.MobDisengage(socket);
         socket.broadcast.emit('output', { message: `${socket.user.username} has left the realm.` });
       }
     });

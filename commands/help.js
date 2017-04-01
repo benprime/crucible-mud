@@ -1,5 +1,7 @@
 'use strict';
 
+const actionData = require('../data/actionData');
+
 module.exports = {
   name: 'help',
 
@@ -10,6 +12,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
+    module.exports.execute(socket);
   },
 
   execute(socket) {
@@ -43,7 +46,7 @@ module.exports = {
     output += '<br><span class="cyan">Actions:</span><br />';
     output += `<span class="silver">${Object.keys(actionData.actions).sort().join('<span class="mediumOrchid">, </span>')}</span><br /></br />`;
 
-    if (socket.admin) {
+    if (socket.user.admin) {
       output += '<span class="cyan">Admin commands:</span><br />';
       output += '<span class="mediumOrchid">create room &lt;dir&gt;</span><br />';
       output += '<span class="mediumOrchid">set room name &lt;new room name&gt;</span><br />';

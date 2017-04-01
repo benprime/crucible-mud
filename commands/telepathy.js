@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  name: "telepathy",
+  name: 'telepathy',
 
   patterns: [/^\//],
 
@@ -15,7 +15,7 @@ module.exports = {
       const username = tokens[1];
       const message = tokens[2];
 
-      const userSocket = globals.GetSocketByUsername(global.io, username);
+      const userSocket = globals.GetSocketByUsername(username);
       if (!userSocket) {
         socket.emit('output', { message: 'Invalid username.' });
         return;

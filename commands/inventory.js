@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  name: "inventory",
+  name: 'inventory',
 
   patterns: [
     /^i$/i,
@@ -9,7 +9,9 @@ module.exports = {
     /^inventory$/i
   ],
 
-  dispatch(socket, match) {},
+  dispatch(socket, match) {
+    
+  },
 
   execute(socket, input) {
     console.log(socket.inventory);
@@ -20,8 +22,8 @@ module.exports = {
       invOutput = 'Nothing.';
     }
 
-    let output = '<span class="cyan">You are carrying: </span>';
-    output += '<span class="silver">';
+    let output = '<span class=\'cyan\'>You are carrying: </span>';
+    output += '<span class=\'silver\'>';
     output += invOutput;
     output += '</span>';
     socket.emit('output', { message: output });

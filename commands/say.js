@@ -1,14 +1,16 @@
 'use strict';
 
 module.exports = {
-  name: "say",
+  name: 'say',
 
-  patterns: [/^./, /^say/i],
+  patterns: [/^\.(.+)/, /^say\s+(.+)/i],
 
   dispatch(socket, match) {
+    module.exports.execute(socket, match[1]);
+
   },
 
-  execute(socket, input) {
+  execute(socket, message) {
     let safeMessage = message.replace(/</g, '&lt;');
     safeMessage = safeMessage.replace(/>/g, '&gt;');
 
@@ -16,7 +18,7 @@ module.exports = {
     socket.emit('output', { message: `You say "${safeMessage}"` });
 
     // everyone else
-    socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} says "${safeMessage}"` });
+    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} says "${safeMessage}"` });
   },
 
   help() {},

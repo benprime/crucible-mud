@@ -29,11 +29,11 @@ function CreateItem(socket, name, callback) {
 */
 
 module.exports = {
-  name: "create",
+  name: 'create',
 
   patterns: [
-    '^create\s+(room)\s+(\w+)$',
-    '^create\s+(item)\s+(.+)$',
+    /^create\s+(room)\s+(\w+)$/i,
+    /'^create\s+(item)\s+(.+)$'/i,
   ],
 
   dispatch(socket, match) {

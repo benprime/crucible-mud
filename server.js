@@ -9,7 +9,8 @@ const serve = http.createServer(app);
 // convert to global.io... see if we can remove all the references of passing this around
 const io = require('socket.io')(serve);
 
-const globals = require('./globals');
+require('./extensionMethods');
+require('./globals');
 const commands = require('./commands/');
 const combat = require('./combat');
 const welcome = require('./welcome');
@@ -25,9 +26,6 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 
 db.once('open', function() {
-
-  // set a global reference to the database
-  globals.DB = db;
 
   io.on('connection', (socket) => {
 
@@ -45,33 +43,29 @@ db.once('open', function() {
     });
     */
 
-
-
-
-    socket.state = globals.STATES.LOGIN_USERNAME;
+    socket.state = global.STATES.LOGIN_USERNAME;
     socket.emit('output', { message: 'Connected.' });
     welcome.WelcomeMessage(socket);
     socket.emit('output', { message: 'Enter username:' });
 
     socket.on('disconnect', () => {
-      // check to see if this user ever successfully logged in
-      if (socket.id in globals.USERNAMES) {
+      // if this user ever successfully logged in, clean up
+      if (socket.user) {
         combat.MobDisengage(socket);
-        socket.broadcast.emit('output', { message: `${globals.USERNAMES[socket.id]} has left the realm.` });
-        delete globals.USERNAMES[socket.id];
+        socket.broadcast.emit('output', { message: `${socket.user.username} has left the realm.` });
       }
     });
 
     socket.on('command', (data) => {
       // todo: remove state logic when there is a login process
       switch (socket.state) {
-        case globals.STATES.MUD:
+        case global.STATES.MUD:
           commands.Dispatch(socket, data.value);
           break;
-        case globals.STATES.LOGIN_USERNAME:
+        case global.STATES.LOGIN_USERNAME:
           loginUtil.LoginUsername(socket, data);
           break;
-        case globals.STATES.LOGIN_PASSWORD:
+        case global.STATES.LOGIN_PASSWORD:
           loginUtil.LoginPassword(socket, data, () => {
             look.execute(socket);
           });

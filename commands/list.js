@@ -3,7 +3,7 @@
 var mobData = require('../data/mobData');
 
 module.exports = {
-  name: "list",
+  name: 'list',
 
   patterns: [],
 

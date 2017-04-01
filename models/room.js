@@ -40,7 +40,7 @@ const RoomSchema = new mongoose.Schema({
 });
 
 // todo: move to RoomHelper.js
-function oppositeDirection(dir) {
+RoomSchema.statics.oppositeDirection = function(dir) {
   switch (dir) {
     case 'n':
       return 's';
@@ -156,7 +156,7 @@ RoomSchema.methods.createRoom = function(dir, cb) {
   // see if room exists at the coords
   var targetCoords = this.dirToCoords(dir);
   roomModel.byCoords(targetCoords, function(room) {
-    const oppDir = oppositeDirection(dir);
+    const oppDir = roomModel.oppositeDirection(dir);
     if (room) {
       this.addDoor(dir, room.id);
       room.addDoor(oppDir, this.id);

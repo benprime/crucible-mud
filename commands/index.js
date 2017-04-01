@@ -1,14 +1,16 @@
 'use strict';
 
 let handlers = [];
+//todo: perhaps this should live in a config file?
+let defaultCommand;
 
-const normalizedPath = require("path").join(__dirname);
+const normalizedPath = require('path').join(__dirname);
 
-console.log("path:", normalizedPath);
+console.log('path:', normalizedPath);
 
-require("fs").readdirSync(normalizedPath).forEach(function(file) {
-  if (file != "index.js") {
-    let module = require("./" + file);
+require('fs').readdirSync(normalizedPath).forEach(function(file) {
+  if (file != 'index.js') {
+    let module = require('./' + file);
     
     // initialization checks
     if(!module.name) throw `command ${file} missing name!`;
@@ -19,6 +21,8 @@ require("fs").readdirSync(normalizedPath).forEach(function(file) {
 
     handlers.push(module);
   }
+
+  defaultCommand = handlers.find(h => h.name === "say");
 });
 
 // when loading the action do some basic checks and throw exceptions if all the required properties are not met
@@ -40,8 +44,9 @@ module.exports = {
           return;
         }
       }
-
-      // invalid command goes here
     }
+
+    // when a command is not found, it defaults to "say"
+    defaultCommand.execute(socket, input);
   }
 }

@@ -3,10 +3,10 @@
 const Room = require('../models/room');
 
 module.exports = {
-  name: "yell",
+  name: 'yell',
 
   patterns: [
-    /^"/,
+    /^'/,
     /^yell/i
   ],
 
@@ -23,14 +23,14 @@ module.exports = {
         preMsg = `Someone yells from the ${Room.ExitName(Room.OppositeDirection(door.dir))} `;
       }
 
-      var surroundMsg = `${preMsg} "${message}"`;
+      var surroundMsg = `${preMsg} '${message}'`;
 
       socket.broadcast.to(door.roomId).emit('output', { message: surroundMsg });
     });
 
 
-    socket.emit('output', { message: `You yell "${message}"` });
-    socket.broadcast.to(socket.room._id).emit('output', { message: `You yell "${message}"` });
+    socket.emit('output', { message: `You yell '${message}'` });
+    socket.broadcast.to(socket.room._id).emit('output', { message: `You yell '${message}'` });
   },
 
   help() {},

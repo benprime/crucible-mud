@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  name: "take",
+  name: 'take',
 
   alias: [],
 
@@ -18,7 +18,7 @@ module.exports = {
 
     const item = socket.room.inventory.GetFirstByName(itemName);
     if (!item) {
-      socket.emit('output', { message: "You don't see that item here." });
+      socket.emit('output', { message: 'You don\'t see that item here.' });
       return;
     }
 

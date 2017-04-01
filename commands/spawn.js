@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  name: "spawn",
+  name: 'spawn',
 
   patterns: [
     /^spawn\s+?(\w)/i

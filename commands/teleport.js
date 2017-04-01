@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  name: "teleport",
+  name: 'teleport',
 
   patterns: [/teleport/i],
 
@@ -22,7 +22,7 @@ module.exports = {
   },
 
   execute(socket, input) {
-    const userSocket = globals.GetSocketByUsername(global.io, username);
+    const userSocket = globals.GetSocketByUsername(username);
     if (!userSocket) {
       socket.emit('output', { message: 'Player not found.' });
       return;

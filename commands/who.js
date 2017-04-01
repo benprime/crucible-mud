@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  name: "who",
+  name: 'who',
 
   patterns: [],
 
@@ -18,8 +18,8 @@ module.exports = {
     usernames.push(globals.USERNAMES[socketId]);
     }
     });
-    let output = `<span class="cyan"> -=- ${usernames.length} Players Online -=-</span><br />`;
-    output += `<div class="mediumOrchid">${usernames.join('<br />')}</div>`;
+    let output = `<span class='cyan'> -=- ${usernames.length} Players Online -=-</span><br />`;
+    output += `<div class='mediumOrchid'>${usernames.join('<br />')}</div>`;
     socket.emit('output', { message: output });
     }
     */

@@ -1,11 +1,10 @@
 'use strict';
 
 const roomManager = require('../roomManager');
-const globals = require('../globals');
 const Room = require('../models/room');
 
 module.exports = {
-  name: "look",
+  name: 'look',
 
   patterns: [
     /^$/,
@@ -27,36 +26,36 @@ module.exports = {
 
     // get the room from the global cache
     roomManager.getRoomById(socket.user.roomId, (room) => {
-      console.log(room.mobs);
+      console.log('mobs:', room.mobs);
 
       //const exits = socket.room.exits || [];
       //const inventory = socket.room.inventory || [];
 
-      let output = `<span class="cyan">${room.name}</span>\n`;
+      let output = `<span class='cyan'>${room.name}</span>\n`;
 
-      if (command != "") {
-        output += `<span class="silver">${room.desc}</span>\n`;
+      if (command != '') {
+        output += `<span class='silver'>${room.desc}</span>\n`;
       }
 
       /*
           if (room.inventory.length > 0) {
-            output += `<span class="darkcyan">You notice: ${inventory.map(item => item.name).join(', ')}.</span>\n`;
+            output += `<span class='darkcyan'>You notice: ${inventory.map(item => item.name).join(', ')}.</span>\n`;
           }
       */
-      let names = globals.UsersInRoom(socket, room);
+      let names = global.UsersInRoom(socket, room);
 
 
 
       const mobNames = room.mobs.map(mob => mob.displayName + ' ' + mob.hp);
       if (mobNames) { names = names.concat(mobNames); }
-      const displayNames = names.join('<span class="mediumOrchid">, </span>');
+      const displayNames = names.join('<span class=\'mediumOrchid\'>, </span>');
 
       if (displayNames) {
-        output += `<span class="purple">Also here: <span class="teal">${displayNames}</span>.</span>\n`;
+        output += `<span class='purple'>Also here: <span class='teal'>${displayNames}</span>.</span>\n`;
       }
 
       if (room.exits.length > 0) {
-        output += `<span class="green">Exits: ${room.exits.map(door => Room.exitName(door.dir)).join(', ')}</span>\n`;
+        output += `<span class='green'>Exits: ${room.exits.map(door => Room.exitName(door.dir)).join(', ')}</span>\n`;
       }
 
       socket.emit('output', { message: output });

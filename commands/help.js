@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  name: "help",
+  name: 'help',
 
   patterns: [
     /^help$/i,

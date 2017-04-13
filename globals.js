@@ -1,5 +1,9 @@
 'use strict';
 
+global.MSG_COLOR = 'darkcyan';
+global.DMG_COLOR = 'firebrick';
+global.COMBAT_INTERVAL = 500;
+
 // todo: remove this when login functionality exists
 global.STATES = {
   LOGIN_USERNAME: 0,
@@ -40,7 +44,7 @@ global.ResolveName = (socket, nameString, list) => {
   // (if there are two or more of the same creature, we just pick the first one)
   const uniqueMobNameList = list.filter((item, i, list) => list.indexOf(item) === i);
   //console.log("uniqueMobNameList", JSON.stringify(uniqueMobNameList));
-  const filteredNames = module.exports.FilterMatch(uniqueMobNameList, name);
+  const filteredNames = global.FilterMatch(uniqueMobNameList, name);
   //console.log("filteredNames", JSON.stringify(filteredNames));
 
   if (filteredNames.length > 1) {
@@ -128,4 +132,8 @@ global.ValidDirectionInput = function(dir) {
     default:
       return false;
   }
+};
+
+global.getRandomNumber = function(min, max) {
+  return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min))) + min;
 };

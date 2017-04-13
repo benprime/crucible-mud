@@ -53,9 +53,7 @@ module.exports = {
           socket.broadcast.emit('output', { message: `${socket.user.username} has entered the realm.` });
 
           // todo: maybe this should check if the roomId currently exists.
-          console.log("dssdfs", user.roomId);
           if (!user.roomId) {
-            console.log("test");
             roomModel.byCoords({ x: 0, y: 0, z: 0 }, function(err, room) {
               console.log("Default room", room);
               socket.user.roomId = room.id;
@@ -64,7 +62,6 @@ module.exports = {
               if (callback) callback();
             });
           } else {
-            console.log("WTF");
             if (callback) callback();
           }
         });

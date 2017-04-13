@@ -6,12 +6,12 @@ module.exports = {
   name: 'attack',
 
   patterns: [
-    /a\s+(\.+)$/i,
-    /attack\s+(\.+)$/i,
+    /a\s+(.+)$/i,
+    /attack\s+(.+)$/i,
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(match[1]);
+    module.exports.execute(socket, match[1]);
   },
 
   execute(socket, targetName) {
@@ -45,17 +45,17 @@ module.exports = {
       }
       */
 
-      socket.attackTarget = target;
+      socket.user.attackTarget = target.id;
 
       //const username = globals.USERNAMES[socket.id];
 
       socket.emit('output', { message: '<span class="olive">*** Combat Engaged ***</span>' });
-      socket.broadcast.to(socket.room._id).emit('output', { message: `${socket.user.username} moves to attack ${resolvedName}!` });
-      socket.attackInterval = 4000;
+      socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} moves to attack ${resolvedName}!` });
+      socket.user.attackInterval = 4000;
       //socket.attackTarget = resolvedName;
     });
 
   },
 
   help() {},
-}
+};

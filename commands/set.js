@@ -1,28 +1,53 @@
 'use strict';
 
+const roomManager = require('../roomManager');
+const Room = require('../models/room');
+
 module.exports = {
   name: 'set',
 
-  patterns: [],
+  patterns: [
+    /^set\s+(room)\s+(desc)\s+(.+)$/i,
+    /^set\s+(room)\s+(name)\s+(.+)$/i,
+    /^set$/i,
+  ],
 
   dispatch(socket, match) {
-  },
 
-  execute(socket, input) {
-    const roomPropertyWhiteList = ['name', 'desc'];
-    if (roomPropertyWhiteList.indexOf(property) === -1) {
-      socket.emit('output', { message: 'Invalid property.' });
+    // if we've matched on ^set, but the proper parameters
+    // were not passed...
+    if (match.length != 4) {
+      // todo: print command help
+      socket.emit('output', { message: 'Invalid command usage.' });
       return;
     }
 
-    // replace all instances of multiple spaces with a single space
-    let value = commandString.replace(/\s+/g, ' ').trim();
-    value = value.replace(`set room ${property} `, '');
+    const type = match[1];
+    const prop = match[2];
+    const value = match[3];
 
-    rooms.UpdateRoom(global.io, socket.room._id, property, value, () => {
-      socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} has altered the fabric of reality.` });
-      lookCallback();
-    });
+    module.exports.execute(socket, type, prop, value);
+  },
+
+  execute(socket, type, prop, value) {
+
+    //todo: break these out into seperate helper methods?
+    if (type === 'room') {
+      const roomPropertyWhiteList = ['name', 'desc'];
+      if (roomPropertyWhiteList.indexOf(prop) === -1) {
+        socket.emit('output', { message: 'Invalid property.' });
+        return;
+      }
+
+      roomManager.getRoomById(socket.user.roomId, (room) => {
+        room[prop] = value;
+        room.save();
+        socket.broadcast.to(socket.room._id).emit('output', { message: `${socket.user.username} has altered the fabric of reality.` });
+        //todo: add look here
+      });
+    } else if (type === 'item') {
+
+    }
   },
 
   help() {},

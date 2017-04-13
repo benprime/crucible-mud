@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../roomManager');
+//const roomManager = require('../roomManager');
 
 const mongoose = require('mongoose');
 
@@ -65,7 +65,7 @@ RoomSchema.statics.oppositeDirection = function(dir) {
     default:
       return 'WHAT';
   }
-}
+};
 
 /**
  * @param  {Number}
@@ -103,12 +103,22 @@ RoomSchema.statics.exitName = function(dir) {
     default:
       return 'INVALID_DIRECTION';
   }
-}
+};
 
 RoomSchema.statics.isValidDir = function(dir) {
   // todo: RoomSchema may be the wrong thing here
   return RoomSchema.schema.path('exits.dir').enumValues.indexOf(dir) > -1;
-}
+};
+
+RoomSchema.methods.getSockets = function() {
+  const ioRoom = global.io.sockets.adapter.rooms[this.id];
+  if(!ioRoom) return [];
+  Object.keys(ioRoom.sockets).map((socketId) => global.io.sockets.connected[socketId]);
+};
+
+RoomSchema.methods.getMobById = function(mobId) {
+    return this.mobs.find(m => m.id === mobId);
+};
 
 RoomSchema.methods.dirToCoords = function(dir) {
 
@@ -124,12 +134,12 @@ RoomSchema.methods.dirToCoords = function(dir) {
   if (dir.includes('d')) z -= 1;
 
   return { x, y, z };
-}
+};
 
 RoomSchema.methods.getExit = function(dir) {
   const ldir = dir.toLowerCase();
   return this.exits.find(e => e.dir === ldir);
-}
+};
 
 RoomSchema.methods.addDoor = function(dir, roomId) {
   const ldir = dir.toLowerCase();
@@ -144,7 +154,7 @@ RoomSchema.methods.addDoor = function(dir, roomId) {
   return true;
 };
 
-RoomSchema.methods.createRoom = function(dir, cb) {
+RoomSchema.methods.createRoom = function(dir) {
   const roomModel = this.model('Room');
 
   let exit = this.getExit(dir);
@@ -190,7 +200,7 @@ RoomSchema.methods.createRoom = function(dir, cb) {
 
 
   });
-}
+};
 
 /**
  * Post-Hook Save Magic Middleware
@@ -205,7 +215,5 @@ RoomSchema.post('save', function(room) {
 */
 
 const Room = mongoose.model('Room', RoomSchema);
-
-
 
 module.exports = Room;

@@ -5,10 +5,21 @@ var mobData = require('../data/mobData');
 module.exports = {
   name: 'list',
 
-  patterns: [],
+  // todo: this is going to need some kind of search parameter
+  patterns: [
+    /^list (mobs)$/i,
+    /^list (items)$/i,
+    /^list\s?/i,
+  ],
 
 
   dispatch(socket, match) {
+    if(match.length != 2) {
+      // todo: output the help
+      socket.emit('output', { message: "Invalid list usage." });
+      return;
+    }
+    module.exports.execute(socket);
   },
 
   execute(socket, input) {

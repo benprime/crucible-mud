@@ -12,7 +12,7 @@ const io = require('socket.io')(serve);
 require('./extensionMethods');
 require('./globals');
 const commands = require('./commands/');
-const combat = require('./combat');
+
 const welcome = require('./welcome');
 const loginUtil = require('./login');
 const look = require('./commands/look');
@@ -21,27 +21,19 @@ app.set('port', 3000);
 
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/mud');
 const db = mongoose.connection;
+
+global.db = db;
+global.io = io;
+
+require('./combat');
+
+mongoose.connect('mongodb://localhost:27017/mud');
 db.on('error', console.error.bind(console, 'connection error:'));
 
 db.once('open', function() {
 
   io.on('connection', (socket) => {
-
-    /*
-    const roomModel = require('./models/room');
-    let test = new roomModel.Room();
-    test.name = "TESTING";
-    test.desc = "MOAR TESTING";
-    test.x = -10;
-    test.y = -10;
-    test.z = -10;
-    test.save(function(err, testRoom) {
-      console.log("err", err);
-      console.log("testRoom", testRoom);
-    });
-    */
 
     socket.state = global.STATES.LOGIN_USERNAME;
     socket.emit('output', { message: 'Connected.' });
@@ -72,9 +64,6 @@ db.once('open', function() {
       }
     });
   });
-
-  global.db = db;
-  global.io = io;
 
   serve.listen(app.get('port'), () => {
     console.log(`Express server listening on port ${app.get('port')}`);

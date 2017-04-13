@@ -1,18 +1,32 @@
 'use strict';
 
+const roomManager = require('../roomManager');
+const mobData = require('../data/mobData');
+//const ObjectId = require('mongodb').ObjectId;
+const Mob = require('../models/mob');
+
 module.exports = {
   name: 'spawn',
 
   patterns: [
-    /^spawn\s+?(\w)/i
+    /^spawn\s+?(\w+)/i
   ],
 
-  dispatch(socket, match) {},
+  dispatch(socket, match) {
+    if(match.length != 2) {
+      socket.emit('output', { message: 'invalid spawn.' });
+      return;
+    }
+    let mobTypeName = match[1];
+    console.log("Attempting to spawn: ", mobTypeName);
+    module.exports.execute(socket, mobTypeName);
+  },
 
-  execute(socket, match) {
+  execute(socket, mobTypeName) {
 
-    if (!socket.admin) return;
+    if (!socket.user.admin) return;
 
+    //todo: currently, this error will never get hit
     if (!mobTypeName) {
       socket.emit('output', { message: 'Must pass mob type.' });
       return;
@@ -25,19 +39,15 @@ module.exports = {
       return;
     }
 
-    if (!globals.MOBS[socket.room._id]) globals.MOBS[socket.room._id] = [];
-
     // clone the create type and give it an id
-    var mobInstance = Object.assign({ _id: new ObjectId().toString() }, createType);
+    let mob = new Mob(createType);
 
-    globals.MOBS[socket.room._id].push(mobInstance);
-    //console.log(JSON.stringify(globals.MOBS[socket.room._id]));
-    socket.emit('output', { message: 'Summoning successful.' });
-    socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} waves his hand and a ${createType.displayName} appears!` });
-
-    if (callback) callback();
-
-  },
+    roomManager.getRoomById(socket.user.roomId, (room) => {
+      room.mobs.push(mob);
+      socket.emit('output', { message: 'Summoning successful.' });
+      socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
+    });
+},
 
   help() {},
 }

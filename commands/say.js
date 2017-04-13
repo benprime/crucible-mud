@@ -21,5 +21,5 @@ module.exports = {
     socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} says "${safeMessage}"` });
   },
 
-  help() {},
-}
+  help() { },
+};

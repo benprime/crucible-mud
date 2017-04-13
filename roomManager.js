@@ -4,7 +4,7 @@ const roomModel = require('./models/room.js');
 
 // room cache
 const rooms = {};
-const roomsWithMobs = [];
+//const roomsWithMobs = [];
 
 module.exports = {
   getRoomById(roomId, cb) {
@@ -22,7 +22,7 @@ module.exports = {
         return;
       }
 
-      if(!room) {
+      if (!room) {
         console.log("ROOM NOT FOUND: " + roomId);
       }
 
@@ -33,6 +33,8 @@ module.exports = {
     });
 
   },
+
+  /*
   updateRoomState(room) {
     rooms[room.id] = room;
 
@@ -47,5 +49,16 @@ module.exports = {
       roomsWithMobs.splice(i, 1);
     }
   },
-  rooms: rooms,
+  */
+
+  roomsWithMobs() {
+    return Object.keys(rooms).reduce(function(filtered, key) {
+      if (rooms[key].mobs.length > 0) {
+        filtered.push(rooms[key]);
+      }
+      return filtered;
+    }, []);
+
+  }
+  //rooms: rooms,
 }

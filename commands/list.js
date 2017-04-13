@@ -12,7 +12,6 @@ module.exports = {
     /^list\s?/i,
   ],
 
-
   dispatch(socket, match) {
     if(match.length != 2) {
       // todo: output the help
@@ -36,4 +35,4 @@ module.exports = {
   },
 
   help() {},
-}
+};

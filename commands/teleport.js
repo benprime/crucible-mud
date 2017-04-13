@@ -1,5 +1,8 @@
 'use strict';
 
+const breakCmd = require('./break');
+const lookCmd = require('./look');
+
 module.exports = {
   name: 'teleport',
 
@@ -15,29 +18,31 @@ module.exports = {
             return;
           }
           Teleport(socket, command[1], () => {
-            socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} appears out of thin air!` });
-            Look(socket);
           });
         }
    */
 
   dispatch(socket, match) {
+    module.exports.execute(socket, match[1]);
   },
 
-  execute(socket, input) {
-    const userSocket = globals.GetSocketByUsername(username);
+  execute(socket, username) {
+    const userSocket = global.GetSocketByUsername(username);
     if (!userSocket) {
       socket.emit('output', { message: 'Player not found.' });
       return;
     }
 
-    combat.Break(socket);
-    socket.leave(socket.room._id);
-    socket.join(userSocket.room._id);
-    socket.room = userSocket.room;
-    if (callback) callback();
+    breakCmd.execute(socket);
+
+    socket.leave(socket.user.roomId);
+    socket.join(userSocket.user.roomId);
+    socket.user.roomId = userSocket.roomId;
+    socket.user.save();
+
+    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} appears out of thin air!` });
+    lookCmd.execute(socket);
   },
 
-  help() {},
-
-}
+  help() { },
+};

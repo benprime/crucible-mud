@@ -1,34 +1,8 @@
 'use strict';
 
 const roomManager = require('../roomManager');
-const Room = require('../models/room');
 
 
-/*
-    CreateItem(socket, item, callback) {
-      // add to player's inventoryin mongo
-      globals.DB.collection('users').update({ _id: socket.userId }, { $addToSet: { inventory: item } }, () => {
-        // add item to player's current inventory
-        socket.inventory.push(item);
-        if (callback) callback();
-      });
-    },
-
-function CreateItem(socket, name, callback) {
-  const item = {
-    _id: new ObjectId(),
-    name,
-    desc: 'Default description.',
-  };
-
-  items.CreateItem(socket, item, () => {
-    socket.emit('output', { message: 'Item added to inventory.' });
-    socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} has created a ${name} out of thin air.` });
-    if (callback) callback();
-  });
-}
-
-*/
 
 module.exports = {
   name: 'create',
@@ -56,6 +30,32 @@ module.exports = {
       }
       else if(type === 'item') {
         const name = param;
+
+            /*
+        CreateItem(socket, item, callback) {
+          // add to player's inventoryin mongo
+          globals.DB.collection('users').update({ _id: socket.userId }, { $addToSet: { inventory: item } }, () => {
+            // add item to player's current inventory
+            socket.inventory.push(item);
+            if (callback) callback();
+          });
+        },
+
+      function CreateItem(socket, name, callback) {
+      const item = {
+        _id: new ObjectId(),
+        name,
+        desc: 'Default description.',
+      };
+
+      items.CreateItem(socket, item, () => {
+        socket.emit('output', { message: 'Item added to inventory.' });
+        socket.broadcast.to(socket.room._id).emit('output', { message: `${globals.USERNAMES[socket.id]} has created a ${name} out of thin air.` });
+        if (callback) callback();
+      });
+      }
+
+      */
       } else {
         // todo: global error function for red text?
         console.log("Invalid create type");

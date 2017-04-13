@@ -1,14 +1,12 @@
 'use strict';
 
-
-
 module.exports = {
   name: 'break',
 
   patterns: [],
 
   dispatch(socket, match) {
-		module.exports.execute(socket);
+    module.exports.execute(socket);
   },
 
   execute(socket) {
@@ -23,6 +21,6 @@ module.exports = {
     }
   },
 
-  help() {},
+  help() { },
 
-}
+};

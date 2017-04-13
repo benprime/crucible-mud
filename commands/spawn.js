@@ -2,7 +2,6 @@
 
 const roomManager = require('../roomManager');
 const mobData = require('../data/mobData');
-//const ObjectId = require('mongodb').ObjectId;
 const Mob = require('../models/mob');
 
 module.exports = {
@@ -13,7 +12,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    if(match.length != 2) {
+    if (match.length != 2) {
       socket.emit('output', { message: 'invalid spawn.' });
       return;
     }
@@ -47,7 +46,7 @@ module.exports = {
       socket.emit('output', { message: 'Summoning successful.' });
       socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
     });
-},
+  },
 
-  help() {},
-}
+  help() { },
+};

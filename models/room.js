@@ -1,7 +1,5 @@
 'use strict';
 
-//const roomManager = require('../roomManager');
-
 const mongoose = require('mongoose');
 
 const dirEnum = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw', 'u', 'd'];

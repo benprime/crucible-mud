@@ -6,6 +6,11 @@
   socket.on('output', function(data) {
     var ta = document.getElementById('log');
 
+    if(data.message.includes('You say "boogie"')) {
+      ta.classList.toggle('shake');
+      console.log(ta.class);
+    }
+
     var newHTML = data.message.replace(/\n/g, '<br />\n');
     ta.innerHTML = ta.innerHTML + newHTML + '<br />';
     ta.scrollTop = ta.scrollHeight;

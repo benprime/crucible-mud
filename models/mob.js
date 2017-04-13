@@ -33,7 +33,7 @@ Mob.prototype.Die = function(socket) {
 
     let sockets = room.getSockets();
     sockets.forEach((s) => {
-      if (s.attackTarget === this) {
+      if (s.user.attackTarget === this.id) {
         s.user.attackTarget = null;
         s.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
       }
@@ -126,7 +126,7 @@ Mob.prototype.attack = function(now) {
   // todo: should not rely on target player's socket to inform other players of combat stuffs.
   // If the player disconnects, game should still inform players. Perhaps just loop through all sockets in room (like in actions.)
   playerSocket.emit('output', { message: playerMessage });
-  playerSocket.broadcast.to(playerSocket.room._id).emit('output', { message: roomMessage });
+  playerSocket.broadcast.to(playerSocket.roomId).emit('output', { message: roomMessage });
 
   //io.to(roomId).emit('output', { message });
 

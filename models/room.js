@@ -113,7 +113,7 @@ RoomSchema.statics.isValidDir = function(dir) {
 RoomSchema.methods.getSockets = function() {
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
   if(!ioRoom) return [];
-  Object.keys(ioRoom.sockets).map((socketId) => global.io.sockets.connected[socketId]);
+  return Object.keys(ioRoom.sockets).map((socketId) => global.io.sockets.connected[socketId]);
 };
 
 RoomSchema.methods.getMobById = function(mobId) {

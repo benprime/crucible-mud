@@ -62,6 +62,7 @@ module.exports = {
               if (callback) callback();
             });
           } else {
+            socket.join(user.roomId);
             if (callback) callback();
           }
         });

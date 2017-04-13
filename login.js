@@ -49,8 +49,10 @@ module.exports = {
 
           socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
 
-          // todo: currently these messages go to people who haven't even logged in... change that.
-          socket.broadcast.emit('output', { message: `${socket.user.username} has entered the realm.` });
+          socket.join('realm');
+          socket.broadcast.to('realm').emit('output', { message: `${socket.user.username} has entered the realm.` });
+
+          socket.join('gossip');
 
           // todo: maybe this should check if the roomId currently exists.
           if (!user.roomId) {

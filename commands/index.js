@@ -65,4 +65,4 @@ module.exports = {
     // when a command is not found, it defaults to "say"
     defaultCommand.execute(socket, input);
   }
-}
+};

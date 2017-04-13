@@ -20,39 +20,23 @@ module.exports = {
     roomManager.getRoomById(socket.user.roomId, function(room) {
 
       // autocomplete name
-      //const mobInRoom = room.mobs || [];
       const mobNames = room.mobs.map(mob => mob.displayName);
       const resolvedName = global.ResolveName(socket, targetName, mobNames);
 
       console.log(`Auto completed name: ${resolvedName}`);
 
       const target = room.mobs.find(mob => mob.displayName === resolvedName);
-      //console.log(`mobInRoom: ${JSON.stringify(mobInRoom)}`);
-      //console.log(`target: ${JSON.stringify(target)}`);
 
       if (!target) {
         socket.emit("output", { message: "You don't see that here!" });
         return;
       }
 
-      /*
-      TODO: YOU CAN'T ATTACK PLAYERS UNTIL THERE IS A CHARACTER OBJECT BEING STORED SOMEWHERE FOR THEM
-      if (!target) {
-        // todo: this needs to be able to find a "character object..."
-        let targetUserName = UsersInRoom(socket).find(function(user) {
-          return user === targetName;
-        });
-      }
-      */
-
       socket.user.attackTarget = target.id;
-
-      //const username = globals.USERNAMES[socket.id];
+      socket.user.attackInterval = 4000;
 
       socket.emit('output', { message: '<span class="olive">*** Combat Engaged ***</span>' });
       socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} moves to attack ${resolvedName}!` });
-      socket.user.attackInterval = 4000;
-      //socket.attackTarget = resolvedName;
     });
 
   },

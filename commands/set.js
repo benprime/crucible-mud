@@ -1,7 +1,6 @@
 'use strict';
 
 const roomManager = require('../roomManager');
-const Room = require('../models/room');
 
 module.exports = {
   name: 'set',
@@ -50,5 +49,5 @@ module.exports = {
     }
   },
 
-  help() {},
-}
+  help() { },
+};

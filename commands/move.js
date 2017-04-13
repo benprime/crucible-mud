@@ -29,23 +29,8 @@ function HitWall(socket, dir) {
 
 // emits "You hear movement to the <dir>" to all adjacent rooms
 function MovementSounds(socket, room, excludeDir) {
-  // todo: hrmm, check if the room exists in socket io first?
-  // I think the room doesn't exist in socket io if no one is currently joined to it.
-  // could save processing time... since we don't need to write to sockets if
-  // no one is in those rooms...
-
-  // todo: currently not sending sounds to fromRoom or toRoom,
-  // since those rooms get the standard "leaving" and "entering"
-  // messages. This may change when sneaking is implemented.
-
   // fromRoomId is your current room (before move)
   room.exits.forEach((door) => {
-    /*
-    if (door.roomId.toString() === fromRoomId.toString()) {
-      return;
-    }
-    */
-
     if (excludeDir && door.dir === excludeDir) {
       return;
     }
@@ -132,7 +117,7 @@ module.exports = {
 
       // stop mobs attacking this user (since he is leaving the room)
       breakCommand.execute(socket);
-      
+
       socket.broadcast.to(room.id).emit('output', { message });
       MovementSounds(socket, room, d);
       console.log("Leaving room: ", room.id);
@@ -163,5 +148,5 @@ module.exports = {
 
   },
 
-  help() {},
-}
+  help() { },
+};

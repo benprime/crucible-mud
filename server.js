@@ -6,54 +6,58 @@ const app = express();
 const http = require('http');
 
 const serve = http.createServer(app);
+// convert to global.io... see if we can remove all the references of passing this around
 const io = require('socket.io')(serve);
-const globals = require('./globals');
-//const dirUtil = require('./direction');
-//const adminUtil = require('./admin')(io);
-const commands = require('./commands')(io);
-const combat = require('./combat')(io);
-const mongo = require('mongodb').MongoClient;
+
+require('./extensionMethods');
+require('./globals');
+const commands = require('./commands/');
+
 const welcome = require('./welcome');
-const loginUtil = require('./login')(io);
+const loginUtil = require('./login');
+const look = require('./commands/look');
 
 app.set('port', 3000);
-const mongoUrl = 'mongodb://localhost:27017/test';
+const mongoose = require('mongoose');
 
-mongo.connect(mongoUrl, (err, db) => {
-  if (!db) {
-    console.log(`Could not connect to mongo! ${err}`);
-    process.exit(-1);
-  }
+const db = mongoose.connection;
 
-  // set a global reference to the database
-  globals.DB = db;
+global.db = db;
+global.io = io;
+
+require('./combat');
+
+mongoose.connect('mongodb://localhost:27017/mud');
+db.on('error', console.error.bind(console, 'connection error:'));
+
+db.once('open', function() {
 
   io.on('connection', (socket) => {
-    socket.state = globals.STATES.LOGIN_USERNAME;
+
+    socket.state = global.STATES.LOGIN_USERNAME;
     socket.emit('output', { message: 'Connected.' });
     welcome.WelcomeMessage(socket);
     socket.emit('output', { message: 'Enter username:' });
 
     socket.on('disconnect', () => {
-      // check to see if this user ever successfully logged in
-      if (socket.id in globals.USERNAMES) {
-        combat.MobDisengage(socket);
-        socket.broadcast.emit('output', { message: `${globals.USERNAMES[socket.id]} has left the realm.` });
-        delete globals.USERNAMES[socket.id];
+      // if this user ever successfully logged in, clean up
+      if (socket.user) {
+        socket.broadcast.emit('output', { message: `${socket.user.username} has left the realm.` });
       }
     });
 
     socket.on('command', (data) => {
+      // todo: remove state logic when there is a login process
       switch (socket.state) {
-        case globals.STATES.MUD:
-          commands.CommandDispatch(socket, data);
+        case global.STATES.MUD:
+          commands.Dispatch(socket, data.value);
           break;
-        case globals.STATES.LOGIN_USERNAME:
+        case global.STATES.LOGIN_USERNAME:
           loginUtil.LoginUsername(socket, data);
           break;
-        case globals.STATES.LOGIN_PASSWORD:
-          loginUtil.LoginPassword(socket, data, (socket) => {
-            commands.Look(socket);
+        case global.STATES.LOGIN_PASSWORD:
+          loginUtil.LoginPassword(socket, data, () => {
+            look.execute(socket);
           });
           break;
       }

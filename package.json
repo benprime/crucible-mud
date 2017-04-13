@@ -6,6 +6,7 @@
   "dependencies": {
     "express": "^4.14.0",
     "mongodb": "^2.2.19",
+    "mongoose": "^4.8.4",
     "socket.io": "^1.7.2"
   },
   "devDependencies": {},

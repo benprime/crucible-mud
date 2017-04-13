@@ -30,24 +30,24 @@ module.exports = {
   WelcomeMessage(socket) {
     // made with http://patorjk.com/software/taag/#p=display&f=Delta%20Corps%20Priest%201&t=Crucible%0A%20%20%20%20%20MUD
     // and http://patorjk.com/text-color-fader/
-    let s = '<pre><div><span style="color:#b12020;">   ▄████████  ▄████████ ███    █▄   ▄████████  ▄█  ▀█████████▄   ▄█        ▄████████ </span></div>';
-    s += '<div><span style="color:#b72c24;">  ███    ███ ███    ███ ███    ███ ███    ███ ███    ███    ███ ███       ███    ███ </span></div>';
-    s += '<div><span style="color:#be3728;">  ███    ██▀ ███    ███ ███    ███ ███    █▀  ███▌   ███    ███ ███       ███    █▀  </span></div>';
-    s += '<div><span style="color:#c4432c;">  ███    ▀  ▄███▄▄▄▄██▀ ███    ███ ███        ███▌  ▄███▄▄▄██▀  ███      ▄███▄▄▄     </span></div>';
-    s += '<div><span style="color:#ca4f30;">  ███      ▀▀███▀▀▀▀▀   ███    ███ ███        ███▌ ▀▀███▀▀▀██▄  ███     ▀▀███▀▀▀     </span></div>';
-    s += '<div><span style="color:#d15a34;">  ███      ▀███████████ ███    ███ ███    █▄  ███    ███    ██▄ ███       ███    █▄  </span></div>';
-    s += '<div><span style="color:#d76638;">  ███    █▄  ███    ███ ███    ███ ███    ███ ███    ███    ███ ███▌    ▄ ███    ███ </span></div>';
-    s += '<div><span style="color:#cf5833;">  ███    ███ ███    ███ ████████▀  ████████▀  █▀   ▄█████████▀  █████▄▄██ ██████████ </span></div>';
-    s += '<div><span style="color:#c84a2e;">  ████████▀  ███    ███                                         ▀                      </span></div>';
-    s += '<div><span style="color:#c03c2a;">                           ▄▄▄▄███▄▄▄▄   ███    █▄  ████████▄                          </span></div>';
-    s += '<div><span style="color:#b92e25;">                         ▄██▀▀▀███▀▀▀██▄ ███    ███ ███   ▀███                         </span></div>';
-    s += '<div><span style="color:#b12020;">                         ███   ███   ███ ███    ███ ███    ███                         </span></div>';
-    s += '<div><span style="color:#b72c24;">                         ███   ███   ███ ███    ███ ███    ███                         </span></div>';
-    s += '<div><span style="color:#be3728;">                         ███   ███   ███ ███    ███ ███    ███                         </span></div>';
-    s += '<div><span style="color:#c4432c;">                         ███   ███   ███ ███    ███ ███    ███                         </span></div>';
-    s += '<div><span style="color:#ca4f30;">                         ███   ███   ███ ███    ███ ███   ▄███                         </span></div>';
-    s += '<div><span style="color:#d15a34;">                          ▀█   ███   █▀  ████████▀  ████████▀                          </span></div>';
-    s += '<div><span style="color:#d76638;">                                                                  </span></div></pre>';
+    let s = '<pre><div><span style="color:#b12020;">   ▄████████ ▀█████████▄  ███    █▄   ▄████████  ▄█  ▀█████████▄   ▄█      ▀███████████ </span></div>';
+            s += '<div><span style="color:#b72c24;">  ███    ███   ███    ███ ███    ███ ███    ███ ███    ███    ███ ███        ███    ███ </span></div>';
+            s += '<div><span style="color:#be3728;">  ███    ██▀   ███    ███ ███    ███ ███    █▀  ███▌   ███    ███ ███        ███    █▀  </span></div>';
+            s += '<div><span style="color:#c4432c;">  ███    ▀    ▄███▄▄▄██▀  ███    ███ ███        ███▌  ▄███▄▄▄██▀  ███       ▄███▄▄▄     </span></div>';
+            s += '<div><span style="color:#ca4f30;">  ███        ▀▀███▀▀▀██▄  ███    ███ ███        ███▌ ▀▀███▀▀▀██▄  ███      ▀▀███▀▀▀     </span></div>';
+            s += '<div><span style="color:#d15a34;">  ███          ███    ██▄ ███    ███ ███    █▄  ███    ███    ██▄ ███        ███        </span></div>';
+            s += '<div><span style="color:#d76638;">  ███    █▄    ███    ███ ███    ███ ███    ███ ███    ███    ███ ███▌   ▄   ███    █▄  </span></div>';
+            s += '<div><span style="color:#cf5833;">  ███    ███   ██▀    ██▀ ████████▀  ████████▀  █▀   ▄█████████▀  ████▄▄██   ███    ███ </span></div>';
+            s += '<div><span style="color:#c84a2e;">   ▀██████▀    ▀                                                  ▀        ▄█████████▀  </span></div>';
+            s += '<div><span style="color:#c03c2a;">                            ▄▄▄▄███▄▄▄▄   ███    █▄  ████████▄                          </span></div>';
+            s += '<div><span style="color:#b92e25;">                          ▄██▀▀▀███▀▀▀██▄ ███    ███ ███   ▀███                         </span></div>';
+            s += '<div><span style="color:#b12020;">         █▄               ███   ███   ███ ███    ███ ███    ███               ▄█        </span></div>';
+            s += '<div><span style="color:#b72c24;">         ▀██████████▄     ███   ███   ███ ███    ███ ███    ███     ▄██████████▀        </span></div>';
+            s += '<div><span style="color:#be3728;">                   ▀█     ███   ███   ███ ███    ███ ███    ███     █▀                  </span></div>';
+            s += '<div><span style="color:#c4432c;">                          ███   ███   ███ ███    ███ ███    ███                         </span></div>';
+            s += '<div><span style="color:#ca4f30;">                          ███   ███   ███ ███    ███ ███   ▄███                         </span></div>';
+            s += '<div><span style="color:#d15a34;">                           ▀█   ███   █▀  ████████▀  ████████▀                          </span></div>';
+            s += '<div><span style="color:#d76638;">                                                                   </span></div></pre>';
     socket.emit('output', { message: s });
   },
 };

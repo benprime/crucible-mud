@@ -1,101 +1,71 @@
 'use strict';
 
-const globals = require('./globals');
+const roomModel = require('./models/room');
+//const roomManager = require('./roomManager');
+const userModel = require('./models/user');
 
-module.exports = function (io) {
-  function CheckIfUserAlreadyLoggedIn(socket, username) {
-    for (const socketId in io.sockets.sockets) {
-      if (globals.USERNAMES[socketId] == username) {
-        io.sockets.sockets[socketId].emit('output', { message: 'WARNING: Attempted logins to your account from another connection.' });
-        socket.emit('output', { message: 'Already logged in from another connection.<br>Disconnected.' });
-        socket.disconnect();
-        return true;
-      }
+module.exports = {
+  LoginUsername(socket, username) {
+    if (!socket.userId && (socket.state == global.STATES.LOGIN_USERNAME)) {
+      userModel.findByName(username.value, function(err, user) {
+        console.log(`Searching for user... ${JSON.stringify(username)}`);
+        if (!user) {
+          socket.emit('output', { message: 'Unknown user, please try again.' });
+        } else {
+          // todo: maybe we don't need states for username and password separately. We can just check socket.username
+          socket.tempUsername = user.username;
+          socket.state = global.STATES.LOGIN_PASSWORD;
+          console.log('Successful username.');
+          socket.emit('output', { message: 'Enter password:' });
+        }
+      });
     }
-    return false;
-  }
+  },
 
-  function GetStartingRoom(socket, callback) {
-    // TODO: may change this soon... currently the only reason not to is to detect when a
-    // starting room has not been setup in the data.
-    // var findParams = socket.roomId ? { _id: socket.roomId } : { x: 0, y: 0, z: 0 };
-    const roomsCollection = globals.DB.collection('rooms');
-    roomsCollection.find({ _id: socket.roomId }).toArray((err, docs) => {
-      if (docs.length == 0) {
-        // if the user doesn't have a room saved (first login), default to starting room
-        roomsCollection.find({ x: 0, y: 0, z: 0 }).toArray((err, docs) => {
-          if (docs.length == 0) {
-            console.log('No starting room found!');
+  LoginPassword(socket, password, callback) {
+    if (!socket.userId && (socket.state == global.STATES.LOGIN_PASSWORD)) {
+
+      userModel.findOne({ username: socket.tempUsername, password: password.value })
+        //.populate('room')
+        .exec(function(err, user) {
+          if (err) return console.error(err);
+
+          if (!user) {
+            socket.emit('output', { message: 'Wrong password, please try again.' });
             return;
           }
-          callback(docs[0]);
-        });
-      } else {
-        callback(docs[0]);
-      }
-    });
-  }
 
-  return {
-    LoginUsername(socket, username) {
-      if (!socket.userId && (socket.state == globals.STATES.LOGIN_USERNAME)) {
-        const userCollection = globals.DB.collection('users');
-        console.log(`Searching for user... ${JSON.stringify(username)}`);
-        const userRegEx = new RegExp(`^${username.value}$`, 'i');
-        userCollection.find({ username: userRegEx }).toArray((err, docs) => {
-          if (docs.length == 0) {
-            socket.emit('output', { message: 'Unknown user, please try again.' });
-          } else {
-            // todo: maybe we don't need states for username and password separately. We can just check socket.username
-            socket.tempUsername = docs[0].username;
-            socket.state = globals.STATES.LOGIN_PASSWORD;
-            console.log('Successful username.');
-            socket.emit('output', { message: 'Enter password:' });
-          }
-        });
-      }
-    },
+          console.log('Successful password.');
 
-    LoginPassword(socket, password, callback) {
-      if (!socket.userId && (socket.state == globals.STATES.LOGIN_PASSWORD)) {
-        const userCollection = globals.DB.collection('users');
-        userCollection.find({ username: socket.tempUsername, password: password.value }).toArray((err, docs) => {
-          if (docs.length == 0) {
-            socket.emit('output', { message: 'Wrong password, please try again.' });
-          } else {
-            console.log('Successful password.');
-            const error = CheckIfUserAlreadyLoggedIn(socket, socket.tempUsername);
-            if (error) {
-              return;
-            }
+          delete socket.tempUsername;
 
-            // todo: maybe we don't need states for username and password separately. We can just check socket.username
-            delete socket.tempUsername;
-            const user = docs[0];
-            globals.USERNAMES[socket.id] = user.username;
-            socket.userId = user._id;
-            socket.admin = user.admin;
-            socket.inventory = user.inventory || [];
-            if (user.roomId) {
-              socket.roomId = user.roomId;
-            }
-            socket.state = globals.STATES.MUD;
+          // THIS SHOULD BE THE ONLY USER STATE MANAGEMENT
+          socket.user = user;
 
 
-            socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
+          // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
+          socket.state = global.STATES.MUD;
 
-            // todo: currently these messages go to people who haven't even logged in... change that.
-            socket.broadcast.emit('output', { message: `${globals.USERNAMES[socket.id]} has entered the realm.` });
 
-            // lookup room data
-            GetStartingRoom(socket, (room) => {
-              socket.room = room;
-              socket.join(socket.room._id);
-              callback(socket);
+          socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
+
+          // todo: currently these messages go to people who haven't even logged in... change that.
+          socket.broadcast.emit('output', { message: `${socket.user.username} has entered the realm.` });
+
+          // todo: maybe this should check if the roomId currently exists.
+          if (!user.roomId) {
+            roomModel.byCoords({ x: 0, y: 0, z: 0 }, function(err, room) {
+              console.log("Default room", room);
+              socket.user.roomId = room.id;
+              socket.join(room.id);
+              console.log(JSON.stringify(room));
+              if (callback) callback();
             });
+          } else {
+            socket.join(user.roomId);
+            if (callback) callback();
           }
         });
-      }
-    },
-  };
+    }
+  },
 };

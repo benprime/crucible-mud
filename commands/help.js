@@ -53,6 +53,7 @@ module.exports = {
       output += '<span class="mediumOrchid">set room desc &lt;new room desc&gt;</span><br />';
       output += '<span class="mediumOrchid">create item &lt;item name&gt;</span><br />';
       output += '<span class="mediumOrchid">teleport &lt;username&gt;</span><br />';
+      output += '<span class="mediumOrchid">summon &lt;username&gt;</span><br />';
       output += '<span class="mediumOrchid">list - list mob catalog</span><br />';
       output += '<span class="mediumOrchid">spawn <mobType> - spawn &lt;mobType&gt;</span><br />';
     }

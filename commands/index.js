@@ -42,8 +42,10 @@ module.exports = {
       for (let p = 0; p < handlers[h].patterns.length; p++) {
         let match = input.match(handlers[h].patterns[p]);
         if (match) {
-          handlers[h].dispatch(socket, match);
-          return;
+          if(!handlers[h].admin || socket.user.admin) {
+            handlers[h].dispatch(socket, match);
+            return;
+          }
         }
       }
     }

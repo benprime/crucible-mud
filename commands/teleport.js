@@ -5,6 +5,7 @@ const lookCmd = require('./look');
 
 module.exports = {
   name: 'teleport',
+  admin: true,
 
   patterns: [
     /teleport\s+(\w+)$/i,

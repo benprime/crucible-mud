@@ -4,6 +4,7 @@ const roomManager = require('../roomManager');
 
 module.exports = {
   name: 'set',
+  admin: true,
 
   patterns: [
     /^set\s+(room)\s+(desc)\s+(.+)$/i,

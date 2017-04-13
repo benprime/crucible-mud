@@ -4,6 +4,7 @@ var mobData = require('../data/mobData');
 
 module.exports = {
   name: 'list',
+  admin: true,
 
   // todo: this is going to need some kind of search parameter
   patterns: [

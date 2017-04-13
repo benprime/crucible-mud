@@ -6,6 +6,7 @@ const roomManager = require('../roomManager');
 
 module.exports = {
   name: 'create',
+  admin: true,
 
   patterns: [
     /^create\s+(room)\s+(\w+)$/i,

@@ -6,6 +6,7 @@ const Mob = require('../models/mob');
 
 module.exports = {
   name: 'spawn',
+  admin: true,
 
   patterns: [
     /^spawn\s+?(\w+)/i

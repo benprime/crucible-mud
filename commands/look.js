@@ -15,25 +15,24 @@ module.exports = {
 
   dispatch(socket, match) {
     let item = null;
-    let command = match[0];
     if (match.length > 1) {
       item = match[1];
     }
-    module.exports.execute(socket, command, item);
+    const short = (match[0] == '');
+    module.exports.execute(socket, short, item);
   },
 
-  execute(socket, command, item) {
+  execute(socket, short, item) {
 
     // get the room from the global cache
     roomManager.getRoomById(socket.user.roomId, (room) => {
       console.log('mobs:', room.mobs);
 
-      //const exits = socket.room.exits || [];
       //const inventory = socket.room.inventory || [];
 
       let output = `<span class='cyan'>${room.name}</span>\n`;
 
-      if (command != '') {
+      if (!short) {
         output += `<span class='silver'>${room.desc}</span>\n`;
       }
 

@@ -1,6 +1,7 @@
 'use strict';
 
 const roomManager = require('../roomManager');
+const lookCmd = require('./look');
 
 module.exports = {
   name: 'set',
@@ -42,8 +43,8 @@ module.exports = {
       roomManager.getRoomById(socket.user.roomId, (room) => {
         room[prop] = value;
         room.save();
-        socket.broadcast.to(socket.room._id).emit('output', { message: `${socket.user.username} has altered the fabric of reality.` });
-        //todo: add look here
+        socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} has altered the fabric of reality.` });
+        lookCmd.execute(socket);
       });
     } else if (type === 'item') {
 

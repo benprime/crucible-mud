@@ -139,7 +139,7 @@ module.exports = {
       } else {
         message = `${username} has entered from the ${Room.exitName(Room.oppositeDirection(dir))}.`;
       }
-      socket.broadcast.to(room.id).emit('output', { message });
+      socket.broadcast.to(door.roomId).emit('output', { message });
 
       // You have moved south...
       socket.emit('output', { message: Feedback(dir) });

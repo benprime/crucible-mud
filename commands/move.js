@@ -99,7 +99,7 @@ module.exports = {
       let message = '';
       if (!room) {
         // hrmm if the exit was just validated, this should never happen.
-        HitWall(socket, dir);
+        HitWall(socket, d);
         console.log("WARNING: Query couldn't find next room when going through a door.");
         return;
       }
@@ -107,12 +107,12 @@ module.exports = {
       var username = socket.user.username;
 
       // send message to everyone in old room that player is leaving
-      if (dir === 'u') {
+      if (d === 'u') {
         message = `${username} has gone above.`;
-      } else if (dir === 'd') {
+      } else if (d === 'd') {
         message = `${username} has gone below.`;
       } else {
-        message = `${username} has left to the ${Room.exitName(dir)}.`;
+        message = `${username} has left to the ${Room.exitName(d)}.`;
       }
 
       // stop mobs attacking this user (since he is leaving the room)
@@ -132,12 +132,12 @@ module.exports = {
       MovementSounds(socket, room, Room.oppositeDirection(d));
 
       // send message to everyone is new room that player has arrived
-      if (dir === 'u') {
+      if (d === 'u') {
         message = `${username} has entered from below.`;
-      } else if (dir === 'd') {
+      } else if (d === 'd') {
         message = `${username} has entered from above.`;
       } else {
-        message = `${username} has entered from the ${Room.exitName(Room.oppositeDirection(dir))}.`;
+        message = `${username} has entered from the ${Room.exitName(Room.oppositeDirection(d))}.`;
       }
       socket.broadcast.to(door.roomId).emit('output', { message });
 

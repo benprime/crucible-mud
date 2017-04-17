@@ -1,6 +1,7 @@
 'use strict';
 
-var mobData = require('../data/mobData');
+const mobData = require('../data/mobData');
+const itemData = require('../data/itemData');
 
 module.exports = {
   name: 'list',
@@ -10,30 +11,36 @@ module.exports = {
   patterns: [
     /^list (mobs)$/i,
     /^list (items)$/i,
-    /^list\s?/i,
+    /^list$/i,
   ],
 
   dispatch(socket, match) {
-    if(match.length != 2) {
+    if (match.length != 2) {
       // todo: output the help
       socket.emit('output', { message: "Invalid list usage." });
       return;
     }
-    module.exports.execute(socket);
+    if (match[1].toLowerCase() == 'items') {
+      module.exports.execute(socket, itemData);
+    } else if (match[1].toLowerCase() == 'mobs') {
+      module.exports.execute(socket, mobData);
+    } else {
+      socket.emit('output', { message: `Unknown catalog: {match[1]}` });
+      return;
+    }
+
   },
 
-  execute(socket, input) {
-
+  execute(socket, data) {
     let output = '<table><tr><th>Name</th><th>Display Name</th></tr>';
 
-    const mobTable = mobData.catalog.map(mob => `<tr><td>${mob.name}</td><td>${mob.displayName}</td></tr>`).join('\n');
+    const mobTable = data.catalog.map(item => `<tr><td>${item.name}</td><td>${item.displayName}</td></tr>`).join('\n');
     output += mobTable;
 
     output += '</table>';
-    //console.log(output);
 
     socket.emit('output', { message: output });
   },
 
-  help() {},
+  help() { },
 };

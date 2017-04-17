@@ -47,4 +47,4 @@ module.exports = {
       "The {0} whines \"Oh sure, beat up on the dummy!\""
     ]
   }]
-}
+};

@@ -27,7 +27,9 @@ const UserSchema = new mongoose.Schema({
 
   roomId: {
     type: mongoose.Schema.ObjectId,
-  }
+  },
+
+  inventory: []
 
   /*
   room: {

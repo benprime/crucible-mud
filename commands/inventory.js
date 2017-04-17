@@ -10,14 +10,12 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    
+    module.exports.execute(socket);
   },
 
-  execute(socket, input) {
-    console.log(socket.inventory);
-    const inv = socket.inventory || [];
+  execute(socket) {
+    const inv = socket.user.inventory || [];
     let invOutput = inv.map(item => item.name).join(', ');
-    console.log(invOutput);
     if (!invOutput) {
       invOutput = 'Nothing.';
     }

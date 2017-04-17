@@ -38,24 +38,12 @@ global.FilterMatch = (array, pattern) => {
 
 global.ResolveName = (socket, nameString, list) => {
   const name = nameString.trim().toLowerCase();
-  //console.log("nameString", nameString);
 
-  //console.log("list", JSON.stringify(list));
   // (if there are two or more of the same creature, we just pick the first one)
-  const uniqueMobNameList = list.filter((item, i, list) => list.indexOf(item) === i);
-  //console.log("uniqueMobNameList", JSON.stringify(uniqueMobNameList));
-  const filteredNames = global.FilterMatch(uniqueMobNameList, name);
-  //console.log("filteredNames", JSON.stringify(filteredNames));
+  const uniqueList = list.filter((item, i, list) => list.indexOf(item) === i);
+  const filteredNames = global.FilterMatch(uniqueList, name);
 
-  if (filteredNames.length > 1) {
-    socket.emit('output', { message: 'Not specific enough!' });
-    return null;
-  } else if (filteredNames.length === 0) {
-    socket.emit('output', { message: 'You don\'t see that here!' });
-    return null;
-  }
-  // got it
-  return filteredNames[0];
+  return filteredNames;
 };
 
 global.GetSocketByUsername = (username) => {

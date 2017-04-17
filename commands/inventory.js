@@ -15,7 +15,7 @@ module.exports = {
 
   execute(socket) {
     const inv = socket.user.inventory || [];
-    let invOutput = inv.map(item => item.name).join(', ');
+    let invOutput = inv.map(item => item.displayName).join(', ');
     if (!invOutput) {
       invOutput = 'Nothing.';
     }

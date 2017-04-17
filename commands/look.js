@@ -28,19 +28,17 @@ module.exports = {
     roomManager.getRoomById(socket.user.roomId, (room) => {
       console.log('mobs:', room.mobs);
 
-      //const inventory = socket.room.inventory || [];
-
       let output = `<span class='cyan'>${room.name}</span>\n`;
 
       if (!short) {
         output += `<span class='silver'>${room.desc}</span>\n`;
       }
 
-      /*
-          if (room.inventory.length > 0) {
-            output += `<span class='darkcyan'>You notice: ${inventory.map(item => item.name).join(', ')}.</span>\n`;
-          }
-      */
+      // rodo: remove first check after old data has been purged
+      if (room.inventory && room.inventory.length > 0) {
+        output += `<span class='darkcyan'>You notice: ${room.inventory.map(item => item.displayName).join(', ')}.</span>\n`;
+      }
+
       let names = global.UsersInRoom(room.id).filter(name => name !== socket.user.username);
 
       console.log("Users in room names: ", names);
@@ -63,6 +61,6 @@ module.exports = {
     });
   },
 
-  help() {},
+  help() { },
 
 };

@@ -1,7 +1,7 @@
 'use strict';
 
 if (!String.prototype.format) {
-  String.prototype.format = function() {
+  String.prototype.format = function () {
     const args = arguments;
     return this.replace(/{(\d+)}/g, (match, number) => (typeof args[number] !== 'undefined') ? args[number] : match);
   };
@@ -22,9 +22,10 @@ if (!Object.prototype.getKeyByValue) {
   });
 }
 
-if (!Array.prototype.GetFirstByName) {
-  Array.prototype.GetFirstByName = function(name) {
-    const item = this.find(i => i.name.toLowerCase() === name.toLowerCase());
+if (!Array.prototype.GetFirstByDisplayName) {
+  Array.prototype.GetFirstByDisplayName = function (name) {
+    if (!name) return undefined;
+    const item = this.find(i => i.displayName.toLowerCase() === name.toLowerCase());
     return item;
   };
 }

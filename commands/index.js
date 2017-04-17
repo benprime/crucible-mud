@@ -1,6 +1,7 @@
 'use strict';
 
 const actionHandler = require('../actionHandler');
+const helpHandler = require('./help');
 
 let handlers = [];
 //todo: perhaps this should live in a config file?
@@ -12,16 +13,17 @@ console.log('path:', normalizedPath);
 
 require('fs').readdirSync(normalizedPath).forEach(function(file) {
   if (file != 'index.js') {
-    let module = require('./' + file);
+    let commandHandler = require('./' + file);
     
     // initialization checks
-    if(!module.name) throw `command ${file} missing name!`;
-    if(!module.dispatch) throw `command ${file} missing dispatch!`;
-    if(!module.execute) throw `command ${file} missing execute!`;
-    if(!module.patterns) throw `command ${file} missing patterns!`;
-    if(!module.help) throw `command ${file} missing help!`;
+    if(!commandHandler.name) throw `command ${file} missing name!`;
+    if(!commandHandler.dispatch) throw `command ${file} missing dispatch!`;
+    if(!commandHandler.execute) throw `command ${file} missing execute!`;
+    if(!commandHandler.patterns) throw `command ${file} missing patterns!`;
+    if(!commandHandler.help) throw `command ${file} missing help!`;
 
-    handlers.push(module);
+    handlers.push(commandHandler);
+    helpHandler.registerCommand(commandHandler);
   }
 
   defaultCommand = handlers.find(h => h.name === "say");
@@ -50,9 +52,7 @@ module.exports = {
       }
     }
 
-    // todo: perhaps move the actions into their own command handler?
-    // using regex to parse that many commands on every enter press may be a bad idea...
-    
+    // handle player actions (emotes)
     const actionRegex = /^(\w+)\s?(.*)$/i;
     let match = input.match(actionRegex);
     if(match) {

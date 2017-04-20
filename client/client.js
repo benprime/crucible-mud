@@ -1,19 +1,27 @@
   var commandHistory = [];
   var historyIndex = -1;
-
   var socket = io("http://localhost:3000");
 
+  var actionNotifySound = new Audio('cardSlide1.wav');
   socket.on('output', function(data) {
     var ta = document.getElementById('log');
+    var atBottom = (ta.scrollHeight - ta.scrollTop) === ta.clientHeight;
+    var newHTML = data.message.replace(/\n/g, '<br />\n');
+    ta.innerHTML = ta.innerHTML + newHTML + '<br />';
+    if(atBottom) {
+      ta.scrollTop = ta.scrollHeight;
+    } else {
+      var actionNotifyIcon = document.getElementById('actionNotify');
+      actionNotifyIcon.style.display = 'block';
+      actionNotifySound.play();
+    }
 
+    /*
     if(data.message.includes('You say "boogie"')) {
       ta.classList.toggle('shake');
       console.log(ta.class);
     }
-
-    var newHTML = data.message.replace(/\n/g, '<br />\n');
-    ta.innerHTML = ta.innerHTML + newHTML + '<br />';
-    ta.scrollTop = ta.scrollHeight;
+    */
   });
 
   function sendData(e) {

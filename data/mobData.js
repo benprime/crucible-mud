@@ -10,6 +10,7 @@ module.exports = {
   // will have stats.
   catalog: [{
     name: "kobold",
+    desc: "an ugly kobold",
     displayName: "kobold sentry",
     adjectives: [
       "big", "small", "short", "tall"
@@ -29,6 +30,7 @@ module.exports = {
     ]
   }, {
     name: "dummy",
+    desc: "a sparring dummy",
     displayName: "enchanted sparring dummy",
     attackInterval: 0, // no attacks
     hp: 20,

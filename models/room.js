@@ -33,12 +33,12 @@ const RoomSchema = new mongoose.Schema({
     }
   }],
 
-  
+  inventory: []
 
 });
 
 // todo: move to RoomHelper.js
-RoomSchema.statics.oppositeDirection = function(dir) {
+RoomSchema.statics.oppositeDirection = function (dir) {
   switch (dir) {
     case 'n':
       return 's';
@@ -72,11 +72,11 @@ RoomSchema.statics.oppositeDirection = function(dir) {
  * @param  {Function}
  * @return {[type]}
  */
-RoomSchema.statics.byCoords = function(coords, cb) {
+RoomSchema.statics.byCoords = function (coords, cb) {
   return this.findOne({ x: coords.x, y: coords.y, z: coords.z }, cb);
 };
 
-RoomSchema.statics.exitName = function(dir) {
+RoomSchema.statics.exitName = function (dir) {
   switch (dir) {
     case 'n':
       return 'north';
@@ -103,22 +103,22 @@ RoomSchema.statics.exitName = function(dir) {
   }
 };
 
-RoomSchema.statics.isValidDir = function(dir) {
+RoomSchema.statics.isValidDir = function (dir) {
   // todo: RoomSchema may be the wrong thing here
   return RoomSchema.schema.path('exits.dir').enumValues.indexOf(dir) > -1;
 };
 
-RoomSchema.methods.getSockets = function() {
+RoomSchema.methods.getSockets = function () {
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
-  if(!ioRoom) return [];
+  if (!ioRoom) return [];
   return Object.keys(ioRoom.sockets).map((socketId) => global.io.sockets.connected[socketId]);
 };
 
-RoomSchema.methods.getMobById = function(mobId) {
-    return this.mobs.find(m => m.id === mobId);
+RoomSchema.methods.getMobById = function (mobId) {
+  return this.mobs.find(m => m.id === mobId);
 };
 
-RoomSchema.methods.dirToCoords = function(dir) {
+RoomSchema.methods.dirToCoords = function (dir) {
 
   let x = this.x;
   let y = this.y;
@@ -134,12 +134,12 @@ RoomSchema.methods.dirToCoords = function(dir) {
   return { x, y, z };
 };
 
-RoomSchema.methods.getExit = function(dir) {
+RoomSchema.methods.getExit = function (dir) {
   const ldir = dir.toLowerCase();
   return this.exits.find(e => e.dir === ldir);
 };
 
-RoomSchema.methods.addDoor = function(dir, roomId) {
+RoomSchema.methods.addDoor = function (dir, roomId) {
   const ldir = dir.toLowerCase();
   const exit = this.getExit(ldir);
   if (exit) {
@@ -152,7 +152,7 @@ RoomSchema.methods.addDoor = function(dir, roomId) {
   return true;
 };
 
-RoomSchema.methods.createRoom = function(dir) {
+RoomSchema.methods.createRoom = function (dir) {
   const roomModel = this.model('Room');
 
   let exit = this.getExit(dir);
@@ -165,7 +165,7 @@ RoomSchema.methods.createRoom = function(dir) {
   var targetCoords = this.dirToCoords(dir);
   const fromRoom = this;
 
-  roomModel.byCoords(targetCoords, function(targetRoom) {
+  roomModel.byCoords(targetCoords, function (targetRoom) {
     const oppDir = roomModel.oppositeDirection(dir);
     if (targetRoom) {
       fromRoom.addDoor(dir, targetRoom.id);
@@ -189,7 +189,7 @@ RoomSchema.methods.createRoom = function(dir) {
       });
 
       // update this room with door to new room
-      targetRoom.save(function(err, updatedRoom) {
+      targetRoom.save(function (err, updatedRoom) {
         fromRoom.addDoor(dir, updatedRoom.id);
         fromRoom.save();
       });

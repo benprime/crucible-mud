@@ -1,6 +1,7 @@
 'use strict';
 
 const roomModel = require('./models/room.js');
+const Item = require('./models/item');
 
 // room cache
 const rooms = {};
@@ -28,6 +29,8 @@ module.exports = {
 
       // initialize state members not persisted to database
       room.mobs = [];
+
+      room.inventory = room.inventory.map(item => new Item(item));
 
       cb(room);
     });
@@ -61,4 +64,4 @@ module.exports = {
 
   }
   //rooms: rooms,
-}
+};

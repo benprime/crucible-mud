@@ -6,11 +6,21 @@ const roomManager = require('../roomManager');
 const dice = require('../dice');
 
 function Mob(mobType, roomId) {
-  this.id = new ObjectId().toString();
+  if(!this.id) {
+    this.id = new ObjectId().toString();
+  }
+
   this.roomId = roomId;
 
   return Object.assign(this, mobType);
 }
+
+Mob.prototype.Look = function(socket) {
+    socket.emit('output', { message: this.desc });
+    if(socket.user.admin) {
+      socket.emit('output', { message: `Mob ID: ${this.id}` });
+    }
+};
 
 Mob.prototype.TakeDamage = function (socket, damage) {
   this.hp -= damage;
@@ -28,16 +38,23 @@ Mob.prototype.Die = function (socket) {
     // remove mob from the room    
     let i = room.mobs.indexOf(this);
     room.mobs.splice(i, 1);
+    this.Dispose(socket);
+  });
+};
 
+// todo: cleaning up for current room. This may needs some rework when the mobs
+// can move from room to room.
+Mob.prototype.Dispose = function(socket) {
+  roomManager.getRoomById(socket.user.roomId, (room) => {
     let sockets = room.getSockets();
     sockets.forEach((s) => {
       if (s.user.attackTarget === this.id) {
         s.user.attackTarget = null;
+        s.emit('output', { message: `You gain ${this.xp} experience.` });
         s.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
       }
     });
   });
-
 };
 
 Mob.prototype.selectTarget = function (roomid) {

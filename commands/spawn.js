@@ -14,7 +14,7 @@ module.exports = {
   patterns: [
     /^spawn\s+(mob)\s+(\w+)$/i,
     /^spawn\s+(item)\s+(\w+)$/i,
-    /^spawn\s+?/i,
+    /^spawn\s+/i,
   ],
 
   dispatch(socket, match) {

@@ -114,6 +114,41 @@ RoomSchema.methods.getSockets = function () {
   return Object.keys(ioRoom.sockets).map((socketId) => global.io.sockets.connected[socketId]);
 };
 
+RoomSchema.methods.Look = function (socket, short) {
+  let output = `<span class='cyan'>${this.name}</span>\n`;
+
+  if (!short) {
+    output += `<span class='silver'>${this.desc}</span>\n`;
+  }
+
+  // rodo: remove first check after old data has been purged
+  if (this.inventory && this.inventory.length > 0) {
+    output += `<span class='darkcyan'>You notice: ${this.inventory.map(item => item.displayName).join(', ')}.</span>\n`;
+  }
+
+  let names = global.UsersInRoom(this.id).filter(name => name !== socket.user.username);
+
+  console.log("Users in room names: ", names);
+
+  const mobNames = this.mobs.map(mob => mob.displayName + ' ' + mob.hp);
+  if (mobNames) { names = names.concat(mobNames); }
+  const displayNames = names.join('<span class=\'mediumOrchid\'>, </span>');
+
+  if (displayNames) {
+    output += `<span class='purple'>Also here: <span class='teal'>${displayNames}</span>.</span>\n`;
+  }
+
+  if (this.exits.length > 0) {
+    output += `<span class='green'>Exits: ${this.exits.map(door => Room.exitName(door.dir)).join(', ')}</span>\n`;
+  }
+
+  if(!short && socket.user.admin) {
+    output += `<span class='gray'>Room ID: ${this.id}</span>\n`;
+  }
+
+  socket.emit('output', { message: output });
+};
+
 RoomSchema.methods.getMobById = function (mobId) {
   return this.mobs.find(m => m.id === mobId);
 };

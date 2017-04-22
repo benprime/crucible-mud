@@ -15,22 +15,18 @@ module.exports = {
       return;
     }
 
-    return roomModel.findById(roomId, function(err, room) {
+    return roomModel.findById(roomId, function (err, room) {
       console.log("room lookup");
-      rooms[roomId] = room;
       if (err) {
         console.log(err);
         return;
       }
 
-      if (!room) {
-        console.log("ROOM NOT FOUND: " + roomId);
+      if (room) {
+        rooms[roomId] = room;
+        room.mobs = [];
+        room.inventory = room.inventory.map(item => new Item(item));
       }
-
-      // initialize state members not persisted to database
-      room.mobs = [];
-
-      room.inventory = room.inventory.map(item => new Item(item));
 
       cb(room);
     });
@@ -55,7 +51,7 @@ module.exports = {
   */
 
   roomsWithMobs() {
-    return Object.keys(rooms).reduce(function(filtered, key) {
+    return Object.keys(rooms).reduce(function (filtered, key) {
       if (rooms[key].mobs.length > 0) {
         filtered.push(rooms[key]);
       }

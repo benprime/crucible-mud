@@ -30,14 +30,13 @@ module.exports = {
       // look for mob in user's current room
       roomManager.getRoomById(socket.user.roomId, (room) => {
         // locate mob
-        const mob = room.mobs.find(mob => mob.id = id);
-        if (!mob) {
+        const mobIndex = room.mobs.findIndex(mob => mob.id = id);
+        if (mobIndex === -1) {
           socket.emit('output', { message: 'Unknown mob ID.' });
           return;
         }
 
         // delete mob
-        const mobIndex = room.mobs.indexOf(mob);
         room.mobs.splice(mobIndex, 1);
 
         // clean up after vortex caused by mob removal
@@ -51,14 +50,13 @@ module.exports = {
       // look for mob in user's current room
       roomManager.getRoomById(socket.user.roomId, (room) => {
         // locate item
-        const item = socket.user.inventory.find(item => item.id === id);
-        if (!item) {
+        const itemIndex = socket.user.inventory.findIndex(item => item.id === id);
+        if (itemIndex === -1) {
           socket.emit('output', { message: 'Unknown item ID.' });
           return;
         }
 
         // delete item
-        const itemIndex = socket.user.inventory.indexOf(item);
         socket.user.inventory.splice(itemIndex, 1);
         socket.user.save();
 

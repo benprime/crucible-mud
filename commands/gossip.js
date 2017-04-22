@@ -18,7 +18,7 @@ module.exports = {
     safeMessage = safeMessage.replace(/>/g, '&gt;');
 
     const output = `<span class="silver">${socket.user.username} gossips: </span><span class="mediumOrchid">${safeMessage}</span>`;
-    io.to('gossip').emit('output', { message: output });
+    global.io.to('gossip').emit('output', { message: output });
   },
 
   help() {},

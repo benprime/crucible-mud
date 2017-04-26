@@ -43,13 +43,13 @@ module.exports = {
         socket.emit('output', { message: 'Mob successfully destroyed.' });
 
         // announce mob disappearance to any onlookers
-        socket.broadcast.to(room.id).emit('output', { message: `${mob.displayName} erased from existence!` });
+        socket.broadcast.to(room.id).emit('output', { message: `Mob erased from existence!` });
       });
     }
     else if (type == 'item') {
-      // look for mob in user's current room
+      // find user's current room
       roomManager.getRoomById(socket.user.roomId, (room) => {
-        // locate item
+      // look for item in user's inventory
         const itemIndex = socket.user.inventory.findIndex(item => item.id === id);
         if (itemIndex === -1) {
           socket.emit('output', { message: 'Unknown item ID.' });
@@ -64,13 +64,17 @@ module.exports = {
         socket.emit('output', { message: 'Item successfully destroyed.' });
 
         // announce item disappearance to any onlookers
-        socket.broadcast.to(room.id).emit('output', { message: `${item.displayName} erased from existence!` });
+        socket.broadcast.to(room.id).emit('output', { message: `Item erased from existence!` });
 
-        // todo: determine if we want to hide when an admin creates and item      
-        // socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
+        // todo: determine if we want to hide when an admin destroys an item      
       });
     }
   },
 
-  help() { },
+  help(socket) { 
+    let output = '';
+    output += '<span class="mediumOrchid">destroy mob &lt;mob ID&gt; </span><span class="purple">-</span> Remove <mob> from current room.<br />';
+    output += '<span class="mediumOrchid">destroy item &lt;item ID&gt; </span><span class="purple">-</span> Remove <item> from inventory.<br />';
+    socket.emit('output', { message: output });
+  },
 };

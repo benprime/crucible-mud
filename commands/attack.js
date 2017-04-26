@@ -44,5 +44,9 @@ module.exports = {
 
   },
 
-  help() {},
+  help(socket) {
+    let output = '';
+    output += '<span class="mediumOrchid">attack &lt;mob name&gt;<span class="purple">|</span> a</span> <span class="purple">-</span> Begin combat attacking &lt;target&gt;.<br />';
+    socket.emit('output', { message: output });
+  },
 };

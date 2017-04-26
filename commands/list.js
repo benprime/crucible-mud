@@ -42,5 +42,10 @@ module.exports = {
     socket.emit('output', { message: output });
   },
 
-  help() { },
+  help(socket) { 
+    let output = '';
+    output += '<span class="mediumOrchid">list mobs </span><span class="purple">-</span> Display info table of all valid mobs.<br />';
+    output += '<span class="mediumOrchid">list items </span><span class="purple">-</span> Display info table of all valid items<br />';
+    socket.emit('output', { message: output });
+  },
 };

@@ -40,5 +40,10 @@ module.exports = {
     });
   },
 
-  help() {},
+  help(socket) {
+    let output = '';
+    output += '<span class="cyan">yell command</span><br/>';
+    output += '<span class="mediumOrchid">"<message></span> <span class="purple">-</span> Yell to this room and all adjacent rooms.<br />';
+    socket.emit('output', { message: output });
+  },
 };

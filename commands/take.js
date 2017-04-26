@@ -58,5 +58,9 @@ module.exports = {
     });
   },
 
-  help() { },
+  help(socket) { 
+    let output = '';
+    output += '<span class="mediumOrchid">take &lt;item name&gt </span><span class="purple">-</span> Move &lt;item&gt; into inventory. <br />';
+    socket.emit('output', { message: output });
+  },
 };

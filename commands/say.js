@@ -3,7 +3,10 @@
 module.exports = {
   name: 'say',
 
-  patterns: [/^\.(.+)/, /^say\s+(.+)/i],
+  patterns: [
+    /^\.(.+)/, 
+    /^say\s+(.+)/i
+  ],
 
   dispatch(socket, match) {
     module.exports.execute(socket, match[1]);
@@ -20,5 +23,10 @@ module.exports = {
     socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} says "${safeMessage}"` });
   },
 
-  help() { },
+  help(socket) { 
+    let output = '';
+    output += '<span class="cyan">say command </span><span class="darkcyan">-</span> Speak to users in current room.<br>';
+    output += '<span class="mediumOrchid">.<message></span> <span class="purple">-</span> Start a command with . to say to users.<br />';
+    socket.emit('output', { message: output });
+  },
 };

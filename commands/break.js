@@ -3,7 +3,10 @@
 module.exports = {
   name: 'break',
 
-  patterns: [],
+  patterns: [
+    /br\s$/i,
+    /break\s$/i,
+  ],
 
   dispatch(socket, match) {
     module.exports.execute(socket);
@@ -20,6 +23,10 @@ module.exports = {
     }
   },
 
-  help() { },
+  help(socket) { 
+    let output = '';
+    output += '<span class="mediumOrchid">break <span class="purple">|</span> br</span> <span class="purple">-</span> End combat.<br />';
+    socket.emit('output', { message: output });
+  },
 
 };

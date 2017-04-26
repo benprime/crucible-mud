@@ -56,6 +56,10 @@ module.exports = {
 
   },
 
-  help() { },
+  help(socket) { 
+    let output = '';
+    output += '<span class="mediumOrchid">drop &lt;item name&gt </span><span class="purple">-</span> Drop <item> from inventory onto the floor.<br>';
+    socket.emit('output', { message: output });
+  },
 
 };

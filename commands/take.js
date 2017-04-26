@@ -9,7 +9,9 @@ module.exports = {
 
   patterns: [
     /^take\s+(\w+)$/i,
-    /^take/i
+    /^get\s+(\w+)$/i,
+    /^take/i,
+    /^get/i
   ],
 
   dispatch(socket, match) {

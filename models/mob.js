@@ -33,7 +33,7 @@ Mob.prototype.Die = function (socket) {
   roomManager.getRoomById(socket.user.roomId, (room) => {
 
     global.io.to(room.id).emit('output', { message: 'The creature collapses.' });
-    socket.emit('output', { message: `You gain ${this.xp} experience.` });
+    //socket.emit('output', { message: `You gain ${this.xp} experience.` });
 
     // remove mob from the room    
     let i = room.mobs.indexOf(this);
@@ -50,6 +50,7 @@ Mob.prototype.Dispose = function(socket) {
     sockets.forEach((s) => {
       if (s.user.attackTarget === this.id) {
         s.user.attackTarget = null;
+        s.user.addExp(this.xp);
         s.emit('output', { message: `You gain ${this.xp} experience.` });
         s.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
       }

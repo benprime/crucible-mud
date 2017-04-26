@@ -51,5 +51,10 @@ module.exports = {
     });
   },
 
-  help() { },
+  help(socket) { 
+    let output = '';
+    output += '<span class="mediumOrchid">teleport &lt;room ID&gt;</span><span class="purple">-</span> Teleport to &lt;room&gt;.<br />';
+    output += '<span class="mediumOrchid">teleport &lt;username&gt;</span><span class="purple">-</span> Teleport to &lt;player&gt;.<br />';
+    socket.emit('output', { message: output });
+  },
 };

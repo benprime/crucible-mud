@@ -24,5 +24,10 @@ module.exports = {
     socket.emit('output', { message: `Telepath to ${username}: ${message}` });
   },
 
-  help() { },
+  help(socket) { 
+    let output = '';
+    output += '<span class="cyan">telepathy command</span><br/>';
+    output += '<span class="mediumOrchid">.<message></span> <span class="purple">-</span> Send message directly to a single player.<br />';
+    socket.emit('output', { message: output });
+  },
 };

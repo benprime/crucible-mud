@@ -26,7 +26,7 @@ module.exports = {
   execute(socket, short, itemName) {
     // get the room from the global cache
     roomManager.getRoomById(socket.user.roomId, (room) => {
-      console.log('mobs:', room.mobs);
+      //console.log('mobs:', room.mobs);
       if (itemName) {
         // check player inventory
         const itemNames = socket.user.inventory.map(item => item.displayName);
@@ -68,6 +68,11 @@ module.exports = {
     });
   },
 
-  help() { },
+  help(socket) { 
+    let output = '';
+    output += '<span class="mediumOrchid">l <span class="purple">|</span> look </span><span class="purple">-</span> Display info about current room.<br />';
+    output += '<span class="mediumOrchid">look &lt;item/mob name&gt; </span><span class="purple">-</span> Display detailed info about &lt;item/mob&gt;.<br />';
+    socket.emit('output', { message: output });
+  },
 
 };

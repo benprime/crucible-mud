@@ -27,5 +27,9 @@ module.exports = {
     socket.emit('output', { message: output });
   },
 
-  help() {},
+  help(socket) {
+    let output = '';
+    output += '<span class="mediumOrchid">inventory </span><span class="purple">-</span> Display current inventory.<br />';
+    socket.emit('output', { message: output });
+  },
 };

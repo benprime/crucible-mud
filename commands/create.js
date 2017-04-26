@@ -34,6 +34,10 @@ module.exports = {
     });
   },
 
-  help() {},
+  help(socket) {
+    let output = '';
+    output += '<span class="mediumOrchid">create room &lt;dir&gt; </span><span class="purple">-</span> Create new room in specified direction.<br />';
+    socket.emit('output', { message: output });
+  },
 
 };

@@ -21,5 +21,9 @@ module.exports = {
     global.io.to('gossip').emit('output', { message: output });
   },
 
-  help() {},
+  help(socket) {
+    let output = '';
+    output += '<span class="mediumOrchid">gossip &lt;message&gt; </span><span class="purple">-</span> Send messages to all connected players.<br />';
+    socket.emit('output', { message: output });
+  },
 };

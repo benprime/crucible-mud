@@ -26,5 +26,9 @@ module.exports = {
     socket.emit('output', { message: output });
   },
 
-  help() {},
+  help(socket) {
+    let output = '';
+    output += '<span class="mediumOrchid">who</span> <span class="purple">-</span> Display list of all connected players.<br />';
+    socket.emit('output', { message: output });
+  },
 };

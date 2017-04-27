@@ -24,7 +24,7 @@ module.exports = {
 
   help(socket) {
     let output = '';
-    output += '<span class="mediumOrchid">inventory </span><span class="purple">-</span> Shows current user experience points.<br />';
+    output += '<span class="mediumOrchid">exp </span><span class="purple">-</span> Shows current user experience points.<br />';
     socket.emit('output', { message: output });
   },
 };

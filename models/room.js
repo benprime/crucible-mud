@@ -139,7 +139,7 @@ RoomSchema.methods.Look = function (socket, short) {
   }
 
   if (this.exits.length > 0) {
-    output += `<span class='green'>Exits: ${this.exits.map(door => Room.exitName(door.dir)).join(', ')}</span>\n`;
+    output += `<span class='green'>Exits: ${this.exits.map(exit => Room.exitName(exit.dir)).join(', ')}</span>\n`;
   }
 
   if(!short && socket.user.admin) {
@@ -174,7 +174,7 @@ RoomSchema.methods.getExit = function (dir) {
   return this.exits.find(e => e.dir === ldir);
 };
 
-RoomSchema.methods.addDoor = function (dir, roomId) {
+RoomSchema.methods.addExit = function (dir, roomId) {
   const ldir = dir.toLowerCase();
   const exit = this.getExit(ldir);
   if (exit) {
@@ -187,7 +187,7 @@ RoomSchema.methods.addDoor = function (dir, roomId) {
   return true;
 };
 
-RoomSchema.methods.createRoom = function (dir) {
+RoomSchema.methods.createRoom = function (dir, cb) {
   const roomModel = this.model('Room');
 
   let exit = this.getExit(dir);
@@ -203,13 +203,14 @@ RoomSchema.methods.createRoom = function (dir) {
   roomModel.byCoords(targetCoords, function (targetRoom) {
     const oppDir = roomModel.oppositeDirection(dir);
     if (targetRoom) {
-      fromRoom.addDoor(dir, targetRoom.id);
-      targetRoom.addDoor(oppDir, fromRoom.id);
+      fromRoom.addExit(dir, targetRoom.id);
+      targetRoom.addExit(oppDir, fromRoom.id);
       fromRoom.save();
       targetRoom.save();
+      if(cb) cb();
     } else {
       // if room does not exist, create a new room
-      // with a door to this room
+      // with an exit to this room
       console.log("from room:", fromRoom);
       targetRoom = new Room({
         name: 'Default Room Name',
@@ -223,10 +224,11 @@ RoomSchema.methods.createRoom = function (dir) {
         }],
       });
 
-      // update this room with door to new room
+      // update this room with exit to new room
       targetRoom.save(function (err, updatedRoom) {
-        fromRoom.addDoor(dir, updatedRoom.id);
+        fromRoom.addExit(dir, updatedRoom.id);
         fromRoom.save();
+        if(cb) cb();
       });
 
     }

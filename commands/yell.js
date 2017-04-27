@@ -20,19 +20,19 @@ module.exports = {
     roomManager.getRoomById(socket.user.roomId, (room) => {
 
 
-      room.exits.forEach((door) => {
+      room.exits.forEach((exit) => {
         let preMsg = '';
-        if (door.dir === 'u') {
+        if (exit.dir === 'u') {
           preMsg = 'Someone yells from below ';
-        } else if (door.dir === 'd') {
+        } else if (exit.dir === 'd') {
           preMsg = 'Someone yells from above ';
         } else {
-          preMsg = `Someone yells from the ${Room.exitName(Room.oppositeDirection(door.dir))} `;
+          preMsg = `Someone yells from the ${Room.exitName(Room.oppositeDirection(exit.dir))} `;
         }
 
         var surroundMsg = `${preMsg} '${message}'`;
 
-        socket.broadcast.to(door.roomId).emit('output', { message: surroundMsg });
+        socket.broadcast.to(exit.roomId).emit('output', { message: surroundMsg });
       });
 
       socket.emit('output', { message: `You yell '${message}'` });

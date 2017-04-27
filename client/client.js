@@ -1,19 +1,24 @@
   var commandHistory = [];
   var historyIndex = -1;
   var socket = io("http://localhost:3000");
-
   var actionNotifySound = new Audio('cardSlide1.wav');
+  var actionNotify;
+  var logElement;
+  
   socket.on('output', function(data) {
-    var ta = document.getElementById('log');
-    var atBottom = (ta.scrollHeight - ta.scrollTop) === ta.clientHeight;
+    logElement = document.getElementById('log');
+    var atBottom = logElement.scrollHeight - logElement.scrollTop < logElement.clientHeight + 30;
     var newHTML = data.message.replace(/\n/g, '<br />\n');
-    ta.innerHTML = ta.innerHTML + newHTML + '<br />';
+    logElement.innerHTML = logElement.innerHTML + newHTML + '<br />';
+    
     if(atBottom) {
-      ta.scrollTop = ta.scrollHeight;
+      logElement.scrollTop = logElement.scrollHeight;
     } else {
-      var actionNotifyIcon = document.getElementById('actionNotify');
-      actionNotifyIcon.style.display = 'block';
+      actionNotify = document.getElementById('actionNotify');
+      actionNotify.style.display = 'block';
       actionNotifySound.play();
+      console.log('show action notify');
+      console.log(actionNotify);
     }
 
     /*
@@ -79,5 +84,20 @@
   }
 
   function focusInput() {
+    /*
+    var logElement = document.getElementById('log');
+    var actionNotifyIcon = document.getElementById('actionNotify');
+    console.log(logElement);
+
+    logElement.addEventListener('scroll', function(event) {
+        var element = event.currentTarget;
+        console.log('action notify event listener');
+        if ((logElement.scrollHeight - logElement.scrollTop) === logElement.clientHeight + 50) {
+          console.log(JSON.stringify(element));
+          console.log('hide action notify');
+          actionNotifyIcon.style.display = 'none';
+        }
+    });
+  */
     document.getElementById("textData").focus();
   }

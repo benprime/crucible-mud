@@ -30,22 +30,22 @@ function HitWall(socket, dir) {
 // emits "You hear movement to the <dir>" to all adjacent rooms
 function MovementSounds(socket, room, excludeDir) {
   // fromRoomId is your current room (before move)
-  room.exits.forEach((door) => {
-    if (excludeDir && door.dir === excludeDir) {
+  room.exits.forEach((exit) => {
+    if (excludeDir && exit.dir === excludeDir) {
       return;
     }
 
     let message = '';
-    if (door.dir === 'u') {
+    if (exit.dir === 'u') {
       message = 'You hear movement from below.';
-    } else if (door.dir === 'd') {
+    } else if (exit.dir === 'd') {
       message = 'You hear movement from above.';
     } else {
-      message = `You hear movement to the ${Room.exitName(Room.oppositeDirection(door.dir))}.`;
+      message = `You hear movement to the ${Room.exitName(Room.oppositeDirection(exit.dir))}.`;
     }
 
     // ES6 object literal shorthand syntax... message here becomes message: message
-    socket.broadcast.to(door.roomId).emit('output', { message });
+    socket.broadcast.to(exit.roomId).emit('output', { message });
   });
 }
 
@@ -90,8 +90,8 @@ module.exports = {
     roomManager.getRoomById(socket.user.roomId, (room) => {
 
       // valid exit in that direction?
-      const door = room.exits.find(exitDoor => exitDoor.dir === d);
-      if (!door) {
+      const exit = room.exits.find(e => e.dir === d);
+      if (!exit) {
         HitWall(socket, d);
         return;
       }
@@ -100,7 +100,7 @@ module.exports = {
       if (!room) {
         // hrmm if the exit was just validated, this should never happen.
         HitWall(socket, d);
-        console.log("WARNING: Query couldn't find next room when going through a door.");
+        console.log("WARNING: Query couldn't find next room when going through a exit.");
         return;
       }
 
@@ -124,10 +124,10 @@ module.exports = {
       socket.leave(room.id);
 
       // update user session
-      socket.user.roomId = door.roomId;
-      console.log("Joining room: ", door.roomId);
+      socket.user.roomId = exit.roomId;
+      console.log("Joining room: ", exit.roomId);
       socket.user.save();
-      socket.join(door.roomId);
+      socket.join(exit.roomId);
 
       MovementSounds(socket, room, Room.oppositeDirection(d));
 
@@ -139,7 +139,7 @@ module.exports = {
       } else {
         message = `${username} has entered from the ${Room.exitName(Room.oppositeDirection(d))}.`;
       }
-      socket.broadcast.to(door.roomId).emit('output', { message });
+      socket.broadcast.to(exit.roomId).emit('output', { message });
 
       // You have moved south...
       socket.emit('output', { message: Feedback(dir) });

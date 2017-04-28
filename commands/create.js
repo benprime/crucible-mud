@@ -9,7 +9,7 @@ module.exports = {
 
   patterns: [
     /^create\s+(room)\s+(\w+)$/i,
-    /'^create\s+(item)\s+(.+)$'/i,
+    /^create\s+(door)\s+(\w+)$/i,
   ],
 
   dispatch(socket, match) {
@@ -21,15 +21,28 @@ module.exports = {
   execute(socket, type, param) {
     roomManager.getRoomById(socket.user.roomId, (room) => {
       console.log("create type: ", type);
-      if(type === 'room') {
+      if (type === 'room') {
         const dir = param.toLowerCase();
-        room.createRoom(dir, function() {
+        room.createRoom(dir, function () {
           socket.emit('output', { message: "Room created." });
           socket.broadcast.to(socket.user.roomId).emit("output", { message: `${socket.user.username} waves his hand and an exit appears to the ${Room.exitName(dir)}!` });
         });
+      } else if (type == 'door') {
+        const dir = global.LongToShort(param);
+        const exit = room.getExit(dir);
+        console.log("exit", exit);
+
+        if(exit) {
+          exit.closed = true;
+          console.log("exit", exit);
+          room.save();
+        } else {
+          socket.emit('output', { message: "Invalid direction." });
+          return;
+        }
       } else {
         // todo: global error function for red text?
-        console.log("Invalid create type");
+        socket.emit('output', { message: "Invalid create type." });
         return;
       }
 

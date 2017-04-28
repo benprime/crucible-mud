@@ -51,7 +51,7 @@ module.exports = {
     }
   },
 
-  help(socket) { 
+  help(socket) {
     let output = '';
     output += '<span class="mediumOrchid">set room name &lt;new room name&gt; </span><span class="purple">-</span> Change name of current room.<br />';
     output += '<span class="mediumOrchid">set room desc &lt;new room desc&gt; </span><span class="purple">-</span> Change description of current room.<br />';

@@ -27,6 +27,21 @@ function HitWall(socket, dir) {
   socket.emit('output', { message: 'There is no exit in that direction!' });
 }
 
+function HitDoor(socket, dir) {
+  let message = '';
+
+  // send message to everyone in current room that player is running into stuff.
+  if (dir === 'u') {
+    message = `${socket.user.username} runs into the closed door above.`;
+  } else if (dir === 'd') {
+    message = `${socket.user.username} runs into the trapdoor on the floor.`;
+  } else {
+    message = `${socket.user.username} runs into the door to the ${Room.exitName(dir)}.`;
+  }
+  socket.broadcast.to(socket.user.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
+  socket.emit('output', { message: 'The door in that direction is not open!' });
+}
+
 // emits "You hear movement to the <dir>" to all adjacent rooms
 function MovementSounds(socket, room, excludeDir) {
   // fromRoomId is your current room (before move)
@@ -93,6 +108,11 @@ module.exports = {
       const exit = room.exits.find(e => e.dir === d);
       if (!exit) {
         HitWall(socket, d);
+        return;
+      }
+
+      if(exit.closed) {
+        HitDoor(socket, d);
         return;
       }
 

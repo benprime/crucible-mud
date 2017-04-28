@@ -30,6 +30,9 @@ const RoomSchema = new mongoose.Schema({
     },
     roomId: {
       type: mongoose.Schema.Types.ObjectId,
+    },
+    closed: {
+      type: Boolean
     }
   }],
 

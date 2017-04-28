@@ -9,6 +9,12 @@ function lookDir(socket, room, dir) {
   if (!exit) {
     return;
   }
+
+  if(exit.closed) {
+    socket.emit('output', { message: 'The door in that direction is closed!' });
+    return;
+  }
+
   roomManager.getRoomById(exit.roomId, (room) => {
     socket.emit('output', { message: `You look to the ${Room.exitName(dir)}...` });
     socket.broadcast.to(room.id).emit('output', { message: `<span class="yellow">${socket.user.username} peaks in from the ${Room.exitName(Room.oppositeDirection(dir))}.</span>` });

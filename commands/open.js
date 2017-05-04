@@ -34,6 +34,11 @@ module.exports = {
         return;
       }
 
+      if(exit.locked) {
+        socket.emit('output', { message: 'That door is locked.' });
+        return;
+      }
+
       exit.closed = false;
       socket.broadcast.to(socket.user.roomId).emit("output", { message: `${socket.user.username} opens the door to the ${Room.exitName(d)}` });      
       socket.emit('output', { message: 'Door opened.' });

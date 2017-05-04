@@ -33,7 +33,14 @@ const RoomSchema = new mongoose.Schema({
     },
     closed: {
       type: Boolean
+    },
+    keyName: {
+      type: String,
+    },
+    locked: {
+      type: Boolean,
     }
+
   }],
 
   inventory: []
@@ -145,7 +152,7 @@ RoomSchema.methods.Look = function (socket, short) {
     output += `<span class='green'>Exits: ${this.exits.map(exit => Room.exitName(exit.dir)).join(', ')}</span>\n`;
   }
 
-  if(!short && socket.user.admin) {
+  if (!short && socket.user.admin) {
     output += `<span class='gray'>Room ID: ${this.id}</span>\n`;
   }
 
@@ -210,7 +217,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
       targetRoom.addExit(oppDir, fromRoom.id);
       fromRoom.save();
       targetRoom.save();
-      if(cb) cb();
+      if (cb) cb();
     } else {
       // if room does not exist, create a new room
       // with an exit to this room
@@ -231,7 +238,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
       targetRoom.save(function (err, updatedRoom) {
         fromRoom.addExit(dir, updatedRoom.id);
         fromRoom.save();
-        if(cb) cb();
+        if (cb) cb();
       });
 
     }

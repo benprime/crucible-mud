@@ -32,7 +32,7 @@ Mob.prototype.TakeDamage = function (socket, damage) {
 Mob.prototype.Die = function (socket) {
   roomManager.getRoomById(socket.user.roomId, (room) => {
 
-    global.io.to(room.id).emit('output', { message: 'The creature collapses.' });
+    global.io.to(room.id).emit('output', { message: 'The ${this.displayName} collapses.' });
     //socket.emit('output', { message: `You gain ${this.xp} experience.` });
 
     // remove mob from the room    
@@ -92,6 +92,7 @@ Mob.prototype.attackRoll = function () {
 };
 
 Mob.prototype.attack = function (now) {
+  if(!this.attackTarget) return false;
   console.log("mob target:" + this.attackTarget);
   this.lastAttack = now;
   const dmg = 0;
@@ -100,6 +101,7 @@ Mob.prototype.attack = function (now) {
   let roomMessage = '';
 
   let playerSocket = global.io.sockets.connected[socketId];
+  if(!playerSocket) return false;
   let playerName = playerSocket.user.username;
 
   if (this.attackRoll() == 1) {
@@ -115,8 +117,10 @@ Mob.prototype.attack = function (now) {
   // If there is a problem with this in the future, use room.getSockets and loop through them instead.
   // todo: test by disconnecting during combat.
   playerSocket.emit('output', { message: playerMessage });
-  playerSocket.broadcast.to(playerSocket.roomId).emit('output', { message: roomMessage });
+  playerSocket.broadcast.to(playerSocket.user.roomId).emit('output', { message: roomMessage });
   //io.to(roomId).emit('output', { message });
+
+  return true;
 };
 
 Mob.prototype.readyToAttack = function (now) {

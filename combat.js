@@ -21,7 +21,7 @@ setInterval(() => {
     // if socket is a logged in user
     if (socket.user && socket.user.readyToAttack(now)) {
       console.log("player attacking!");
-      roomManager.getRoomById(socket.user.roomId, function(room) {
+      roomManager.getRoomById(socket.user.roomId, function (room) {
         let mob = room.getMobById(socket.user.attackTarget);
         //if(!mob) socket.user.attackTarget = null;
         console.log("Attacking from room: ", socket.user.roomId);
@@ -31,14 +31,12 @@ setInterval(() => {
   }
 
   // loop through rooms that contain mobs...
-  roomManager.roomsWithMobs().forEach(function(room) {
-    room.mobs.forEach(function(mob) {
+  roomManager.roomsWithMobs().forEach(function (room) {
+    room.mobs.forEach(function (mob) {
       if (mob.readyToAttack(now)) {
         console.log("mob ready to attack");
-        mob.selectTarget(room.id, mob);
-        // todo: maybe have select target return if there is a valid target
-        if(mob.attackTarget) {
-          mob.attack(now);
+        if (!mob.attack(now)) {
+          mob.selectTarget(room.id, mob);
         }
       }
 
@@ -46,10 +44,17 @@ setInterval(() => {
       // if (mob.attackTarget && readyToTaunt(mob, now)) {
       if (mob.readyToTaunt(now)) {
         const tauntIndex = global.getRandomNumber(0, mob.taunts.length);
+
         let taunt = mob.taunts[tauntIndex];
-        taunt = taunt.format(mob.displayName);
+        taunt = taunt.format(mob.displayName, "you");
+
+        const socket = global.io.sockets.connected[mob.attackTarget];
+        let roomTaunt = mob.taunts[tauntIndex].format(mob.displayName, socket.user.username);
+
         mob.lastTaunt = now;
-        global.io.to(room.id).emit("output", { message: taunt });
+
+        socket.emit("output", { message: taunt });
+        socket.broadcast.to(socket.user.roomId).emit("output", { message: roomTaunt });
 
         // socket.emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });
         // socket.broadcast.to(socket.room._id).emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });

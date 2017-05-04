@@ -12,13 +12,11 @@
     logElement.innerHTML = logElement.innerHTML + newHTML + '<br />';
     
     if(atBottom) {
-      logElement.scrollTop = logElement.scrollHeight;
+      scrollLogToBottom();
     } else {
       actionNotify = document.getElementById('actionNotify');
       actionNotify.style.display = 'block';
       actionNotifySound.play();
-      console.log('show action notify');
-      console.log(actionNotify);
     }
 
     /*
@@ -28,6 +26,11 @@
     }
     */
   });
+
+  function scrollLogToBottom() {
+    logElement = document.getElementById('log');
+    logElement.scrollTop = logElement.scrollHeight;
+  }
 
   function sendData(e) {
     if (!e) e = window.event;
@@ -84,20 +87,15 @@
   }
 
   function focusInput() {
-    /*
-    var logElement = document.getElementById('log');
-    var actionNotifyIcon = document.getElementById('actionNotify');
-    console.log(logElement);
-
+    logElement = document.getElementById('log');
     logElement.addEventListener('scroll', function(event) {
         var element = event.currentTarget;
-        console.log('action notify event listener');
-        if ((logElement.scrollHeight - logElement.scrollTop) === logElement.clientHeight + 50) {
-          console.log(JSON.stringify(element));
-          console.log('hide action notify');
-          actionNotifyIcon.style.display = 'none';
+        var atBottom = element.scrollHeight - element.scrollTop < element.clientHeight + 30;
+        if (atBottom) {
+          actionNotify = document.getElementById('actionNotify');
+          actionNotify.style.display = 'none';
         }
     });
-  */
+
     document.getElementById("textData").focus();
   }

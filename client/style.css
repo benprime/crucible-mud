@@ -71,10 +71,12 @@
     position: absolute;
     right: 24;
     bottom: 30;
-    background: #cca92c;
+    background: black;
     border-radius: 60%;
     width: 22px;
     height: 22px;
+    text-align: center;
+    margin: 0 auto;
     cursor: pointer;
     animation: pulse 2s infinite;
     box-shadow: 0 0 0 rgba(204,169,44, 0.4);

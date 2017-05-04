@@ -10,12 +10,15 @@
     "socket.io": "^1.7.2"
   },
   "devDependencies": {
+    "concurrently": "^3.4.0",
+    "http-server": "^0.10.0",
     "mocha": "^3.2.0",
     "sinon": "^2.1.0"
   },
   "scripts": {
     "test": "mocha test",
-    "start": "node server.js"
+    "start": "npm run open",
+    "open": "concurrently \"mongod --dbpath c:/dev/mongo/data\" \"node --nolazy --debug-brk=5858 server.js\" \"http-server -a localhost -p 1234\" \"start http://localhost:1234/client\""
   },
   "repository": {
     "type": "git",

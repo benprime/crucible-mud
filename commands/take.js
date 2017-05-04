@@ -9,7 +9,9 @@ module.exports = {
 
   patterns: [
     /^take\s+(\w+)$/i,
-    /^take/i
+    /^get\s+(\w+)$/i,
+    /^take/i,
+    /^get/i
   ],
 
   dispatch(socket, match) {
@@ -25,10 +27,10 @@ module.exports = {
       // autocomplete name
       const itemNames = room.inventory.map(item => item.displayName);
       const resolvedNames = global.ResolveName(socket, itemName, itemNames);
-      if(resolvedNames.length === 0) {
+      if (resolvedNames.length === 0) {
         socket.emit('output', { message: 'You don\'t see that item here.' });
         return;
-      } else if(resolvedNames.length > 1) {
+      } else if (resolvedNames.length > 1) {
         // todo: possibly print out a list of the matches
         socket.emit('output', { message: 'Not specific enough!' });
         return;
@@ -56,5 +58,9 @@ module.exports = {
     });
   },
 
-  help() { },
+  help(socket) {
+    let output = '';
+    output += '<span class="mediumOrchid">take &lt;item name&gt </span><span class="purple">-</span> Move &lt;item&gt; into inventory. <br />';
+    socket.emit('output', { message: output });
+  },
 };

@@ -2,6 +2,7 @@
 
 const mobData = require('../data/mobData');
 const itemData = require('../data/itemData');
+const keyData = require('../data/keyData');
 
 module.exports = {
   name: 'list',
@@ -11,6 +12,7 @@ module.exports = {
   patterns: [
     /^list (mobs)$/i,
     /^list (items)$/i,
+    /^list (keys)$/i,
     /^list$/i,
   ],
 
@@ -24,6 +26,8 @@ module.exports = {
       module.exports.execute(socket, itemData);
     } else if (match[1].toLowerCase() == 'mobs') {
       module.exports.execute(socket, mobData);
+    } else if (match[1].toLowerCase() == 'keys') {
+      module.exports.execute(socket, keyData);
     } else {
       socket.emit('output', { message: `Unknown catalog: {match[1]}` });
       return;
@@ -42,5 +46,10 @@ module.exports = {
     socket.emit('output', { message: output });
   },
 
-  help() { },
+  help(socket) { 
+    let output = '';
+    output += '<span class="mediumOrchid">list mobs </span><span class="purple">-</span> Display info table of all valid mobs.<br />';
+    output += '<span class="mediumOrchid">list items </span><span class="purple">-</span> Display info table of all valid items<br />';
+    socket.emit('output', { message: output });
+  },
 };

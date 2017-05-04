@@ -7,6 +7,9 @@ const Mob = require('../models/mob');
 const itemData = require('../data/itemData');
 const Item = require('../models/item');
 
+const keyData = require('../data/keyData');
+const Key = require('../models/item');
+
 module.exports = {
   name: 'spawn',
   admin: true,
@@ -14,7 +17,8 @@ module.exports = {
   patterns: [
     /^spawn\s+(mob)\s+(\w+)$/i,
     /^spawn\s+(item)\s+(\w+)$/i,
-    /^spawn\s+?/i,
+    /^spawn\s+(key)\s+(\w+)$/i,
+    /^spawn\s+/i,
   ],
 
   dispatch(socket, match) {
@@ -47,7 +51,7 @@ module.exports = {
         socket.emit('output', { message: 'Summoning successful.' });
         socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
       });
-    } else if(type == 'item') {
+    } else if (type == 'item') {
       const createType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase());
 
       if (!createType) {
@@ -64,8 +68,26 @@ module.exports = {
 
       // todo: determine if we want to hide when an admin creates and item      
       //socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
+    } else if (type == 'key') {
+      const keyType = keyData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase());
+
+      if (!keyType) {
+        socket.emit('output', { message: 'Unknown key type.' });
+        return;
+      }
+
+      let key = new Key(keyType);
+
+      socket.user.keys.push(key);
+      socket.user.save();
+      socket.emit('output', { message: 'Key created.' });
     }
   },
 
-  help() { },
+  help(socket) {
+    let output = '';
+    output += '<span class="mediumOrchid">spawn mob &lt;mob name&gt; </span><span class="purple">-</span> Create <mob> in current room.<br />';
+    output += '<span class="mediumOrchid">spawn item &lt;item name&gt; </span><span class="purple">-</span> Create <item> in inventory.<br />';
+    socket.emit('output', { message: output });
+  },
 };

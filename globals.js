@@ -95,7 +95,7 @@ global.ValidDirection = function(dir) {
 
 // this is for user input
 global.ValidDirectionInput = function(dir) {
-  switch (dir) {
+  switch (dir.toLowerCase()) {
     case 'n':
     case 'north':
     case 'ne':

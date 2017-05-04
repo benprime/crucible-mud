@@ -3,6 +3,62 @@
 const roomManager = require('../roomManager');
 const Room = require('../models/room');
 
+function lookDir(socket, room, dir) {
+  dir = global.LongToShort(dir);
+  const exit = room.exits.find(e => e.dir === dir);
+  if (!exit) {
+    return;
+  }
+
+  if(exit.closed) {
+    socket.emit('output', { message: 'The door in that direction is closed!' });
+    return;
+  }
+
+  roomManager.getRoomById(exit.roomId, (room) => {
+    socket.emit('output', { message: `You look to the ${Room.exitName(dir)}...` });
+    socket.broadcast.to(room.id).emit('output', { message: `<span class="yellow">${socket.user.username} peaks in from the ${Room.exitName(Room.oppositeDirection(dir))}.</span>` });
+    room.Look(socket, false);
+  });
+}
+
+// for items and mobs
+function lookItem(socket, room, itemName) {
+  // check player inventory
+  const itemNames = socket.user.inventory.map(item => item.displayName);
+  const itemResolvedNames = global.ResolveName(socket, itemName, itemNames);
+
+  // check room inventory
+  const roomItemNames = room.inventory.map(item => item.displayName);
+  const roomResolvedNames = global.ResolveName(socket, itemName, roomItemNames);
+
+  // check mobs
+  const mobNames = room.mobs.map(item => item.displayName);
+  const mobResolvedNames = global.ResolveName(socket, itemName, mobNames);
+
+  const totalFound = itemResolvedNames.length + roomResolvedNames.length + mobResolvedNames.length;
+  if (totalFound > 1) {
+    socket.emit('output', { message: 'Not specific enough!' });
+    return;
+  }
+
+  if (totalFound === 0) {
+    socket.emit('output', { message: 'You don\'t see that here.' });
+    return;
+  }
+
+  let item = null;
+  if (itemResolvedNames.length) {
+    item = socket.user.inventory.find(item => item.displayName === itemResolvedNames[0]);
+  } else if (roomResolvedNames.length) {
+    item = room.inventory.find(item => item.displayName === roomResolvedNames[0]);
+  } else if (mobResolvedNames.length) {
+    item = room.mobs.find(mob => mob.displayName === mobResolvedNames[0]);
+  }
+  item.Look(socket);
+}
+
+
 module.exports = {
   name: 'look',
 
@@ -11,6 +67,7 @@ module.exports = {
     /^l$/i,
     /^look$/i,
     /^look\s+(.+)$/i,
+    /^l\s+(.+)$/i,
   ],
 
   dispatch(socket, match) {
@@ -18,49 +75,32 @@ module.exports = {
     if (match.length > 1) {
       item = match[1];
     }
-    const short = (match[0] == '');
+    const short = (match[0] === '');
     module.exports.execute(socket, short, item);
   },
 
-  execute(socket, short, item) {
-
-    // get the room from the global cache
+  execute(socket, short, itemName) {
     roomManager.getRoomById(socket.user.roomId, (room) => {
-      console.log('mobs:', room.mobs);
 
-      let output = `<span class='cyan'>${room.name}</span>\n`;
+      if (itemName) {
+        itemName = itemName.toLowerCase();
 
-      if (!short) {
-        output += `<span class='silver'>${room.desc}</span>\n`;
+        if (global.ValidDirectionInput(itemName)) {
+          lookDir(socket, room, itemName);
+        } else {
+          lookItem(socket, room, itemName);
+        }
+      } else {
+        room.Look(socket, short);
       }
-
-      // rodo: remove first check after old data has been purged
-      if (room.inventory && room.inventory.length > 0) {
-        output += `<span class='darkcyan'>You notice: ${room.inventory.map(item => item.displayName).join(', ')}.</span>\n`;
-      }
-
-      let names = global.UsersInRoom(room.id).filter(name => name !== socket.user.username);
-
-      console.log("Users in room names: ", names);
-
-
-
-      const mobNames = room.mobs.map(mob => mob.displayName + ' ' + mob.hp);
-      if (mobNames) { names = names.concat(mobNames); }
-      const displayNames = names.join('<span class=\'mediumOrchid\'>, </span>');
-
-      if (displayNames) {
-        output += `<span class='purple'>Also here: <span class='teal'>${displayNames}</span>.</span>\n`;
-      }
-
-      if (room.exits.length > 0) {
-        output += `<span class='green'>Exits: ${room.exits.map(door => Room.exitName(door.dir)).join(', ')}</span>\n`;
-      }
-
-      socket.emit('output', { message: output });
     });
   },
 
-  help() { },
+  help(socket) {
+    let output = '';
+    output += '<span class="mediumOrchid">l <span class="purple">|</span> look </span><span class="purple">-</span> Display info about current room.<br />';
+    output += '<span class="mediumOrchid">look &lt;item/mob name&gt; </span><span class="purple">-</span> Display detailed info about &lt;item/mob&gt;.<br />';
+    socket.emit('output', { message: output });
+  },
 
 };

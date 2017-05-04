@@ -42,5 +42,9 @@ module.exports = {
     lookCmd.execute(userSocket);
   },
 
-  help() { },
+  help(socket) { 
+    let output = '';
+    output += '<span class="mediumOrchid">summon &lt;username&gt; </span><span class="purple">-</span> Summon &lt;player&gt; to current room.<br />';
+    socket.emit('output', { message: output });
+  },
 };

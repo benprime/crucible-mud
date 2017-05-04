@@ -3,7 +3,10 @@
 module.exports = {
   name: 'break',
 
-  patterns: [],
+  patterns: [
+    /br\s$/i,
+    /break\s$/i,
+  ],
 
   dispatch(socket, match) {
     module.exports.execute(socket);
@@ -15,12 +18,15 @@ module.exports = {
       socket.lastAttack = undefined;
       socket.attackTarget = undefined;
 
-      // todo: Probably save attack target id, make sure we're continually attacking the same mob instance.
       socket.broadcast.to(socket.room._id).emit('output', { message: `${socket.user.username} breaks off his attack.` });
       socket.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
     }
   },
 
-  help() { },
+  help(socket) { 
+    let output = '';
+    output += '<span class="mediumOrchid">break <span class="purple">|</span> br</span> <span class="purple">-</span> End combat.<br />';
+    socket.emit('output', { message: output });
+  },
 
 };

@@ -10,6 +10,7 @@ module.exports = {
   // will have stats.
   catalog: [{
     name: "kobold",
+    desc: "an ugly kobold",
     displayName: "kobold sentry",
     adjectives: [
       "big", "small", "short", "tall"
@@ -23,12 +24,13 @@ module.exports = {
     tauntInterval: 12000, // every 3 rounds
     deathMessage: "The {0} crumbles to dust.",
     taunts: [
-      "The {0} growls at you aggressively!",
-      "The {0} circles you, looking for an opening!",
+      "The {0} growls at {1} aggressively!",
+      "The {0} circles {1}, looking for an opening!",
       "The {0} bellows a challenge!"
     ]
   }, {
     name: "dummy",
+    desc: "a sparring dummy",
     displayName: "enchanted sparring dummy",
     attackInterval: 0, // no attacks
     hp: 20,
@@ -37,7 +39,7 @@ module.exports = {
     idleInterval: 60000, // every minute
     idleActions: [
       "The {0} sighs.",
-      "The {0} looks at you hopefully.",
+      "The {0} looks at {1} hopefully.",
       "The {0} asks \"Want to punch me in the face?\"",
     ],
     tauntInterval: 12000,

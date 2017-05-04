@@ -29,8 +29,17 @@ const UserSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
   },
 
-  inventory: []
+  inventory: [],
 
+  keys: [],
+
+  xp: {
+    type: Number,
+  },
+
+  level: {
+    type: Number,
+  },
   /*
   room: {
     type: mongoose.Schema.ObjectId,
@@ -45,6 +54,20 @@ UserSchema.statics.findByName = function(name, cb) {
   return this.findOne({ username: userRegEx }, cb);
 };
 
+UserSchema.methods.nextExp = function() {
+  const BASE_XP = 300;
+  const BASE_RATE = 1;
+  return BASE_XP * Math.pow(1 + BASE_RATE, this.level);
+};
+
+UserSchema.methods.addExp = function(amount) {
+  this.xp += amount;
+  while(this.xp >= this.nextExp()) {
+    this.level++;
+  }
+  this.save();
+};
+
 UserSchema.methods.readyToAttack = function(now) {
   return this.attackTarget && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
 };
@@ -56,24 +79,24 @@ UserSchema.methods.attackRoll = function() {
 
 UserSchema.methods.attack = function(socket, mob, now) {
   if(!mob) return;
-  socket.user.lastAttack = now;
+  this.lastAttack = now;
 
   let actorMessage = '';
   let roomMessage = '';
   const playerDmg = 5;
 
-  let attackResult = this.attackRoll(socket);
+  let attackResult = this.attackRoll();
 
   if (attackResult == 2) {
     actorMessage = `<span class="${global.DMG_COLOR}">You hit ${mob.displayName} for ${playerDmg} damage!</span>`;
-    roomMessage = `<span class="${global.DMG_COLOR}">The ${socket.user.username} hits ${mob.displayName} for ${playerDmg} damage!</span>`;
+    roomMessage = `<span class="${global.DMG_COLOR}">The ${this.username} hits ${mob.displayName} for ${playerDmg} damage!</span>`;
   } else {
     actorMessage = `<span class="${global.MSG_COLOR}">You swing at the ${mob.displayName} but miss!</span>`;
-    roomMessage = `<span class="${global.MSG_COLOR}">${socket.user.username} swings at the ${mob.displayName} but misses!</span>`;
+    roomMessage = `<span class="${global.MSG_COLOR}">${this.username} swings at the ${mob.displayName} but misses!</span>`;
   }
 
   socket.emit('output', { message: actorMessage });
-  socket.broadcast.to(socket.user.roomId).emit('output', { message: roomMessage });
+  socket.broadcast.to(this.roomId).emit('output', { message: roomMessage });
 
   if (attackResult) {
     mob.TakeDamage(socket, playerDmg);

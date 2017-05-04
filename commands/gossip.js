@@ -18,8 +18,12 @@ module.exports = {
     safeMessage = safeMessage.replace(/>/g, '&gt;');
 
     const output = `<span class="silver">${socket.user.username} gossips: </span><span class="mediumOrchid">${safeMessage}</span>`;
-    io.to('gossip').emit('output', { message: output });
+    global.io.to('gossip').emit('output', { message: output });
   },
 
-  help() {},
+  help(socket) {
+    let output = '';
+    output += '<span class="mediumOrchid">gossip &lt;message&gt; </span><span class="purple">-</span> Send messages to all connected players.<br />';
+    socket.emit('output', { message: output });
+  },
 };

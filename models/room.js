@@ -30,15 +30,25 @@ const RoomSchema = new mongoose.Schema({
     },
     roomId: {
       type: mongoose.Schema.Types.ObjectId,
+    },
+    closed: {
+      type: Boolean
+    },
+    keyName: {
+      type: String,
+    },
+    locked: {
+      type: Boolean,
     }
+
   }],
 
-  
+  inventory: []
 
 });
 
 // todo: move to RoomHelper.js
-RoomSchema.statics.oppositeDirection = function(dir) {
+RoomSchema.statics.oppositeDirection = function (dir) {
   switch (dir) {
     case 'n':
       return 's';
@@ -72,11 +82,11 @@ RoomSchema.statics.oppositeDirection = function(dir) {
  * @param  {Function}
  * @return {[type]}
  */
-RoomSchema.statics.byCoords = function(coords, cb) {
+RoomSchema.statics.byCoords = function (coords, cb) {
   return this.findOne({ x: coords.x, y: coords.y, z: coords.z }, cb);
 };
 
-RoomSchema.statics.exitName = function(dir) {
+RoomSchema.statics.exitName = function (dir) {
   switch (dir) {
     case 'n':
       return 'north';
@@ -103,22 +113,57 @@ RoomSchema.statics.exitName = function(dir) {
   }
 };
 
-RoomSchema.statics.isValidDir = function(dir) {
+RoomSchema.statics.isValidDir = function (dir) {
   // todo: RoomSchema may be the wrong thing here
   return RoomSchema.schema.path('exits.dir').enumValues.indexOf(dir) > -1;
 };
 
-RoomSchema.methods.getSockets = function() {
+RoomSchema.methods.getSockets = function () {
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
-  if(!ioRoom) return [];
+  if (!ioRoom) return [];
   return Object.keys(ioRoom.sockets).map((socketId) => global.io.sockets.connected[socketId]);
 };
 
-RoomSchema.methods.getMobById = function(mobId) {
-    return this.mobs.find(m => m.id === mobId);
+RoomSchema.methods.Look = function (socket, short) {
+  let output = `<span class='cyan'>${this.name}</span>\n`;
+
+  if (!short) {
+    output += `<span class='silver'>${this.desc}</span>\n`;
+  }
+
+  // rodo: remove first check after old data has been purged
+  if (this.inventory && this.inventory.length > 0) {
+    output += `<span class='darkcyan'>You notice: ${this.inventory.map(item => item.displayName).join(', ')}.</span>\n`;
+  }
+
+  let names = global.UsersInRoom(this.id).filter(name => name !== socket.user.username);
+
+  console.log("Users in room names: ", names);
+
+  const mobNames = this.mobs.map(mob => mob.displayName + ' ' + mob.hp);
+  if (mobNames) { names = names.concat(mobNames); }
+  const displayNames = names.join('<span class=\'mediumOrchid\'>, </span>');
+
+  if (displayNames) {
+    output += `<span class='purple'>Also here: <span class='teal'>${displayNames}</span>.</span>\n`;
+  }
+
+  if (this.exits.length > 0) {
+    output += `<span class='green'>Exits: ${this.exits.map(exit => Room.exitName(exit.dir)).join(', ')}</span>\n`;
+  }
+
+  if (!short && socket.user.admin) {
+    output += `<span class='gray'>Room ID: ${this.id}</span>\n`;
+  }
+
+  socket.emit('output', { message: output });
 };
 
-RoomSchema.methods.dirToCoords = function(dir) {
+RoomSchema.methods.getMobById = function (mobId) {
+  return this.mobs.find(m => m.id === mobId);
+};
+
+RoomSchema.methods.dirToCoords = function (dir) {
 
   let x = this.x;
   let y = this.y;
@@ -134,12 +179,12 @@ RoomSchema.methods.dirToCoords = function(dir) {
   return { x, y, z };
 };
 
-RoomSchema.methods.getExit = function(dir) {
+RoomSchema.methods.getExit = function (dir) {
   const ldir = dir.toLowerCase();
   return this.exits.find(e => e.dir === ldir);
 };
 
-RoomSchema.methods.addDoor = function(dir, roomId) {
+RoomSchema.methods.addExit = function (dir, roomId) {
   const ldir = dir.toLowerCase();
   const exit = this.getExit(ldir);
   if (exit) {
@@ -152,7 +197,7 @@ RoomSchema.methods.addDoor = function(dir, roomId) {
   return true;
 };
 
-RoomSchema.methods.createRoom = function(dir) {
+RoomSchema.methods.createRoom = function (dir, cb) {
   const roomModel = this.model('Room');
 
   let exit = this.getExit(dir);
@@ -165,16 +210,17 @@ RoomSchema.methods.createRoom = function(dir) {
   var targetCoords = this.dirToCoords(dir);
   const fromRoom = this;
 
-  roomModel.byCoords(targetCoords, function(targetRoom) {
+  roomModel.byCoords(targetCoords, function (targetRoom) {
     const oppDir = roomModel.oppositeDirection(dir);
     if (targetRoom) {
-      fromRoom.addDoor(dir, targetRoom.id);
-      targetRoom.addDoor(oppDir, fromRoom.id);
+      fromRoom.addExit(dir, targetRoom.id);
+      targetRoom.addExit(oppDir, fromRoom.id);
       fromRoom.save();
       targetRoom.save();
+      if (cb) cb();
     } else {
       // if room does not exist, create a new room
-      // with a door to this room
+      // with an exit to this room
       console.log("from room:", fromRoom);
       targetRoom = new Room({
         name: 'Default Room Name',
@@ -188,10 +234,11 @@ RoomSchema.methods.createRoom = function(dir) {
         }],
       });
 
-      // update this room with door to new room
-      targetRoom.save(function(err, updatedRoom) {
-        fromRoom.addDoor(dir, updatedRoom.id);
+      // update this room with exit to new room
+      targetRoom.save(function (err, updatedRoom) {
+        fromRoom.addExit(dir, updatedRoom.id);
         fromRoom.save();
+        if (cb) cb();
       });
 
     }

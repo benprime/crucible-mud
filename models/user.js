@@ -31,6 +31,8 @@ const UserSchema = new mongoose.Schema({
 
   inventory: [],
 
+  keys: [],
+
   xp: {
     type: Number,
   },

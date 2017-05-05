@@ -11,16 +11,21 @@ global.STATES = {
   MUD: 2,
 };
 
+global.SocketInRoom = function(roomId, socketId) {
+  if (!(roomId in global.io.sockets.adapter.rooms)) {
+    return false;
+  }
+  const sockets = global.io.sockets.adapter.rooms[roomId].sockets;
+  return socketId in sockets;
+};
+
 global.UsersInRoom = function(roomId) {
   if (!(roomId in global.io.sockets.adapter.rooms)) {
-    console.log("Room not found, returning blank list for users.");
     return [];
   }
 
   const clients = global.io.sockets.adapter.rooms[roomId].sockets;
   const otherUsers = Object.keys(clients);
-
-  //console.log("other users: ", JSON.stringify(otherUsers));
 
   // return array of string usernames
   return otherUsers.map(socketId => global.io.sockets.connected[socketId].user.username);

@@ -24,7 +24,7 @@ function HitWall(socket, dir) {
     message = `${socket.user.username} runs into the wall to the ${Room.exitName(dir)}.`;
   }
   socket.broadcast.to(socket.user.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
-  socket.emit('output', { message: 'There is no exit in that direction!' });
+  socket.emit('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
 }
 
 function HitDoor(socket, dir) {
@@ -39,7 +39,7 @@ function HitDoor(socket, dir) {
     message = `${socket.user.username} runs into the door to the ${Room.exitName(dir)}.`;
   }
   socket.broadcast.to(socket.user.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
-  socket.emit('output', { message: 'The door in that direction is not open!' });
+  socket.emit('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
 }
 
 // emits "You hear movement to the <dir>" to all adjacent rooms

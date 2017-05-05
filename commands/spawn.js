@@ -43,10 +43,10 @@ module.exports = {
         return;
       }
 
-      // clone the create type and give it an id
-      let mob = new Mob(createType);
-
       roomManager.getRoomById(socket.user.roomId, (room) => {
+        // clone the create type and give it an id
+        let mob = new Mob(createType, room.id);
+
         room.mobs.push(mob);
         socket.emit('output', { message: 'Summoning successful.' });
         socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });

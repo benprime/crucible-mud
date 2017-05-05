@@ -6,7 +6,7 @@ const roomManager = require('../roomManager');
 const dice = require('../dice');
 
 function Mob(mobType, roomId) {
-  if(!this.id) {
+  if (!this.id) {
     this.id = new ObjectId().toString();
   }
 
@@ -15,11 +15,11 @@ function Mob(mobType, roomId) {
   return Object.assign(this, mobType);
 }
 
-Mob.prototype.Look = function(socket) {
-    socket.emit('output', { message: this.desc });
-    if(socket.user.admin) {
-      socket.emit('output', { message: `Mob ID: ${this.id}` });
-    }
+Mob.prototype.Look = function (socket) {
+  socket.emit('output', { message: this.desc });
+  if (socket.user.admin) {
+    socket.emit('output', { message: `Mob ID: ${this.id}` });
+  }
 };
 
 Mob.prototype.TakeDamage = function (socket, damage) {
@@ -44,7 +44,7 @@ Mob.prototype.Die = function (socket) {
 
 // todo: cleaning up for current room. This may needs some rework when the mobs
 // can move from room to room.
-Mob.prototype.Dispose = function(socket) {
+Mob.prototype.Dispose = function (socket) {
   roomManager.getRoomById(socket.user.roomId, (room) => {
     let sockets = room.getSockets();
     sockets.forEach((s) => {
@@ -92,7 +92,17 @@ Mob.prototype.attackRoll = function () {
 };
 
 Mob.prototype.attack = function (now) {
-  if(!this.attackTarget) return false;
+
+  if (!this.attackTarget) {
+    return false;
+  }
+
+  if (!global.SocketInRoom(this.roomId, this.attackTarget)) {
+    console.log("Invalid attack target for mob.");
+    this.attackTarget = undefined;
+    return false;
+  }
+
   console.log("mob target:" + this.attackTarget);
   this.lastAttack = now;
   const dmg = 0;
@@ -101,7 +111,7 @@ Mob.prototype.attack = function (now) {
   let roomMessage = '';
 
   let playerSocket = global.io.sockets.connected[socketId];
-  if(!playerSocket) return false;
+  if (!playerSocket) return false;
   let playerName = playerSocket.user.username;
 
   if (this.attackRoll() == 1) {
@@ -123,12 +133,27 @@ Mob.prototype.attack = function (now) {
   return true;
 };
 
+Mob.prototype.taunt = function(now) {
+  const tauntIndex = global.getRandomNumber(0, this.taunts.length);
+
+  let taunt = this.taunts[tauntIndex];
+  taunt = taunt.format(this.displayName, "you");
+
+  const socket = global.io.sockets.connected[this.attackTarget];
+  let roomTaunt = this.taunts[tauntIndex].format(this.displayName, socket.user.username);
+
+  this.lastTaunt = now;
+
+  socket.emit("output", { message: taunt });
+  socket.broadcast.to(socket.user.roomId).emit("output", { message: roomTaunt });
+};
+
 Mob.prototype.readyToAttack = function (now) {
   return this.attackInterval && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
 };
 
 Mob.prototype.readyToTaunt = function (now) {
-  return this.tauntInterval && (!this.lastTaunt || this.lastTaunt + this.tauntInterval <= now);
+  return this.tauntInterval && this.attackTarget && (!this.lastTaunt || this.lastTaunt + this.tauntInterval <= now);
 };
 
 Mob.prototype.readyToIdle = function (now) {

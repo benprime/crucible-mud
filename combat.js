@@ -17,7 +17,6 @@ setInterval(() => {
   // check all players...
   for (const socketId in global.io.sockets.connected) {
     const socket = global.io.sockets.connected[socketId];
-    //console.log(socket.user);
     // if socket is a logged in user
     if (socket.user && socket.user.readyToAttack(now)) {
       console.log("player attacking!");
@@ -34,30 +33,13 @@ setInterval(() => {
   roomManager.roomsWithMobs().forEach(function (room) {
     room.mobs.forEach(function (mob) {
       if (mob.readyToAttack(now)) {
-        console.log("mob ready to attack");
         if (!mob.attack(now)) {
           mob.selectTarget(room.id, mob);
         }
       }
 
-      // todo: mobs should only taunt when attacking... need to add attackTarget logic to mobs
-      // if (mob.attackTarget && readyToTaunt(mob, now)) {
       if (mob.readyToTaunt(now)) {
-        const tauntIndex = global.getRandomNumber(0, mob.taunts.length);
-
-        let taunt = mob.taunts[tauntIndex];
-        taunt = taunt.format(mob.displayName, "you");
-
-        const socket = global.io.sockets.connected[mob.attackTarget];
-        let roomTaunt = mob.taunts[tauntIndex].format(mob.displayName, socket.user.username);
-
-        mob.lastTaunt = now;
-
-        socket.emit("output", { message: taunt });
-        socket.broadcast.to(socket.user.roomId).emit("output", { message: roomTaunt });
-
-        // socket.emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });
-        // socket.broadcast.to(socket.room._id).emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + taunt + "</span>" });
+        mob.taunt(now);
       }
 
       /*

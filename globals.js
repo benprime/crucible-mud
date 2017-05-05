@@ -41,7 +41,7 @@ global.FilterMatch = (array, pattern) => {
   return array.filter(value => !!re.exec(value));
 };
 
-global.ResolveName = (socket, nameString, list) => {
+global.AutocompleteName = (socket, nameString, list) => {
   const name = nameString.trim().toLowerCase();
 
   // (if there are two or more of the same creature, we just pick the first one)

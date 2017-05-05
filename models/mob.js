@@ -32,7 +32,7 @@ Mob.prototype.TakeDamage = function (socket, damage) {
 Mob.prototype.Die = function (socket) {
   roomManager.getRoomById(socket.user.roomId, (room) => {
 
-    global.io.to(room.id).emit('output', { message: 'The ${this.displayName} collapses.' });
+    global.io.to(room.id).emit('output', { message: `The ${this.displayName} collapses.` });
     //socket.emit('output', { message: `You gain ${this.xp} experience.` });
 
     // remove mob from the room    

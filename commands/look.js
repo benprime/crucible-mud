@@ -26,17 +26,17 @@ function lookDir(socket, room, dir) {
 function lookItem(socket, room, itemName) {
   // check player inventory
   const itemNames = socket.user.inventory.map(item => item.displayName);
-  const itemResolvedNames = global.ResolveName(socket, itemName, itemNames);
+  const itemcompletedNames = global.AutocompleteName(socket, itemName, itemNames);
 
   // check room inventory
   const roomItemNames = room.inventory.map(item => item.displayName);
-  const roomResolvedNames = global.ResolveName(socket, itemName, roomItemNames);
+  const roomcompletedNames = global.AutocompleteName(socket, itemName, roomItemNames);
 
   // check mobs
   const mobNames = room.mobs.map(item => item.displayName);
-  const mobResolvedNames = global.ResolveName(socket, itemName, mobNames);
+  const mobcompletedNames = global.AutocompleteName(socket, itemName, mobNames);
 
-  const totalFound = itemResolvedNames.length + roomResolvedNames.length + mobResolvedNames.length;
+  const totalFound = itemcompletedNames.length + roomcompletedNames.length + mobcompletedNames.length;
   if (totalFound > 1) {
     socket.emit('output', { message: 'Not specific enough!' });
     return;
@@ -48,12 +48,12 @@ function lookItem(socket, room, itemName) {
   }
 
   let item = null;
-  if (itemResolvedNames.length) {
-    item = socket.user.inventory.find(item => item.displayName === itemResolvedNames[0]);
-  } else if (roomResolvedNames.length) {
-    item = room.inventory.find(item => item.displayName === roomResolvedNames[0]);
-  } else if (mobResolvedNames.length) {
-    item = room.mobs.find(mob => mob.displayName === mobResolvedNames[0]);
+  if (itemcompletedNames.length) {
+    item = socket.user.inventory.find(item => item.displayName === itemcompletedNames[0]);
+  } else if (roomcompletedNames.length) {
+    item = room.inventory.find(item => item.displayName === roomcompletedNames[0]);
+  } else if (mobcompletedNames.length) {
+    item = room.mobs.find(mob => mob.displayName === mobcompletedNames[0]);
   }
   item.Look(socket);
 }

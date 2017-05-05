@@ -26,17 +26,17 @@ module.exports = {
 
       // autocomplete name
       const itemNames = room.inventory.map(item => item.displayName);
-      const resolvedNames = global.ResolveName(socket, itemName, itemNames);
-      if (resolvedNames.length === 0) {
+      const completedNames = global.AutocompleteName(socket, itemName, itemNames);
+      if (completedNames.length === 0) {
         socket.emit('output', { message: 'You don\'t see that item here.' });
         return;
-      } else if (resolvedNames.length > 1) {
+      } else if (completedNames.length > 1) {
         // todo: possibly print out a list of the matches
         socket.emit('output', { message: 'Not specific enough!' });
         return;
       }
 
-      const item = room.inventory.find(item => item.displayName === resolvedNames[0]);
+      const item = room.inventory.find(item => item.displayName === completedNames[0]);
 
       // todo: are we calling it 'fixed' for non-takeable items like signs and stuff?
       if (item.fixed) {

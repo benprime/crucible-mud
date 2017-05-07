@@ -28,50 +28,48 @@ module.exports = {
 
     if (type == 'mob') {
       // look for mob in user's current room
-      roomManager.getRoomById(socket.user.roomId, (room) => {
-        // locate mob
-        const mobIndex = room.mobs.findIndex(mob => mob.id = id);
-        if (mobIndex === -1) {
-          socket.emit('output', { message: 'Unknown mob ID.' });
-          return;
-        }
+      const room = roomManager.getRoomById(socket.user.roomId);
+      // locate mob
+      const mobIndex = room.mobs.findIndex(mob => mob.id = id);
+      if (mobIndex === -1) {
+        socket.emit('output', { message: 'Unknown mob ID.' });
+        return;
+      }
 
-        // delete mob
-        room.mobs.splice(mobIndex, 1);
+      // delete mob
+      room.mobs.splice(mobIndex, 1);
 
-        // clean up after vortex caused by mob removal
-        socket.emit('output', { message: 'Mob successfully destroyed.' });
+      // clean up after vortex caused by mob removal
+      socket.emit('output', { message: 'Mob successfully destroyed.' });
 
-        // announce mob disappearance to any onlookers
-        socket.broadcast.to(room.id).emit('output', { message: `Mob erased from existence!` });
-      });
+      // announce mob disappearance to any onlookers
+      socket.broadcast.to(room.id).emit('output', { message: `Mob erased from existence!` });
     }
     else if (type == 'item') {
       // find user's current room
-      roomManager.getRoomById(socket.user.roomId, (room) => {
+      const room = roomManager.getRoomById(socket.user.roomId);
       // look for item in user's inventory
-        const itemIndex = socket.user.inventory.findIndex(item => item.id === id);
-        if (itemIndex === -1) {
-          socket.emit('output', { message: 'Unknown item ID.' });
-          return;
-        }
+      const itemIndex = socket.user.inventory.findIndex(item => item.id === id);
+      if (itemIndex === -1) {
+        socket.emit('output', { message: 'Unknown item ID.' });
+        return;
+      }
 
-        // delete item
-        socket.user.inventory.splice(itemIndex, 1);
-        socket.user.save();
+      // delete item
+      socket.user.inventory.splice(itemIndex, 1);
+      socket.user.save();
 
-        // clean up after vortex caused by item removal
-        socket.emit('output', { message: 'Item successfully destroyed.' });
+      // clean up after vortex caused by item removal
+      socket.emit('output', { message: 'Item successfully destroyed.' });
 
-        // announce item disappearance to any onlookers
-        socket.broadcast.to(room.id).emit('output', { message: `Item erased from existence!` });
+      // announce item disappearance to any onlookers
+      socket.broadcast.to(room.id).emit('output', { message: `Item erased from existence!` });
 
-        // todo: determine if we want to hide when an admin destroys an item      
-      });
+      // todo: determine if we want to hide when an admin destroys an item      
     }
   },
 
-  help(socket) { 
+  help(socket) {
     let output = '';
     output += '<span class="mediumOrchid">destroy mob &lt;mob ID&gt; </span><span class="purple">-</span> Remove <mob> from current room.<br />';
     output += '<span class="mediumOrchid">destroy item &lt;item ID&gt; </span><span class="purple">-</span> Remove <item> from inventory.<br />';

@@ -10,16 +10,15 @@ function lookDir(socket, room, dir) {
     return;
   }
 
-  if(exit.closed) {
+  if (exit.closed) {
     socket.emit('output', { message: 'The door in that direction is closed!' });
     return;
   }
 
-  roomManager.getRoomById(exit.roomId, (room) => {
-    socket.emit('output', { message: `You look to the ${Room.exitName(dir)}...` });
-    socket.broadcast.to(room.id).emit('output', { message: `<span class="yellow">${socket.user.username} peaks in from the ${Room.exitName(Room.oppositeDirection(dir))}.</span>` });
-    room.Look(socket, false);
-  });
+  const lookRoom = roomManager.getRoomById(exit.roomId);
+  socket.emit('output', { message: `You look to the ${Room.exitName(dir)}...` });
+  socket.broadcast.to(lookRoom.id).emit('output', { message: `<span class="yellow">${socket.user.username} peaks in from the ${Room.exitName(Room.oppositeDirection(dir))}.</span>` });
+  lookRoom.Look(socket, false);
 }
 
 // for items and mobs
@@ -80,20 +79,19 @@ module.exports = {
   },
 
   execute(socket, short, itemName) {
-    roomManager.getRoomById(socket.user.roomId, (room) => {
+    const room = roomManager.getRoomById(socket.user.roomId);
 
-      if (itemName) {
-        itemName = itemName.toLowerCase();
+    if (itemName) {
+      itemName = itemName.toLowerCase();
 
-        if (global.ValidDirectionInput(itemName)) {
-          lookDir(socket, room, itemName);
-        } else {
-          lookItem(socket, room, itemName);
-        }
+      if (global.ValidDirectionInput(itemName)) {
+        lookDir(socket, room, itemName);
       } else {
-        room.Look(socket, short);
+        lookItem(socket, room, itemName);
       }
-    });
+    } else {
+      room.Look(socket, short);
+    }
   },
 
   help(socket) {

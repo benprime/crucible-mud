@@ -30,31 +30,29 @@ Mob.prototype.TakeDamage = function (socket, damage) {
 };
 
 Mob.prototype.Die = function (socket) {
-  roomManager.getRoomById(socket.user.roomId, (room) => {
+  const room = roomManager.getRoomById(socket.user.roomId);
 
-    global.io.to(room.id).emit('output', { message: `The ${this.displayName} collapses.` });
-    //socket.emit('output', { message: `You gain ${this.xp} experience.` });
+  global.io.to(room.id).emit('output', { message: `The ${this.displayName} collapses.` });
+  //socket.emit('output', { message: `You gain ${this.xp} experience.` });
 
-    // remove mob from the room    
-    let i = room.mobs.indexOf(this);
-    room.mobs.splice(i, 1);
-    this.Dispose(socket);
-  });
+  // remove mob from the room    
+  let i = room.mobs.indexOf(this);
+  room.mobs.splice(i, 1);
+  this.Dispose(socket);
 };
 
 // todo: cleaning up for current room. This may needs some rework when the mobs
 // can move from room to room.
 Mob.prototype.Dispose = function (socket) {
-  roomManager.getRoomById(socket.user.roomId, (room) => {
-    let sockets = room.getSockets();
-    sockets.forEach((s) => {
-      if (s.user.attackTarget === this.id) {
-        s.user.attackTarget = null;
-        s.user.addExp(this.xp);
-        s.emit('output', { message: `You gain ${this.xp} experience.` });
-        s.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
-      }
-    });
+  const room = roomManager.getRoomById(socket.user.roomId);
+  let sockets = room.getSockets();
+  sockets.forEach((s) => {
+    if (s.user.attackTarget === this.id) {
+      s.user.attackTarget = null;
+      s.user.addExp(this.xp);
+      s.emit('output', { message: `You gain ${this.xp} experience.` });
+      s.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
+    }
   });
 };
 
@@ -133,7 +131,7 @@ Mob.prototype.attack = function (now) {
   return true;
 };
 
-Mob.prototype.taunt = function(now) {
+Mob.prototype.taunt = function (now) {
   const tauntIndex = global.getRandomNumber(0, this.taunts.length);
 
   let taunt = this.taunts[tauntIndex];

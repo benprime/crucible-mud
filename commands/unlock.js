@@ -24,34 +24,33 @@ module.exports = {
   },
 
   execute(socket, dir, keyName) {
-    roomManager.getRoomById(socket.user.roomId, (room) => {
-      dir = global.LongToShort(dir);
-      let exit = room.getExit(dir);
-      if (!exit) {
-        socket.emit('output', { message: 'No door in that direction.' });
-        return;
-      }
+    const room = roomManager.getRoomById(socket.user.roomId);
+    dir = global.LongToShort(dir);
+    let exit = room.getExit(dir);
+    if (!exit) {
+      socket.emit('output', { message: 'No door in that direction.' });
+      return;
+    }
 
-      if (!exit.locked) {
-        socket.emit('output', { message: 'That door is not locked.' });
-        return;
-      }
+    if (!exit.locked) {
+      socket.emit('output', { message: 'That door is not locked.' });
+      return;
+    }
 
-      let foundKey = socket.user.keys.find(key => key.name.toLowerCase() === keyName.toLowerCase());
-      if (!foundKey) {
-        socket.emit('output', { message: 'You are not carrying that key.' });
-        return;
-      }
+    let foundKey = socket.user.keys.find(key => key.name.toLowerCase() === keyName.toLowerCase());
+    if (!foundKey) {
+      socket.emit('output', { message: 'You are not carrying that key.' });
+      return;
+    }
 
-      if (foundKey.name != exit.keyName) {
-        socket.emit('output', { message: 'That key does not unlock that door.' });
-        return;
-      }
+    if (foundKey.name != exit.keyName) {
+      socket.emit('output', { message: 'That key does not unlock that door.' });
+      return;
+    }
 
-      exit.locked = false;
-      room.save();
-      socket.emit('output', { message: 'Door unlocked.' });
-    });
+    exit.locked = false;
+    room.save();
+    socket.emit('output', { message: 'Door unlocked.' });
   },
 
   help(socket) {

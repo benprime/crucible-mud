@@ -33,25 +33,24 @@ module.exports = {
       toRoomId = userSocket.user.roomId;
     }
 
-    roomManager.getRoomById(toRoomId, (room) => {
-      if (!room) {
-        socket.emit('output', { message: 'Room not found.' });
-        return;
-      }
-      breakCmd.execute(socket);
+    const room = roomManager.getRoomById(toRoomId);
+    if (!room) {
+      socket.emit('output', { message: 'Room not found.' });
+      return;
+    }
+    breakCmd.execute(socket);
 
-      socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} vanishes!` });
-      socket.leave(socket.user.roomId);
-      socket.join(room.id);
-      socket.user.roomId = room.id;
-      socket.user.save();
+    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} vanishes!` });
+    socket.leave(socket.user.roomId);
+    socket.join(room.id);
+    socket.user.roomId = room.id;
+    socket.user.save();
 
-      socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} appears out of thin air!` });
-      lookCmd.execute(socket);
-    });
+    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} appears out of thin air!` });
+    lookCmd.execute(socket);
   },
 
-  help(socket) { 
+  help(socket) {
     let output = '';
     output += '<span class="mediumOrchid">teleport &lt;room ID&gt;</span><span class="purple">-</span> Teleport to &lt;room&gt;.<br />';
     output += '<span class="mediumOrchid">teleport &lt;username&gt;</span><span class="purple">-</span> Teleport to &lt;player&gt;.<br />';

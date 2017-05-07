@@ -43,14 +43,13 @@ module.exports = {
         return;
       }
 
-      roomManager.getRoomById(socket.user.roomId, (room) => {
-        // clone the create type and give it an id
-        let mob = new Mob(createType, room.id);
+      const room = roomManager.getRoomById(socket.user.roomId);
+      // clone the create type and give it an id
+      let mob = new Mob(createType, room.id);
 
-        room.mobs.push(mob);
-        socket.emit('output', { message: 'Summoning successful.' });
-        socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
-      });
+      room.mobs.push(mob);
+      socket.emit('output', { message: 'Summoning successful.' });
+      socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
     } else if (type == 'item') {
       const createType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase());
 

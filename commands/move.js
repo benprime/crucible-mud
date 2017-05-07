@@ -102,69 +102,68 @@ module.exports = {
     // changes "north" to "n" (just returns "n" if that's what's passed in)
     d = global.LongToShort(d);
 
-    roomManager.getRoomById(socket.user.roomId, (room) => {
+    const room = roomManager.getRoomById(socket.user.roomId);
 
-      // valid exit in that direction?
-      const exit = room.exits.find(e => e.dir === d);
-      if (!exit) {
-        HitWall(socket, d);
-        return;
-      }
+    // valid exit in that direction?
+    const exit = room.exits.find(e => e.dir === d);
+    if (!exit) {
+      HitWall(socket, d);
+      return;
+    }
 
-      if(exit.closed) {
-        HitDoor(socket, d);
-        return;
-      }
+    if (exit.closed) {
+      HitDoor(socket, d);
+      return;
+    }
 
-      let message = '';
-      if (!room) {
-        // hrmm if the exit was just validated, this should never happen.
-        HitWall(socket, d);
-        console.log("WARNING: Query couldn't find next room when going through a exit.");
-        return;
-      }
+    let message = '';
+    if (!room) {
+      // hrmm if the exit was just validated, this should never happen.
+      HitWall(socket, d);
+      console.log("WARNING: Query couldn't find next room when going through a exit.");
+      return;
+    }
 
-      var username = socket.user.username;
+    var username = socket.user.username;
 
-      // send message to everyone in old room that player is leaving
-      if (d === 'u') {
-        message = `${username} has gone above.`;
-      } else if (d === 'd') {
-        message = `${username} has gone below.`;
-      } else {
-        message = `${username} has left to the ${Room.exitName(d)}.`;
-      }
+    // send message to everyone in old room that player is leaving
+    if (d === 'u') {
+      message = `${username} has gone above.`;
+    } else if (d === 'd') {
+      message = `${username} has gone below.`;
+    } else {
+      message = `${username} has left to the ${Room.exitName(d)}.`;
+    }
 
-      // stop mobs attacking this user (since he is leaving the room)
-      breakCommand.execute(socket);
+    // stop mobs attacking this user (since he is leaving the room)
+    breakCommand.execute(socket);
 
-      socket.broadcast.to(room.id).emit('output', { message });
-      MovementSounds(socket, room, d);
-      console.log("Leaving room: ", room.id);
-      socket.leave(room.id);
+    socket.broadcast.to(room.id).emit('output', { message });
+    MovementSounds(socket, room, d);
+    console.log("Leaving room: ", room.id);
+    socket.leave(room.id);
 
-      // update user session
-      socket.user.roomId = exit.roomId;
-      console.log("Joining room: ", exit.roomId);
-      socket.user.save();
-      socket.join(exit.roomId);
+    // update user session
+    socket.user.roomId = exit.roomId;
+    console.log("Joining room: ", exit.roomId);
+    socket.user.save();
+    socket.join(exit.roomId);
 
-      MovementSounds(socket, room, Room.oppositeDirection(d));
+    MovementSounds(socket, room, Room.oppositeDirection(d));
 
-      // send message to everyone is new room that player has arrived
-      if (d === 'u') {
-        message = `${username} has entered from below.`;
-      } else if (d === 'd') {
-        message = `${username} has entered from above.`;
-      } else {
-        message = `${username} has entered from the ${Room.exitName(Room.oppositeDirection(d))}.`;
-      }
-      socket.broadcast.to(exit.roomId).emit('output', { message });
+    // send message to everyone is new room that player has arrived
+    if (d === 'u') {
+      message = `${username} has entered from below.`;
+    } else if (d === 'd') {
+      message = `${username} has entered from above.`;
+    } else {
+      message = `${username} has entered from the ${Room.exitName(Room.oppositeDirection(d))}.`;
+    }
+    socket.broadcast.to(exit.roomId).emit('output', { message });
 
-      // You have moved south...
-      socket.emit('output', { message: Feedback(dir) });
-      lookCommand.execute(socket);
-    });
+    // You have moved south...
+    socket.emit('output', { message: Feedback(dir) });
+    lookCommand.execute(socket);
 
   },
 

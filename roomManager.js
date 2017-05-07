@@ -1,35 +1,23 @@
 'use strict';
 
-const roomModel = require('./models/room.js');
+const Room = require('./models/room');
 const Item = require('./models/item');
 
 // room cache
 const rooms = {};
 
+// fetch all rooms from server
+Room.find({}, function(err, result) {
+  result.forEach(function(room) {
+    room.mobs = [];
+    room.inventory = room.inventory.map(item => new Item(item));
+    rooms[room.id] = room;
+  });
+});
+
 module.exports = {
-  getRoomById(roomId, cb) {
-    if (roomId in rooms) {
-      console.log("found room in cache");
-      cb(rooms[roomId]);
-      return;
-    }
-
-    return roomModel.findById(roomId, function (err, room) {
-      console.log("room lookup");
-      if (err) {
-        console.log(err);
-        return;
-      }
-
-      if (room) {
-        rooms[roomId] = room;
-        room.mobs = [];
-        room.inventory = room.inventory.map(item => new Item(item));
-      }
-
-      cb(room);
-    });
-
+  getRoomById(roomId) {
+      return rooms[roomId];
   },
 
   roomsWithMobs() {

@@ -11,6 +11,11 @@ const io = require('socket.io')(serve);
 
 require('./extensionMethods');
 require('./globals');
+
+// load rooms from database
+require('./roomManager');
+
+// parses command files and prepares them
 const commands = require('./commands/');
 
 const welcome = require('./welcome');

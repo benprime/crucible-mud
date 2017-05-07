@@ -20,12 +20,11 @@ setInterval(() => {
     // if socket is a logged in user
     if (socket.user && socket.user.readyToAttack(now)) {
       console.log("player attacking!");
-      roomManager.getRoomById(socket.user.roomId, function (room) {
-        let mob = room.getMobById(socket.user.attackTarget);
-        //if(!mob) socket.user.attackTarget = null;
-        console.log("Attacking from room: ", socket.user.roomId);
-        socket.user.attack(socket, mob, now);
-      });
+      const room = roomManager.getRoomById(socket.user.roomId);
+      let mob = room.getMobById(socket.user.attackTarget);
+      //if(!mob) socket.user.attackTarget = null;
+      console.log("Attacking from room: ", socket.user.roomId);
+      socket.user.attack(socket, mob, now);
     }
   }
 

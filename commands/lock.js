@@ -24,26 +24,25 @@ module.exports = {
   },
 
   execute(socket, dir, keyName) {
-    roomManager.getRoomById(socket.user.roomId, (room) => {
-      dir = global.LongToShort(dir);
-      let exit = room.getExit(dir);
-      if (!exit || !('closed' in exit)) {
-        socket.emit('output', { message: 'No door in that direction.' });
-        return;
-      }
+    const room = roomManager.getRoomById(socket.user.roomId);
+    dir = global.LongToShort(dir);
+    let exit = room.getExit(dir);
+    if (!exit || !('closed' in exit)) {
+      socket.emit('output', { message: 'No door in that direction.' });
+      return;
+    }
 
-      let foundKey = socket.user.keys.find(key => key.name.toLowerCase() === keyName.toLowerCase());
-      if (!foundKey) {
-        socket.emit('output', { message: 'You are not carrying that key.' });
-        return;
-      }
+    let foundKey = socket.user.keys.find(key => key.name.toLowerCase() === keyName.toLowerCase());
+    if (!foundKey) {
+      socket.emit('output', { message: 'You are not carrying that key.' });
+      return;
+    }
 
-      exit.closed = true;
-      exit.keyName = foundKey.name;
-      exit.locked = true;
-      room.save();
-      socket.emit('output', { message: 'Door locked.' });
-    });
+    exit.closed = true;
+    exit.keyName = foundKey.name;
+    exit.locked = true;
+    room.save();
+    socket.emit('output', { message: 'Door locked.' });
   },
 
   help(socket) {

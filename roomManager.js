@@ -7,8 +7,8 @@ const Item = require('./models/item');
 const rooms = {};
 
 // fetch all rooms from server
-Room.find({}, function(err, result) {
-  result.forEach(function(room) {
+Room.find({}, function (err, result) {
+  result.forEach(function (room) {
     room.mobs = [];
     room.inventory = room.inventory.map(item => new Item(item));
     rooms[room.id] = room;
@@ -17,7 +17,7 @@ Room.find({}, function(err, result) {
 
 module.exports = {
   getRoomById(roomId) {
-      return rooms[roomId];
+    return rooms[roomId];
   },
 
   roomsWithMobs() {
@@ -27,7 +27,14 @@ module.exports = {
       }
       return filtered;
     }, []);
+  },
 
+  roomsWithSpawners() {
+    return Object.keys(rooms).reduce(function (filtered, key) {
+      if (rooms[key].spawner && rooms[key].spawner.timeout) {
+        filtered.push(rooms[key]);
+      }
+      return filtered;
+    }, []);
   }
-  //rooms: rooms,
 };

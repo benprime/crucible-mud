@@ -31,6 +31,7 @@ Mob.prototype.TakeDamage = function (socket, damage) {
 
 Mob.prototype.Die = function (socket) {
   const room = roomManager.getRoomById(socket.user.roomId);
+  room.lastMobDeath = new Date();
 
   global.io.to(room.id).emit('output', { message: `The ${this.displayName} collapses.` });
   //socket.emit('output', { message: `You gain ${this.xp} experience.` });
@@ -138,6 +139,9 @@ Mob.prototype.taunt = function (now) {
   taunt = taunt.format(this.displayName, "you");
 
   const socket = global.io.sockets.connected[this.attackTarget];
+  if(!socket) {
+    this.attackTarget = null;
+  }
   let roomTaunt = this.taunts[tauntIndex].format(this.displayName, socket.user.username);
 
   this.lastTaunt = now;

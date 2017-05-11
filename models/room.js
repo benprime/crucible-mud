@@ -1,8 +1,11 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const SpawnerSchema = require('./spawner');
 
 const dirEnum = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw', 'u', 'd'];
+
+
 
 const RoomSchema = new mongoose.Schema({
   name: {
@@ -43,7 +46,8 @@ const RoomSchema = new mongoose.Schema({
 
   }],
 
-  inventory: []
+  inventory: [],
+  spawner: SpawnerSchema
 
 });
 

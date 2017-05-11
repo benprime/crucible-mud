@@ -3,6 +3,7 @@
 global.MSG_COLOR = 'darkcyan';
 global.DMG_COLOR = 'firebrick';
 global.COMBAT_INTERVAL = 500;
+global.SPAWNER_INTERVAL = 500;
 
 // todo: remove this when login functionality exists
 global.STATES = {

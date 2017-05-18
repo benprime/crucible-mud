@@ -61,6 +61,8 @@ module.exports = {
 
           socket.join('gossip');
 
+          global.updateHUD(socket);
+
           // todo: maybe this should check if the roomId currently exists.
           if (!user.roomId) {
             roomModel.byCoords({ x: 0, y: 0, z: 0 }, function (err, room) {

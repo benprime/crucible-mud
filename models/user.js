@@ -40,6 +40,14 @@ const UserSchema = new mongoose.Schema({
   level: {
     type: Number,
   },
+
+  maxHP: {
+    type: Number,
+  },
+
+  currentHP: {
+    type: Number,
+  },
   /*
   room: {
     type: mongoose.Schema.ObjectId,

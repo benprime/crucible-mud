@@ -6,13 +6,26 @@ const roomManager = require('../roomManager');
 const dice = require('../dice');
 
 function Mob(mobType, roomId) {
+  const instance = Object.assign(this, mobType);
   if (!this.id) {
     this.id = new ObjectId().toString();
   }
 
-  this.roomId = roomId;
+  // apply modifiers
+  const adjIndex = global.getRandomNumber(0, mobType.adjectives.length);
+  const adjective = mobType.adjectives[adjIndex];
+  instance.hp += adjective.modifiers.hp;
+  instance.xp += adjective.modifiers.xp;
+  instance.minDamage += adjective.modifiers.minDamage;
+  instance.maxDamage += adjective.modifiers.maxDamage;
+  instance.hitDice += adjective.modifiers.hitDice;
+  instance.attackInterval += adjective.modifiers.attackInterval;
 
-  return Object.assign(this, mobType);
+  instance.roomId = roomId;
+
+  instance.displayName = adjective.name + ' ' + instance.displayName;
+
+  return instance;
 }
 
 Mob.prototype.Look = function (socket) {

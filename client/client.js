@@ -26,6 +26,12 @@
     }
     */
   });
+  
+  socket.on('hud', function(data) {
+    var healthBar = document.getElementById('healthBar');
+    var hpText = `Health: ${data.currentHP} / ${data.maxHP}`;
+    healthBar.innerHTML = hpText;
+  });
 
   function scrollLogToBottom() {
     logElement = document.getElementById('log');

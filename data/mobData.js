@@ -13,7 +13,80 @@ module.exports = {
     desc: "an ugly kobold",
     displayName: "kobold sentry",
     adjectives: [
-      "big", "small", "short", "tall"
+      {
+        name: "big",
+        modifiers: {
+          hp: 10,
+          xp: 0,
+          minDamage: 0,
+          maxDamage: 0,
+          hitDice: 0,
+          attackInterval: 250,
+        }
+      },
+      {
+        name: "strong",
+        modifiers: {
+          hp: 5,
+          xp: 30,
+          minDamage: 4,
+          maxDamage: 0,
+          hitDice: 0,
+          attackInterval: 0,
+        }
+      },
+      {
+        name: "quick",
+        modifiers: {
+          hp: 0,
+          xp: 0,
+          minDamage: -2,
+          maxDamage: 0,
+          hitDice: 0,
+          attackInterval: -1000,
+        }
+      },
+      {
+        name: "small",
+        modifiers: {
+          hp: -5,
+          xp: -5,
+          minDamage: 0,
+          maxDamage: 0,
+          hitDice: 0,
+          attackInterval: -500,
+        }
+      },
+      {
+        name: "short",
+        modifiers: {
+          hp: 0,
+          xp: 0,
+          minDamage: 0,
+          maxDamage: 0,
+          hitDice: 0,
+        }
+      },
+      {
+        name: "tall",
+        modifiers: {
+          hp: 0,
+          xp: 0,
+          minDamage: 0,
+          maxDamage: 0,
+          hitDice: 0,
+        }
+      },
+      {
+        name: "ferocious",
+        modifiers: {
+          hp: 0,
+          xp: 50,
+          minDamage: 2,
+          maxDamage: 2,
+          hitDice: 1,
+        }
+      },
     ],
     attackInterval: 4000,
     hitDice: "1d4",

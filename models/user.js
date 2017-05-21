@@ -106,7 +106,7 @@ UserSchema.methods.attack = function(socket, mob, now) {
   socket.emit('output', { message: actorMessage });
   socket.broadcast.to(this.roomId).emit('output', { message: roomMessage });
 
-  if (attackResult) {
+  if (attackResult == 2) {
     mob.TakeDamage(socket, playerDmg);
     //MobDamage(socket, socket.user.attackTarget, playerDmg);
   }

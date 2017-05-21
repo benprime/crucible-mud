@@ -152,10 +152,13 @@ Mob.prototype.taunt = function (now) {
   taunt = taunt.format(this.displayName, "you");
 
   const socket = global.io.sockets.connected[this.attackTarget];
+  let username = '';
   if(!socket) {
     this.attackTarget = null;
+  } else {
+    username = socket.user.username;
   }
-  let roomTaunt = this.taunts[tauntIndex].format(this.displayName, socket.user.username);
+  let roomTaunt = this.taunts[tauntIndex].format(this.displayName, username);
 
   this.lastTaunt = now;
 

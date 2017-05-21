@@ -1,7 +1,7 @@
 'use strict';
 
 const roomModel = require('./models/room');
-//const roomManager = require('./roomManager');
+const roomManager = require('./roomManager');
 const userModel = require('./models/user');
 const Item = require('./models/item');
 
@@ -63,8 +63,8 @@ module.exports = {
 
           global.updateHUD(socket);
 
-          // todo: maybe this should check if the roomId currently exists.
-          if (!user.roomId) {
+          const currentRoom = roomManager.getRoomById(user.roomId);
+          if (!currentRoom) {
             roomModel.byCoords({ x: 0, y: 0, z: 0 }, function (err, room) {
               console.log("Default room", room);
               socket.user.roomId = room.id;

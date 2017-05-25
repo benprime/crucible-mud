@@ -16,7 +16,7 @@ function findMobByName(socket, room, targetName) {
     return;
   }
 
-  // autocomplete name by diplay name
+  // autocomplete name by name
   const mobNames = room.mobs.map(mob => mob.name);
   const completedNames = global.AutocompleteName(socket, targetName, mobNames);
 

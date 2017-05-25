@@ -6,6 +6,8 @@ const mongoose = require('mongoose');
 const dice = require('../dice');
 
 const UserSchema = new mongoose.Schema({
+
+//User info
   email: {
     type: String,
     unique: true
@@ -25,14 +27,24 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
   },
 
+
+
+//Character info
   roomId: {
     type: mongoose.Schema.ObjectId,
   },
+  /*
+  room: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Room'
+  }
+  */
 
   inventory: [],
 
   keys: [],
 
+//Character stats
   xp: {
     type: Number,
   },
@@ -48,12 +60,35 @@ const UserSchema = new mongoose.Schema({
   currentHP: {
     type: Number,
   },
-  /*
-  room: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Room'
-  }
-  */
+
+  //base die for all of player's action results to add variance
+  actionDie: {
+    type: String,
+  },
+
+  strength: {
+    type: Number,
+  },
+
+  intelligence: {
+    type: Number,
+  },
+
+  dexterity: {
+    type: Number,
+  },
+
+  charisma: {
+    type: Number,
+  },
+
+  constitution: {
+    type: Number,
+  },
+
+  willpower: {
+    type: Number,
+  },
 
 });
 
@@ -91,7 +126,7 @@ UserSchema.methods.attack = function(socket, mob, now) {
 
   let actorMessage = '';
   let roomMessage = '';
-  const playerDmg = 5;
+  const playerDmg = 5; //dice.Roll(this.actionDie) + this.strength;
 
   let attackResult = this.attackRoll();
 

@@ -1,6 +1,7 @@
 'use strict';
 
 const roomManager = require('../roomManager');
+const Room = require('../models/room');
 
 module.exports = {
   name: 'unlock',
@@ -48,8 +49,27 @@ module.exports = {
       return;
     }
 
+    setTimeout(() => {
+      exit.locked = true;
+      let doorDesc;
+      if (exit.dir === 'u') {
+        doorDesc = 'above';
+      } else if (exit.dir === 'd') {
+        doorDesc = 'below';
+      } else {
+        doorDesc = `to the ${Room.exitName(exit.dir)}`;
+      }
+
+      if (exit.closed === true) {
+        global.io.to(room.id).emit('output', { message: `The door ${doorDesc} clicks locked!` });
+      } else {
+        exit.closed = true;
+        global.io.to(room.id).emit('output', { message: `The door ${doorDesc} slams shut and clicks locked!` });
+      }
+    }, 10000);
+
     exit.locked = false;
-    room.save();
+    //room.save();
     socket.emit('output', { message: 'Door unlocked.' });
   },
 

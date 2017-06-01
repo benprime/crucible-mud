@@ -44,6 +44,50 @@ const UserSchema = new mongoose.Schema({
 
   keys: [],
 
+  //Weapons
+  mainHand: {
+    type: String,
+  },
+
+  offHand: {
+    type: String,
+  },
+
+  //Armor/Gear
+  head: {
+    type: String,
+  },
+
+  body: {
+    type: String,
+  },
+
+  legs: {
+    type: String,
+  },
+
+  feet: {
+    type: String,
+  },
+
+  arms: {
+    type: String,
+  },
+
+  hands: {
+    type: String,
+  },
+
+  accessory1: {
+    type: String,
+  },
+
+  accessory2: {
+    type: String,
+  },
+
+
+
 //Character stats
   xp: {
     type: Number,
@@ -61,11 +105,11 @@ const UserSchema = new mongoose.Schema({
     type: Number,
   },
 
-  //base die for all of player's action results to add variance
-  actionDie: {
+  actionDie: {  //base die for all of player's action results to add variance
     type: String,
   },
 
+  //base stats
   strength: {
     type: Number,
   },
@@ -87,6 +131,77 @@ const UserSchema = new mongoose.Schema({
   },
 
   willpower: {
+    type: Number,
+  },
+
+  //skills
+  stealth: {  //ability to not be seen/heard (DEX)
+    type: Number,
+  },
+
+  lockpick: { //open non-magical locks (DEX)
+    type: Number,
+  },
+
+  search: { //visual (hidden door, trap, etc) (INT)
+    type: Number,
+  },
+
+  detect: { //magical (active spell, illusion, etc) (INT/WIL)
+    type: Number,
+  },
+
+  listen: { //auditory (sounds beyond door, wind outside cave entrance, etc) (INT)
+    type: Number,
+  },
+
+  identify: { //determine hidden qualities of objects (INT)
+    type: Number,
+  },
+
+  disable: {  //eliminate traps (DEX)
+    type: Number,
+  },
+
+  negotiate: {  //make deals with others (CHA)
+    type: Number,
+  },
+
+  bluff: {  //mislead/swindle others (CHA)
+    type: Number,
+  },
+
+  intimidate: { //force others to comply through fear (STR/CHA)
+    type: Number,
+  },
+
+  magic: {  //affinity/skill with magic (INT/WIL)
+    type: Number,
+  },
+
+  weapons: {  //affinity/skill with weapons (STR/DEX)
+    type: Number,
+  },
+
+  //subweapon skills? (dual, ranged, one hand, two hand, pierce, slash, bludge)
+
+  conceal: {  //hide objects (DEX)
+    type: Number,
+  },
+
+  heal: { //minor self heal (CON)
+    type: Number,
+  },
+
+  refresh: { //minor self revitalization of energy (WIL)
+    type: Number,
+  },
+
+  endure: { //survive what others cannot (resist poison, no KO, etc) (CON)
+    type: Number,
+  },
+
+  resist: { //shield from magic (resist spell, see through illusion/charm, etc) (WIL)
     type: Number,
   },
 

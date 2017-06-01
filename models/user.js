@@ -46,44 +46,44 @@ const UserSchema = new mongoose.Schema({
 
   //Weapons
   mainHand: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
   },
 
   offHand: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
   },
 
   //Armor/Gear
   head: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
   },
 
   body: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
   },
 
   legs: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
   },
 
   feet: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
   },
 
   arms: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
   },
 
   hands: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
   },
 
   accessory1: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
   },
 
   accessory2: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
   },
 
 
@@ -140,6 +140,10 @@ const UserSchema = new mongoose.Schema({
   },
 
   lockpick: { //open non-magical locks (DEX)
+    type: Number,
+  },
+
+  pickpocket: { //steal from others (DEX)
     type: Number,
   },
 

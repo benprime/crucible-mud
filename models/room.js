@@ -202,6 +202,10 @@ RoomSchema.methods.addExit = function (dir, roomId) {
 };
 
 RoomSchema.methods.createRoom = function (dir, cb) {
+  if(!global.ValidDirectionInput(dir)) {
+    return false;
+  }
+
   const roomModel = this.model('Room');
 
   let exit = this.getExit(dir);

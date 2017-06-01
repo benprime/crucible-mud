@@ -32,11 +32,20 @@ module.exports = {
       return;
     }
 
-    let foundKey = socket.user.keys.find(key => key.name.toLowerCase() === keyName.toLowerCase());
-    if (!foundKey) {
+    const keyNames = socket.user.keys.map(key => key.displayName);
+    const keyCompletedNames = global.AutocompleteName(socket, keyName, keyNames);
+    if(keyCompletedNames.length === 0) {
       socket.emit('output', { message: 'You are not carrying that key.' });
       return;
     }
+
+    if(keyCompletedNames.length > 1) {
+      // todo: print a list of matching keys
+      socket.emit('output', { message: 'Which key did you mean?' });
+      return;
+    }
+
+    const foundKey = socket.user.keys.find(key => key.displayName === keyCompletedNames[0]);
 
     exit.closed = true;
     exit.keyName = foundKey.name;

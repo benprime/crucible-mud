@@ -1,14 +1,14 @@
 'use strict';
 
 const roomModel = require('./models/room');
-//const roomManager = require('./roomManager');
+const roomManager = require('./roomManager');
 const userModel = require('./models/user');
 const Item = require('./models/item');
 
 module.exports = {
   LoginUsername(socket, username) {
     if (!socket.userId && (socket.state == global.STATES.LOGIN_USERNAME)) {
-      userModel.findByName(username.value, function(err, user) {
+      userModel.findByName(username.value, function (err, user) {
         console.log(`Searching for user... ${JSON.stringify(username)}`);
         if (!user) {
           socket.emit('output', { message: 'Unknown user, please try again.' });
@@ -28,7 +28,7 @@ module.exports = {
 
       userModel.findOne({ username: socket.tempUsername, password: password.value })
         //.populate('room')
-        .exec(function(err, user) {
+        .exec(function (err, user) {
           if (err) return console.error(err);
 
           if (!user) {
@@ -40,16 +40,19 @@ module.exports = {
 
           delete socket.tempUsername;
 
+          // if the user is logged in from another connection, disconnect it.
+          var existingSocket = global.GetSocketByUsername(user.username);
+          if (existingSocket) {
+            existingSocket.emit('output', { message: 'You have logged in from another session.\n<span class="gray">*** Disconnected ***</span>' });
+            existingSocket.disconnect();
+          }
+
           // THIS SHOULD BE THE ONLY USER STATE MANAGEMENT
           socket.user = user;
-
           socket.user.inventory = socket.user.inventory.map(item => new Item(item));
-
-
 
           // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
           socket.state = global.STATES.MUD;
-
 
           socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
 
@@ -58,9 +61,11 @@ module.exports = {
 
           socket.join('gossip');
 
-          // todo: maybe this should check if the roomId currently exists.
-          if (!user.roomId) {
-            roomModel.byCoords({ x: 0, y: 0, z: 0 }, function(err, room) {
+          global.updateHUD(socket);
+
+          const currentRoom = roomManager.getRoomById(user.roomId);
+          if (!currentRoom) {
+            roomModel.byCoords({ x: 0, y: 0, z: 0 }, function (err, room) {
               console.log("Default room", room);
               socket.user.roomId = room.id;
               socket.join(room.id);

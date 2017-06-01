@@ -1,6 +1,7 @@
 'use strict';
 
 const roomManager = require('../roomManager');
+const Room = require('../models/room');
 
 module.exports = {
   name: 'unlock',
@@ -37,19 +38,46 @@ module.exports = {
       return;
     }
 
-    let foundKey = socket.user.keys.find(key => key.name.toLowerCase() === keyName.toLowerCase());
-    if (!foundKey) {
+    const keyNames = socket.user.keys.map(key => key.displayName);
+    const keyCompletedNames = global.AutocompleteName(socket, keyName, keyNames);
+    if (keyCompletedNames.length === 0) {
       socket.emit('output', { message: 'You are not carrying that key.' });
       return;
     }
 
+    if (keyCompletedNames.length > 1) {
+      // todo: print a list of matching keys
+      socket.emit('output', { message: 'Which key did you mean?' });
+      return;
+    }
+
+    const foundKey = socket.user.keys.find(key => key.displayName === keyCompletedNames[0]);
     if (foundKey.name != exit.keyName) {
       socket.emit('output', { message: 'That key does not unlock that door.' });
       return;
     }
 
+    setTimeout(() => {
+      exit.locked = true;
+      let doorDesc;
+      if (exit.dir === 'u') {
+        doorDesc = 'above';
+      } else if (exit.dir === 'd') {
+        doorDesc = 'below';
+      } else {
+        doorDesc = `to the ${Room.exitName(exit.dir)}`;
+      }
+
+      if (exit.closed === true) {
+        global.io.to(room.id).emit('output', { message: `The door ${doorDesc} clicks locked!` });
+      } else {
+        exit.closed = true;
+        global.io.to(room.id).emit('output', { message: `The door ${doorDesc} slams shut and clicks locked!` });
+      }
+    }, 10000);
+
     exit.locked = false;
-    room.save();
+    //room.save();
     socket.emit('output', { message: 'Door unlocked.' });
   },
 

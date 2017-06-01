@@ -144,3 +144,10 @@ global.ValidDirectionInput = function(dir) {
 global.getRandomNumber = function(min, max) {
   return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min))) + min;
 };
+
+global.updateHUD = function(socket) {
+  socket.emit('hud',{
+    currentHP:socket.user.currentHP,
+    maxHP:socket.user.maxHP
+  })
+};

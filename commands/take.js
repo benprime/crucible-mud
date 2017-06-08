@@ -50,7 +50,11 @@ module.exports = {
     room.save();
 
     // and give it to the user
-    socket.user.inventory.push(item);
+    if (item.type === "key") {
+      socket.user.keys.push(item);
+    } else {
+      socket.user.inventory.push(item);
+    }
     socket.user.save();
 
     socket.emit('output', { message: 'Taken.' });

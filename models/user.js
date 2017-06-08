@@ -43,7 +43,7 @@ const UserSchema = new mongoose.Schema({
 
   inventory: [ItemSchema],
 
-  keys: [],
+  keys: [ItemSchema],
 
   //Weapons
   mainHand: {

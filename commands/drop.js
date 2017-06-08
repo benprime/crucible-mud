@@ -22,25 +22,36 @@ module.exports = {
   execute(socket, itemName) {
     const room = roomManager.getRoomById(socket.user.roomId);
 
-    // autocomplete name
+    // autocomplete name of inventory items
     const itemNames = socket.user.inventory.map(item => item.displayName);
-    const completedNames = global.AutocompleteName(socket, itemName, itemNames);
-    if (completedNames.length === 0) {
+    const inventoryCompletedNames = global.AutocompleteName(socket, itemName, itemNames);
+
+    const keyNames = socket.user.keys.map(item => item.displayName);
+    const keyCompletedNames = global.AutocompleteName(socket, itemName, keyNames);
+
+    if (inventoryCompletedNames.length + keyCompletedNames.legnth === 0) {
       socket.emit('output', { message: 'You don\'t seem to be carrying that.' });
       return;
-    } else if (completedNames.length > 1) {
+    } else if (inventoryCompletedNames.length + keyCompletedNames.legnth > 1) {
       // todo: possibly print out a list of the matches
       socket.emit('output', { message: 'Not specific enough!' });
       return;
     }
 
-    console.log(`Auto completed name: ${completedNames[0]}`);
+    let item;
+    if (keyCompletedNames.length === 1) {
+      item = socket.user.keys.find(item => item.displayName === keyCompletedNames[0]);
 
-    const item = socket.user.inventory.find(item => item.displayName === completedNames[0]);
+      // take the item from the user
+      const index = socket.user.keys.indexOf(item);
+      socket.user.keys.splice(index, 1);
+    } else {
+      item = socket.user.inventory.find(item => item.displayName === inventoryCompletedNames[0]);
 
-    // take the item from the user
-    const index = socket.user.inventory.indexOf(item);
-    socket.user.inventory.splice(index, 1);
+      // take the item from the user
+      const index = socket.user.inventory.indexOf(item);
+      socket.user.inventory.splice(index, 1);
+    } 
     socket.user.save();
 
     // todo: remove after a bit. just a workaround for old data.

@@ -19,19 +19,28 @@ module.exports = {
     const itemNames = socket.user.inventory.map(item => item.displayName);
     const itemNamesCompleted = global.AutocompleteName(socket, itemName, itemNames);
 
-    if (itemNamesCompleted.indexOf(itemName) == -1) {
+    if (itemNamesCompleted.length == 0) {
       socket.emit('output', { message: `${itemName} is not in your inventory!` });
       return;
+    } else if (itemNamesCompleted.length > 1 ) {
+      socket.emit('output', { message: `Many items can be described as '${itemName}'. Be more specific.` });
+      return;
+    } else {
+      itemName = itemNamesCompleted[0];
     }
 
     const userNames = global.UsersInRoom(socket.user.roomId)
-      .filter(name => name !== socket.user.username)
-      .map(name => name.toLowerCase());
+      .filter(name => name !== socket.user.username);
 
     const userNamesCompleted = global.AutocompleteName(socket, userName, userNames);
-    if (userNames.indexOf(userName) == -1) {
+    if (userNamesCompleted.length == 0) {
       socket.emit('output', { message: `${userName} is not here!` });
       return;
+    } else if (userNamesCompleted.length > 1) {
+      socket.emit('output', { message: `${userName} is a common name here. Be more specific.` });
+      return;
+    } else {
+      userName = userNamesCompleted[0];
     }
 
     const userItem = socket.user.inventory.find(item => item.displayName == itemName);

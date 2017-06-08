@@ -53,15 +53,16 @@ module.exports = {
     }
 
     // handle an item offered from another user
-    const offersIndex = global.offers.findIndex(offer => offer.item.id === item.id);
-    if(offersIndex !== -1) {
-      const userSocket = global.GetSocketByUsername(userName);
+    const offerIndex = global.offers.findIndex(offer => offer.item.id === item.id);
+    if(offerIndex !== -1) {
+      let offer = global.offers[offerIndex];
+      let userSocket = global.GetSocketByUsername(offer.fromUserName);
       if (!userSocket) {
-        socket.emit('output', { message: 'Invalid username.' });
+        socket.emit('output', { message: 'Invalid username or user is offline.' });
         return;
       }
       // remove the offer from the list of offers
-      global.offers.splice(offersIndex, 1);
+      global.offers.splice(offerIndex, 1);
 
       // remove the item from the other users' inventory
       const otherUserItemIndex = userSocket.user.inventory.indexOf(item);

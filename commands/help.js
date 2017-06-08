@@ -23,6 +23,7 @@ function generalHelp(socket) {
   output += '<span class="mediumOrchid">l <span class="purple">|</span> look</span> <span class="purple"><br />';
   output += '<span class="mediumOrchid">who</span><br />';
   output += '<span class="mediumOrchid">inventory</span> <span class="purple"><br />';
+  output += '<span class="mediumOrchid">equip &lt;item name&gt</span> <span class="purple"><br />';
   output += '<span class="mediumOrchid">drop &lt;item name&gt</span> <span class="purple"><br />';
   output += '<span class="mediumOrchid">take &lt;item name&gt</span> <span class="purple"><br /><br>';
 

@@ -65,9 +65,10 @@ module.exports = {
       global.offers.splice(offerIndex, 1);
 
       // remove the item from the other users' inventory
-      const otherUserItemIndex = userSocket.user.inventory.indexOf(item);
+      const otherUserItemIndex = userSocket.user.inventory.findIndex(item => item.id === offer.item.id);
       userSocket.user.inventory.splice(otherUserItemIndex, 1);
-      userSocket.emit('output', { message: `${socket.user.username} took your ${item.displayName}.` });
+      userSocket.emit('output', { message: `${item.displayName} was removed from your inventory.` });
+      userSocket.user.save();
     } else { // handle an item from the room
       // remove the item from the room
       const index = room.inventory.indexOf(item);

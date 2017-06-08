@@ -2,7 +2,6 @@
 
 const mobData = require('../data/mobData');
 const itemData = require('../data/itemData');
-const keyData = require('../data/keyData');
 
 module.exports = {
   name: 'list',
@@ -22,24 +21,36 @@ module.exports = {
       socket.emit('output', { message: "Invalid list usage." });
       return;
     }
-    if (match[1].toLowerCase() == 'items') {
-      module.exports.execute(socket, itemData);
-    } else if (match[1].toLowerCase() == 'mobs') {
+
+    const type = match[1].toLowerCase();
+
+    if (type === 'items') {
+      module.exports.execute(socket, itemData, 'item');
+    } else if (type === 'mobs') {
       module.exports.execute(socket, mobData);
-    } else if (match[1].toLowerCase() == 'keys') {
-      module.exports.execute(socket, keyData);
+    } else if (type === 'keys') {
+      module.exports.execute(socket, itemData, 'key');
     } else {
-      socket.emit('output', { message: `Unknown catalog: {match[1]}` });
+      socket.emit('output', { message: `Unknown catalog: {types}` });
       return;
     }
 
   },
 
-  execute(socket, data) {
+  execute(socket, data, type) {
+
+    let catalog;
+    if(type) {
+      catalog = data.catalog.filter(item => item.type === type);
+    } else {
+      catalog = data.catalog;
+    }
+
+
     let output = '<table><tr><th>Name</th><th>Display Name</th></tr>';
 
-    const mobTable = data.catalog.map(item => `<tr><td>${item.name}</td><td>${item.displayName}</td></tr>`).join('\n');
-    output += mobTable;
+    const listTable = catalog.map(item => `<tr><td>${item.name}</td><td>${item.displayName}</td></tr>`).join('\n');
+    output += listTable;
 
     output += '</table>';
 

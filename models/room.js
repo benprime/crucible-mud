@@ -1,11 +1,10 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const SpawnerSchema = require('./spawner');
+const ItemSchema = require('./itemSchema');
+const SpawnerSchema = require('./spawnerSchema');
 
 const dirEnum = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw', 'u', 'd'];
-
-
 
 const RoomSchema = new mongoose.Schema({
   name: {
@@ -46,9 +45,8 @@ const RoomSchema = new mongoose.Schema({
 
   }],
 
-  inventory: [],
-  spawner: SpawnerSchema
-
+  spawner: SpawnerSchema,
+  inventory: [ItemSchema]
 });
 
 // todo: move to RoomHelper.js
@@ -202,7 +200,7 @@ RoomSchema.methods.addExit = function (dir, roomId) {
 };
 
 RoomSchema.methods.createRoom = function (dir, cb) {
-  if(!global.ValidDirectionInput(dir)) {
+  if (!global.ValidDirectionInput(dir)) {
     return false;
   }
 

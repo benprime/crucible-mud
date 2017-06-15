@@ -15,10 +15,8 @@ module.exports = {
 
   execute(socket, itemName, hand) {
     //check user.inventory for itemName
-    const inventory = socket.user.inventory;
-
     // autocomplete name
-    const itemNames = inventory.map(item => item.displayName);
+    const itemNames = socket.user.inventory.map(item => item.displayName);
     const completedNames = global.AutocompleteName(socket, itemName, itemNames);
     if (completedNames.length === 0) {
       socket.emit('output', { message: 'You don\'t have that item in your inventory.' });
@@ -29,7 +27,7 @@ module.exports = {
       return;
     }
 
-    const item = inventory.find(item => item.displayName === completedNames[0]);
+    const item = socket.user.inventory.find(item => item.displayName === completedNames[0]);
 
     //if no match emit "itemName is not in your inventory" and return
     if (item.equip === 'non') {

@@ -66,9 +66,9 @@ module.exports = {
   Dispatch(socket, input) {
     try {
       processDispatch(socket, input);
-    } catch(e) {
+    } catch (e) {
       console.log(e);
-      socket.emit('output', {message: `AN ERROR OCCURED!\n${e.message}`});
+      socket.emit('output', { message: `AN ERROR OCCURED!\n${e.message}` });
     }
   }
 };

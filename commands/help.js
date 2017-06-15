@@ -42,7 +42,7 @@ function generalHelp(socket) {
     output += '<span class="mediumOrchid">spawn item</span><br />';
     output += '<span class="mediumOrchid">destroy</span><br /><br>';
   }
-  
+
   output += '<span class="cyan">Communication:</span><br>';
   output += '<span class="mediumOrchid">.<message></span> <span class="purple">-</span> Start command with . to speak to users in current room.<br />';
   output += '<span class="mediumOrchid">"<message></span> <span class="purple">-</span> Yell to this room and all adjacent rooms.<br />';
@@ -57,11 +57,11 @@ function generalHelp(socket) {
 
 function topicHelp(socket, topic) {
   topic = topic.toLowerCase();
-  if(Object.keys(commandHandlers).indexOf(topic) !== -1) {
+  if (Object.keys(commandHandlers).indexOf(topic) !== -1) {
     commandHandlers[topic].help(socket);
   }
   else {
-    socket.emit('output', {message: 'No help for that topic.'});
+    socket.emit('output', { message: 'No help for that topic.' });
   }
 }
 

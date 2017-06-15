@@ -47,7 +47,6 @@ Mob.prototype.Die = function (socket) {
   room.lastMobDeath = new Date();
 
   global.io.to(room.id).emit('output', { message: `The ${this.displayName} collapses.` });
-  //socket.emit('output', { message: `You gain ${this.xp} experience.` });
 
   // remove mob from the room    
   let i = room.mobs.indexOf(this);

@@ -3,11 +3,16 @@
 module.exports = {
   name: 'telepathy',
 
-  patterns: [/^\/(\w+)\s+(.*)$/],
+  patterns: [
+    /^\/(\w+)\s+(.*)$/,
+    /^\/.*$/,
+  ],
 
   dispatch(socket, match) {
-    // todo: add a pattern for just / anything, if the correct number of matches
-    // isn't present, then print help and return.
+    if(match.length != 3) {
+      module.exports.help(socket);
+      return;
+    }
     module.exports.execute(socket, match[1], match[2]);
   },
 
@@ -24,7 +29,7 @@ module.exports = {
     socket.emit('output', { message: `Telepath to ${username}: ${message}` });
   },
 
-  help(socket) { 
+  help(socket) {
     let output = '';
     output += '<span class="cyan">telepathy command</span><br/>';
     output += '<span class="mediumOrchid">.<message></span> <span class="purple">-</span> Send message directly to a single player.<br />';

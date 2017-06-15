@@ -53,7 +53,7 @@ module.exports = {
     const room = roomManager.getRoomById(socket.user.roomId);
 
     const target = findMobByName(socket, room, targetName);
-    if(!target) {
+    if (!target) {
       return;
     }
 

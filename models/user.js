@@ -8,7 +8,7 @@ const dice = require('../dice');
 
 const UserSchema = new mongoose.Schema({
 
-//User info
+  // User info
   email: {
     type: String,
     unique: true
@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema({
 
 
 
-//Character info
+  // Character info
   roomId: {
     type: mongoose.Schema.ObjectId,
   },
@@ -89,7 +89,7 @@ const UserSchema = new mongoose.Schema({
 
 
 
-//Character stats
+  //Character stats
   xp: {
     type: Number,
   },
@@ -106,11 +106,11 @@ const UserSchema = new mongoose.Schema({
     type: Number,
   },
 
-  actionDie: {  //base die for all of player's action results to add variance
+  actionDie: {  // base die for all of player's action results to add variance
     type: String,
   },
 
-  //base stats
+  // base stats
   strength: {
     type: Number,
   },
@@ -135,7 +135,7 @@ const UserSchema = new mongoose.Schema({
     type: Number,
   },
 
-  //skills
+  // skills
   stealth: {  //ability to not be seen/heard (DEX)
     type: Number,
   },
@@ -212,36 +212,36 @@ const UserSchema = new mongoose.Schema({
 
 });
 
-UserSchema.statics.findByName = function(name, cb) {
+UserSchema.statics.findByName = function (name, cb) {
   const userRegEx = new RegExp(`^${name}$`, 'i');
   return this.findOne({ username: userRegEx }, cb);
 };
 
-UserSchema.methods.nextExp = function() {
+UserSchema.methods.nextExp = function () {
   const BASE_XP = 300;
   const BASE_RATE = 1;
   return BASE_XP * Math.pow(1 + BASE_RATE, this.level);
 };
 
-UserSchema.methods.addExp = function(amount) {
+UserSchema.methods.addExp = function (amount) {
   this.xp += amount;
-  while(this.xp >= this.nextExp()) {
+  while (this.xp >= this.nextExp()) {
     this.level++;
   }
   this.save();
 };
 
-UserSchema.methods.readyToAttack = function(now) {
+UserSchema.methods.readyToAttack = function (now) {
   return this.attackTarget && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
 };
 
-UserSchema.methods.attackRoll = function() {
+UserSchema.methods.attackRoll = function () {
   // just return 0 or 1 for now
   return dice.Roll('1d2');
 };
 
-UserSchema.methods.attack = function(socket, mob, now) {
-  if(!mob) return;
+UserSchema.methods.attack = function (socket, mob, now) {
+  if (!mob) return;
   this.lastAttack = now;
 
   let actorMessage = '';
@@ -263,7 +263,6 @@ UserSchema.methods.attack = function(socket, mob, now) {
 
   if (attackResult == 2) {
     mob.TakeDamage(socket, playerDmg);
-    //MobDamage(socket, socket.user.attackTarget, playerDmg);
   }
 };
 

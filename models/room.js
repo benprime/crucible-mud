@@ -116,7 +116,6 @@ RoomSchema.statics.exitName = function (dir) {
 };
 
 RoomSchema.statics.isValidDir = function (dir) {
-  // todo: RoomSchema may be the wrong thing here
   return RoomSchema.schema.path('exits.dir').enumValues.indexOf(dir) > -1;
 };
 
@@ -133,7 +132,6 @@ RoomSchema.methods.Look = function (socket, short) {
     output += `<span class='silver'>${this.desc}</span>\n`;
   }
 
-  // rodo: remove first check after old data has been purged
   if (this.inventory && this.inventory.length > 0) {
     output += `<span class='darkcyan'>You notice: ${this.inventory.map(item => item.displayName).join(', ')}.</span>\n`;
   }
@@ -208,7 +206,6 @@ RoomSchema.methods.createRoom = function (dir, cb) {
 
   let exit = this.getExit(dir);
   if (exit) {
-    // todo: print message?
     return false;
   }
 
@@ -252,18 +249,6 @@ RoomSchema.methods.createRoom = function (dir, cb) {
 
   });
 };
-
-/**
- * Post-Hook Save Magic Middleware
- */
-// TODO: change this to a pre call? It can update the state BEFORE we save to mongo for faster game play.
-/*
-RoomSchema.post('save', function(room) {
-  console.log("ROOM MANAGER: ", roomManager)
-  roomManager.updateRoomState(room);
-  console.log('%s has been saved', room.id);
-});
-*/
 
 const Room = mongoose.model('Room', RoomSchema);
 

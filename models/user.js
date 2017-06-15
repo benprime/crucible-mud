@@ -3,6 +3,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const ItemSchema = require('./itemSchema');
 const dice = require('../dice');
 
 const UserSchema = new mongoose.Schema({
@@ -40,9 +41,9 @@ const UserSchema = new mongoose.Schema({
   }
   */
 
-  inventory: [],
+  inventory: [ItemSchema],
 
-  keys: [],
+  keys: [ItemSchema],
 
   //Weapons
   mainHand: {

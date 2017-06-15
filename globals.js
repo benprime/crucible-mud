@@ -4,13 +4,14 @@ global.MSG_COLOR = 'darkcyan';
 global.DMG_COLOR = 'firebrick';
 global.COMBAT_INTERVAL = 500;
 global.SPAWNER_INTERVAL = 500;
-
 // todo: remove this when login functionality exists
 global.STATES = {
   LOGIN_USERNAME: 0,
   LOGIN_PASSWORD: 1,
   MUD: 2,
 };
+
+global.offers = [];
 
 global.SocketInRoom = function(roomId, socketId) {
   if (!(roomId in global.io.sockets.adapter.rooms)) {
@@ -65,6 +66,18 @@ global.GetSocketByUsername = (username) => {
   return socket;
 };
 
+global.GetSocketByUserId = (userId) => {
+  const sockets = Object.keys(global.io.sockets.sockets);
+  let socket = null;
+  sockets.forEach((socketId) => {
+    let s = global.io.sockets.connected[socketId];
+    if (s.user && s.user.id == userId) {
+      socket = s;
+      return;
+    }
+  });
+  return socket;
+};
 
 global.LongToShort = function(dir) {
   switch (dir) {

@@ -7,9 +7,6 @@ const Mob = require('../models/mob');
 const itemData = require('../data/itemData');
 const Item = require('../models/item');
 
-const keyData = require('../data/keyData');
-const Key = require('../models/item');
-
 module.exports = {
   name: 'spawn',
   admin: true,
@@ -51,15 +48,19 @@ module.exports = {
       socket.emit('output', { message: 'Summoning successful.' });
       socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
     } else if (type == 'item') {
-      const createType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase());
+      const createType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === "item");
 
       if (!createType) {
         socket.emit('output', { message: 'Unknown item type.' });
         return;
       }
 
-      // clone the create type and give it an id
-      let item = new Item(createType);
+      let item = new Item({
+        name: createType.name,
+        desc: createType.desc,
+        displayName: createType.displayName,
+        type: "item",
+      });
 
       socket.user.inventory.push(item);
       socket.user.save();
@@ -68,14 +69,19 @@ module.exports = {
       // todo: determine if we want to hide when an admin creates and item      
       //socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
     } else if (type == 'key') {
-      const keyType = keyData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase());
+      const keyType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === "key");
 
       if (!keyType) {
         socket.emit('output', { message: 'Unknown key type.' });
         return;
       }
 
-      let key = new Key(keyType);
+      let key = new Item({
+        name: keyType.name,
+        desc: keyType.desc,
+        displayName: keyType.displayName,
+        type: "key",
+      });
 
       socket.user.keys.push(key);
       socket.user.save();

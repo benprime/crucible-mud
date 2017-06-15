@@ -8,8 +8,8 @@ module.exports = {
   alias: [],
 
   patterns: [
-    /^take\s+(\w+)$/i,
-    /^get\s+(\w+)$/i,
+    /^take\s+(.+)$/i,
+    /^get\s+(.+)$/i,
     /^take/i,
     /^get/i
   ],
@@ -24,8 +24,16 @@ module.exports = {
   execute(socket, itemName) {
     const room = roomManager.getRoomById(socket.user.roomId);
 
-    // autocomplete name
-    const itemNames = room.inventory.map(item => item.displayName);
+    // get any items offered to the user
+    const offerItems = global.offers
+      .filter(offer => offer.toUserName.toLowerCase() === socket.user.username.toLowerCase())
+      .map(offer => offer.item);
+
+    // combine the offered items with the items in the room
+    const items = room.inventory.concat(offerItems);
+    
+    // autocomplete names
+    const itemNames = items.map(item => item.displayName);
     const completedNames = global.AutocompleteName(socket, itemName, itemNames);
     if (completedNames.length === 0) {
       socket.emit('output', { message: 'You don\'t see that item here.' });
@@ -36,7 +44,7 @@ module.exports = {
       return;
     }
 
-    const item = room.inventory.find(item => item.displayName === completedNames[0]);
+    const item = items.find(item => item.displayName === completedNames[0]);
 
     // todo: are we calling it 'fixed' for non-takeable items like signs and stuff?
     if (item.fixed) {
@@ -44,16 +52,39 @@ module.exports = {
       return;
     }
 
-    // take the item from the room
-    const index = room.inventory.indexOf(item);
-    room.inventory.splice(index, 1);
-    room.save();
+    // handle an item offered from another user
+    const offerIndex = global.offers.findIndex(offer => offer.item.id === item.id);
+    if(offerIndex !== -1) {
+      let offer = global.offers[offerIndex];
+      let userSocket = global.GetSocketByUsername(offer.fromUserName);
+      if (!userSocket) {
+        socket.emit('output', { message: 'Invalid username or user is offline.' });
+        return;
+      }
+      // remove the offer from the list of offers
+      global.offers.splice(offerIndex, 1);
+
+      // remove the item from the other users' inventory
+      const otherUserItemIndex = userSocket.user.inventory.findIndex(item => item.id === offer.item.id);
+      userSocket.user.inventory.splice(otherUserItemIndex, 1);
+      userSocket.emit('output', { message: `${item.displayName} was removed from your inventory.` });
+      userSocket.user.save();
+    } else { // handle an item from the room
+      // remove the item from the room
+      const index = room.inventory.indexOf(item);
+      room.inventory.splice(index, 1);
+      room.save();
+    }
 
     // and give it to the user
-    socket.user.inventory.push(item);
+    if (item.type === "key") {
+      socket.user.keys.push(item);
+    } else {
+      socket.user.inventory.push(item);
+    }
     socket.user.save();
 
-    socket.emit('output', { message: 'Taken.' });
+    socket.emit('output', { message: `${item.displayName} taken.` });
     socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} takes ${item.displayName}.` });
   },
 

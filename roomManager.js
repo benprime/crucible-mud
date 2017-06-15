@@ -1,7 +1,6 @@
 'use strict';
 
 const Room = require('./models/room');
-const Item = require('./models/item');
 
 // room cache
 const rooms = {};
@@ -10,7 +9,6 @@ const rooms = {};
 Room.find({}, function (err, result) {
   result.forEach(function (room) {
     room.mobs = [];
-    room.inventory = room.inventory.map(item => new Item(item));
     rooms[room.id] = room;
   });
 });

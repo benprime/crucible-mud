@@ -5,7 +5,8 @@ module.exports = {
 
   patterns: [
     /^eq$/i,
-    /^equip$/i
+    /^equip$/i,
+    /^equip\s+(.+)$/i
   ],
 
   dispatch(socket, match) {

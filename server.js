@@ -6,7 +6,6 @@ const app = express();
 const http = require('http');
 
 const serve = http.createServer(app);
-// convert to global.io... see if we can remove all the references of passing this around
 const io = require('socket.io')(serve);
 
 require('./extensionMethods');
@@ -32,10 +31,10 @@ global.io = io;
 
 require('./combat');
 
-mongoose.connect('mongodb://localhost:27017/test');
+mongoose.connect('mongodb://localhost:27017/mud');
 db.on('error', console.error.bind(console, 'connection error:'));
 
-db.once('open', function() {
+db.once('open', function () {
 
   io.on('connection', (socket) => {
 
@@ -45,7 +44,6 @@ db.once('open', function() {
     socket.emit('output', { message: 'Enter username:' });
 
     socket.on('disconnect', () => {
-      // if this user ever successfully logged in, clean up
       if (socket.user) {
         socket.broadcast.emit('output', { message: `${socket.user.username} has left the realm.` });
       }

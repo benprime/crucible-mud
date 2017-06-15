@@ -1,5 +1,4 @@
-
-const roomManager = require('../roomManager');
+'use strict';
 
 module.exports = {
   name: 'offer',
@@ -14,7 +13,6 @@ module.exports = {
 
   execute(socket, userName, itemName) {
     userName = userName.toLowerCase();
-    const room = roomManager.getRoomById(socket.user.roomId);
     itemName = itemName.toLowerCase();
     const itemNames = socket.user.inventory.map(item => item.displayName);
     const itemNamesCompleted = global.AutocompleteName(socket, itemName, itemNames);
@@ -22,7 +20,7 @@ module.exports = {
     if (itemNamesCompleted.length == 0) {
       socket.emit('output', { message: `${itemName} is not in your inventory!` });
       return;
-    } else if (itemNamesCompleted.length > 1 ) {
+    } else if (itemNamesCompleted.length > 1) {
       socket.emit('output', { message: `Many items can be described as '${itemName}'. Be more specific.` });
       return;
     } else {
@@ -49,7 +47,7 @@ module.exports = {
       fromUserName: socket.user.username,
       toUserName: userName,
       item: userItem,
-    }
+    };
 
     if (existingOfferIndex !== -1) {
       global.offers[existingOfferIndex] = offer;

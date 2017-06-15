@@ -3,7 +3,6 @@
 const roomModel = require('./models/room');
 const roomManager = require('./roomManager');
 const userModel = require('./models/user');
-//const Item = require('./models/item');
 
 module.exports = {
   LoginUsername(socket, username) {
@@ -49,7 +48,6 @@ module.exports = {
 
           // THIS SHOULD BE THE ONLY USER STATE MANAGEMENT
           socket.user = user;
-          //socket.user.inventory = socket.user.inventory.map(item => new Item(item));
 
           // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
           socket.state = global.STATES.MUD;

@@ -51,7 +51,7 @@ module.exports = {
       // take the item from the user
       const index = socket.user.inventory.indexOf(item);
       socket.user.inventory.splice(index, 1);
-    } 
+    }
     socket.user.save();
 
     // todo: remove after a bit. just a workaround for old data.

@@ -19,7 +19,6 @@ module.exports = {
 
     const room = roomManager.getRoomById(socket.user.roomId);
 
-
     room.exits.forEach((exit) => {
       let preMsg = '';
       if (exit.dir === 'u') {

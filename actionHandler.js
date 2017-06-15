@@ -5,7 +5,6 @@ const actionsData = require('./data/actionData');
 module.exports = {
   actionDispatcher(socket, action, username) {
     const targetSocket = username ? global.GetSocketByUsername(username) : null;
-    //console.log("targetSocket", targetSocket);
 
     if (action in actionsData.actions) {
       // user is attempting to action another user

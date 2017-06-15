@@ -25,7 +25,7 @@ module.exports = {
     }
   },
 
-  help(socket) { 
+  help(socket) {
     let output = '';
     output += '<span class="mediumOrchid">break <span class="purple">|</span> br</span> <span class="purple">-</span> End combat.<br />';
     socket.emit('output', { message: output });

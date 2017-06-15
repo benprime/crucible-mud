@@ -7,7 +7,6 @@ const itemTypeEnum = [
   "key",
 ];
 
-
 const ItemSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -21,6 +20,9 @@ const ItemSchema = new mongoose.Schema({
   type: {
     type: String,
     enum: itemTypeEnum,
+  },
+  fixed: {
+    type: Boolean
   }
 
 });

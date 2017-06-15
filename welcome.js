@@ -2,31 +2,6 @@
 
 module.exports = {
 
-/*
-  WelcomeMessageOld(socket) {
-    // Generated from: http://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=WELCOME%0AMUDDERS!
-    let s = '<br /><br /><pre><span class="teal">';
-    s += '██╗    ██╗███████╗██╗      ██████╗ ██████╗ ███╗   ███╗███████╗ <br />';
-    s += '██║    ██║██╔════╝██║     ██╔════╝██╔═══██╗████╗ ████║██╔════╝ <br />';
-    s += '██║ █╗ ██║█████╗  ██║     ██║     ██║   ██║██╔████╔██║█████╗   <br />';
-    s += '██║███╗██║██╔══╝  ██║     ██║     ██║   ██║██║╚██╔╝██║██╔══╝   <br />';
-    s += '╚███╔███╔╝███████╗███████╗╚██████╗╚██████╔╝██║ ╚═╝ ██║███████╗ <br />';
-    s += ' ╚══╝╚══╝ ╚══════╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝ <br />';
-    s += '<br />';
-    s += '███╗   ███╗██╗   ██╗██████╗ ██████╗ ███████╗██████╗ ███████╗██╗<br />';
-    s += '████╗ ████║██║   ██║██╔══██╗██╔══██╗██╔════╝██╔══██╗██╔════╝██║<br />';
-    s += '██╔████╔██║██║   ██║██║  ██║██║  ██║█████╗  ██████╔╝███████╗██║<br />';
-    s += '██║╚██╔╝██║██║   ██║██║  ██║██║  ██║██╔══╝  ██╔══██╗╚════██║╚═╝<br />';
-    s += '██║ ╚═╝ ██║╚██████╔╝██████╔╝██████╔╝███████╗██║  ██║███████║██╗<br />';
-    s += '╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝╚═╝</span><br /></pre>';
-
-    const bgChars = ['╔', '╗', '║', '╚', '╝', '═'];
-    for (i in bgChars) {
-      s = s.replace(new RegExp(bgChars[i], 'g'), `<span class="mediumOrchid">${bgChars[i]}</span>`);
-    }
-    socket.emit('output', { message: s });
-  },
-*/
   WelcomeMessage(socket) {
     // made with http://patorjk.com/software/taag/#p=display&f=Delta%20Corps%20Priest%201&t=Crucible%0A%20%20%20%20%20MUD
     // and http://patorjk.com/text-color-fader/

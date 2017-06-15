@@ -14,9 +14,9 @@ module.exports = {
 
   execute(socket, itemName, hand) {
     //check user.inventory for itemName
-      //if no match emit "itemName is not in your inventory" and return
-      //if match add itemName to appropriate character item slot
-      //add bonuses from itemName to corresponding character stats
+    //if no match emit "itemName is not in your inventory" and return
+    //if match add itemName to appropriate character item slot
+    //add bonuses from itemName to corresponding character stats
   },
 
   help(socket) {

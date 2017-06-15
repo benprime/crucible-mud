@@ -40,7 +40,7 @@ module.exports = {
   execute(socket, data, type) {
 
     let catalog;
-    if(type) {
+    if (type) {
       catalog = data.catalog.filter(item => item.type === type);
     } else {
       catalog = data.catalog;
@@ -57,7 +57,7 @@ module.exports = {
     socket.emit('output', { message: output });
   },
 
-  help(socket) { 
+  help(socket) {
     let output = '';
     output += '<span class="mediumOrchid">list mobs </span><span class="purple">-</span> Display info table of all valid mobs.<br />';
     output += '<span class="mediumOrchid">list items </span><span class="purple">-</span> Display info table of all valid items<br />';

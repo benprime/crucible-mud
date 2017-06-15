@@ -34,12 +34,12 @@ module.exports = {
 
     const keyNames = socket.user.keys.map(key => key.displayName);
     const keyCompletedNames = global.AutocompleteName(socket, keyName, keyNames);
-    if(keyCompletedNames.length === 0) {
+    if (keyCompletedNames.length === 0) {
       socket.emit('output', { message: 'You are not carrying that key.' });
       return;
     }
 
-    if(keyCompletedNames.length > 1) {
+    if (keyCompletedNames.length > 1) {
       // todo: print a list of matching keys
       socket.emit('output', { message: 'Which key did you mean?' });
       return;

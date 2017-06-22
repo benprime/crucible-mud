@@ -9,8 +9,8 @@ module.exports = {
   admin: true,
 
   patterns: [
-    /teleport\s+(\w+)$/i,
-    /tele\s+(\w+)$/i
+    /^teleport\s+(\w+)$/i,
+    /^tele\s+(\w+)$/i
   ],
 
   dispatch(socket, match) {

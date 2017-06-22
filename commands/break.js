@@ -4,8 +4,8 @@ module.exports = {
   name: 'break',
 
   patterns: [
-    /br$/i,
-    /break$/i,
+    /^br$/i,
+    /^break$/i,
   ],
 
   dispatch(socket, match) {

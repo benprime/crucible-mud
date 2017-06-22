@@ -39,8 +39,8 @@ module.exports = {
   name: 'attack',
 
   patterns: [
-    /a\s+(.+)$/i,
-    /attack\s+(.+)$/i,
+    /^a\s+(.+)$/i,
+    /^attack\s+(.+)$/i,
   ],
 
   dispatch(socket, match) {

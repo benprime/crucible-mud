@@ -8,8 +8,8 @@ module.exports = {
   admin: true,
 
   patterns: [
-    /summon\s+(\w+)$/i,
-    /sum\s+(\w+)$/i
+    /^summon\s+(\w+)$/i,
+    /^sum\s+(\w+)$/i
   ],
 
   dispatch(socket, match) {

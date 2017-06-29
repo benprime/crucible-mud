@@ -45,46 +45,52 @@ const UserSchema = new mongoose.Schema({
 
   keys: [ItemSchema],
 
-  //Weapons
-  mainHand: {
-    type: mongoose.Schema.ObjectId,
-  },
+  equipSlots: {
+    //Weapons
+    weaponMain: {
+      type: mongoose.Schema.ObjectId,
+    },
 
-  offHand: {
-    type: mongoose.Schema.ObjectId,
-  },
+    weaponOff: {
+      type: mongoose.Schema.ObjectId,
+    },
 
-  //Armor/Gear
-  head: {
-    type: mongoose.Schema.ObjectId,
-  },
+    //Armor/Gear
+    head: {
+      type: mongoose.Schema.ObjectId,
+    },
 
-  body: {
-    type: mongoose.Schema.ObjectId,
-  },
+    body: {
+      type: mongoose.Schema.ObjectId,
+    },
 
-  legs: {
-    type: mongoose.Schema.ObjectId,
-  },
+    legs: {
+      type: mongoose.Schema.ObjectId,
+    },
 
-  feet: {
-    type: mongoose.Schema.ObjectId,
-  },
+    feet: {
+      type: mongoose.Schema.ObjectId,
+    },
 
-  arms: {
-    type: mongoose.Schema.ObjectId,
-  },
+    arms: {
+      type: mongoose.Schema.ObjectId,
+    },
 
-  hands: {
-    type: mongoose.Schema.ObjectId,
-  },
+    hands: {
+      type: mongoose.Schema.ObjectId,
+    },
 
-  accessory1: {
-    type: mongoose.Schema.ObjectId,
-  },
+    neck: {
+      type: mongoose.Schema.ObjectId,
+    },
 
-  accessory2: {
-    type: mongoose.Schema.ObjectId,
+    fingerMain: {
+      type: mongoose.Schema.ObjectId,
+    },
+
+    fingerOff: {
+      type: mongoose.Schema.ObjectId,
+    },
   },
 
 
@@ -108,6 +114,10 @@ const UserSchema = new mongoose.Schema({
 
   actionDie: {  // base die for all of player's action results to add variance
     type: String,
+  },
+
+  armorRating: {
+    type: Number,
   },
 
   // base stats

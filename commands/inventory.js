@@ -14,6 +14,9 @@ module.exports = {
   },
 
   execute(socket) {
+
+    let weaponMain = socket.user.inventory.find(i => i.id === socket.user.equipSlots.weaponMain);
+   
     let invOutput = socket.user.inventory.map(item => item.displayName).join(', ');
     if (!invOutput) {
       invOutput = 'Nothing.';
@@ -24,7 +27,8 @@ module.exports = {
       keyOutput = 'None.';
     }
 
-    let output = '<span class="cyan">You are carrying: </span>';
+    let output = '<span class="cyan">Main Weapon: ${weaponMain || ""}</span>';
+    output = '<span class="cyan">Backpack: </span>';
     output += `<span class="silver">${invOutput}</span>\n`;
     output += '<span class="cyan">Keys: </span>';
     output += `<span class="silver">${keyOutput}</span>`;

@@ -19,23 +19,75 @@ module.exports = {
     const itemNames = socket.user.inventory.map(item => item.displayName);
     const completedNames = global.AutocompleteName(socket, itemName, itemNames);
     if (completedNames.length === 0) {
-      socket.emit('output', { message: 'You don\'t have that item in your inventory.' });
+      socket.emit('output', { message: 'You don\'t have that item in your inventory.\n' });
       return;
     } else if (completedNames.length > 1) {
       // todo: possibly print out a list of the matches
-      socket.emit('output', { message: 'Not specific enough!' });
+      socket.emit('output', { message: 'Not specific enough!\n' });
       return;
     }
 
     const item = socket.user.inventory.find(item => item.displayName === completedNames[0]);
+    console.log(item);
 
     //if no match emit "itemName is not in your inventory" and return
-    if (item.equip === 'non') {
-      socket.emit('output', { message: 'You cannot equip that!' });
+    if (!item.equip) {
+      socket.emit('output', { message: 'You cannot equip that!\n' });
       return;
     }
+    else {
       //if match add itemName to appropriate character item slot
+      switch (item.equip) {
+        case "":
+          break;
+        case "mainHand":
+          socket.user.equipSlots.weaponMain = item.id;
+        case "offHand":
+          socket.user.equipSlots.weaponOff = item.id;
+        case "bothHand":
+          socket.user.equipSlots.weaponMain = item.id;
+          socket.user.equipSlots.weaponOff = item.id;
+        case "eitherHand":
+          if (hand == "main") {
+            socket.user.equipSlots.weaponMain = item.id;
+          }
+          else if (hand == "off") {
+            socket.user.equipSlots.weaponOff = item.id;
+          }
+          else {
+            socket.emit('output', { message: 'Please specify which hand to equip the item\n' });
+          }
+        case "head":
+          socket.user.equipSlots.head = item.id;
+        case "body":
+          socket.user.equipSlots.body = item.id;
+        case "legs":
+          socket.user.equipSlots.legs = item.id;
+        case "feet":
+          socket.user.equipSlots.feet = item.id;
+        case "arms":
+          socket.user.equipSlots.arms = item.id;
+        case "hands":
+          socket.user.equipSlots.hands = item.id;
+        case "neck":
+          socket.user.equipSlots.neck = item.id;
+        case "finger":
+          if (hand == "main") {
+            socket.user.equipSlots.fingerMain = item.id;
+          }
+          else if (hand == "off") {
+            socket.user.equipSlots.fingerOff = item.id;
+          }
+          else {
+            socket.emit('output', { message: 'Please specify which hand to equip the item\n' });
+          }
+        default:
+        socket.emit('output', { message: 'Um, you want to put that where?!?!\n'});
+      }
       //add bonuses from itemName to corresponding character stats
+
+
+    }
   },
 
   help(socket) {

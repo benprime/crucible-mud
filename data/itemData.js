@@ -18,5 +18,12 @@ module.exports = {
       desc: "a key made out of jade",
       type: "key",
     },
+    {
+      name: "sign",
+      fixed: true,
+      displayName: "sign",
+      desc: "The sign reads 'Hi, I'm a sign.'",
+      type: "item",
+    },
   ]
 };

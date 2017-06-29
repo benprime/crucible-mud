@@ -55,8 +55,21 @@ module.exports = {
         return;
       }
 
-      let item = new Item();
-      Object.assign(item, createType);
+      // Object.assign didn't seem to work properly when
+      // working with mongoose instance...
+      let item = new Item({
+        name: createType.name,
+        desc: createType.desc,
+        displayName: createType.displayName,
+        type: createType.type,
+        fixed: createType.fixed,
+        equip: createType.equip,
+        damage: createType.damage,
+        damageType: createType.damageType,
+        speed: createType.speed,
+        bonus: createType.bonus,
+      });
+
 
       socket.user.inventory.push(item);
       socket.user.save();

@@ -66,6 +66,7 @@ module.exports = {
     /^l$/i,
     /^look$/i,
     /^look\s+(.+)$/i,
+    /^read\s+(.+)$/i,
     /^l\s+(.+)$/i,
   ],
 

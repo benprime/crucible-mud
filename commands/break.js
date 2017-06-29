@@ -21,7 +21,7 @@ module.exports = {
       socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} breaks off his attack.` });
       socket.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
     } else {
-      socket.emit('output', { message: 'You are not currently in combat.' });
+      //socket.emit('output', { message: 'You are not currently in combat.' });
     }
   },
 

@@ -29,5 +29,12 @@ module.exports = {
       speed: -.5,  //scale from -1(slowest) to 1(fastest)
       bonus: "damage + 1d4 fire" //stat + modifier
     },
+    {
+      name: "sign",
+      fixed: true,
+      displayName: "sign",
+      desc: "The sign reads 'Hi, I'm a sign.'",
+      type: "item",
+    },
   ]
 };

@@ -55,12 +55,8 @@ module.exports = {
         return;
       }
 
-      let item = new Item({
-        name: createType.name,
-        desc: createType.desc,
-        displayName: createType.displayName,
-        type: "item",
-      });
+      let item = new Item();
+      Object.assign(item, createType);
 
       socket.user.inventory.push(item);
       socket.user.save();

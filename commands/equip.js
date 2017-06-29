@@ -30,6 +30,11 @@ module.exports = {
     const item = socket.user.inventory.find(it => it.displayName === completedNames[0]);
     console.log(item);
 
+
+//ITEM IS BEING ASSIGNED AS AN EMBEDDED DOCUMENT
+//THIS IS BROKEN
+
+
     //if no match emit "itemName is not in your inventory" and return
     if (!item.equip) {
       socket.emit('output', { message: 'You cannot equip that!\n' });

@@ -13,7 +13,7 @@ global.STATES = {
 
 global.offers = [];
 
-global.SocketInRoom = function(roomId, socketId) {
+global.SocketInRoom = function (roomId, socketId) {
   if (!(roomId in global.io.sockets.adapter.rooms)) {
     return false;
   }
@@ -21,7 +21,7 @@ global.SocketInRoom = function(roomId, socketId) {
   return socketId in sockets;
 };
 
-global.UsersInRoom = function(roomId) {
+global.UsersInRoom = function (roomId) {
   if (!(roomId in global.io.sockets.adapter.rooms)) {
     return [];
   }
@@ -33,9 +33,10 @@ global.UsersInRoom = function(roomId) {
   return otherUsers.map(socketId => global.io.sockets.connected[socketId].user.username);
 };
 
-global.UserInRoom = function(roomId, username) {
-  const usernames = global.UsersInRoom(roomId);
-  return usernames.indexOf(username) > -1;
+global.UserInRoom = function (roomId, username) {
+  let usernames = global.UsersInRoom(roomId);
+  usernames = usernames.map(u => u.toLowerCase());
+  return usernames.indexOf(username.toLowerCase()) > -1;
 };
 
 global.FilterMatch = (array, pattern) => {
@@ -79,7 +80,7 @@ global.GetSocketByUserId = (userId) => {
   return socket;
 };
 
-global.LongToShort = function(dir) {
+global.LongToShort = function (dir) {
   switch (dir) {
     case 'north':
       return 'n';
@@ -107,13 +108,13 @@ global.LongToShort = function(dir) {
 };
 
 // this is for database inputs and such
-global.ValidDirection = function(dir) {
+global.ValidDirection = function (dir) {
   const validDirections = Room.schema.path('dir').enumValues;
   return validDirections.indexOf(dir) >= 0;
 };
 
 // this is for user input
-global.ValidDirectionInput = function(dir) {
+global.ValidDirectionInput = function (dir) {
   switch (dir.toLowerCase()) {
     case 'n':
     case 'north':
@@ -141,13 +142,13 @@ global.ValidDirectionInput = function(dir) {
   }
 };
 
-global.getRandomNumber = function(min, max) {
+global.getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min))) + min;
 };
 
-global.updateHUD = function(socket) {
-  socket.emit('hud',{
-    currentHP:socket.user.currentHP,
-    maxHP:socket.user.maxHP
-  })
+global.updateHUD = function (socket) {
+  socket.emit('hud', {
+    currentHP: socket.user.currentHP,
+    maxHP: socket.user.maxHP
+  });
 };

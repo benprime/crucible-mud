@@ -27,8 +27,10 @@ module.exports = {
       keyOutput = 'None.';
     }
 
-    let output = '<span class="cyan">Main Weapon: ${weaponMain || ""}</span>';
-    output = '<span class="cyan">Backpack: </span>';
+    let output = '';
+    if(socket.user.equipSlots.weaponMain) output += `<span class="cyan">Main Weapon: ${weaponMain || ""}</span>\n`;
+    if(socket.user.equipSlots.weaponOff) output += `<span class="cyan">Offhand Weapon: ${socket.user.equipSlots.weaponOff.map(item => item.displayName)}</span>\n`;
+    output += '<span class="cyan">Backpack: </span>';
     output += `<span class="silver">${invOutput}</span>\n`;
     output += '<span class="cyan">Keys: </span>';
     output += `<span class="silver">${keyOutput}</span>`;

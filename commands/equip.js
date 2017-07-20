@@ -27,12 +27,11 @@ module.exports = {
       return;
     }
 
-    const item = socket.user.inventory.find(it => it.displayName === completedNames[0]);
+    const index = socket.user.inventory.findIndex(it => it.displayName === completedNames[0]);
+    const item = socket.user.inventory.splice(index, 1)[0];
+    socket.user.save();
     console.log(item);
-
-
-//ITEM IS BEING ASSIGNED AS AN EMBEDDED DOCUMENT
-//THIS IS BROKEN
+    
 
 
     //if no match emit "itemName is not in your inventory" and return
@@ -41,17 +40,35 @@ module.exports = {
       return;
     }
     else {
+
+
+
+
+
+
+        //TODO: equip the objects themselves into the slots, not the object ID
+
+
+
+
+
+
+
+
       //if match add itemName to appropriate character item slot
       switch (item.equip) {
         case "":
           break;
         case "mainHand":
           socket.user.equipSlots.weaponMain = item.id;
+          break;
         case "offHand":
           socket.user.equipSlots.weaponOff = item.id;
+          break;
         case "bothHand":
           socket.user.equipSlots.weaponMain = item.id;
           socket.user.equipSlots.weaponOff = item.id;
+          break;
         case "eitherHand":
           if (hand == "main") {
             socket.user.equipSlots.weaponMain = item.id;
@@ -62,20 +79,28 @@ module.exports = {
           else {
             socket.emit('output', { message: 'Please specify which hand to equip the item\n' });
           }
+          break;
         case "head":
           socket.user.equipSlots.head = item.id;
+          break;
         case "body":
           socket.user.equipSlots.body = item.id;
+          break;
         case "legs":
           socket.user.equipSlots.legs = item.id;
+          break;
         case "feet":
           socket.user.equipSlots.feet = item.id;
+          break;
         case "arms":
           socket.user.equipSlots.arms = item.id;
+          break;
         case "hands":
           socket.user.equipSlots.hands = item.id;
+          break;
         case "neck":
           socket.user.equipSlots.neck = item.id;
+          break;
         case "finger":
           if (hand == "main") {
             socket.user.equipSlots.fingerMain = item.id;
@@ -86,9 +111,13 @@ module.exports = {
           else {
             socket.emit('output', { message: 'Please specify which hand to equip the item\n' });
           }
+          break;
         default:
         socket.emit('output', { message: 'Um, you want to put that where?!?!\n'});
       }
+        socket.emit('output', { message: 'Item equipped.\n'});
+
+
       //add bonuses from itemName to corresponding character stats
 
 

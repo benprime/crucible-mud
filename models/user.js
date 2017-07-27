@@ -47,50 +47,30 @@ const UserSchema = new mongoose.Schema({
 
   equipSlots: {
     //Weapons
-    weaponMain: {
-      type: mongoose.Schema.ObjectId,
-    },
+    weaponMain: ItemSchema,
 
-    weaponOff: {
-      type: mongoose.Schema.ObjectId,
-    },
+    weaponOff: ItemSchema,
 
     //Armor/Gear
-    head: {
-      type: mongoose.Schema.ObjectId,
-    },
+    head: ItemSchema,
 
-    body: {
-      type: mongoose.Schema.ObjectId,
-    },
+    body: ItemSchema,
 
-    legs: {
-      type: mongoose.Schema.ObjectId,
-    },
+    back: ItemSchema,
 
-    feet: {
-      type: mongoose.Schema.ObjectId,
-    },
+    legs: ItemSchema,
 
-    arms: {
-      type: mongoose.Schema.ObjectId,
-    },
+    feet: ItemSchema,
 
-    hands: {
-      type: mongoose.Schema.ObjectId,
-    },
+    arms: ItemSchema,
 
-    neck: {
-      type: mongoose.Schema.ObjectId,
-    },
+    hands: ItemSchema,
 
-    fingerMain: {
-      type: mongoose.Schema.ObjectId,
-    },
+    neck: ItemSchema,
 
-    fingerOff: {
-      type: mongoose.Schema.ObjectId,
-    },
+    fingerMain: ItemSchema,
+
+    fingerOff: ItemSchema,
   },
 
 

@@ -11,10 +11,10 @@ const ItemSchema = new mongoose.Schema({
   name: {
     type: String,
   },
-  desc: {
+  displayName: {
     type: String,
   },
-  displayName: {
+  desc: {
     type: String,
   },
   type: {
@@ -24,7 +24,21 @@ const ItemSchema = new mongoose.Schema({
   fixed: {
     type: Boolean,
   },
-
+  equip: {
+    type: String,
+  },
+  damage: {
+    type: String,
+  },
+  damageType: {
+    type: String,
+  },
+  speed: {
+    type: String,
+  },
+  bonus: {
+    type: String,
+  },
 });
 
 ItemSchema.methods.Look = function (socket) {

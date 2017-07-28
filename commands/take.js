@@ -23,13 +23,12 @@ module.exports = {
   },
 
   execute(socket, itemName) {
-    const room = roomManager.getRoomById(socket.user.roomId);
 
     // get any items offered to the user
-    const item = autocomplete.autocomplete(socket, room, ['room'], itemName);
+    const item = autocomplete.autocomplete(socket, ['room'], itemName);
 
     if (!item) {
-      //socket.emit('output', { message: 'You don\'t see that here!' });
+      socket.emit('output', { message: 'You don\'t see that here!' });
       return;
     }
 
@@ -40,6 +39,7 @@ module.exports = {
     }
 
     // take the item from the room
+    const room = roomManager.getRoomById(socket.user.roomId);
     room.inventory.remove(item);
     room.save();
 

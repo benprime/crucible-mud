@@ -1,21 +1,21 @@
 'use strict';
 
 const roomManager = require('../roomManager');
+const autocomplete = require('../autocomplete');
 
 module.exports = {
   name: 'destroy',
   admin: true,
 
   patterns: [
-    /^destroy\s+(mob)\s+(\w+)$/i,
-    /^destroy\s+(item)\s+(\w+)$/i,
-    /^destroy\s+/i,
+    /^destroy\s+(mob)\s+(.+)$/i,
+    /^destroy\s+(item)\s+(.+)$/i,
+    /^destroy/i,
   ],
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      // todo: print help
-      socket.emit('output', { message: 'Invalid destroy usage.' });
+      module.exports.help(socket);
       return;
     }
     let typeName = match[1];
@@ -24,21 +24,18 @@ module.exports = {
     module.exports.execute(socket, typeName, objectID);
   },
 
-  execute(socket, type, id) {
+  execute(socket, type, name) {
 
-    if (type == 'mob') {
+    const room = roomManager.getRoomById(socket.user.roomId);
+    if (type === 'mob') {
       // look for mob in user's current room
-      const room = roomManager.getRoomById(socket.user.roomId);
-
-      // locate mob
-      const mobIndex = room.mobs.findIndex(mob => mob.id === id);
-      if (mobIndex === -1) {
-        socket.emit('output', { message: 'Unknown mob ID.' });
+      const mob = autocomplete.autocomplete(socket, ['mob'], name);
+      if(!mob) {
+        socket.emit('output', { message: 'You don\'t see that here.' });
         return;
       }
 
-      // delete mob
-      room.mobs.splice(mobIndex, 1);
+      room.mobs.remove(mob);
 
       // clean up after vortex caused by mob removal
       socket.emit('output', { message: 'Mob successfully destroyed.' });
@@ -46,18 +43,15 @@ module.exports = {
       // announce mob disappearance to any onlookers
       socket.broadcast.to(room.id).emit('output', { message: 'Mob erased from existence!' });
     }
-    else if (type == 'item') {
-      // find user's current room
-      const room = roomManager.getRoomById(socket.user.roomId);
-      // look for item in user's inventory
-      const itemIndex = socket.user.inventory.findIndex(item => item.id === id);
-      if (itemIndex === -1) {
-        socket.emit('output', { message: 'Unknown item ID.' });
+    else if (type === 'item') {
+      var item = autocomplete.autocomplete(socket, ['inventory'], name);
+      if(!item) {
+        socket.emit('output', { message: 'You don\'t see that here.' });
         return;
       }
 
       // delete item
-      socket.user.inventory.splice(itemIndex, 1);
+      socket.user.inventory.remove(item);
       socket.user.save();
 
       // clean up after vortex caused by item removal

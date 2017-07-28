@@ -13,7 +13,6 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    console.log(match);
     if (match.length < 2) {
       socket.emit('output', { message: 'What do you want to drop?' });
       return;
@@ -24,7 +23,7 @@ module.exports = {
   execute(socket, itemName) {
     const room = roomManager.getRoomById(socket.user.roomId);
 
-    const item = autocomplete.autocomplete(socket, room, ['inventory', 'key'], itemName);
+    const item = autocomplete.autocomplete(socket, ['inventory', 'key'], itemName);
     if (!item) {
       socket.emit('output', { message: 'You don\'t seem to be carrying that!' });
       return;

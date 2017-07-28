@@ -1,7 +1,6 @@
 'use strict';
 
 const roomManager = require('../roomManager');
-//const Room = require('../models/room');
 const Mob = require('../models/mob');
 const mobData = require('../data/mobData');
 
@@ -32,8 +31,6 @@ setInterval(() => {
   });
 }, global.SPAWNER_INTERVAL);
 
-
-
 module.exports = {
   name: 'spawner',
   admin: true,
@@ -62,18 +59,23 @@ module.exports = {
       room.spawner = {};
     }
 
+    let addMobType;
+    let removeMobType;
+    let index;
+    let desc;
+
     switch (action) {
       case 'add':
-        let addMobType = mobData.catalog.find(mob => mob.name.toLowerCase() === param.toLowerCase());
+        addMobType = mobData.catalog.find(mob => mob.name.toLowerCase() === param.toLowerCase());
         // todo: maybe just save the mob name? Saving the whole object right now.
         room.spawner.mobTypes.push(addMobType.name);
         room.save();
         socket.emit('output', { message: 'Creature added to spawner.' });
         break;
       case 'remove':
-        let removeMobType = mobData.catalog.find(mob => mob.name.toLowerCase() === param.toLowerCase());
+        removeMobType = mobData.catalog.find(mob => mob.name.toLowerCase() === param.toLowerCase());
         // todo: maybe just save the mob name? Saving the whole object right now.
-        let index = room.spawner.mobTypes.indexOf(removeMobType.name);
+        index = room.spawner.mobTypes.indexOf(removeMobType.name);
         if (index !== -1) {
           room.spawner.mobTypes.splice(index);
           room.save();
@@ -106,7 +108,7 @@ module.exports = {
         socket.emit('output', { message: 'Spawner pasted.' });
         break;
       default:
-        let desc = room.spawner ? room.spawner.toString() : 'None.';
+        desc = room.spawner ? room.spawner.toString() : 'None.';
         socket.emit('output', { message: desc });
     }
 

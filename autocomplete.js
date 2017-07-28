@@ -1,5 +1,7 @@
 'use strict';
 
+const roomManager = require('./roomManager');
+
 /* auto complete with a starts with */
 function filterMatch(array, pattern) {
   const re = new RegExp(`^${pattern}`, 'i');
@@ -32,21 +34,6 @@ function getTargetNames(socket, room, target) {
   }
 }
 
-/* validate found objects and prints error messages */
-function validateFoundObjects(socket, results) {
-
-  if (results.length === 0) {
-    socket.emit('output', { message: 'You don\'t see that here!' });
-    return false;
-  } else if (results.length > 1) {
-    /* todo: possibly list these by type */
-    socket.emit('output', { message: 'Which did you mean?\n' + results.map(r => r.name).join('\n') });
-    return false;
-  } else {
-    return true;
-  }
-}
-
 function returnObject(socket, room, results) {
   var name = results[0].name;
   var target = results[0].target;
@@ -75,8 +62,10 @@ function returnObject(socket, room, results) {
 }
 
 module.exports = {
-  autocomplete(socket, room, targets, fragment, remove) {
+  autocomplete(socket, targets, fragment, remove) {
     let results = [];
+
+    const room = roomManager.getRoomById(socket.user.roomId);
 
     targets.forEach(target => {
       const names = getTargetNames(socket, room, target);
@@ -86,13 +75,12 @@ module.exports = {
       }
     });
 
-    // verifies only one object was found, prints error messages otherwise
-    if (!validateFoundObjects(socket, results)) {
-      return;
+    // returns object (item or mob) matched
+    if(results.length === 1) {
+      return returnObject(socket, room, results, remove);
     }
 
-    // returns object (item or mob) matched
-    return returnObject(socket, room, results, remove);
+    return null;
   },
 
 };

@@ -77,14 +77,14 @@ Mob.prototype.selectTarget = function (roomid) {
   if (room) {
     // todo: check if this player has left or died or whatever.
     if (!this.attackTarget) {
-      console.log("Finding mob attack target...");
+      console.log('Finding mob attack target...');
 
       // select random player to attack
       const clients = room.sockets;
       const socketsInRoom = Object.keys(clients);
       const targetIndex = global.getRandomNumber(0, socketsInRoom.length);
       const socketId = socketsInRoom[targetIndex];
-      console.log("target's socket id: " + socketId);
+      console.log('target\'s socket id: ' + socketId);
 
       // get player socket
       const socket = global.io.sockets.connected[socketId];
@@ -109,12 +109,12 @@ Mob.prototype.attack = function (now) {
   }
 
   if (!global.SocketInRoom(this.roomId, this.attackTarget)) {
-    console.log("Invalid attack target for mob.");
+    console.log('Invalid attack target for mob.');
     this.attackTarget = undefined;
     return false;
   }
 
-  console.log("mob target:" + this.attackTarget);
+  console.log('mob target:' + this.attackTarget);
   this.lastAttack = now;
   const dmg = 0;
   let socketId = this.attackTarget;
@@ -148,11 +148,11 @@ Mob.prototype.taunt = function (now) {
   const tauntIndex = global.getRandomNumber(0, this.taunts.length);
 
   let taunt = this.taunts[tauntIndex];
-  taunt = taunt.format(this.displayName, "you");
+  taunt = taunt.format(this.displayName, 'you');
 
   const socket = global.io.sockets.connected[this.attackTarget];
   let username = '';
-  if(!socket) {
+  if (!socket) {
     this.attackTarget = null;
   } else {
     username = socket.user.username;
@@ -161,8 +161,8 @@ Mob.prototype.taunt = function (now) {
 
   this.lastTaunt = now;
 
-  socket.emit("output", { message: taunt });
-  socket.broadcast.to(socket.user.roomId).emit("output", { message: roomTaunt });
+  socket.emit('output', { message: taunt });
+  socket.broadcast.to(socket.user.roomId).emit('output', { message: roomTaunt });
 };
 
 Mob.prototype.readyToAttack = function (now) {

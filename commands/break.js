@@ -8,7 +8,7 @@ module.exports = {
     /^break$/i,
   ],
 
-  dispatch(socket, match) {
+  dispatch(socket) {
     module.exports.execute(socket);
   },
 

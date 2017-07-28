@@ -1,13 +1,15 @@
 'use strict';
 
 const roomManager = require('../roomManager');
+const autocomplete = require('../autocomplete');
 
 module.exports = {
   name: 'drop',
 
   patterns: [
+    /^dr\s+(.+)$/i,
     /^drop\s+(.+)$/i,
-    /^drop/i
+    /^drop/i,
   ],
 
   dispatch(socket, match) {
@@ -22,40 +24,19 @@ module.exports = {
   execute(socket, itemName) {
     const room = roomManager.getRoomById(socket.user.roomId);
 
-    // autocomplete name of inventory items
-    const itemNames = socket.user.inventory.map(item => item.displayName);
-    const inventoryCompletedNames = global.AutocompleteName(socket, itemName, itemNames);
-
-    const keyNames = socket.user.keys.map(item => item.displayName);
-    const keyCompletedNames = global.AutocompleteName(socket, itemName, keyNames);
-
-    if (inventoryCompletedNames.length + keyCompletedNames.legnth === 0) {
-      socket.emit('output', { message: 'You don\'t seem to be carrying that.' });
-      return;
-    } else if (inventoryCompletedNames.length + keyCompletedNames.legnth > 1) {
-      // todo: possibly print out a list of the matches
-      socket.emit('output', { message: 'Not specific enough!' });
+    const item = autocomplete.autocomplete(socket, room, ['inventory', 'key'], itemName);
+    if (!item) {
+      socket.emit('output', { message: 'You don\'t seem to be carrying that!' });
       return;
     }
 
-    let item;
-    if (keyCompletedNames.length === 1) {
-      item = socket.user.keys.find(item => item.displayName === keyCompletedNames[0]);
-
-      // take the item from the user
-      const index = socket.user.keys.indexOf(item);
-      socket.user.keys.splice(index, 1);
-    } else {
-      item = socket.user.inventory.find(item => item.displayName === inventoryCompletedNames[0]);
-
-      // take the item from the user
-      const index = socket.user.inventory.indexOf(item);
-      socket.user.inventory.splice(index, 1);
+    // remove item from users inventory or key ring
+    if (item.type === 'item') {
+      socket.user.inventory.remove(item);
+    } else if (item.type === 'key') {
+      socket.user.keys.remove(item);
     }
     socket.user.save();
-
-    // todo: remove after a bit. just a workaround for old data.
-    if (!room.inventory) room.inventory = [];
 
     // and place it in the room
     room.inventory.push(item);

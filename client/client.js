@@ -1,6 +1,6 @@
   var commandHistory = [];
   var historyIndex = -1;
-  var socket = io("http://localhost:3000");
+  var socket = io('http://localhost:3000');
   var actionNotifySound = new Audio('cardSlide1.wav');
   var actionNotify;
   var logElement;

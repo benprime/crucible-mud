@@ -1,6 +1,7 @@
 'use strict';
 
 const roomManager = require('../roomManager');
+const autocomplete = require('../autocomplete');
 
 module.exports = {
   name: 'take',
@@ -11,7 +12,7 @@ module.exports = {
     /^take\s+(.+)$/i,
     /^get\s+(.+)$/i,
     /^take/i,
-    /^get/i
+    /^get/i,
   ],
 
   dispatch(socket, match) {
@@ -25,33 +26,36 @@ module.exports = {
     const room = roomManager.getRoomById(socket.user.roomId);
 
     // get any items offered to the user
-    const offerItems = global.offers
-      .filter(offer => offer.toUserName.toLowerCase() === socket.user.username.toLowerCase())
-      .map(offer => offer.item);
+    const item = autocomplete.autocomplete(socket, room, ['room'], itemName);
 
-    // combine the offered items with the items in the room
-    const items = room.inventory.concat(offerItems);
-    
-    // autocomplete names
-    const itemNames = items.map(item => item.displayName);
-    const completedNames = global.AutocompleteName(socket, itemName, itemNames);
-    if (completedNames.length === 0) {
-      socket.emit('output', { message: 'You don\'t see that item here.' });
-      return;
-    } else if (completedNames.length > 1) {
-      // todo: possibly print out a list of the matches
-      socket.emit('output', { message: 'Not specific enough!' });
+    if (!item) {
+      //socket.emit('output', { message: 'You don\'t see that here!' });
       return;
     }
 
-    const item = items.find(item => item.displayName === completedNames[0]);
-
-    // todo: are we calling it 'fixed' for non-takeable items like signs and stuff?
+    // fixed items cannot be taken, such as a sign.
     if (item.fixed) {
       socket.emit('output', { message: 'You cannot take that!' });
       return;
     }
 
+    // take the item from the room
+    room.inventory.remove(item);
+    room.save();
+
+    // and give it to the user
+    if (item.type === 'key') {
+      socket.user.keys.push(item);
+    } else {
+      socket.user.inventory.push(item);
+    }
+    socket.user.save();
+
+    socket.emit('output', { message: `${item.displayName} taken.` });
+    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} takes ${item.displayName}.` });
+
+    /*
+    // todo: RE-IMPLEMENT OFFERS
     // handle an item offered from another user
     const offerIndex = global.offers.findIndex(offer => offer.item.id === item.id);
     if(offerIndex !== -1) {
@@ -69,23 +73,8 @@ module.exports = {
       userSocket.user.inventory.splice(otherUserItemIndex, 1);
       userSocket.emit('output', { message: `${item.displayName} was removed from your inventory.` });
       userSocket.user.save();
-    } else { // handle an item from the room
-      // remove the item from the room
-      const index = room.inventory.indexOf(item);
-      room.inventory.splice(index, 1);
-      room.save();
     }
-
-    // and give it to the user
-    if (item.type === "key") {
-      socket.user.keys.push(item);
-    } else {
-      socket.user.inventory.push(item);
-    }
-    socket.user.save();
-
-    socket.emit('output', { message: `${item.displayName} taken.` });
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} takes ${item.displayName}.` });
+    */
   },
 
   help(socket) {

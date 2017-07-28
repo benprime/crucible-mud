@@ -7,26 +7,41 @@ let handlers = [];
 //todo: perhaps this should live in a config file?
 let defaultCommand;
 
+
+//const allowedTargets = ['none', 'mob', 'item', 'room', 'player'];
 const normalizedPath = require('path').join(__dirname);
 
 console.log('path:', normalizedPath);
 
+function validateCommand(commandHandler, file) {
+  if (!commandHandler.name) throw `command ${file} missing name!`;
+  if (!commandHandler.dispatch) throw `command ${file} missing dispatch!`;
+  if (!commandHandler.execute) throw `command ${file} missing execute!`;
+  if (!commandHandler.patterns) throw `command ${file} missing patterns!`;
+  if (!commandHandler.help) throw `command ${file} missing help!`;
+
+  /*
+    if(Array.isArray(commandHandler.targets) && commandHandler.length > 0) {
+      
+    }
+    */
+
+}
+
 require('fs').readdirSync(normalizedPath).forEach(function (file) {
   if (file != 'index.js') {
+    
+    // Turning off no-dynamic-require rule for our command loader.
+    // eslint-disable-next-line
     let commandHandler = require('./' + file);
 
-    // initialization checks
-    if (!commandHandler.name) throw `command ${file} missing name!`;
-    if (!commandHandler.dispatch) throw `command ${file} missing dispatch!`;
-    if (!commandHandler.execute) throw `command ${file} missing execute!`;
-    if (!commandHandler.patterns) throw `command ${file} missing patterns!`;
-    if (!commandHandler.help) throw `command ${file} missing help!`;
+    validateCommand(commandHandler, file);
 
     handlers.push(commandHandler);
     helpHandler.registerCommand(commandHandler);
   }
 
-  defaultCommand = handlers.find(h => h.name === "say");
+  defaultCommand = handlers.find(h => h.name === 'say');
 });
 
 function processDispatch(socket, input) {
@@ -70,5 +85,5 @@ module.exports = {
       console.log(e);
       socket.emit('output', { message: `AN ERROR OCCURED!\n${e.message}` });
     }
-  }
+  },
 };

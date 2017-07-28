@@ -72,7 +72,7 @@ module.exports = {
     /^help$/i,
     /^h$/i,
     /^\?$/,
-    /^help\s+(\w+)$/i
+    /^help\s+(\w+)$/i,
   ],
 
   dispatch(socket, match) {
@@ -97,5 +97,5 @@ module.exports = {
 
   registerCommand(commandHandler) {
     commandHandlers[commandHandler.name] = commandHandler;
-  }
+  },
 };

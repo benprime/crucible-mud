@@ -4,6 +4,7 @@ global.MSG_COLOR = 'darkcyan';
 global.DMG_COLOR = 'firebrick';
 global.COMBAT_INTERVAL = 500;
 global.SPAWNER_INTERVAL = 500;
+
 // todo: remove this when login functionality exists
 global.STATES = {
   LOGIN_USERNAME: 0,
@@ -37,21 +38,6 @@ global.UserInRoom = function (roomId, username) {
   let usernames = global.UsersInRoom(roomId);
   usernames = usernames.map(u => u.toLowerCase());
   return usernames.indexOf(username.toLowerCase()) > -1;
-};
-
-global.FilterMatch = (array, pattern) => {
-  const re = new RegExp(`^${pattern}`, 'i');
-  return array.filter(value => !!re.exec(value));
-};
-
-global.AutocompleteName = (socket, nameString, list) => {
-  const name = nameString.trim().toLowerCase();
-
-  // (if there are two or more of the same creature, we just pick the first one)
-  const uniqueList = list.filter((item, i, list) => list.indexOf(item) === i);
-  const filteredNames = global.FilterMatch(uniqueList, name);
-
-  return filteredNames;
 };
 
 global.GetSocketByUsername = (username) => {
@@ -107,12 +93,6 @@ global.LongToShort = function (dir) {
   }
 };
 
-// this is for database inputs and such
-global.ValidDirection = function (dir) {
-  const validDirections = Room.schema.path('dir').enumValues;
-  return validDirections.indexOf(dir) >= 0;
-};
-
 // this is for user input
 global.ValidDirectionInput = function (dir) {
   switch (dir.toLowerCase()) {
@@ -149,6 +129,6 @@ global.getRandomNumber = function (min, max) {
 global.updateHUD = function (socket) {
   socket.emit('hud', {
     currentHP: socket.user.currentHP,
-    maxHP: socket.user.maxHP
+    maxHP: socket.user.maxHP,
   });
 };

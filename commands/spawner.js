@@ -35,7 +35,7 @@ setInterval(() => {
 
 
 module.exports = {
-  name: "spawner",
+  name: 'spawner',
   admin: true,
 
   patterns: [
@@ -68,7 +68,7 @@ module.exports = {
         // todo: maybe just save the mob name? Saving the whole object right now.
         room.spawner.mobTypes.push(addMobType.name);
         room.save();
-        socket.emit('output', { message: "Creature added to spawner." });
+        socket.emit('output', { message: 'Creature added to spawner.' });
         break;
       case 'remove':
         let removeMobType = mobData.catalog.find(mob => mob.name.toLowerCase() === param.toLowerCase());
@@ -77,9 +77,9 @@ module.exports = {
         if (index !== -1) {
           room.spawner.mobTypes.splice(index);
           room.save();
-          socket.emit('output', { message: "Creature removed from spawner." });
+          socket.emit('output', { message: 'Creature removed from spawner.' });
         } else {
-          socket.emit('output', { message: "Creature not found on spawner." });
+          socket.emit('output', { message: 'Creature not found on spawner.' });
         }
         break;
       case 'max':
@@ -106,7 +106,7 @@ module.exports = {
         socket.emit('output', { message: 'Spawner pasted.' });
         break;
       default:
-        let desc = room.spawner ? room.spawner.toString() : "None.";
+        let desc = room.spawner ? room.spawner.toString() : 'None.';
         socket.emit('output', { message: desc });
     }
 

@@ -8,17 +8,17 @@ module.exports = {
     /^xp$/i,
   ],
 
-  dispatch(socket, match) {
+  dispatch(socket) {
     module.exports.execute(socket);
   },
 
   execute(socket) {
     let output = '<span class=\'cyan\'>XP: </span>';
-    output += `<span class=\'silver\'>${socket.user.xp}</span>\n`;
+    output += `<span class='silver'>${socket.user.xp}</span>\n`;
     output += '<span class=\'cyan\'>Level: </span>';
-    output += `<span class=\'silver\'>${socket.user.level}</span>\n`;
+    output += `<span class='silver'>${socket.user.level}</span>\n`;
     output += '<span class=\'cyan\'>Next: </span>';
-    output += `<span class=\'silver\'>${socket.user.nextExp()}</span>\n`;
+    output += `<span class='silver'>${socket.user.nextExp()}</span>\n`;
     socket.emit('output', { message: output });
   },
 

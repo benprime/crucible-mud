@@ -56,7 +56,7 @@ module.exports = {
     }
 
     setTimeout(() => {
-      let itemIndex = global.offers.findIndex(offer => offer.item.id === userItem.id)
+      let itemIndex = global.offers.findIndex(offer => offer.item.id === userItem.id);
       if (itemIndex !== -1) {
         global.offers.splice(itemIndex, 1);
       }

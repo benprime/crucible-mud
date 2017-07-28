@@ -2,6 +2,7 @@
 
 const roomManager = require('../roomManager');
 const Room = require('../models/room');
+const autocomplete = require('../autocomplete');
 
 function lookDir(socket, room, dir) {
   dir = global.LongToShort(dir);
@@ -23,38 +24,8 @@ function lookDir(socket, room, dir) {
 
 // for items and mobs
 function lookItem(socket, room, itemName) {
-  // check player inventory
-  const itemNames = socket.user.inventory.map(item => item.displayName);
-  const itemcompletedNames = global.AutocompleteName(socket, itemName, itemNames);
-
-  // check room inventory
-  const roomItemNames = room.inventory.map(item => item.displayName);
-  const roomcompletedNames = global.AutocompleteName(socket, itemName, roomItemNames);
-
-  // check mobs
-  const mobNames = room.mobs.map(item => item.displayName);
-  const mobcompletedNames = global.AutocompleteName(socket, itemName, mobNames);
-
-  const totalFound = itemcompletedNames.length + roomcompletedNames.length + mobcompletedNames.length;
-  if (totalFound > 1) {
-    socket.emit('output', { message: 'Not specific enough!' });
-    return;
-  }
-
-  if (totalFound === 0) {
-    socket.emit('output', { message: 'You don\'t see that here.' });
-    return;
-  }
-
-  let item = null;
-  if (itemcompletedNames.length) {
-    item = socket.user.inventory.find(item => item.displayName === itemcompletedNames[0]);
-  } else if (roomcompletedNames.length) {
-    item = room.inventory.find(item => item.displayName === roomcompletedNames[0]);
-  } else if (mobcompletedNames.length) {
-    item = room.mobs.find(mob => mob.displayName === mobcompletedNames[0]);
-  }
-  item.Look(socket);
+  const lookTargetObj = autocomplete.autocomplete(socket, room, ['inventory', 'mob', 'room'], itemName);
+  lookTargetObj.Look(socket);
 }
 
 
@@ -71,24 +42,25 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    let item = null;
+    let lookTarget = null;
     if (match.length > 1) {
-      item = match[1];
+      lookTarget = match[1];
     }
     const short = (match[0] === '');
-    module.exports.execute(socket, short, item);
+    module.exports.execute(socket, short, lookTarget);
   },
 
-  execute(socket, short, itemName) {
+  execute(socket, short, lookTarget) {
     const room = roomManager.getRoomById(socket.user.roomId);
 
-    if (itemName) {
-      itemName = itemName.toLowerCase();
+    // check if look target is a direction
+    if (lookTarget) {
+      lookTarget = lookTarget.toLowerCase();
 
-      if (global.ValidDirectionInput(itemName)) {
-        lookDir(socket, room, itemName);
+      if (global.ValidDirectionInput(lookTarget)) {
+        lookDir(socket, room, lookTarget);
       } else {
-        lookItem(socket, room, itemName);
+        lookItem(socket, room, lookTarget);
       }
     } else {
       room.Look(socket, short);

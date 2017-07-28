@@ -11,12 +11,12 @@ const UserSchema = new mongoose.Schema({
   // User info
   email: {
     type: String,
-    unique: true
+    unique: true,
   },
 
   username: {
     type: String,
-    unique: true
+    unique: true,
   },
 
   // todo: hash this
@@ -28,19 +28,11 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
   },
 
-
-
   // Character info
   roomId: {
     type: mongoose.Schema.ObjectId,
   },
-  /*
-  room: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Room'
-  }
-  */
-
+  
   inventory: [ItemSchema],
 
   keys: [ItemSchema],

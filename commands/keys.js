@@ -7,7 +7,7 @@ module.exports = {
     /^keys$/i,
   ],
 
-  dispatch(socket, match) {
+  dispatch(socket) {
     module.exports.execute(socket);
   },
 

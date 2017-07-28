@@ -66,7 +66,7 @@ function MovementSounds(socket, room, excludeDir) {
 
 
 module.exports = {
-  name: "move",
+  name: 'move',
 
   patterns: [
     /^n$/i,
@@ -120,7 +120,7 @@ module.exports = {
     if (!room) {
       // hrmm if the exit was just validated, this should never happen.
       HitWall(socket, d);
-      console.log("WARNING: Query couldn't find next room when going through a exit.");
+      console.log('WARNING: Query couldn\'t find next room when going through a exit.');
       return;
     }
 
@@ -140,12 +140,12 @@ module.exports = {
 
     socket.broadcast.to(room.id).emit('output', { message });
     MovementSounds(socket, room, d);
-    console.log("Leaving room: ", room.id);
+    console.log('Leaving room: ', room.id);
     socket.leave(room.id);
 
     // update user session
     socket.user.roomId = exit.roomId;
-    console.log("Joining room: ", exit.roomId);
+    console.log('Joining room: ', exit.roomId);
     socket.user.save();
     socket.join(exit.roomId);
 

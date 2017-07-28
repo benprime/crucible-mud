@@ -1,39 +1,7 @@
 'use strict';
 
 const roomManager = require('../roomManager');
-
-function findMobByName(socket, room, targetName) {
-
-  // autocomplete name by diplay name
-  const mobDisplayNames = room.mobs.map(mob => mob.displayName);
-  const completedDisplayNames = global.AutocompleteName(socket, targetName, mobDisplayNames);
-
-  if (completedDisplayNames.length === 1) {
-    return room.mobs.find(mob => mob.displayName === completedDisplayNames[0]);
-  } else if (completedDisplayNames.length > 1) {
-    // todo: possibly print out a list of the matches
-    socket.emit('output', { message: 'Not specific enough!' });
-    return;
-  }
-
-  // autocomplete name by name
-  const mobNames = room.mobs.map(mob => mob.name);
-  const completedNames = global.AutocompleteName(socket, targetName, mobNames);
-
-  if (completedNames.length === 1) {
-    return room.mobs.find(mob => mob.name === completedNames[0]);
-  } else if (completedNames.length > 1) {
-    // todo: possibly print out a list of the matches
-    socket.emit('output', { message: 'Not specific enough!' });
-    return;
-  }
-
-  if (completedDisplayNames.length === 0 && completedNames.length === 0) {
-    socket.emit('output', { message: 'You don\'t see that here!' });
-    return;
-  }
-
-}
+const autocomplete = require('../autocomplete');
 
 module.exports = {
   name: 'attack',
@@ -48,11 +16,8 @@ module.exports = {
   },
 
   execute(socket, targetName) {
-    console.log(`Trying to attack the: ${targetName}`);
-
     const room = roomManager.getRoomById(socket.user.roomId);
-
-    const target = findMobByName(socket, room, targetName);
+    const target = autocomplete(socket, room, ['mob'], targetName);
     if (!target) {
       return;
     }

@@ -29,3 +29,23 @@ if (!Array.prototype.GetFirstByDisplayName) {
     return item;
   };
 }
+
+/* remove an item from an array if you already have a reference to it */
+if (!Array.prototype.remove) {
+  Array.prototype.remove = function (obj) {
+    var index = this.findIndex(i => i === obj);
+    if (index !== -1) {
+      this.splice(index, 1);
+    }
+  };
+}
+
+/* splices the first item it finds and returns it */
+Array.prototype.spliceFirst = function(callback) {
+  var i = this.length;
+  while (i--) {
+    if (callback(this[i], i)) {
+      return this.splice(i, 1);
+    }
+  }
+};

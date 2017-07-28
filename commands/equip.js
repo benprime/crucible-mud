@@ -6,7 +6,7 @@ module.exports = {
   patterns: [
     /^eq$/i,
     /^equip$/i,
-    /^equip\s+(.+)$/i
+    /^equip\s+(.+)$/i,
   ],
 
   dispatch(socket, match) {
@@ -18,6 +18,7 @@ module.exports = {
     // autocomplete name
     const itemNames = socket.user.inventory.map(i => i.displayName);
     const completedNames = global.AutocompleteName(socket, itemName, itemNames);
+
     if (completedNames.length === 0) {
       socket.emit('output', { message: 'You don\'t have that item in your inventory.\n' });
       return;
@@ -28,66 +29,76 @@ module.exports = {
     }
 
     const item = socket.user.inventory.find(it => it.displayName === completedNames[0]);
-    console.log(item);
 
-
-//ITEM IS BEING ASSIGNED AS AN EMBEDDED DOCUMENT
-//THIS IS BROKEN
-
-
-    //if no match emit "itemName is not in your inventory" and return
+    // if no match emit "itemName is not in your inventory" and return
     if (!item.equip) {
       socket.emit('output', { message: 'You cannot equip that!\n' });
       return;
     }
     else {
-      //if match add itemName to appropriate character item slot
+      // if match add itemName to appropriate character item slot
+
+      socket.user.equipSlots[item.equip] = item.id;
+
+
       switch (item.equip) {
-        case "":
+        case '':
           break;
-        case "mainHand":
+        case 'mainHand':
           socket.user.equipSlots.weaponMain = item.id;
-        case "offHand":
+          break;
+        case 'offHand':
           socket.user.equipSlots.weaponOff = item.id;
-        case "bothHand":
+          break;
+        case 'bothHand':
           socket.user.equipSlots.weaponMain = item.id;
           socket.user.equipSlots.weaponOff = item.id;
-        case "eitherHand":
-          if (hand == "main") {
+          break;
+        case 'eitherHand':
+          if (hand == 'main') {
             socket.user.equipSlots.weaponMain = item.id;
           }
-          else if (hand == "off") {
+          else if (hand == 'off') {
             socket.user.equipSlots.weaponOff = item.id;
           }
           else {
             socket.emit('output', { message: 'Please specify which hand to equip the item\n' });
           }
-        case "head":
+          break;
+        case 'head':
           socket.user.equipSlots.head = item.id;
-        case "body":
+          break;
+        case 'body':
           socket.user.equipSlots.body = item.id;
-        case "legs":
+          break;
+        case 'legs':
           socket.user.equipSlots.legs = item.id;
-        case "feet":
+          break;
+        case 'feet':
           socket.user.equipSlots.feet = item.id;
-        case "arms":
+          break;
+        case 'arms':
           socket.user.equipSlots.arms = item.id;
-        case "hands":
+          break;
+        case 'hands':
           socket.user.equipSlots.hands = item.id;
-        case "neck":
+          break;
+        case 'neck':
           socket.user.equipSlots.neck = item.id;
-        case "finger":
-          if (hand == "main") {
+          break;
+        case 'finger':
+          if (hand == 'main') {
             socket.user.equipSlots.fingerMain = item.id;
           }
-          else if (hand == "off") {
+          else if (hand == 'off') {
             socket.user.equipSlots.fingerOff = item.id;
           }
           else {
             socket.emit('output', { message: 'Please specify which hand to equip the item\n' });
           }
+          break;
         default:
-        socket.emit('output', { message: 'Um, you want to put that where?!?!\n'});
+          socket.emit('output', { message: 'Um, you want to put that where?!?!\n' });
       }
       //add bonuses from itemName to corresponding character stats
 

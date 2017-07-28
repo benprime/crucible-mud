@@ -4,7 +4,7 @@ const roomManager = require('../roomManager');
 const Room = require('../models/room');
 
 module.exports = {
-  name: "close",
+  name: 'close',
 
   patterns: [
     /^close\s+(\w+)$/i,
@@ -35,7 +35,7 @@ module.exports = {
     }
 
     exit.closed = true;
-    socket.broadcast.to(socket.user.roomId).emit("output", { message: `${socket.user.username} closes the door to the ${Room.exitName(d)}` });
+    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} closes the door to the ${Room.exitName(d)}` });
     socket.emit('output', { message: 'Door closed.' });
 
   },

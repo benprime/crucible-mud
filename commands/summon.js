@@ -9,7 +9,7 @@ module.exports = {
 
   patterns: [
     /^summon\s+(\w+)$/i,
-    /^sum\s+(\w+)$/i
+    /^sum\s+(\w+)$/i,
   ],
 
   dispatch(socket, match) {

@@ -20,7 +20,7 @@ module.exports = {
     }
     let typeName = match[1];
     let objectID = match[2];
-    console.log("Attempting to destroy: ", typeName, ": ", objectID);
+    console.log('Attempting to destroy: ', typeName, ': ', objectID);
     module.exports.execute(socket, typeName, objectID);
   },
 
@@ -29,8 +29,9 @@ module.exports = {
     if (type == 'mob') {
       // look for mob in user's current room
       const room = roomManager.getRoomById(socket.user.roomId);
+
       // locate mob
-      const mobIndex = room.mobs.findIndex(mob => mob.id = id);
+      const mobIndex = room.mobs.findIndex(mob => mob.id === id);
       if (mobIndex === -1) {
         socket.emit('output', { message: 'Unknown mob ID.' });
         return;
@@ -43,7 +44,7 @@ module.exports = {
       socket.emit('output', { message: 'Mob successfully destroyed.' });
 
       // announce mob disappearance to any onlookers
-      socket.broadcast.to(room.id).emit('output', { message: `Mob erased from existence!` });
+      socket.broadcast.to(room.id).emit('output', { message: 'Mob erased from existence!' });
     }
     else if (type == 'item') {
       // find user's current room
@@ -63,7 +64,7 @@ module.exports = {
       socket.emit('output', { message: 'Item successfully destroyed.' });
 
       // announce item disappearance to any onlookers
-      socket.broadcast.to(room.id).emit('output', { message: `Item erased from existence!` });
+      socket.broadcast.to(room.id).emit('output', { message: 'Item erased from existence!' });
 
       // todo: determine if we want to hide when an admin destroys an item      
     }

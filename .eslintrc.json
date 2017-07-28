@@ -1,11 +1,35 @@
 {
-    "extends": ["airbnb-base", "eslint:recommended"],
+    "extends": [
+        "airbnb-base",
+        "eslint:recommended"
+    ],
+    "parserOptions": {
+        "sourceType": "module"
+    },
     "plugins": [
         "import"
     ],
-
-    /* just while in development */
-    "rules":{
+    "rules": {
+        "indent": [
+            "error",
+            2, { "SwitchCase": 1 }
+        ],
+        "linebreak-style": [
+            "error",
+            "windows"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "comma-dangle": [
+            "error",
+            "always-multiline"
+        ],
         "no-console": "off"
     }
 }

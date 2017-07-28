@@ -10,7 +10,7 @@ module.exports = {
 
   patterns: [
     /^teleport\s+(\w+)$/i,
-    /^tele\s+(\w+)$/i
+    /^tele\s+(\w+)$/i,
   ],
 
   dispatch(socket, match) {

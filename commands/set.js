@@ -45,8 +45,6 @@ module.exports = {
       room.save();
       socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} has altered the fabric of reality.` });
       lookCmd.execute(socket);
-    } else if (type === 'item') {
-
     }
   },
 

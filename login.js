@@ -26,6 +26,7 @@ module.exports = {
     if (!socket.userId && (socket.state == global.STATES.LOGIN_PASSWORD)) {
 
       userModel.findOne({ username: socket.tempUsername, password: password.value })
+        //.lean()
         //.populate('room')
         .exec(function (err, user) {
           if (err) return console.error(err);
@@ -46,6 +47,13 @@ module.exports = {
             existingSocket.disconnect();
           }
 
+          // format the subdocuments so we have actual object instances
+          // Note: tried a lean() query here, but that also stripped away the model
+          // instance methods.
+          const objInventory = user.inventory.map(i => i.toObject());
+          user.inventory = objInventory;
+
+
           // THIS SHOULD BE THE ONLY USER STATE MANAGEMENT
           socket.user = user;
 
@@ -64,7 +72,7 @@ module.exports = {
           const currentRoom = roomManager.getRoomById(user.roomId);
           if (!currentRoom) {
             roomModel.byCoords({ x: 0, y: 0, z: 0 }, function (err, room) {
-              console.log("Default room", room);
+              console.log('Default room', room);
               socket.user.roomId = room.id;
               socket.join(room.id);
               console.log(JSON.stringify(room));

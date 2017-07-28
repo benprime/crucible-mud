@@ -20,29 +20,29 @@ module.exports = {
 
   execute(socket, type, param) {
     const room = roomManager.getRoomById(socket.user.roomId);
-    console.log("create type: ", type);
+    console.log('create type: ', type);
     if (type === 'room') {
       const dir = param.toLowerCase();
       room.createRoom(dir, function () {
-        socket.emit('output', { message: "Room created." });
-        socket.broadcast.to(socket.user.roomId).emit("output", { message: `${socket.user.username} waves his hand and an exit appears to the ${Room.exitName(dir)}!` });
+        socket.emit('output', { message: 'Room created.' });
+        socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${Room.exitName(dir)}!` });
       });
     } else if (type == 'door') {
       const dir = global.LongToShort(param);
       const exit = room.getExit(dir);
-      console.log("exit", exit);
+      console.log('exit', exit);
 
       if (exit) {
         exit.closed = true;
-        console.log("exit", exit);
+        console.log('exit', exit);
         room.save();
       } else {
-        socket.emit('output', { message: "Invalid direction." });
+        socket.emit('output', { message: 'Invalid direction.' });
         return;
       }
     } else {
       // todo: global error function for red text?
-      socket.emit('output', { message: "Invalid create type." });
+      socket.emit('output', { message: 'Invalid create type.' });
       return;
     }
 

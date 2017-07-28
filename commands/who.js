@@ -4,7 +4,7 @@ module.exports = {
   name: 'who',
 
   patterns: [
-    /^who$/i
+    /^who$/i,
   ],
 
   dispatch(socket) {

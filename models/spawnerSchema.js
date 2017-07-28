@@ -9,5 +9,5 @@ module.exports = new mongoose.Schema({
   },
   max: {
     type: Number,
-  }
+  },
 });

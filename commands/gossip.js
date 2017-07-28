@@ -5,7 +5,7 @@ module.exports = {
 
   patterns: [
     /^gossip\s+?(.+)/i,
-    /^gos\s+?(.+)/i
+    /^gos\s+?(.+)/i,
   ],
 
   dispatch(socket, match) {

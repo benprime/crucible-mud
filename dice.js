@@ -1,6 +1,6 @@
 'use strict';
 
-const diceRegex = /^(\d+)d(\d+)(?:([\+-])(\d*))?$/i;
+const diceRegex = /^(\d+)d(\d+)(?:([+-])(\d*))?$/i;
 
 // max is not inclusive
 function rollDie(sides) {
@@ -30,9 +30,8 @@ module.exports = {
         }
       }
 
-      console.log("Rolled: ", sum);
       return sum;
     }
-    throw "Invalid roll format: " + s;
-  }
+    throw 'Invalid roll format: ' + s;
+  },
 };

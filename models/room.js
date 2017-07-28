@@ -34,19 +34,19 @@ const RoomSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
     },
     closed: {
-      type: Boolean
+      type: Boolean,
     },
     keyName: {
       type: String,
     },
     locked: {
       type: Boolean,
-    }
+    },
 
   }],
 
   spawner: SpawnerSchema,
-  inventory: [ItemSchema]
+  inventory: [ItemSchema],
 });
 
 // todo: move to RoomHelper.js
@@ -138,7 +138,7 @@ RoomSchema.methods.Look = function (socket, short) {
 
   let names = global.UsersInRoom(this.id).filter(name => name !== socket.user.username);
 
-  console.log("Users in room names: ", names);
+  console.log('Users in room names: ', names);
 
   const mobNames = this.mobs.map(mob => mob.displayName + ' ' + mob.hp);
   if (mobNames) { names = names.concat(mobNames); }
@@ -224,7 +224,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
     } else {
       // if room does not exist, create a new room
       // with an exit to this room
-      console.log("from room:", fromRoom);
+      console.log('from room:', fromRoom);
       targetRoom = new Room({
         name: 'Default Room Name',
         desc: 'Room Description',

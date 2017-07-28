@@ -6,16 +6,16 @@ module.exports = {
   patterns: [
     /^i$/i,
     /^inv$/i,
-    /^inventory$/i
+    /^inventory$/i,
   ],
 
-  dispatch(socket, match) {
+  dispatch(socket) {
     module.exports.execute(socket);
   },
 
   execute(socket) {
 
-    let weaponMain = socket.user.inventory.find(i => i.id === socket.user.equipSlots.weaponMain);
+    //let weaponMain = socket.user.inventory.find(i => i.id === socket.user.equipSlots.weaponMain);
    
     let invOutput = socket.user.inventory.map(item => item.displayName).join(', ');
     if (!invOutput) {

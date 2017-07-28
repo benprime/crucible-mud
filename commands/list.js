@@ -18,7 +18,7 @@ module.exports = {
   dispatch(socket, match) {
     if (match.length != 2) {
       // todo: output the help
-      socket.emit('output', { message: "Invalid list usage." });
+      socket.emit('output', { message: 'Invalid list usage.' });
       return;
     }
 
@@ -31,7 +31,7 @@ module.exports = {
     } else if (type === 'keys') {
       module.exports.execute(socket, itemData, 'key');
     } else {
-      socket.emit('output', { message: `Unknown catalog: {types}` });
+      socket.emit('output', { message: 'Unknown catalog: {types}' });
       return;
     }
 

@@ -11,6 +11,8 @@ module.exports = {
   name: 'spawn',
   admin: true,
 
+  targets: ['mob', 'player', 'inventoryItem', 'roomItem'],
+
   patterns: [
     /^spawn\s+(mob)\s+(\w+)$/i,
     /^spawn\s+(item)\s+(\w+)$/i,
@@ -26,13 +28,13 @@ module.exports = {
     }
     let typeName = match[1];
     let itemTypeName = match[2];
-    console.log("Attempting to spawn: ", typeName, ": ", itemTypeName);
+    console.log('Attempting to spawn: ', typeName, ': ', itemTypeName);
     module.exports.execute(socket, typeName, itemTypeName);
   },
 
   execute(socket, type, name) {
 
-    if (type == 'mob') {
+    if (type === 'mob') {
       const createType = mobData.catalog.find(mob => mob.name.toLowerCase() === name.toLowerCase());
 
       if (!createType) {
@@ -47,8 +49,8 @@ module.exports = {
       room.mobs.push(mob);
       socket.emit('output', { message: 'Summoning successful.' });
       socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
-    } else if (type == 'item') {
-      const createType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === "item");
+    } else if (type === 'item') {
+      const createType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'item');
 
       if (!createType) {
         socket.emit('output', { message: 'Unknown item type.' });
@@ -77,8 +79,8 @@ module.exports = {
 
       // todo: determine if we want to hide when an admin creates and item      
       //socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
-    } else if (type == 'key') {
-      const keyType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === "key");
+    } else if (type === 'key') {
+      const keyType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'key');
 
       if (!keyType) {
         socket.emit('output', { message: 'Unknown key type.' });
@@ -89,7 +91,7 @@ module.exports = {
         name: keyType.name,
         desc: keyType.desc,
         displayName: keyType.displayName,
-        type: "key",
+        type: 'key',
       });
 
       socket.user.keys.push(key);

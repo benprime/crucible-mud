@@ -8,7 +8,7 @@ module.exports = {
 
   patterns: [
     /^"(.+)"?/,
-    /^yell\s+(.+)/i
+    /^yell\s+(.+)/i,
   ],
 
   dispatch(socket, match) {

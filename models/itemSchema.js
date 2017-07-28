@@ -3,8 +3,8 @@
 const mongoose = require('mongoose');
 
 const itemTypeEnum = [
-  "item",
-  "key",
+  'item',
+  'key',
 ];
 
 const ItemSchema = new mongoose.Schema({
@@ -22,16 +22,16 @@ const ItemSchema = new mongoose.Schema({
     enum: itemTypeEnum,
   },
   fixed: {
-    type: Boolean
-  }
+    type: Boolean,
+  },
 
 });
 
 ItemSchema.methods.Look = function (socket) {
-    socket.emit('output', { message: this.desc });
-    if(socket.user.admin) {
-      socket.emit('output', { message: `Item ID: ${this.id}` });
-    }
+  socket.emit('output', { message: this.desc });
+  if (socket.user.admin) {
+    socket.emit('output', { message: `Item ID: ${this.id}` });
+  }
 };
 
 module.exports = ItemSchema;

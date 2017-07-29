@@ -1,35 +1,43 @@
 {
-    "extends": [
-        "airbnb-base",
-        "eslint:recommended"
+  "extends": [
+    "airbnb-base",
+    "eslint:recommended",
+    "plugin:jasmine/recommended"
+  ],
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "plugins": [
+    "import",
+    "jasmine"
+  ],
+  "env": {
+    "jasmine": true
+  },
+  "rules": {
+    "indent": [
+      "error",
+      2,
+      {
+        "SwitchCase": 1
+      }
     ],
-    "parserOptions": {
-        "sourceType": "module"
-    },
-    "plugins": [
-        "import"
+    "linebreak-style": [
+      "error",
+      "windows"
     ],
-    "rules": {
-        "indent": [
-            "error",
-            2, { "SwitchCase": 1 }
-        ],
-        "linebreak-style": [
-            "error",
-            "windows"
-        ],
-        "quotes": [
-            "error",
-            "single"
-        ],
-        "semi": [
-            "error",
-            "always"
-        ],
-        "comma-dangle": [
-            "error",
-            "always-multiline"
-        ],
-        "no-console": "off"
-    }
+    "quotes": [
+      "error",
+      "single"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "comma-dangle": [
+      "error",
+      "always-multiline"
+    ],
+    "no-console": "off"
+  }
 }

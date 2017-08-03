@@ -19,12 +19,13 @@ module.exports = {
 
     const item = autocomplete.autocomplete(socket, ['inventory'], itemName);
 
+    // if no match emit "itemName is not in your inventory" and return
     if(!item) {
       socket.emit('output', { message: 'You don\'t seem be carrying that.\n' });
       return;
     }
 
-    // if no match emit "itemName is not in your inventory" and return
+    // check if item is equipable or return
     if (!item.equip) {
       socket.emit('output', { message: 'You cannot equip that!\n' });
       return;
@@ -98,19 +99,19 @@ module.exports = {
 
       //add bonuses from itemName to corresponding character stats
     }
-
-    socket.emit('output', { message: 'Item equipped.\n' });
     
     // remove item from backpack
     socket.user.inventory.remove(item);
     socket.user.save();
+
+    socket.emit('output', { message: 'Item equipped.\n' });
 
     //TODO: fix main/off hand selection (currently autocomplete takes in all parameters including the main/off hand bit...)
   },
 
   help(socket) {
     let output = '';
-    output += '<span class="mediumOrchid">equip &lt;item name&gt;</span><span class="purple">-</span> Equip &lt;item&gt; from inventory.  If &lt;item&gt; is a weapon, specify main/off to equip to one hand or the other (if able).<br />';
+    output += '<span class="mediumOrchid">equip &lt;item name&gt;</span><span class="purple">-</span> Equip &lt;item&gt; from inventory.  If &lt;item&gt; is a weapon or ring, specify main/off to equip to one hand or the other (if able).<br />';
     socket.emit('output', { message: output });
   },
 };

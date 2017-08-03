@@ -17,8 +17,9 @@ module.exports = {
 
   execute(socket, targetName) {
     const room = roomManager.getRoomById(socket.user.roomId);
-    const target = autocomplete(socket, ['mob'], targetName);
+    const target = autocomplete.autocomplete(socket, ['mob'], targetName);
     if (!target) {
+      socket.emit('output', { message: 'You don\'t see that here or it\'s ambigous!' });
       return;
     }
 

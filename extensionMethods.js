@@ -41,11 +41,19 @@ if (!Array.prototype.remove) {
 }
 
 /* splices the first item it finds and returns it */
-Array.prototype.spliceFirst = function(callback) {
-  var i = this.length;
-  while (i--) {
-    if (callback(this[i], i)) {
-      return this.splice(i, 1);
+if (!Array.prototype.spliceFirst) {
+  Array.prototype.spliceFirst = function (callback) {
+    var i = this.length;
+    while (i--) {
+      if (callback(this[i], i)) {
+        return this.splice(i, 1);
+      }
     }
-  }
-};
+  };
+}
+
+if (!Array.prototype.distinct) {
+  Array.prototype.distinct = function () {
+    return Array.from(new Set(this));
+  };
+}

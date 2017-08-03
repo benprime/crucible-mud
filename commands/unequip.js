@@ -20,6 +20,7 @@ module.exports = {
     //const item = autocomplete.autocomplete(socket, ['equipSlots'], itemName);
     var item;
     for (var i in socket.user.equipSlots) {
+      if(!socket.user.equipSlots[i]) continue;
       if (socket.user.equipSlots[i].displayName == itemName || socket.user.equipSlots[i].name == itemName)
         item = socket.user.equipSlots[i];
     }

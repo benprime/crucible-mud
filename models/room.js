@@ -197,58 +197,6 @@ RoomSchema.methods.addExit = function (dir, roomId) {
   return true;
 };
 
-RoomSchema.methods.createRoom = function (dir, cb) {
-  if (!global.ValidDirectionInput(dir)) {
-    return false;
-  }
-
-  const roomModel = this.model('Room');
-
-  let exit = this.getExit(dir);
-  if (exit) {
-    return false;
-  }
-
-  // see if room exists at the coords
-  var targetCoords = this.dirToCoords(dir);
-  const fromRoom = this;
-
-  roomModel.byCoords(targetCoords, function (targetRoom) {
-    const oppDir = roomModel.oppositeDirection(dir);
-    if (targetRoom) {
-      fromRoom.addExit(dir, targetRoom.id);
-      targetRoom.addExit(oppDir, fromRoom.id);
-      fromRoom.save();
-      targetRoom.save();
-      if (cb) cb();
-    } else {
-      // if room does not exist, create a new room
-      // with an exit to this room
-      console.log('from room:', fromRoom);
-      targetRoom = new Room({
-        name: 'Default Room Name',
-        desc: 'Room Description',
-        x: targetCoords.x,
-        y: targetCoords.y,
-        z: targetCoords.z,
-        exits: [{
-          dir: oppDir,
-          roomId: fromRoom.id,
-        }],
-      });
-
-      // update this room with exit to new room
-      targetRoom.save(function (err, updatedRoom) {
-        fromRoom.addExit(dir, updatedRoom.id);
-        fromRoom.save();
-        if (cb) cb();
-      });
-
-    }
-
-
-  });
-};
 
 const Room = mongoose.model('Room', RoomSchema);
 

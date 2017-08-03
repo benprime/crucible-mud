@@ -43,7 +43,9 @@ module.exports = {
     output += '<span class="cyan">Backpack: </span>';
     output += `<span class="silver">${invOutput}</span>\n`;
     output += '<span class="cyan">Keys: </span>';
-    output += `<span class="silver">${keyOutput}</span>`;
+    output += `<span class="silver">${keyOutput}</span>\n`;
+    output += '<span class="cyan">Currency: </span>';
+    output += `<span class="silver">${socket.user.currency}</span>\n`;
     socket.emit('output', { message: output });
   },
 

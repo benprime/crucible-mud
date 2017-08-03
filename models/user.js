@@ -76,6 +76,10 @@ const UserSchema = new mongoose.Schema({
     type: Number,
   },
 
+  currency: {
+    type: Number,
+  },
+
   maxHP: {
     type: Number,
   },

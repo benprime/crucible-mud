@@ -4,9 +4,8 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "eslint": "^4.4.0",
     "express": "^4.14.0",
-    "jasmine": "^2.7.0",
-    "jasmine-node": "^1.14.5",
     "mongodb": "^2.2.19",
     "mongoose": "^4.8.4",
     "socket.io": "^1.7.2"
@@ -15,10 +14,12 @@
     "concurrently": "^3.4.0",
     "eslint-config-airbnb-base": "^11.3.1",
     "eslint-plugin-import": "^2.7.0",
-    "http-server": "^0.10.0"
+    "http-server": "^0.10.0",
+    "jasmine": "^2.7.0",
+    "rewire": "^2.5.2"
   },
   "scripts": {
-    "test": "jasmine-node spec",
+    "test": "jasmine",
     "start": "nodemon server.js",
     "db": "mongod --dbpath c:/dev/mongo/data",
     "client": "concurrently \"http-server -a localhost -p 8000\" \"start http://localhost:8000/client\"",

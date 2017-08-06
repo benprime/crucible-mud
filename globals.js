@@ -132,3 +132,11 @@ global.updateHUD = function (socket) {
     maxHP: socket.user.maxHP,
   });
 };
+
+global.filterMatch = function(array, pattern) {
+  const re = new RegExp(`^${pattern}`, 'i');
+  const matches = array.filter(value => !!re.exec(value));
+
+  // return unique matches only
+  return matches.filter((item, i, matches) => matches.indexOf(item) === i);
+};

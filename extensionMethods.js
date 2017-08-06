@@ -30,7 +30,6 @@ if (!Array.prototype.GetFirstByDisplayName) {
   };
 }
 
-/* remove an item from an array if you already have a reference to it */
 if (!Array.prototype.remove) {
   Array.prototype.remove = function (obj) {
     var index = this.findIndex(i => i === obj);
@@ -40,7 +39,6 @@ if (!Array.prototype.remove) {
   };
 }
 
-/* splices the first item it finds and returns it */
 if (!Array.prototype.spliceFirst) {
   Array.prototype.spliceFirst = function (callback) {
     var i = this.length;

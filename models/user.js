@@ -7,195 +7,141 @@ const ItemSchema = require('./itemSchema');
 const dice = require('../dice');
 
 const UserSchema = new mongoose.Schema({
-
   // User info
   email: {
     type: String,
     unique: true,
   },
-
   username: {
     type: String,
     unique: true,
   },
-
   // todo: hash this
   password: {
     type: String,
   },
-
   admin: {
     type: Boolean,
   },
-
   // Character info
   roomId: {
     type: mongoose.Schema.ObjectId,
   },
-  
   inventory: [ItemSchema],
-
   keys: [ItemSchema],
-
   equipSlots: {
     //Weapons
     weaponMain: ItemSchema,
-
     weaponOff: ItemSchema,
-
     //Armor/Gear
     head: ItemSchema,
-
     body: ItemSchema,
-
     back: ItemSchema,
-
     legs: ItemSchema,
-
     feet: ItemSchema,
-
     arms: ItemSchema,
-
     hands: ItemSchema,
-
     neck: ItemSchema,
-
     fingerMain: ItemSchema,
-
     fingerOff: ItemSchema,
   },
-
-
-
   //Character stats
   xp: {
     type: Number,
   },
-
   level: {
     type: Number,
   },
-
   currency: {
     type: Number,
   },
-
   maxHP: {
     type: Number,
   },
-
   currentHP: {
     type: Number,
   },
-
   actionDie: {  // base die for all of player's action results to add variance
     type: String,
   },
-
   armorRating: {
     type: Number,
   },
-
   // base stats
   strength: {
     type: Number,
   },
-
   intelligence: {
     type: Number,
   },
-
   dexterity: {
     type: Number,
   },
-
   charisma: {
     type: Number,
   },
-
   constitution: {
     type: Number,
   },
-
   willpower: {
     type: Number,
   },
-
   // skills
   stealth: {  //ability to not be seen/heard (DEX)
     type: Number,
   },
-
   lockpick: { //open non-magical locks (DEX)
     type: Number,
   },
-
   pickpocket: { //steal from others (DEX)
     type: Number,
   },
-
   search: { //visual (hidden door, trap, etc) (INT)
     type: Number,
   },
-
   detect: { //magical (active spell, illusion, etc) (INT/WIL)
     type: Number,
   },
-
   listen: { //auditory (sounds beyond door, wind outside cave entrance, etc) (INT)
     type: Number,
   },
-
   identify: { //determine hidden qualities of objects (INT)
     type: Number,
   },
-
   disable: {  //eliminate traps (DEX)
     type: Number,
   },
-
   negotiate: {  //make deals with others (CHA)
     type: Number,
   },
-
   bluff: {  //mislead/swindle others (CHA)
     type: Number,
   },
-
   intimidate: { //force others to comply through fear (STR/CHA)
     type: Number,
   },
-
   magic: {  //affinity/skill with magic (INT/WIL)
     type: Number,
   },
-
   weapons: {  //affinity/skill with weapons (STR/DEX)
     type: Number,
   },
-
   //subweapon skills? (dual, ranged, one hand, two hand, pierce, slash, bludge)
-
   conceal: {  //hide objects (DEX)
     type: Number,
   },
-
   heal: { //minor self heal (CON)
     type: Number,
   },
-
   refresh: { //minor self revitalization of energy (WIL)
     type: Number,
   },
-
   endure: { //survive what others cannot (resist poison, no KO, etc) (CON)
     type: Number,
   },
-
   resist: { //shield from magic (resist spell, see through illusion/charm, etc) (WIL)
     type: Number,
   },
-
 });
 
 UserSchema.statics.findByName = function (name, cb) {

@@ -2,8 +2,18 @@
 function getMockSocket() {
   return {
     user: {
+      name: 'a user',
       inventory: [],
       keys: [],
+    },
+    broadcast: () => {
+      return {
+        to: () => {
+          return {
+            emit: emit
+          }
+        }
+      }
     },
     emit: () => {}
   };

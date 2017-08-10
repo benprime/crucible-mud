@@ -32,7 +32,7 @@ describe('autocomplete', function () {
   describe('getTargetList', function () {
 
     it('should return mob list when target is mob', function () {
-      // assert
+      // arrange
       let target = sut.TargetTypes.Mob;
 
       // act
@@ -43,7 +43,7 @@ describe('autocomplete', function () {
     });
 
     it('should return room inventory list when target is room', function () {
-      // assert
+      // arrange
       let target = sut.TargetTypes.Room;
 
       // act
@@ -54,7 +54,7 @@ describe('autocomplete', function () {
     });
 
     it('should return user inventory list when target is inventory', function () {
-      // assert
+      // arrange
       let target = sut.TargetTypes.Inventory;
 
       // act
@@ -65,7 +65,7 @@ describe('autocomplete', function () {
     });
 
     it('should return user key list when target is key', function () {
-      // assert
+      // arrange
       let target = sut.TargetTypes.Key;
 
       // act
@@ -76,7 +76,7 @@ describe('autocomplete', function () {
     });
 
     it('should throw exception when target is invalid', function () {
-      // assert
+      // arrange
       let target = 'invalid target';
 
       // act and assert
@@ -88,7 +88,7 @@ describe('autocomplete', function () {
   describe('autocompleteByProperty', function () {
 
     it('returns object when only one target type has a match', function () {
-      // assemble
+      // arrange
       const testObj = { name: 'test name', displayName: 'test displayName' };
       socket.user.inventory = [testObj];
 
@@ -102,7 +102,7 @@ describe('autocomplete', function () {
     });
 
     it('returns empty array when no object matches', function () {
-      // assemble
+      // arrange
       socket.user.inventory.push({ displayName: 'bbb' })
       room.inventory.push({ displayName: 'bbb' })
 
@@ -114,7 +114,7 @@ describe('autocomplete', function () {
     });
 
     it('returns array containing all matching objects when more than one target type matches', function () {
-      // assemble
+      // arrange
       const userInventoryItem = { displayName: 'aaa' };
       const roomInventoryItem = { displayName: 'aaa' };
       socket.user.inventory.push(userInventoryItem);
@@ -135,7 +135,7 @@ describe('autocomplete', function () {
   describe('autocomplete', function () {
 
     it('should return object if only displayName has a matching object', function () {
-      // assemble
+      // arrange
       var inventoryItem = { name: 'aaa', displayName: 'bbb' };
       socket.user.inventory = [inventoryItem];
       const roomItem = { name: 'ccc', displayName: 'ddd' };
@@ -149,7 +149,7 @@ describe('autocomplete', function () {
     });
 
     it('should return object if only name has a matching object', function () {
-      // assemble
+      // arrange
       var inventoryItem = { name: 'aaa', displayName: 'bbb' };
       socket.user.inventory = [inventoryItem];
       const roomItem = { name: 'ccc', displayName: 'ddd' };
@@ -163,7 +163,7 @@ describe('autocomplete', function () {
     });
 
     it('should return null if neither name or displayName have matching object', function () {
-      // assemble
+      // arrange
       var inventoryItem = { name: 'aaa', displayName: 'aaa' };
       socket.user.inventory = [inventoryItem];
       const roomItem = { name: 'aaa', displayName: 'aaa' };
@@ -177,7 +177,7 @@ describe('autocomplete', function () {
     });
 
     it('should return null and send ambigious message if number of results is greater than 1', function () {
-      // assemble
+      // arrange
       var inventoryItem = { name: 'aaa', displayName: 'aaa' };
       socket.user.inventory = [inventoryItem];
       const roomItem = { name: 'aaa', displayName: 'aaa' };

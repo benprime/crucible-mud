@@ -45,12 +45,8 @@ Mob.prototype.TakeDamage = function (socket, damage) {
 Mob.prototype.Die = function (socket) {
   const room = roomManager.getRoomById(socket.user.roomId);
   room.lastMobDeath = new Date();
-
   global.io.to(room.id).emit('output', { message: `The ${this.displayName} collapses.` });
-
-  // remove mob from the room    
-  let i = room.mobs.indexOf(this);
-  room.mobs.splice(i, 1);
+  room.mobs.remove(this);
   this.Dispose(socket);
 };
 

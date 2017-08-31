@@ -1,5 +1,4 @@
-var attack = require('../../commands/attack.js');
-
+const attack = require('../../commands/attack.js');
 const roomManager = require('../../roomManager');
 const autocomplete = require('../../autocomplete');
 const mocks = require('../mocks.js');
@@ -38,20 +37,20 @@ describe('attack', function() {
     });
 
     describe('execute', function() {
+        var socketOutputSpy;
         beforeAll(function(){
             socket = new SocketMock();
             socket.user = {
                 username: 'aName', 
                 roomId: 123 
             };
+
+            socketOutputSpy = jasmine.createSpy('socketOutputSpy');
+            socket.onEmit('output', socketOutputSpy);
+            spyOn(socket, 'emit').and.callThrough();
         });
 
         it('emits and broadcasts', function(){
-            // passing a spy to the mock callback (it has both room and message)
-            var spy = jasmine.createSpy('socketOutputSpy');
-            socket.onEmit('output', spy);
-            spyOn(socket, 'emit').and.callThrough();
-
             autocompleteResult = {
                 id: 123,
                 displayName: 'a thing!'
@@ -59,7 +58,14 @@ describe('attack', function() {
             attack.execute(socket, 'thing');
 
             expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="olive">*** Combat Engaged ***</span>' });
-            expect(spy).toHaveBeenCalledWith({ message: `${socket.user.username} moves to attack ${autocompleteResult.displayName}!` }, undefined);
+            expect(socketOutputSpy).toHaveBeenCalledWith({ message: `${socket.user.username} moves to attack ${autocompleteResult.displayName}!` }, undefined);
         });
-    })
+
+        it('emits with no target', function() {
+            autocompleteResult = undefined;
+            attack.execute(socket, 'thing');
+
+            expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t see that here or it\'s ambigous!' });
+        });
+    });
 });

@@ -28,9 +28,7 @@ module.exports = {
       } else {
         preMsg = `Someone yells from the ${Room.exitName(Room.oppositeDirection(exit.dir))} `;
       }
-
       var surroundMsg = `${preMsg} '${message}'`;
-
       socket.broadcast.to(exit.roomId).emit('output', { message: surroundMsg });
     });
 

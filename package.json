@@ -11,12 +11,12 @@
     "socket.io": "^1.7.2"
   },
   "devDependencies": {
-    "concurrently": "^3.4.0",
     "eslint-config-airbnb-base": "^11.3.1",
     "eslint-plugin-import": "^2.7.0",
     "http-server": "^0.10.0",
     "jasmine": "^2.7.0",
-    "rewire": "^2.5.2"
+    "rewire": "^2.5.2",
+    "socket-io-mock": "^1.0.1"
   },
   "scripts": {
     "test": "jasmine",

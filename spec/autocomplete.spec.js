@@ -4,6 +4,7 @@ require('../globals');
 const roomManager = require('../roomManager');
 const mocks = require('./mocks');
 const rewire = require('rewire');
+const SocketMock = new require('socket-io-mock');
 
 const sut = rewire('../autocomplete');
 sut.getTargetList = sut.__get__('getTargetList');
@@ -16,7 +17,12 @@ describe('autocomplete', function () {
   let roomManagerSpy;
 
   beforeAll(function () {
-    socket = mocks.getMockSocket();
+    socket = new SocketMock();
+    socket.user = {
+      name: 'a user',
+      inventory: [],
+      keys: [],
+    }
     room = mocks.getMockRoom();
     roomManagerSpy = spyOn(roomManager, 'getRoomById').and.callFake(() => room);
   });

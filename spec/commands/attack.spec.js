@@ -3,6 +3,7 @@ var attack = require('../../commands/attack.js');
 const roomManager = require('../../roomManager');
 const autocomplete = require('../../autocomplete');
 const mocks = require('../mocks.js');
+const SocketMock = new require('socket-io-mock');
 
 describe('attack', function() {
     let socket;
@@ -12,7 +13,7 @@ describe('attack', function() {
     let autocompleteSpy;
 
     beforeAll(function() {
-        socket = mocks.getMockSocket();
+        socket = new SocketMock();
         room = mocks.getMockRoom();
         roomManagerSpy = spyOn(roomManager, 'getRoomById').and.callFake(() => room);
         autocompleteSpy = spyOn(autocomplete, 'autocomplete').and.callFake(() => autocompleteResult);
@@ -37,28 +38,28 @@ describe('attack', function() {
     });
 
     describe('execute', function() {
-        let socketEmitSpy;
-        let socketBroadcastSpy;
-
         beforeAll(function(){
-            socketEmitSpy = spyOn(socket, 'emit').and.callFake(() => {});
-            socketBroadcastSpy = spyOn(socket, 'broadcast').and.callFake(() => {
-                return {
-                    to: () => {}
-                }
-            });
-        })
+            socket = new SocketMock();
+            socket.user = {
+                username: 'aName', 
+                roomId: 123 
+            };
+        });
 
-        xit('emits and broadcasts', function(){
+        it('emits and broadcasts', function(){
+            // passing a spy to the mock callback (it has both room and message)
+            var spy = jasmine.createSpy('socketOutputSpy');
+            socket.onEmit('output', spy);
+            spyOn(socket, 'emit').and.callThrough();
+
             autocompleteResult = {
                 id: 123,
                 displayName: 'a thing!'
             };
             attack.execute(socket, 'thing');
 
-            expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="olive">*** Combat Engaged ***</span>' })
-            //expect(socket.broadcast.to).toHaveBeenCalledWith(room.id);
-            expect(socket.broadcast.to.emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} moves to attack ${autocompleteResult.displayName}!` });
+            expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="olive">*** Combat Engaged ***</span>' });
+            expect(spy).toHaveBeenCalledWith({ message: `${socket.user.username} moves to attack ${autocompleteResult.displayName}!` }, undefined);
         });
     })
 });

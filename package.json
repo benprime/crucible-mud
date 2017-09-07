@@ -15,8 +15,7 @@
     "eslint-plugin-import": "^2.7.0",
     "http-server": "^0.10.0",
     "jasmine": "^2.7.0",
-    "rewire": "^2.5.2",
-    "socket-io-mock": "^1.0.1"
+    "rewire": "^2.5.2"
   },
   "scripts": {
     "test": "jasmine",

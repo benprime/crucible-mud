@@ -167,9 +167,22 @@ UserSchema.methods.readyToAttack = function (now) {
   return this.attackTarget && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
 };
 
-UserSchema.methods.attackRoll = function () {
+UserSchema.methods.attackRoll = function (weapon) {
+  /*
+  var wdParts = weapon.damage.split(" ");
+
+  if(!weapon) {
+    return this.strengh + (dice.Roll(this.actionDie) - 2);  --bare fist
+  }
+  if(weapon.range = 'melee') {
+    return this.strengh + dice.Roll(wdParts[0]) + wdParts[1];
+  }
+  console.log('attackRoll weapon resolution error');
+  return 0;
+  */
+
   // just return 0 or 1 for now
-  return dice.Roll('1d2');
+  return dice.Roll('1d2'); 
 };
 
 UserSchema.methods.attack = function (socket, mob, now) {

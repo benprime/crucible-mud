@@ -17,12 +17,16 @@ function getMockRoom() {
   };
 }
 
+const globalEmitSpy = jasmine.createSpy();
 function IOMock() {
-  this.to = jasmine.createSpy();
+  to: jasmine.createSpy().and.callFake(function (roomKey) {
+    return {
+      emit: globalEmitSpy
+    };
+  })
 }
 
-var broadcastEmitSpy = jasmine.createSpy();
-
+const broadcastEmitSpy = jasmine.createSpy();
 function SocketMock() {
   this.emit = jasmine.createSpy();
   this.on = jasmine.createSpy();

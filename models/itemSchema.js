@@ -21,6 +21,9 @@ const ItemSchema = new mongoose.Schema({
     type: String,
     enum: itemTypeEnum,
   },
+  range: {
+    type: String,
+  },
   fixed: {
     type: Boolean,
   },

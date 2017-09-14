@@ -18,8 +18,9 @@ function getMockRoom() {
 }
 
 const globalEmitSpy = jasmine.createSpy();
+
 function IOMock() {
-  to: jasmine.createSpy().and.callFake(function (roomKey) {
+  this.to = jasmine.createSpy().and.callFake(function (roomKey) {
     return {
       emit: globalEmitSpy
     };

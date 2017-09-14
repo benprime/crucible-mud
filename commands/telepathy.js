@@ -22,7 +22,7 @@ module.exports = {
       socket.emit('output', { message: 'Invalid username.' });
       return;
     }
-    username = userSocket.user.username; // just correcting the casing
+    username = userSocket.user.username;
     const sender = socket.user.username;
 
     userSocket.emit('output', { message: `${sender} telepaths: ${message}` });

@@ -27,13 +27,13 @@ function IOMock() {
   })
 }
 
-const broadcastEmitSpy = jasmine.createSpy();
 function SocketMock() {
-  this.emit = jasmine.createSpy();
-  this.on = jasmine.createSpy();
+  const broadcastEmitSpy = jasmine.createSpy('userSocketBroadcastEmit');
+  this.emit = jasmine.createSpy('userSocketEmit');
+  this.on = jasmine.createSpy('userSocketOn');
 
   this.broadcast = {
-    to: jasmine.createSpy().and.callFake(function (roomKey) {
+    to: jasmine.createSpy('userSocketBroadcastTo').and.callFake(function (roomKey) {
       return {
         emit: broadcastEmitSpy
       };

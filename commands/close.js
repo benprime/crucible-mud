@@ -37,7 +37,6 @@ module.exports = {
     exit.closed = true;
     socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} closes the door to the ${Room.exitName(d)}` });
     socket.emit('output', { message: 'Door closed.' });
-
   },
 
   help(socket) {

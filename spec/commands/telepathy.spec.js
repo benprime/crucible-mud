@@ -22,8 +22,11 @@ describe('telepathy', function () {
   });
 
   describe('execute', function () {
+    
+    it('should output messages when user is invalid', function () {
+    });
 
-    it('should', function () {
+    it('should output messages when command is successful', function () {
       // arrange
       const msg = "This is a telepath message!";
 

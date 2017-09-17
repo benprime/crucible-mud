@@ -43,7 +43,6 @@ module.exports = {
 
     socket.emit('output', { message: 'Dropped.' });
     socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} drops ${item.name}.` });
-
   },
 
   help(socket) {

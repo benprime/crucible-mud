@@ -56,11 +56,6 @@ module.exports = {
 
       // clean up after vortex caused by item removal
       socket.emit('output', { message: 'Item successfully destroyed.' });
-
-      // announce item disappearance to any onlookers
-      socket.broadcast.to(room.id).emit('output', { message: 'Item erased from existence!' });
-
-      // todo: determine if we want to hide when an admin destroys an item      
     }
   },
 

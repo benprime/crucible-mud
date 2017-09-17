@@ -77,7 +77,6 @@ module.exports = {
     }, 10000);
 
     exit.locked = false;
-    //room.save();
     socket.emit('output', { message: 'Door unlocked.' });
   },
 

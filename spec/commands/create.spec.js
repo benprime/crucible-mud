@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../roomManager');
+const roomManager = require('../../roomManager');
 const mocks = require('../mocks');
 const sut = require('../../commands/create');
 
@@ -60,7 +60,10 @@ describe('create', function () {
 
     it('should output error when create type is invalid', function() {
     });
-      
+
+    it('should be an admin command', function() {
+      expect(sut.admin).toBe(true);
+    });
   });
 
 });

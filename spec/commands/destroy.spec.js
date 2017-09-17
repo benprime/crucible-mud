@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../roomManager');
+const roomManager = require('../../roomManager');
 const mocks = require('../mocks');
 const sut = require('../../commands/destroy');
 
@@ -12,52 +12,40 @@ describe('destroy', function () {
     socket = new mocks.SocketMock();
     room = mocks.getMockRoom();
     spyOn(roomManager, 'getRoomById').and.callFake(() => room);
-});
+  });
 
   describe('execute', function () {
-
-    describe('when type is room', function() {
-      it('should accept all valid long forms of direction input', function() {
+    describe('when type is mob', function() {
+      beforeAll(function() {
+        //todo: needs to mock autocomplete for mob
       });
 
-      it('should accept all valid short forms of direction input', function() {
+      it('should output error message when mob not found', function() {
       });
-
-      it('should output error message when direction in invalid', function() {
+      it('should remove mob from room object when successful', function() {
       });
-
-      it('should output error message when direction in invalid', function() {
+      it('should output message to running user and users in room', function() {
       });
-
-      it('should output message to creator as well as to other users on successful create', function() {
+    });  
+    describe('when type is item', function() {
+      beforeAll(function() {
+        //todo: needs to mock autocomplete for item
       });
-
-      // TODO: The create room lives in the roomManager. Creating a door should probably
-      // also be moved to a new method called create/updateDoor on the roomManager.
-      // doesn't make sense to have some state/database updates in the manager and some
-      // in the command code.
-      it('should update roomManager current state and database with door on success', function() {
+      it('should output error when inventory does not contain item', function() {
       });
-    });
-
-    describe('when type is door', function() {
-      it('should accept all valid long forms of direction input', function() {
+      it('should remove item from inventory in socket user object', function() {
       });
-
-      it('should accept all valid short forms of direction input', function() {
+      it('should save user to database with item removed', function() {
       });
-
-      it('should output error message when direction in invalid', function() {
-      });
-
-      it('should output error message when direction in invalid', function() {
-      });
-
-      it('should output message to creator as well as to other users on successful create', function() {
+      it('should output message to running user when succesful', function() {
       });
     });
 
     it('should output error when create type is invalid', function() {
+    });
+
+    it('should be an admin command', function() {      
+      expect(sut.admin).toBe(true);
     });
       
   });

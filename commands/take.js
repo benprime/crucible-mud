@@ -41,7 +41,6 @@ module.exports = {
     // take the item from the room
     const room = roomManager.getRoomById(socket.user.roomId);
     room.inventory.remove(item);
-    room.save();
 
     // and give it to the user
     if (item.type === 'key') {
@@ -49,8 +48,10 @@ module.exports = {
     } else {
       socket.user.inventory.push(item);
     }
-    socket.user.save();
 
+    room.save();
+    socket.user.save();
+    
     socket.emit('output', { message: `${item.displayName} taken.` });
     socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} takes ${item.displayName}.` });
 

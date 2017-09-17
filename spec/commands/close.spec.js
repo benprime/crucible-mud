@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../roomManager');
+const roomManager = require('../../roomManager');
 const mocks = require('../mocks');
 const sut = require('../../commands/close');
 

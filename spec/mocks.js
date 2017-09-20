@@ -39,6 +39,12 @@ function SocketMock() {
       };
     })
   };
+
+  this.user = {
+    username: 'TestUser',
+    userId: 'userId',
+    roomId: 'roomId',
+  }
 };
 
 module.exports = {

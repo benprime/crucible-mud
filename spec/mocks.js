@@ -26,7 +26,10 @@ function IOMock() {
     return {
       emit: globalEmitSpy
     };
-  })
+  });
+  this.sockets = {
+    sockets: {}
+  }
 }
 
 function SocketMock() {
@@ -42,10 +45,13 @@ function SocketMock() {
     })
   };
 
+  this.id = 'socketid';
+
   this.user = {
     username: 'TestUser',
     userId: 'userId',
     roomId: 'roomId',
+    save: jasmine.createSpy('userSave')
   }
 };
 

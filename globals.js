@@ -95,27 +95,19 @@ global.LongToShort = function (dir) {
 
 // this is for user input
 global.ValidDirectionInput = function (dir) {
-  switch (dir.toLowerCase()) {
+  let input = dir.toLowerCase();
+  input = global.LongToShort(input);
+  switch (input) {
     case 'n':
-    case 'north':
     case 'ne':
-    case 'northeast':
     case 'e':
-    case 'east':
     case 'se':
-    case 'southeast':
     case 's':
-    case 'south':
     case 'sw':
-    case 'southwest':
     case 'w':
-    case 'west':
     case 'nw':
-    case 'northwest':
     case 'u':
-    case 'up':
     case 'd':
-    case 'down':
       return true;
     default:
       return false;

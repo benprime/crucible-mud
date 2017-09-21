@@ -22,7 +22,6 @@ module.exports = {
 
   execute(socket, itemName) {
     const room = roomManager.getRoomById(socket.user.roomId);
-
     const item = autocomplete.autocomplete(socket, ['inventory', 'key'], itemName);
     if (!item) {
       socket.emit('output', { message: 'You don\'t seem to be carrying that!' });
@@ -34,15 +33,21 @@ module.exports = {
       socket.user.inventory.remove(item);
     } else if (item.type === 'key') {
       socket.user.keys.remove(item);
+    } else {
+      // just a catch for bad data
+      socket.emit('output', { message: 'Unknown item type!' });
+      return;
     }
-    socket.user.save();
 
     // and place it in the room
     room.inventory.push(item);
-    room.save();
 
+    // save both
+    room.save();
+    socket.user.save();
+    
     socket.emit('output', { message: 'Dropped.' });
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} drops ${item.name}.` });
+    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} drops ${item.displayName}.` });
   },
 
   help(socket) {

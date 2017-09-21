@@ -13,7 +13,8 @@ function getMockRoom() {
       { dir: 'se', roomId: 'seRoomId' },
       { dir: 'nw', roomId: 'nwRoomId' },
       { dir: 'sw', roomId: 'swRoomId' },
-    ]
+    ],
+    save: jasmine.createSpy('saveRoom')
   };
 }
 
@@ -49,6 +50,7 @@ function SocketMock() {
     username: 'TestUser',
     userId: 'userId',
     roomId: 'roomId',
+    save: jasmine.createSpy('userSave')
   }
 };
 

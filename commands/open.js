@@ -29,7 +29,7 @@ module.exports = {
       return;
     }
 
-    if (exit.hasOwnProperty('closed')) {
+    if (!exit.hasOwnProperty('closed')) {
       socket.emit('output', { message: 'There is no door in that direction!' });
       return;
     }
@@ -39,8 +39,13 @@ module.exports = {
       return;
     }
 
+    if (!exit.closed) {
+      socket.emit('output', { message: 'That door is already open.' });
+      return;
+    }
+
     exit.closed = false;
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} opens the door to the ${Room.exitName(d)}` });
+    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} opens the door to the ${Room.exitName(d)}.` });
     socket.emit('output', { message: 'Door opened.' });
   },
 

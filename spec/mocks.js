@@ -3,7 +3,7 @@ function getMockRoom() {
     inventory: [],
     mobs: [],
     exits: [
-      { dir: 'u', roomId: 'uRoomId' },
+      { dir: 'u', roomId: 'uRoomId', closed: false },
       { dir: 'd', roomId: 'dRoomId' },
       { dir: 'n', roomId: 'nRoomId' },
       { dir: 's', roomId: 'sRoomId' },
@@ -14,11 +14,12 @@ function getMockRoom() {
       { dir: 'nw', roomId: 'nwRoomId' },
       { dir: 'sw', roomId: 'swRoomId' },
     ],
-    save: jasmine.createSpy('saveRoom')
+    getExit: jasmine.createSpy('getExit').and.callFake(function() { return this.exits[0] }),
+    save: jasmine.createSpy('save').and.callFake(function() {})
   };
 }
 
-const globalEmitSpy = jasmine.createSpy();
+const globalEmitSpy = jasmine.createSpy('globalEmitSpy');
 
 function IOMock() {
   this.to = jasmine.createSpy().and.callFake(function (roomKey) {

@@ -108,6 +108,6 @@ describe('create', function () {
       sut.help(socket);
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="mediumOrchid">create room &lt;dir&gt; </span><span class="purple">-</span> Create new room in specified direction.<br />'});
-    })
+    });
   });
 });

@@ -51,7 +51,8 @@ function SocketMock() {
     username: 'TestUser',
     userId: 'userId',
     roomId: 'roomId',
-    save: jasmine.createSpy('userSave')
+    save: jasmine.createSpy('userSave'),
+    inventory: []
   }
 };
 

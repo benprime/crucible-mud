@@ -20,7 +20,6 @@ module.exports = {
 
   execute(socket, type, param) {
     const room = roomManager.getRoomById(socket.user.roomId);
-    console.log('create type: ', type);
     if (type === 'room') {
       const dir = global.LongToShort(param.toLowerCase());
       if (!global.ValidDirectionInput(dir)) {
@@ -35,18 +34,15 @@ module.exports = {
     else if (type == 'door') {
       const dir = global.LongToShort(param);
       const exit = room.getExit(dir);
-      console.log('exit', exit);
 
       if (exit) {
         exit.closed = true;
-        console.log('exit', exit);
         room.save();
       } else {
         socket.emit('output', { message: 'Invalid direction.' });
         return;
       }
     } else {
-      // todo: global error function for red text?
       socket.emit('output', { message: 'Invalid create type.' });
       return;
     }

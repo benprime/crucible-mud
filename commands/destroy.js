@@ -20,7 +20,6 @@ module.exports = {
     }
     let typeName = match[1];
     let objectID = match[2];
-    console.log('Attempting to destroy: ', typeName, ': ', objectID);
     module.exports.execute(socket, typeName, objectID);
   },
 
@@ -36,8 +35,6 @@ module.exports = {
       }
 
       room.mobs.remove(mob);
-
-      // clean up after vortex caused by mob removal
       socket.emit('output', { message: 'Mob successfully destroyed.' });
 
       // announce mob disappearance to any onlookers
@@ -53,9 +50,9 @@ module.exports = {
       // delete item
       socket.user.inventory.remove(item);
       socket.user.save();
-
-      // clean up after vortex caused by item removal
       socket.emit('output', { message: 'Item successfully destroyed.' });
+    } else {
+      socket.emit('output', { message: 'Invalid destroy type.' });
     }
   },
 

@@ -49,7 +49,7 @@ describe('close', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Door closed.' });
     });
 
-    it('should be succesful when door already closed', function () {
+    it('should be succesful when door is already closed', function () {
       sut.execute(socket, 'n');
       const exit = room.exits.find(e => e.dir === 'n');
       expect(exit.closed).toBe(true);

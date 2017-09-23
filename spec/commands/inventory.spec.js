@@ -6,13 +6,20 @@ const sut = require('../../commands/inventory');
 describe('inventory', function () {
   let socket;
 
-  beforeAll(function() {
-    socket = new mocks.SocketMock();
-  });
+  beforeAll(() => socket = new mocks.SocketMock());
+  beforeEach(() => socket.emit.calls.reset());
 
   describe('execute', function () {
-    // equipped item tests may be broken into more test cases.. or parameterized
     it('should display equipped items', function() {
+      // arrange
+      socket.inventory = [];
+
+      // act
+      sut.execute(socket);
+
+      // assert
+      expect(socket.emit).toHaveBeenCalledTimes(1);
+      //expect(socket.emit).toHaveBeenCalledWith('output', {message: ''})
     });
     it('should display backpack items', function() {
     });

@@ -15,7 +15,7 @@ module.exports = {
 
   execute(socket) {
 
-    //let weaponMain = socket.user.inventory.find(i => i.id === socket.user.equipSlots.weaponMain);
+    let weaponMain = socket.user.inventory.find(i => i.id === socket.user.equipSlots.weaponMain);
 
 
     let output = '';

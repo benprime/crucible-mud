@@ -2,10 +2,11 @@
 
 const actionHandler = require('../actionHandler');
 const helpHandler = require('./help');
+const normalizedPath = require('path').join(__dirname);
+
 let handlers = [];
 let defaultCommand;
 
-const normalizedPath = require('path').join(__dirname);
 function validateCommand(commandHandler, file) {
   if (!commandHandler.name) throw `command ${file} missing name!`;
   if (!commandHandler.dispatch) throw `command ${file} missing dispatch!`;

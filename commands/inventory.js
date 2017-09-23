@@ -15,9 +15,6 @@ module.exports = {
 
   execute(socket) {
 
-    let weaponMain = socket.user.inventory.find(i => i.id === socket.user.equipSlots.weaponMain);
-
-
     let output = '';
     if (socket.user.equipSlots.weaponMain) output += `<span class="cyan">Main Weapon: </span><span class="silver">${socket.user.equipSlots.weaponMain.displayName}</span>\n`;
     if (socket.user.equipSlots.weaponOff) output += `<span class="cyan">Offhand Weapon: </span><span class="silver">${socket.user.equipSlots.weaponOff.displayName}</span>\n`;

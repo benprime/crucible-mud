@@ -5,15 +5,14 @@ const User = require('../models/user');
 
 // this method provides a serialization of an
 // object with the keys in order
-if(!JSON.orderedStringify) {
-
-  JSON.orderedStringify = function(obj) {
-    if(typeof obj != 'object') {
+if (!JSON.orderedStringify) {
+  JSON.orderedStringify = function (obj) {
+    if (typeof obj != 'object') {
       throw 'orderedStringify can only stringify objects: received type: ' + typeof obj;
     }
     let keys = Object.keys(obj);
-    let i, len = keys.length;
-  
+    let len = keys.length;
+
     keys.sort();
 
     const orderedProps = [];
@@ -21,8 +20,8 @@ if(!JSON.orderedStringify) {
       let k = keys[i];
       orderedProps.push(k + ': ' + obj[k]);
     }
-    return '{' + orderedProps.join(", ") + '}';
-  }
+    return '{' + orderedProps.join(', ') + '}';
+  };
 }
 
 function getMockRoom() {
@@ -41,35 +40,44 @@ function getMockRoom() {
       { dir: 'nw', roomId: 'nwRoomId' },
       { dir: 'sw', roomId: 'swRoomId' },
     ],
-    getExit: jasmine.createSpy('getExit').and.callFake(function() { return this.exits[0] }),
-    save: jasmine.createSpy('save').and.callFake(function() {})
+    getExit: jasmine.createSpy('getExit').and.callFake(() => this.exits[0]),
+    save: jasmine.createSpy('save').and.callFake(function () { }),
   };
 }
 
-const globalEmitSpy = jasmine.createSpy('globalEmitSpy');
 
 function IOMock() {
+  // todo: restructure this to bind the roomCalls and emit spies together
+  this.roomCalls = [];
+  this.ioEmitSpy = {
+    emit: jasmine.createSpy('globalEmitSpy'),
+  };
+
   this.to = jasmine.createSpy().and.callFake(function (roomKey) {
+    this.roomCalls.push(roomKey);
     return {
-      emit: globalEmitSpy
+      emit: this.ioEmitSpy,
     };
   });
+
   this.sockets = {
-    sockets: {}
-  }
+    sockets: {},
+  };
 }
 
 function SocketMock() {
+  this.roomCalls = [];
   const broadcastEmitSpy = jasmine.createSpy('userSocketBroadcastEmit');
   this.emit = jasmine.createSpy('userSocketEmit');
   this.on = jasmine.createSpy('userSocketOn');
 
   this.broadcast = {
     to: jasmine.createSpy('userSocketBroadcastTo').and.callFake(function (roomKey) {
+      this.roomCalls.push(roomKey);
       return {
-        emit: broadcastEmitSpy
+        emit: broadcastEmitSpy,
       };
-    })
+    }),
   };
 
   this.id = 'socketid';
@@ -80,10 +88,10 @@ function SocketMock() {
   user.roomId = 'roomId';
   user.save = jasmine.createSpy('userSave');
   this.user = user;
-};
+}
 
 module.exports = {
   getMockRoom,
   IOMock,
-  SocketMock
+  SocketMock,
 };

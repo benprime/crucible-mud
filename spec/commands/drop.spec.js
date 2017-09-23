@@ -1,6 +1,7 @@
 'use strict';
 
 const roomManager = require('../../roomManager');
+const Item = require('../../models/item');
 const mocks = require('../mocks');
 const sut = require('../../commands/drop');
 
@@ -11,25 +12,49 @@ describe('drop', function () {
   let key;
   let invalidItem;
 
+  beforeAll(function(){
+    // just a matcher that works like toEqual, but does not do a type check.
+    // This just compares the json representation of the objects being compared.
+    jasmine.addMatchers({
+      toBeJsonEqual: function() {
+        return {
+          compare: function(actual, expected){
+            let result = {};
+            let jsonActual = JSON.orderedStringify(actual);
+            let jsonExpected = JSON.orderedStringify(expected);
+            result.pass = jsonActual === jsonExpected;
+            if(result.pass) {
+              result.message = "Expected " + jsonActual + " to equal " + jsonExpected;
+            } else {
+              result.message = "Expected " + jsonActual + " to equal " + jsonExpected;
+            }
+            return result;
+          }
+        }
+      }
+    });
+  });
+  
   beforeEach(function () {
+    
     room = mocks.getMockRoom();
     spyOn(roomManager, 'getRoomById').and.callFake(() => room);
     socket = new mocks.SocketMock();
-    item = {
-      name: 'dummyItem',
-      type: 'item',
-      displayName: 'dropItem'
-    };
-    key = {
-      name: 'dummyKey',
-      type: 'key',
-      displayName: 'dropKey'
-    };
-    invalidItem = {
-      name: 'invalidItem',
-      type: 'InvalidType',
-      displayName: 'invalidDisplayName'
-    };
+    
+    item = new Item();
+    item.name = 'dummyItem';
+    item.type ='item';
+    item.displayName ='dropItem';
+
+    key = new Item();
+    key.name ='dummyKey';
+    key.type ='key';
+    key.displayName = 'dropKey';
+
+    invalidItem = new Item();
+    invalidItem.name = 'invalidItem';
+    invalidItem.type ='InvalidType';
+    invalidItem.displayName = 'invalidDisplayName';
 
     socket.user.inventory = [item];
     socket.user.keys = [key];
@@ -38,7 +63,7 @@ describe('drop', function () {
 
   describe('execute', function () {
     // TODO: fix this test when autocomplete is updated
-    xit('should output error message item to drop is ambiguos', function () {
+    xit('should output error message item to drop is ambiguous', function () {
       sut.execute(socket, 'drop');
       expect(socket.user.save).not.toHaveBeenCalled();
       expect(room.save).not.toHaveBeenCalled();
@@ -61,7 +86,7 @@ describe('drop', function () {
         expect(socket.user.save).toHaveBeenCalled();
         expect(room.save).toHaveBeenCalled();
         expect(socket.user.inventory.length).toBe(0);
-        expect(room.inventory[0]).toBe(item)
+        expect(room.inventory[0].toObject()).toBeJsonEqual(item.toObject());
         expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: 'TestUser drops dropItem.' });
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Dropped.' });
       });
@@ -73,7 +98,7 @@ describe('drop', function () {
         expect(socket.user.save).toHaveBeenCalled();
         expect(room.save).toHaveBeenCalled();
         expect(socket.user.keys.length).toBe(0);
-        expect(room.inventory[0]).toBe(key)
+        expect(room.inventory[0].toObject()).toBeJsonEqual(key.toObject())
         expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: 'TestUser drops dropKey.' });
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Dropped.' });
       });

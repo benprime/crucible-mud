@@ -1,3 +1,30 @@
+'use strict';
+
+// this file may become "test setup tools"
+const User = require('../models/user');
+
+// this method provides a serialization of an
+// object with the keys in order
+if(!JSON.orderedStringify) {
+
+  JSON.orderedStringify = function(obj) {
+    if(typeof obj != 'object') {
+      throw 'orderedStringify can only stringify objects: received type: ' + typeof obj;
+    }
+    let keys = Object.keys(obj);
+    let i, len = keys.length;
+  
+    keys.sort();
+
+    const orderedProps = [];
+    for (let i = 0; i < len; i++) {
+      let k = keys[i];
+      orderedProps.push(k + ': ' + obj[k]);
+    }
+    return '{' + orderedProps.join(", ") + '}';
+  }
+}
+
 function getMockRoom() {
   return {
     inventory: [],
@@ -47,13 +74,12 @@ function SocketMock() {
 
   this.id = 'socketid';
 
-  this.user = {
-    username: 'TestUser',
-    userId: 'userId',
-    roomId: 'roomId',
-    save: jasmine.createSpy('userSave'),
-    inventory: []
-  }
+  const user = new User();
+  user.username = 'TestUser';
+  user.userId = 'userId';
+  user.roomId = 'roomId';
+  user.save = jasmine.createSpy('userSave');
+  this.user = user;
 };
 
 module.exports = {

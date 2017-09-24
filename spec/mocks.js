@@ -40,21 +40,20 @@ function getMockRoom() {
       { dir: 'nw', roomId: 'nwRoomId' },
       { dir: 'sw', roomId: 'swRoomId' },
     ],
-    getExit: jasmine.createSpy('getExit').and.callFake(() => this.exits[0]),
-    save: jasmine.createSpy('save').and.callFake(function () { }),
+    getExit: jasmine.createSpy('getExit').and.callFake(function () { return this.exits[0]; }),
+    save: jasmine.createSpy('save').and.callFake(() => { }),
   };
 }
 
 
 function IOMock() {
   // todo: restructure this to bind the roomCalls and emit spies together
+  const ioMock = this;
   this.roomCalls = [];
-  this.ioEmitSpy = {
-    emit: jasmine.createSpy('globalEmitSpy'),
-  };
+  this.ioEmitSpy = jasmine.createSpy('globalEmitSpy'),
 
   this.to = jasmine.createSpy().and.callFake(function (roomKey) {
-    this.roomCalls.push(roomKey);
+    ioMock.roomCalls.push(roomKey);
     return {
       emit: this.ioEmitSpy,
     };
@@ -66,6 +65,7 @@ function IOMock() {
 }
 
 function SocketMock() {
+  const sm = this;
   this.roomCalls = [];
   const broadcastEmitSpy = jasmine.createSpy('userSocketBroadcastEmit');
   this.emit = jasmine.createSpy('userSocketEmit');
@@ -73,7 +73,7 @@ function SocketMock() {
 
   this.broadcast = {
     to: jasmine.createSpy('userSocketBroadcastTo').and.callFake(function (roomKey) {
-      this.roomCalls.push(roomKey);
+      sm.roomCalls.push(roomKey);
       return {
         emit: broadcastEmitSpy,
       };

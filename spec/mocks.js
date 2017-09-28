@@ -41,7 +41,8 @@ function getMockRoom() {
       { dir: 'sw', roomId: 'swRoomId' },
     ],
     getExit: jasmine.createSpy('getExit').and.callFake(function () { return this.exits[0]; }),
-    save: jasmine.createSpy('save').and.callFake(() => { }),
+    save: jasmine.createSpy('save').and.callFake(() => {}),
+    Look: jasmine.createSpy('Look').and.callFake(() => {})
   };
 }
 

@@ -15,7 +15,7 @@ describe('keys', function () {
       // arrange
       socket.user.keys = [];
       const expectedString = '<span class=\'cyan\'>Key ring: </span><span class=\'silver\'>None.</span>';
-      
+
       // act
       sut.execute(socket);
 
@@ -32,7 +32,7 @@ describe('keys', function () {
         { displayName: 'KeyThree' },
       ];
       const expectedString = '<span class=\'cyan\'>Key ring: </span><span class=\'silver\'>KeyOne, KeyTwo, KeyThree</span>';
-      
+
       // act
       sut.execute(socket);
 

@@ -1,40 +1,64 @@
 'use strict';
 
+const roomManager = require('../../roomManager');
 const mocks = require('../mocks');
 const sut = require('../../commands/lock');
 
 describe('lock', function () {
   let socket;
+  let room;
 
-  beforeAll(function() {
+  beforeAll(function () {
     socket = new mocks.SocketMock();
+    room = {
+      exits: [
+        { dir: 'n', roomId: 'uRoomId', closed: true },
+        { dir: 's', roomId: 'nRoomId' },
+      ],
+      getExit: jasmine.createSpy('getExit').and.callFake(dir => room.exits.find(e => e.dir == dir)),
+      save: jasmine.createSpy('roomSave'),
+    };
+    spyOn(roomManager, 'getRoomById').and.callFake(() => room);
   });
 
-  it('should output message when direction is invalid', function() {
+  beforeEach(function() {
+    socket.emit.calls.reset();
+    room.save.calls.reset();
   });
 
-  it('should output message when direction is not a door', function() {
+  it('should output message when direction is invalid', function () {
+    sut.execute(socket, 'e', 'some key');
+    
+    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No door in that direction.' });
+    expect(room.save).not.toHaveBeenCalled();
   });
 
-  it('should output message when key name is invalid', function() {
+  it('should output message when direction is not a door', function () {
+    sut.execute(socket, 's', 'some key');
+    
+    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No door in that direction.' });
+    expect(room.save).not.toHaveBeenCalled();
   });
 
-  it('should output message when multiple keys match key name', function() {
+  it('should output message when key name is invalid', function () {
+    sut.execute(socket, 'n', 'some key');
+    
+    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You are not carrying that key.' });
+    expect(room.save).not.toHaveBeenCalled();
   });
 
-  it('should create door if direction does not currently have a door', function() {
+  it('should succeed on valid direction with door', function () {
+    socket.user.keys = [{name: 'key', displayName: 'some key'}];
+    sut.execute(socket, 'n', 'some key');
+    var exit = room.exits.find(e => e.dir === 'n');
+    
+    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Door locked.' });
+    expect(room.save).toHaveBeenCalledTimes(1);
+    expect(exit.closed).toBe(true);
+    expect(exit.locked).toBe(true);
   });
 
-  it('should lock existing door', function() {
-  });
-
-  it('should output message on sucess', function() {
-  });
-
-  it('should update room state with door and save new locked door to database', function() {
-  });
-
-  it('should be an admin command', function() {
+  it('should be an admin command', function () {
     expect(sut.admin).toBe(true);
   });
 

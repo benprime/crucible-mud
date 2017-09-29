@@ -1,6 +1,7 @@
 'use strict';
 
 const roomManager = require('../roomManager');
+const autocomplete = require('../autocomplete');
 
 module.exports = {
   name: 'lock',
@@ -32,23 +33,14 @@ module.exports = {
       return;
     }
 
-    const keyNames = socket.user.keys.map(key => key.displayName);
-    const keyCompletedNames = global.AutocompleteName(socket, keyName, keyNames);
-    if (keyCompletedNames.length === 0) {
+    const key = autocomplete.autocomplete(socket, ['key'], keyName);
+    if (!key) {
       socket.emit('output', { message: 'You are not carrying that key.' });
       return;
     }
 
-    if (keyCompletedNames.length > 1) {
-      // todo: print a list of matching keys
-      socket.emit('output', { message: 'Which key did you mean?' });
-      return;
-    }
-
-    const foundKey = socket.user.keys.find(key => key.displayName === keyCompletedNames[0]);
-
     exit.closed = true;
-    exit.keyName = foundKey.name;
+    exit.keyName = key.name;
     exit.locked = true;
     room.save();
     socket.emit('output', { message: 'Door locked.' });

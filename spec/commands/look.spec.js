@@ -111,4 +111,14 @@ describe('look', function () {
       expect(autocompleteResult.Look).toHaveBeenCalledWith(socket);
     });
   });
+  
+  it('help should output message', function(){
+    sut.help(socket);
+
+    let output = '';
+    output += '<span class="mediumOrchid">l <span class="purple">|</span> look </span><span class="purple">-</span> Display info about current room.<br />';
+    output += '<span class="mediumOrchid">look &lt;item/mob name&gt; </span><span class="purple">-</span> Display detailed info about &lt;item/mob&gt;.<br />';
+
+    expect(socket.emit).toHaveBeenCalledWith('output', { message: output });
+  });
 });

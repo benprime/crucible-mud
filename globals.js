@@ -66,7 +66,7 @@ global.GetSocketByUserId = (userId) => {
   return socket;
 };
 
-global.LongToShort = function (dir) {
+function LongToShort(dir) {
   switch (dir) {
     case 'north':
       return 'n';
@@ -91,12 +91,12 @@ global.LongToShort = function (dir) {
     default:
       return dir;
   }
-};
+}
 
 // this is for user input
 global.ValidDirectionInput = function (dir) {
   let input = dir.toLowerCase();
-  input = global.LongToShort(input);
+  input = LongToShort(input);
   switch (input) {
     case 'n':
     case 'ne':
@@ -108,9 +108,9 @@ global.ValidDirectionInput = function (dir) {
     case 'nw':
     case 'u':
     case 'd':
-      return true;
+      return input;
     default:
-      return false;
+      return null;
   }
 };
 
@@ -160,7 +160,7 @@ global.CurrencyChangeToString = function (totalCurr) {
 global.CurrencyChangeToInt = function (currStr) {
   if (!currStr) return 'No currency text';
 
-  let parts = currStr.split(" ");
+  let parts = currStr.split(' ');
   let totalCurr = 0;
 
   if (parts.length == 1 && Number.isInteger(parts[x])) return parts[x];

@@ -5,7 +5,7 @@ const Room = require('../models/room');
 const autocomplete = require('../autocomplete');
 
 function lookDir(socket, room, dir) {
-  dir = global.LongToShort(dir);
+  dir = global.ValidDirectionInput(dir);
   const exit = room.exits.find(e => e.dir === dir);
   if (!exit) {
     return;
@@ -57,7 +57,6 @@ module.exports = {
   execute(socket, short, lookTarget) {
     const room = roomManager.getRoomById(socket.user.roomId);
 
-    // check if look target is a direction
     if (lookTarget) {
       lookTarget = lookTarget.toLowerCase();
 

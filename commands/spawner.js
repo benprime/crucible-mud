@@ -10,7 +10,7 @@ setInterval(() => {
 
   const now = Date.now();
 
-  // loop through rooms that contain mobs...
+  // loop through rooms that contain spawners...
   roomManager.roomsWithSpawners().forEach(function (room) {
     let max = room.spawner.max ? room.spawner.max : 10;
     let timeout = room.spawner.timeout ? room.spawner.timeout : 4000;

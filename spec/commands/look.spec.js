@@ -13,25 +13,27 @@ describe('look', function () {
     socket = new mocks.SocketMock();
   });
 
-  describe('dispatch triggers execute', function(){
+  describe('dispatch triggers execute', function () {
     let executeSpy;
 
-    beforeAll(function() {
-        executeSpy = spyOn(sut, 'execute');
+    beforeAll(function () {
+      executeSpy = spyOn(sut, 'execute');
     });
 
-    afterAll(function(){
-        executeSpy.and.callThrough();
-    });
-    
-    it('on short pattern', function(){
-        sut.dispatch(socket, ['']);
-        expect(executeSpy).toHaveBeenCalledWith(socket, true, null);
+    afterAll(function () {
+      executeSpy.and.callThrough();
     });
 
-    it('on long pattern', function(){
+    it('on short pattern', function () {
+      sut.dispatch(socket, ['']);
+
+      expect(executeSpy).toHaveBeenCalledWith(socket, true, null);
+    });
+
+    it('on long pattern', function () {
       let lookTarget = 'look_target';
       sut.dispatch(socket, ['l', lookTarget]);
+
       expect(executeSpy).toHaveBeenCalledWith(socket, false, lookTarget);
     });
   });
@@ -39,25 +41,22 @@ describe('look', function () {
   describe('execute', function () {
     let room;
     let autocompleteResult;
-    let autocompleteSpy;
-    let roomManagerSpy;
     let shortDir;
-    let isValidDirection = true;
 
-    beforeEach(function(){
+    beforeEach(function () {
       room = mocks.getMockRoom();
-      autocompleteSpy = spyOn(autocomplete, 'autocomplete').and.callFake(() => autocompleteResult);
-      roomManagerSpy = spyOn(roomManager, 'getRoomById').and.callFake(() => room);
-      shortDir = 'someDir';
+      spyOn(autocomplete, 'autocomplete').and.callFake(() => autocompleteResult);
+      spyOn(roomManager, 'getRoomById').and.callFake(() => room);
+      shortDir = 'n';
       spyOn(Room, 'oppositeDirection').and.callFake(() => 'opposite');
       spyOn(Room, 'exitName').and.callFake(() => 'exit name');
-      spyOn(global, 'LongToShort').and.callFake(() => shortDir);
-      spyOn(global, 'ValidDirectionInput').and.callFake(() => isValidDirection);
+      spyOn(global, 'ValidDirectionInput').and.callFake(() => shortDir);
+      socket.emit.calls.reset();
     });
 
     it('should output short room look when short param is true', function () {
       sut.execute(socket, true);
-      
+
       expect(room.Look).toHaveBeenCalledWith(socket, true);
     });
 
@@ -70,12 +69,12 @@ describe('look', function () {
     it('should output room look when lookTarget is a direction', function () {
       room.exits.push({
         closed: false,
-        dir: shortDir
+        dir: shortDir,
       });
 
       sut.execute(socket, false, shortDir);
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: `You look to the exit name...` });
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You look to the exit name...' });
       expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: `<span class="yellow">${socket.user.username} peaks in from the exit name.</span>` });
       expect(room.Look).toHaveBeenCalledWith(socket, false);
     });
@@ -84,7 +83,7 @@ describe('look', function () {
       shortDir = 'closedDir';
       room.exits.push({
         closed: true,
-        dir: shortDir
+        dir: shortDir,
       });
       sut.execute(socket, false, shortDir);
 
@@ -92,27 +91,29 @@ describe('look', function () {
     });
 
     it('should output item look when lookTarget is an inventory item', function () {
-      isValidDirection = false;
+      global.ValidDirectionInput.and.callFake(() => null);
+      socket.user.inventory = [{ displayName: 'boot', desc: 'an old boot' }];
       autocompleteResult = undefined;
 
-      sut.execute(socket, false, 'someObj');
+      sut.execute(socket, false, 'boot');
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t see that here!' });
     });
 
-    it('should output mob look when lookTarget is a valid autocomplete result', function () {
-      isValidDirection = false;
+    xit('should output mob look when lookTarget is a valid autocomplete result', function () {
+      // this is not yet implemented
+      shortDir = 'invalid direction';
       autocompleteResult = {
-        Look: jasmine.createSpy('objectLook').and.callFake(() => {})
-      }
+        Look: jasmine.createSpy('mobLook')
+      };
 
       sut.execute(socket, false, 'someObj');
-      
-      expect(autocompleteResult.Look).toHaveBeenCalledWith(socket);
+
+      expect(autocompleteResult.Look).toHaveBeenCalled();
     });
   });
-  
-  it('help should output message', function(){
+
+  it('help should output message', function () {
     sut.help(socket);
 
     let output = '';

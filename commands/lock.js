@@ -26,7 +26,7 @@ module.exports = {
 
   execute(socket, dir, keyName) {
     const room = roomManager.getRoomById(socket.user.roomId);
-    dir = global.LongToShort(dir);
+    dir = global.ValidDirectionInput(dir);
     let exit = room.getExit(dir);
     if (!exit || !('closed' in exit)) {
       socket.emit('output', { message: 'No door in that direction.' });

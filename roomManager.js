@@ -6,12 +6,14 @@ const Room = require('./models/room');
 const rooms = {};
 
 // fetch all rooms from server
-Room.find({}, function (err, result) {
-  result.forEach(function (room) {
-    room.mobs = [];
-    rooms[room.id] = room;
+function loadRooms() {
+  Room.find({}, function (err, result) {
+    result.forEach(function (room) {
+      room.mobs = [];
+      rooms[room.id] = room;
+    });
   });
-});
+}
 
 function createRoom(fromRoom, dir, cb) {
   if (!global.ValidDirectionInput(dir)) {
@@ -37,7 +39,6 @@ function createRoom(fromRoom, dir, cb) {
     } else {
       // if room does not exist, create a new room
       // with an exit to this room
-      console.log('from room:', fromRoom);
       targetRoom = new Room({
         name: 'Default Room Name',
         desc: 'Room Description',
@@ -65,8 +66,7 @@ function createRoom(fromRoom, dir, cb) {
     }
 
   });
-};
-
+}
 
 module.exports = {
   getRoomById(roomId) {
@@ -74,22 +74,14 @@ module.exports = {
   },
 
   roomsWithMobs() {
-    return Object.keys(rooms).reduce(function (filtered, key) {
-      if (rooms[key].mobs.length > 0) {
-        filtered.push(rooms[key]);
-      }
-      return filtered;
-    }, []);
+    return Object.Values(rooms).filter(r => r.mobs.length > 0);
   },
 
-  createRoom: createRoom,
 
   roomsWithSpawners() {
-    return Object.keys(rooms).reduce(function (filtered, key) {
-      if (rooms[key].spawner && rooms[key].spawner.timeout) {
-        filtered.push(rooms[key]);
-      }
-      return filtered;
-    }, []);
+    return Object.Values(rooms).filter(r => r.spawner && r.spawner.timeout);
   },
+
+  createRoom,
+  loadRooms,
 };

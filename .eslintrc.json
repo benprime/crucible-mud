@@ -38,6 +38,11 @@
       "error",
       "always-multiline"
     ],
-    "no-console": "off"
+    "no-console": "off",
+    "jasmine/no-spec-dupes": 
+    [
+      1,
+      "branch"
+    ]
   }
 }

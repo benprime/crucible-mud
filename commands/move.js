@@ -7,8 +7,8 @@ const breakCommand = require('./break');
 const lookCommand = require('./look');
 
 function Feedback(dir) {
-  const shortDir = global.LongToShort(dir);
-  const displayDir = Room.exitName(shortDir);
+  const d = global.ValidDirectionInput(dir);
+  const displayDir = Room.exitName(d);
   return `You move ${displayDir}...`;
 }
 
@@ -97,11 +97,7 @@ module.exports = {
   },
 
   execute(socket, dir) {
-    let d = dir.toLowerCase();
-
-    // changes "north" to "n" (just returns "n" if that's what's passed in)
-    d = global.LongToShort(d);
-
+    const d = global.ValidDirectionInput(dir.toLowerCase());
     const room = roomManager.getRoomById(socket.user.roomId);
 
     // valid exit in that direction?

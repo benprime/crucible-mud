@@ -12,7 +12,7 @@ require('./extensionMethods');
 require('./globals');
 
 // load rooms from database
-require('./roomManager');
+require('./roomManager').loadRooms();
 
 // parses command files and prepares them
 const commands = require('./commands/');

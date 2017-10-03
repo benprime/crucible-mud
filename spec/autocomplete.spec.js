@@ -21,7 +21,7 @@ describe('autocomplete', function () {
       name: 'a user',
       inventory: [],
       keys: [],
-    }
+    };
     room = mocks.getMockRoom();
     roomManagerSpy = spyOn(roomManager, 'getRoomById').and.callFake(() => room);
   });
@@ -108,8 +108,8 @@ describe('autocomplete', function () {
 
     it('returns empty array when no object matches', function () {
       // arrange
-      socket.user.inventory.push({ displayName: 'bbb' })
-      room.inventory.push({ displayName: 'bbb' })
+      socket.user.inventory.push({ displayName: 'bbb' });
+      room.inventory.push({ displayName: 'bbb' });
 
       // act
       var result = sut.autocompleteByProperty(socket, ['inventory', 'room'], 'displayName', 'a');
@@ -130,14 +130,14 @@ describe('autocomplete', function () {
 
       // assert
       expect(result.length).toBe(2);
-      expect(result.find(i => i.matchedValue === userInventoryItem.displayName
+      expect(result.find(i => i.matchedValue === userInventoryItem.displayName 
         && i.target === 'inventory')).not.toBeNull();
       expect(result.find(i => i.matchedValue === roomInventoryItem.displayName
         && i.target === 'room')).not.toBeNull();
     });
   });
 
-  describe('autocomplete', function () {
+  describe('autocomplete method', function () {
 
     it('should return object if only displayName has a matching object', function () {
       // arrange

@@ -21,8 +21,8 @@ module.exports = {
   execute(socket, type, param) {
     const room = roomManager.getRoomById(socket.user.roomId);
     if (type === 'room') {
-      const dir = global.LongToShort(param.toLowerCase());
-      if (!global.ValidDirectionInput(dir)) {
+      const dir = global.ValidDirectionInput(param.toLowerCase());
+      if (!dir) {
         socket.emit('output', { message: 'Invalid direction!' });
         return;
       }
@@ -32,7 +32,7 @@ module.exports = {
       });
     }
     else if (type == 'door') {
-      const dir = global.LongToShort(param);
+      const dir = global.ValidDirectionInput(param);
       const exit = room.getExit(dir);
 
       if (exit) {

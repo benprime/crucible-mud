@@ -1,7 +1,7 @@
 'use strict';
 
 const autocomplete = require('../../autocomplete');
-const roomManager = require('../../roomManager');
+const Room = require('../../models/room');
 const mocks = require('../mocks');
 const sut = require('../../commands/destroy');
 
@@ -12,7 +12,7 @@ describe('destroy', function () {
   beforeAll(function () {
     socket = new mocks.SocketMock();
     room = mocks.getMockRoom();
-    spyOn(roomManager, 'getRoomById').and.callFake(() => room);
+    spyOn(Room, 'getRoomById').and.callFake(() => room);
     spyOn(room.mobs, 'remove');
     spyOn(socket.user.inventory, 'remove');
     spyOn(autocomplete, 'autocomplete');
@@ -21,13 +21,14 @@ describe('destroy', function () {
   beforeEach(function () {
     socket.emit.calls.reset();
     socket.broadcast.to().emit.calls.reset();
-    roomManager.getRoomById.calls.reset();
+    Room.getRoomById.calls.reset();
     room.mobs.remove.calls.reset();
     socket.user.inventory.remove.calls.reset();
     socket.user.save.calls.reset();
   });
 
   describe('execute', function () {
+
     describe('when type is mob', function () {
       beforeEach(function () {
       });
@@ -58,6 +59,7 @@ describe('destroy', function () {
         expect(room.mobs.remove).toHaveBeenCalledTimes(1);
       });
     });
+
     describe('when type is item', function () {
       it('should output error when inventory does not contain item', function () {
         // arrange

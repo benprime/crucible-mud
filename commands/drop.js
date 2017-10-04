@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../roomManager');
+const Room = require('../models/room');
 const autocomplete = require('../autocomplete');
 
 module.exports = {
@@ -21,7 +21,7 @@ module.exports = {
   },
 
   execute(socket, itemName) {
-    const room = roomManager.getRoomById(socket.user.roomId);
+    const room = Room.getRoomById(socket.user.roomId);
     const item = autocomplete.autocomplete(socket, ['inventory', 'key'], itemName);
     if (!item) {
       socket.emit('output', { message: 'You don\'t seem to be carrying that!' });

@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../roomManager');
+const Room = require('../models/room');
 const autocomplete = require('../autocomplete');
 
 module.exports = {
@@ -16,7 +16,7 @@ module.exports = {
   },
 
   execute(socket, targetName) {
-    const room = roomManager.getRoomById(socket.user.roomId);
+    const room = Room.getRoomById(socket.user.roomId);
     const target = autocomplete.autocomplete(socket, ['mob'], targetName);
     if (!target) {
       socket.emit('output', { message: 'You don\'t see that here or it\'s ambigous!' });

@@ -1,6 +1,5 @@
 'use strict';
 
-const roomManager = require('../../roomManager');
 const Room = require('../../models/room');
 const mocks = require('../mocks');
 const sut = require('../../commands/create');
@@ -38,8 +37,8 @@ describe('create', function () {
 
     beforeEach(function () {
       room = mocks.getMockRoom();
-      spyOn(roomManager, 'getRoomById').and.callFake(() => room);
-      spyOn(roomManager, 'createRoom').and.callFake((room, dir, someFunc) => {
+      spyOn(Room, 'getRoomById').and.callFake(() => room);
+      spyOn(room, 'createRoom').and.callFake((dir, someFunc) => {
         someFunc();
       });
       spyOn(Room, 'exitName').and.callFake(() => shortDir);
@@ -50,7 +49,7 @@ describe('create', function () {
         let dir = 'n';
         sut.execute(socket, 'room', dir);
 
-        expect(roomManager.createRoom).toHaveBeenCalledWith(room, dir, jasmine.any(Function));
+        expect(room.createRoom).toHaveBeenCalledWith(dir, jasmine.any(Function));
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Room created.' });
         expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${shortDir}!` });
       });
@@ -62,10 +61,6 @@ describe('create', function () {
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Invalid direction!' });
       });
 
-      // TODO: The create room lives in the roomManager. Creating a door should probably
-      // also be moved to a new method called create/updateDoor on the roomManager.
-      // doesn't make sense to have some state/database updates in the manager and some
-      // in the command code.
       xit('should update roomManager current state and database with door on success', function () {
       });
     });

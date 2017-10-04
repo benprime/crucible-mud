@@ -1,5 +1,71 @@
 'use strict';
 
+function CurrencyChangeToString(totalCurr) {
+  if (totalCurr < 0) return 'You are in debt';
+  if (totalCurr == 0) return '0 Copper';
+
+  let currStr = '';
+  let t = totalCurr;
+
+  let pp = Math.floor(t / 1000);
+  t -= pp * 1000;
+  let gp = Math.floor(t / 100);
+  t -= gp * 100;
+  let sp = Math.floor(t / 10);
+  t -= sp * 10;
+  let cp = Math.floor(t / 1);
+  t -= cp * 1;
+
+  if (pp > 0) currStr += `${pp} Platinum `;
+  if (gp > 0) currStr += `${gp} Gold `;
+  if (sp > 0) currStr += `${sp} Silver `;
+  if (cp > 0) currStr += `${cp} Copper`;
+
+  return currStr;
+}
+
+/*
+function CurrencyChangeToInt(currStr) {
+  if (!currStr) return 'No currency text';
+
+  let parts = currStr.split(' ');
+  let totalCurr = 0;
+
+  if (parts.length == 1 && Number.isInteger(parts[x])) return parts[x];
+
+  for (var x = 0; x < parts.length - 1; x += 2) {
+    if (parts[x] === 0) continue;
+    if (!Number.isInteger(parts[x])) return 0;
+
+    if (parts[x + 1].toLowerCase() === 'platinum'
+      || parts[x + 1].toLowerCase() === 'plat'
+      || parts[x + 1].toLowerCase() === 'pp'
+      || parts[x + 1].toLowerCase() === 'p') {
+      totalCurr += parts[x] * 1000;
+    }
+    else if (parts[x + 1].toLowerCase() === 'gold'
+      || parts[x + 1].toLowerCase() === 'gp'
+      || parts[x + 1].toLowerCase() === 'g') {
+      totalCurr += parts[x] * 100;
+    }
+    else if (parts[x + 1].toLowerCase() === 'silver'
+      || parts[x + 1].toLowerCase() === 'silv'
+      || parts[x + 1].toLowerCase() === 'sp'
+      || parts[x + 1].toLowerCase() === 's') {
+      totalCurr += parts[x] * 10;
+    }
+    else if (parts[x + 1].toLowerCase() === 'copper'
+      || parts[x + 1].toLowerCase() === 'copp'
+      || parts[x + 1].toLowerCase() === 'cp'
+      || parts[x + 1].toLowerCase() === 'c') {
+      totalCurr += parts[x] * 1;
+    }
+  }
+
+  return totalCurr;
+}
+*/
+
 module.exports = {
   name: 'inventory',
 
@@ -43,7 +109,7 @@ module.exports = {
     }
 
     output += '<span class="cyan">Currency: </span>';
-    output += '<span class="silver">' + global.CurrencyChangeToString(socket.user.currency) + '</span>\n';
+    output += '<span class="silver">' + CurrencyChangeToString(socket.user.currency) + '</span>\n';
     socket.emit('output', { message: output });
   },
 

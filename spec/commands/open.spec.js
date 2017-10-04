@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../../roomManager');
+const Room = require('../../models/room');
 const mocks = require('../mocks');
 const sut = require('../../commands/open');
 
@@ -19,9 +19,9 @@ describe('open', function () {
         { dir: 'w', roomId: 'wRoomId', keyName: 'someKey', locked: false, closed: false },
         { dir: 'se', roomId: 'seRoomId', keyName: 'someKey', locked: false, closed: true },
         { dir: 'sw', roomId: 'swRoomId' },
-      ]
+      ],
     };
-    spyOn(roomManager, 'getRoomById').and.callFake(() => room);
+    spyOn(Room, 'getRoomById').and.callFake(() => room);
   });
 
   beforeEach(function () {
@@ -31,6 +31,7 @@ describe('open', function () {
   describe('execute', function () {
     it('should output message when direction is invalid', function () {
       sut.execute(socket, 'ne');
+      
       expect(socket.broadcast.to().emit).not.toHaveBeenCalled();
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'There is no exit in that direction!' });
     });
@@ -38,6 +39,7 @@ describe('open', function () {
     it('should output message when direction has no door', function () {
       sut.execute(socket, 'sw');
       const exit = room.exits.find(e => e.dir === 'sw');
+      
       expect(exit.hasOwnProperty('closed')).toBe(false);
       expect(socket.broadcast.to().emit).not.toHaveBeenCalled();
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'There is no door in that direction!' });
@@ -47,6 +49,7 @@ describe('open', function () {
       it('should fail and output message when door is locked and closed', function () {
         sut.execute(socket, 'e');
         const exit = room.exits.find(e => e.dir === 'e');
+        
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(true);
         expect(exit.closed).toBe(true);
@@ -57,6 +60,7 @@ describe('open', function () {
       it('should succeed and output message when door is unlocked and closed', function () {
         sut.execute(socket, 'se');
         const exit = room.exits.find(e => e.dir === 'se');
+        
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(false);
         expect(exit.closed).toBe(false);
@@ -67,6 +71,7 @@ describe('open', function () {
       it('should send messages when door and is unlocked and open', function () {
         sut.execute(socket, 'w');
         const exit = room.exits.find(e => e.dir === 'w');
+        
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(false);
         expect(exit.closed).toBe(false);
@@ -79,6 +84,7 @@ describe('open', function () {
       it('should output message when door is closed', function () {
         sut.execute(socket, 'n');
         const exit = room.exits.find(e => e.dir === 'n');
+        
         expect(exit.closed).toBe(false);
         expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: 'TestUser opens the door to the north.' });
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Door opened.' });
@@ -87,6 +93,7 @@ describe('open', function () {
       it('should output message when door and is open', function () {
         sut.execute(socket, 's');
         const exit = room.exits.find(e => e.dir === 's');
+        
         expect(exit.closed).toBe(false);
         expect(socket.broadcast.to().emit).not.toHaveBeenCalled();
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'That door is already open.' });

@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../roomManager');
+const Room = require('../models/room');
 const Mob = require('../models/mob');
 const mobData = require('../data/mobData');
 
@@ -11,7 +11,7 @@ setInterval(() => {
   const now = Date.now();
 
   // loop through rooms that contain spawners...
-  roomManager.roomsWithSpawners().forEach(function (room) {
+  Room.roomsWithSpawners().forEach(function (room) {
     let max = room.spawner.max ? room.spawner.max : 10;
     let timeout = room.spawner.timeout ? room.spawner.timeout : 4000;
     
@@ -52,7 +52,7 @@ module.exports = {
   },
 
   execute(socket, action, param) {
-    const room = roomManager.getRoomById(socket.user.roomId);
+    const room = Room.getRoomById(socket.user.roomId);
     action = action ? action.toLowerCase() : null;
 
     if (!room.spawner) {

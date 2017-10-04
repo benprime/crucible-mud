@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../roomManager');
+const Room = require('../models/room');
 const autocomplete = require('../autocomplete');
 
 module.exports = {
@@ -25,7 +25,7 @@ module.exports = {
 
   execute(socket, type, name) {
 
-    const room = roomManager.getRoomById(socket.user.roomId);
+    const room = Room.getRoomById(socket.user.roomId);
     if (type === 'mob') {
       // look for mob in user's current room
       const mob = autocomplete.autocomplete(socket, ['mob'], name);

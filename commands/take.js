@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../roomManager');
+const Room = require('../models/room');
 const autocomplete = require('../autocomplete');
 
 module.exports = {
@@ -39,7 +39,7 @@ module.exports = {
     }
 
     // take the item from the room
-    const room = roomManager.getRoomById(socket.user.roomId);
+    const room = Room.getRoomById(socket.user.roomId);
     room.inventory.remove(item);
 
     // and give it to the user

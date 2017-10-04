@@ -1,7 +1,6 @@
 'use strict';
 
 const Room = require('../models/room');
-const roomManager = require('../roomManager');
 
 module.exports = {
   name: 'yell',
@@ -17,7 +16,7 @@ module.exports = {
 
   execute(socket, message) {
 
-    const room = roomManager.getRoomById(socket.user.roomId);
+    const room = Room.getRoomById(socket.user.roomId);
 
     room.exits.forEach((exit) => {
       let preMsg = '';

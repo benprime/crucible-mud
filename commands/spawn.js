@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../roomManager');
+const Room = require('../models/room');
 const mobData = require('../data/mobData');
 const Mob = require('../models/mob');
 
@@ -42,7 +42,7 @@ module.exports = {
         return;
       }
 
-      const room = roomManager.getRoomById(socket.user.roomId);
+      const room = Room.getRoomById(socket.user.roomId);
       // clone the create type and give it an id
       let mob = new Mob(createType, room.id);
 

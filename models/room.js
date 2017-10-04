@@ -1,10 +1,37 @@
 'use strict';
 
+require('../extensionMethods');
 const mongoose = require('mongoose');
 const ItemSchema = require('./itemSchema');
 const SpawnerSchema = require('./spawnerSchema');
 
+//============================================================================
+// Constants
+//============================================================================
 const dirEnum = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw', 'u', 'd'];
+const longToShort = {
+  north: 'n',
+  northeast: 'ne',
+  east: 'e',
+  southeast: 'se',
+  south: 's',
+  southwest: 'sw',
+  west: 'w',
+  northwest: 'nw',
+  up: 'u',
+  down: 'd',
+};
+
+//============================================================================
+// Room Cache
+//============================================================================
+const rooms = {};
+
+
+function LongToShort(dir) {
+  if(dir in longToShort) return longToShort[dir];
+  return dir;
+}
 
 const RoomSchema = new mongoose.Schema({
   name: {
@@ -13,8 +40,6 @@ const RoomSchema = new mongoose.Schema({
   desc: {
     type: String,
   },
-
-  // should this be in a sub-object called "position" or "coords"?
   x: {
     type: Number,
   },
@@ -24,7 +49,6 @@ const RoomSchema = new mongoose.Schema({
   z: {
     type: Number,
   },
-
   exits: [{
     dir: {
       type: String,
@@ -49,7 +73,30 @@ const RoomSchema = new mongoose.Schema({
   inventory: [ItemSchema],
 });
 
-// todo: move to RoomHelper.js
+//============================================================================
+// Static methods
+//============================================================================
+RoomSchema.statics.getRoomById = function(roomId) {
+  return rooms[roomId];
+};
+
+RoomSchema.statics.loadRooms = function() {
+  this.find({}, function (err, result) {
+    result.forEach(function (room) {
+      room.mobs = [];
+      rooms[room.id] = room;
+    });
+  });
+};
+
+RoomSchema.statics.roomsWithMobs = function() {
+  return Object.values(rooms).filter(r => r.mobs.length > 0);
+};
+
+RoomSchema.statics.roomsWithSpawners = function() {
+  return Object.values(rooms).filter(r => r.spawner && r.spawner.timeout);
+};
+
 RoomSchema.statics.oppositeDirection = function (dir) {
   switch (dir) {
     case 'n':
@@ -77,13 +124,6 @@ RoomSchema.statics.oppositeDirection = function (dir) {
   }
 };
 
-/**
- * @param  {Number}
- * @param  {Number}
- * @param  {Number}
- * @param  {Function}
- * @return {[type]}
- */
 RoomSchema.statics.byCoords = function (coords, cb) {
   return this.findOne({ x: coords.x, y: coords.y, z: coords.z }, cb);
 };
@@ -115,8 +155,105 @@ RoomSchema.statics.exitName = function (dir) {
   }
 };
 
-RoomSchema.statics.isValidDir = function (dir) {
-  return RoomSchema.schema.path('exits.dir').enumValues.indexOf(dir) > -1;
+RoomSchema.statics.ValidDirectionInput = function(dir) {
+  let input = dir.toLowerCase();
+  input = LongToShort(input);
+  switch (input) {
+    case 'n':
+    case 'ne':
+    case 'e':
+    case 'se':
+    case 's':
+    case 'sw':
+    case 'w':
+    case 'nw':
+    case 'u':
+    case 'd':
+      return input;
+    default:
+      return null;
+  }
+};
+
+//============================================================================
+// Instance methods
+//============================================================================
+RoomSchema.methods.SocketInRoom = function (socketId) {
+  if (!(this.id in global.io.sockets.adapter.rooms)) {
+    return false;
+  }
+  const sockets = global.io.sockets.adapter.rooms[this.id].sockets;
+  return socketId in sockets;
+};
+
+RoomSchema.methods.UsersInRoom = function () {
+  if (!(this.id in global.io.sockets.adapter.rooms)) {
+    return [];
+  }
+
+  const clients = global.io.sockets.adapter.rooms[this.id].sockets;
+  const otherUsers = Object.keys(clients);
+
+  // return array of string usernames
+  return otherUsers.map(socketId => global.io.sockets.connected[socketId].user.username);
+};
+
+RoomSchema.methods.UserInRoom = function (roomId, username) {
+  let usernames = global.UsersInRoom(roomId);
+  usernames = usernames.map(u => u.toLowerCase());
+  return usernames.indexOf(username.toLowerCase()) > -1;
+};
+
+RoomSchema.methods.createRoom = function (dir, cb) {
+  if (!Room.ValidDirectionInput(dir)) {
+    return false;
+  }
+
+  let exit = this.getExit(dir);
+  if (exit) {
+    return false;
+  }
+
+  // see if room exists at the coords
+  var targetCoords = this.dirToCoords(dir);
+
+  Room.byCoords(targetCoords, function (targetRoom) {
+    const oppDir = Room.oppositeDirection(dir);
+    if (targetRoom) {
+      this.addExit(dir, targetRoom.id);
+      targetRoom.addExit(oppDir, this.id);
+      this.save();
+      targetRoom.save();
+      if (cb) cb();
+    } else {
+      // if room does not exist, create a new room
+      // with an exit to this room
+      targetRoom = new Room({
+        name: 'Default Room Name',
+        desc: 'Room Description',
+        x: targetCoords.x,
+        y: targetCoords.y,
+        z: targetCoords.z,
+        exits: [{
+          dir: oppDir,
+          roomId: this.id,
+        }],
+      });
+
+      targetRoom.mobs = [];
+
+      // update this room with exit to new room
+      targetRoom.save(function (err, updatedRoom) {
+        
+        // add new room to room cache
+        rooms[updatedRoom.id] = updatedRoom;
+
+        this.addExit(dir, updatedRoom.id);
+        this.save();
+        if (cb) cb();
+      });
+    }
+  });
 };
 
 RoomSchema.methods.getSockets = function () {

@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../../roomManager');
+const Room = require('../../models/room');
 const mocks = require('../mocks');
 const sut = require('../../commands/equip');
 
@@ -11,7 +11,7 @@ describe('equip', function () {
   beforeAll(function() {
     socket = new mocks.SocketMock();
     room = mocks.getMockRoom();
-    spyOn(roomManager, 'getRoomById').and.callFake(() => room);
+    spyOn(Room, 'getRoomById').and.callFake(() => room);
   });
 
   describe('execute', function () {

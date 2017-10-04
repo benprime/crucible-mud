@@ -1,6 +1,5 @@
 'use strict';
 
-const roomManager = require('../roomManager');
 const Room = require('../models/room');
 
 module.exports = {
@@ -19,20 +18,20 @@ module.exports = {
   },
 
   execute(socket, type, param) {
-    const room = roomManager.getRoomById(socket.user.roomId);
+    const room = Room.getRoomById(socket.user.roomId);
     if (type === 'room') {
-      const dir = global.ValidDirectionInput(param.toLowerCase());
+      const dir = Room.ValidDirectionInput(param.toLowerCase());
       if (!dir) {
         socket.emit('output', { message: 'Invalid direction!' });
         return;
       }
-      roomManager.createRoom(room, dir, function () {
+      room.createRoom(dir, function () {
         socket.emit('output', { message: 'Room created.' });
         socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${Room.exitName(dir)}!` });
       });
     }
     else if (type == 'door') {
-      const dir = global.ValidDirectionInput(param);
+      const dir = Room.ValidDirectionInput(param);
       const exit = room.getExit(dir);
 
       if (exit) {

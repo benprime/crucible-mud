@@ -1,6 +1,5 @@
 'use strict';
 
-const roomManager = require('../roomManager');
 const Room = require('../models/room');
 
 module.exports = {
@@ -25,8 +24,8 @@ module.exports = {
   },
 
   execute(socket, dir, keyName) {
-    const room = roomManager.getRoomById(socket.user.roomId);
-    dir = global.ValidDirectionInput(dir);
+    const room = Room.getRoomById(socket.user.roomId);
+    dir = Room.ValidDirectionInput(dir);
     let exit = room.getExit(dir);
     if (!exit) {
       socket.emit('output', { message: 'No door in that direction.' });

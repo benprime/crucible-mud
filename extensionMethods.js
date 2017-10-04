@@ -7,21 +7,6 @@ if (!String.prototype.format) {
   };
 }
 
-if (!Object.prototype.getKeyByValue) {
-  Object.defineProperty(Object.prototype, 'getKeyByValue', {
-    value(value) {
-      for (const prop in this) {
-        if (this.hasOwnProperty(prop)) {
-          if (this[prop] === value) {
-            return prop;
-          }
-        }
-      }
-    },
-    enumerable: false,
-  });
-}
-
 if (!Array.prototype.GetFirstByDisplayName) {
   Array.prototype.GetFirstByDisplayName = function (name) {
     if (!name) return undefined;
@@ -56,8 +41,31 @@ if (!Array.prototype.distinct) {
   };
 }
 
+
+// NOTE: Adding properties to Object.prototype will cause a mongoose error
+// if you do not specify enumerable: false!
+// Error is: err TypeError: schematype.castForQueryWrapper is not a function
+// Track at: https://github.com/Automattic/mongoose/issues/4776
+if (!Object.prototype.getKeyByValue) {
+  Object.defineProperty(Object.prototype, 'getKeyByValue', {
+    enumerable: false,
+    value(value) {
+      for (const prop in this) {
+        if (this.hasOwnProperty(prop)) {
+          if (this[prop] === value) {
+            return prop;
+          }
+        }
+      }
+    },
+  });
+}
+
 if (!Object.prototype.values) {
-  Object.prototype.values = function() {
-    return Object.keys(this).map((key) => this[key]);
-  };
+  Object.defineProperty(Object.prototype, 'values', {
+    enumerable: false,
+    value: function() {
+      return Object.keys(this).map((key) => this[key]);
+    },
+  });
 }

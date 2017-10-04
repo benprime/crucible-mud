@@ -1,6 +1,7 @@
 'use strict';
 
 const actionsData = require('./data/actionData');
+const Room = require('./models/room');
 
 module.exports = {
   actionDispatcher(socket, action, username) {
@@ -19,7 +20,9 @@ module.exports = {
           username = null;
         } else {
           // make sure the user is someone in the room
-          const userInRoom = global.UserInRoom(socket.user.roomId, username);
+          const room = Room.getRoomById(socket.user.roomId);
+
+          const userInRoom = room.UserInRoom(username);
           if (!userInRoom) {
             console.log(action);
             socket.emit('output', { message: `You don't see ${username} anywhere!` });

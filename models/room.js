@@ -27,12 +27,14 @@ const longToShort = {
 //============================================================================
 const rooms = {};
 
-
 function LongToShort(dir) {
   if(dir in longToShort) return longToShort[dir];
   return dir;
 }
 
+//============================================================================
+// Room Schema
+//============================================================================
 const RoomSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -198,8 +200,8 @@ RoomSchema.methods.UsersInRoom = function () {
   return otherUsers.map(socketId => global.io.sockets.connected[socketId].user.username);
 };
 
-RoomSchema.methods.UserInRoom = function (roomId, username) {
-  let usernames = global.UsersInRoom(roomId);
+RoomSchema.methods.UserInRoom = function (username) {
+  let usernames = this.UsersInRoom(this.RoomId);
   usernames = usernames.map(u => u.toLowerCase());
   return usernames.indexOf(username.toLowerCase()) > -1;
 };
@@ -273,7 +275,7 @@ RoomSchema.methods.Look = function (socket, short) {
     output += `<span class='darkcyan'>You notice: ${this.inventory.map(item => item.displayName).join(', ')}.</span>\n`;
   }
 
-  let names = global.UsersInRoom(this.id).filter(name => name !== socket.user.username);
+  let names = this.UsersInRoom(this.id).filter(name => name !== socket.user.username);
 
   console.log('Users in room names: ', names);
 

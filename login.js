@@ -6,9 +6,12 @@ const User = require('./models/user');
 module.exports = {
   LoginUsername(socket, username) {
     if (!socket.userId && (socket.state == global.STATES.LOGIN_USERNAME)) {
+      console.log(`Searching for user... ${JSON.stringify(username)}`);
       User.findByName(username.value, function (err, user) {
-        console.log(`Searching for user... ${JSON.stringify(username)}`);
+        console.log("err", err);
+        console.log("user", user);
         if (!user) {
+          console.log("user", user);
           socket.emit('output', { message: 'Unknown user, please try again.' });
         } else {
           // todo: maybe we don't need states for username and password separately. We can just check socket.username

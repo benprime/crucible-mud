@@ -21,6 +21,11 @@ const look = require('./commands/look');
 app.set('port', 3000);
 const mongoose = require('mongoose');
 
+// load room cache
+const Room = require('./models/room');
+
+Room.loadRooms();
+
 const db = mongoose.connection;
 
 global.db = db;

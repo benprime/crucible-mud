@@ -1,5 +1,7 @@
 'use strict';
 
+const Room = require('../models/room');
+
 module.exports = {
   name: 'offer',
 
@@ -12,6 +14,8 @@ module.exports = {
   },
 
   execute(socket, userName, itemName) {
+    const room = Room.getRoomById(socket.user.roomId);
+    //todo: probably a bad pratice to change parameters directly. Make a copy.
     userName = userName.toLowerCase();
     itemName = itemName.toLowerCase();
     const itemNames = socket.user.inventory.map(item => item.displayName);
@@ -27,7 +31,7 @@ module.exports = {
       itemName = itemNamesCompleted[0];
     }
 
-    const userNames = global.UsersInRoom(socket.user.roomId)
+    const userNames = room.UsersInRoom()
       .filter(name => name !== socket.user.username);
 
     const userNamesCompleted = global.AutocompleteName(socket, userName, userNames);

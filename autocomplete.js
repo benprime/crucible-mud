@@ -1,7 +1,7 @@
 'use strict';
 
 require('./extensionMethods');
-const roomManager = require('./roomManager');
+const Room = require('./models/room');
 
 const TargetTypes = Object.freeze({
   Mob: 'mob',
@@ -10,8 +10,16 @@ const TargetTypes = Object.freeze({
   Room: 'room',
 });
 
+function filterMatch(array, pattern) {
+  const re = new RegExp(`^${pattern}`, 'i');
+  const matches = array.filter(value => !!re.exec(value));
+
+  // return unique matches only
+  return matches.filter((item, i, matches) => matches.indexOf(item) === i);
+}
+
 function getTargetList(socket, target) {
-  const room = roomManager.getRoomById(socket.user.roomId);
+  const room = Room.getRoomById(socket.user.roomId);
   switch (target) {
     case TargetTypes.Mob:
       return room.mobs;
@@ -41,7 +49,7 @@ function autocompleteByProperty(socket, targets, property, fragment) {
   targets.forEach(target => {
     const list = getTargetList(socket, target);
     const names = list.map(i => i[property]).distinct();
-    var matches = global.filterMatch(names, fragment);
+    var matches = filterMatch(names, fragment);
     if (matches.length > 0) {
       let matched = matches.map(matchedString => {
         return {

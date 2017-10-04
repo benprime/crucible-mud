@@ -2,7 +2,7 @@
 
 /* State only model */
 const ObjectId = require('mongodb').ObjectId;
-const roomManager = require('../roomManager');
+const Room = require('../models/room');
 const dice = require('../dice');
 
 function Mob(mobType, roomId) {
@@ -43,7 +43,7 @@ Mob.prototype.TakeDamage = function (socket, damage) {
 };
 
 Mob.prototype.Die = function (socket) {
-  const room = roomManager.getRoomById(socket.user.roomId);
+  const room = Room.getRoomById(socket.user.roomId);
   room.lastMobDeath = new Date();
   global.io.to(room.id).emit('output', { message: `The ${this.displayName} collapses.` });
   room.mobs.remove(this);
@@ -53,7 +53,7 @@ Mob.prototype.Die = function (socket) {
 // todo: cleaning up for current room. This may needs some rework when the mobs
 // can move from room to room.
 Mob.prototype.Dispose = function (socket) {
-  const room = roomManager.getRoomById(socket.user.roomId);
+  const room = Room.getRoomById(socket.user.roomId);
   let sockets = room.getSockets();
   sockets.forEach((s) => {
     if (s.user.attackTarget === this.id) {

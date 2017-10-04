@@ -1,13 +1,12 @@
 'use strict';
 
 const Room = require('../models/room');
-const roomManager = require('../roomManager');
 
 const breakCommand = require('./break');
 const lookCommand = require('./look');
 
 function Feedback(dir) {
-  const d = global.ValidDirectionInput(dir);
+  const d = Room.ValidDirectionInput(dir);
   const displayDir = Room.exitName(d);
   return `You move ${displayDir}...`;
 }
@@ -64,7 +63,6 @@ function MovementSounds(socket, room, excludeDir) {
   });
 }
 
-
 module.exports = {
   name: 'move',
 
@@ -97,8 +95,8 @@ module.exports = {
   },
 
   execute(socket, dir) {
-    const d = global.ValidDirectionInput(dir.toLowerCase());
-    const room = roomManager.getRoomById(socket.user.roomId);
+    const d = Room.ValidDirectionInput(dir.toLowerCase());
+    const room = Room.getRoomById(socket.user.roomId);
 
     // valid exit in that direction?
     const exit = room.exits.find(e => e.dir === d);

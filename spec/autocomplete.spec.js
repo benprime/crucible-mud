@@ -1,7 +1,7 @@
 'use strict';
 
 require('../globals');
-const roomManager = require('../roomManager');
+const Room = require('../models/room');
 const mocks = require('./mocks');
 const rewire = require('rewire');
 
@@ -13,7 +13,6 @@ sut.ambigiousMessage = sut.__get__('ambigiousMessage');
 describe('autocomplete', function () {
   let socket;
   let room;
-  let roomManagerSpy;
 
   beforeAll(function () {
     socket = new mocks.SocketMock();
@@ -23,7 +22,7 @@ describe('autocomplete', function () {
       keys: [],
     };
     room = mocks.getMockRoom();
-    roomManagerSpy = spyOn(roomManager, 'getRoomById').and.callFake(() => room);
+    spyOn(Room, 'getRoomById').and.callFake(() => room);
   });
 
   it('TargetTypes should be expected object', function () {
@@ -130,8 +129,9 @@ describe('autocomplete', function () {
 
       // assert
       expect(result.length).toBe(2);
-      expect(result.find(i => i.matchedValue === userInventoryItem.displayName 
+      expect(result.find(i => i.matchedValue === userInventoryItem.displayName
         && i.target === 'inventory')).not.toBeNull();
+      
       expect(result.find(i => i.matchedValue === roomInventoryItem.displayName
         && i.target === 'room')).not.toBeNull();
     });
@@ -150,7 +150,8 @@ describe('autocomplete', function () {
       var result = sut.autocomplete(socket, ['inventory', 'room'], 'c');
 
       // assert
-      expect(result).toBe(roomItem);
+      expect(result.name).toBe(roomItem.name);
+      expect(result.displayName).toBe(roomItem.displayName);
     });
 
     it('should return object if only name has a matching object', function () {

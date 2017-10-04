@@ -2,7 +2,7 @@
 
 const breakCmd = require('./break');
 const lookCmd = require('./look');
-const roomManager = require('../roomManager');
+const Room = require('../models/room');
 
 module.exports = {
   name: 'teleport',
@@ -33,7 +33,7 @@ module.exports = {
       toRoomId = userSocket.user.roomId;
     }
 
-    const room = roomManager.getRoomById(toRoomId);
+    const room = Room.getRoomById(toRoomId);
     if (!room) {
       socket.emit('output', { message: 'Room not found.' });
       return;

@@ -1,6 +1,5 @@
 'use strict';
 
-const roomManager = require('../roomManager');
 const Room = require('../models/room');
 
 module.exports = {
@@ -15,8 +14,8 @@ module.exports = {
   },
 
   execute(socket, dir) {
-    const d = global.ValidDirectionInput(dir.toLowerCase());
-    const room = roomManager.getRoomById(socket.user.roomId);
+    const d = Room.ValidDirectionInput(dir.toLowerCase());
+    const room = Room.getRoomById(socket.user.roomId);
 
     // valid exit in that direction?
     const exit = room.exits.find(e => e.dir === d);

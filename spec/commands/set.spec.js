@@ -15,7 +15,7 @@ describe('set', function () {
       it('should only allow properties in property whitelist', function() {
       });
   
-      it('should update room in roomManager and room database object on success', function() {
+      it('should update room in room cache and room database object on success', function() {
       });
 
       it('should output messages on successs', function() {

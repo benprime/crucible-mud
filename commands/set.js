@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../roomManager');
+const Room = require('../models/room');
 const lookCmd = require('./look');
 
 module.exports = {
@@ -40,7 +40,7 @@ module.exports = {
         return;
       }
 
-      const room = roomManager.getRoomById(socket.user.roomId);
+      const room = Room.getRoomById(socket.user.roomId);
       room[prop] = value;
       room.save();
       socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} has altered the fabric of reality.` });

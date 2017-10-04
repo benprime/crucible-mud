@@ -1,13 +1,12 @@
 'use strict';
 
-const roomModel = require('./models/room');
-const roomManager = require('./roomManager');
-const userModel = require('./models/user');
+const Room = require('./models/room');
+const User = require('./models/user');
 
 module.exports = {
   LoginUsername(socket, username) {
     if (!socket.userId && (socket.state == global.STATES.LOGIN_USERNAME)) {
-      userModel.findByName(username.value, function (err, user) {
+      User.findByName(username.value, function (err, user) {
         console.log(`Searching for user... ${JSON.stringify(username)}`);
         if (!user) {
           socket.emit('output', { message: 'Unknown user, please try again.' });
@@ -25,7 +24,7 @@ module.exports = {
   LoginPassword(socket, password, callback) {
     if (!socket.userId && (socket.state == global.STATES.LOGIN_PASSWORD)) {
 
-      userModel.findOne({ username: socket.tempUsername, password: password.value })
+      User.findOne({ username: socket.tempUsername, password: password.value })
         //.lean()
         //.populate('room')
         .exec(function (err, user) {
@@ -69,9 +68,9 @@ module.exports = {
 
           global.updateHUD(socket);
 
-          const currentRoom = roomManager.getRoomById(user.roomId);
+          const currentRoom = Room.getRoomById(user.roomId);
           if (!currentRoom) {
-            roomModel.byCoords({ x: 0, y: 0, z: 0 }, function (err, room) {
+            Room.byCoords({ x: 0, y: 0, z: 0 }, function (err, room) {
               console.log('Default room', room);
               socket.user.roomId = room.id;
               socket.join(room.id);

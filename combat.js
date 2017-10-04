@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('./roomManager');
+const Room = require('./models/room');
 
 // Base round will be 4000 millseconds.
 // An average dexterity character, with an "average" weapon will attack every 4 seconds.
@@ -20,7 +20,7 @@ setInterval(() => {
     // if socket is a logged in user
     if (socket.user && socket.user.readyToAttack(now)) {
       console.log('player attacking!');
-      const room = roomManager.getRoomById(socket.user.roomId);
+      const room = Room.getRoomById(socket.user.roomId);
       let mob = room.getMobById(socket.user.attackTarget);
       //if(!mob) socket.user.attackTarget = null;
       console.log('Attacking from room: ', socket.user.roomId);
@@ -29,7 +29,7 @@ setInterval(() => {
   }
 
   // loop through rooms that contain mobs...
-  roomManager.roomsWithMobs().forEach(function (room) {
+  Room.roomsWithMobs().forEach(function (room) {
     room.mobs.forEach(function (mob) {
       if (mob.readyToAttack(now)) {
         if (!mob.attack(now)) {

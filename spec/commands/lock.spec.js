@@ -1,6 +1,6 @@
 'use strict';
 
-const roomManager = require('../../roomManager');
+const Room = require('../../models/room');
 const mocks = require('../mocks');
 const sut = require('../../commands/lock');
 
@@ -18,7 +18,7 @@ describe('lock', function () {
       getExit: jasmine.createSpy('getExit').and.callFake(dir => room.exits.find(e => e.dir == dir)),
       save: jasmine.createSpy('roomSave'),
     };
-    spyOn(roomManager, 'getRoomById').and.callFake(() => room);
+    spyOn(Room, 'getRoomById').and.callFake(() => room);
   });
 
   beforeEach(function() {

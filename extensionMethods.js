@@ -55,3 +55,9 @@ if (!Array.prototype.distinct) {
     return Array.from(new Set(this));
   };
 }
+
+if (!Object.prototype.values) {
+  Object.prototype.values = function() {
+    return Object.keys(this).map((key) => this[key]);
+  };
+}

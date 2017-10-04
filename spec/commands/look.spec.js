@@ -4,7 +4,6 @@ const mocks = require('../mocks');
 const Room = require('../../models/room');
 const sut = require('../../commands/look');
 const autocomplete = require('../../autocomplete');
-const roomManager = require('../../roomManager');
 
 describe('look', function () {
   let socket;
@@ -46,11 +45,11 @@ describe('look', function () {
     beforeEach(function () {
       room = mocks.getMockRoom();
       spyOn(autocomplete, 'autocomplete').and.callFake(() => autocompleteResult);
-      spyOn(roomManager, 'getRoomById').and.callFake(() => room);
+      spyOn(Room, 'getRoomById').and.callFake(() => room);
       shortDir = 'n';
       spyOn(Room, 'oppositeDirection').and.callFake(() => 'opposite');
       spyOn(Room, 'exitName').and.callFake(() => 'exit name');
-      spyOn(global, 'ValidDirectionInput').and.callFake(() => shortDir);
+      spyOn(Room, 'ValidDirectionInput').and.callFake(() => shortDir);
       socket.emit.calls.reset();
     });
 
@@ -91,7 +90,7 @@ describe('look', function () {
     });
 
     it('should output item look when lookTarget is an inventory item', function () {
-      global.ValidDirectionInput.and.callFake(() => null);
+      Room.ValidDirectionInput.and.callFake(() => null);
       socket.user.inventory = [{ displayName: 'boot', desc: 'an old boot' }];
       autocompleteResult = undefined;
 

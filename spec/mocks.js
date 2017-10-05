@@ -95,14 +95,17 @@ function SocketMock() {
   const broadcastEmitSpy = jasmine.createSpy('userSocketBroadcastEmit');
   this.emit = jasmine.createSpy('userSocketEmit');
   this.on = jasmine.createSpy('userSocketOn');
+  this.leave = jasmine.createSpy('userSocketLeave');
+  this.join = jasmine.createSpy('userSocketJoin');
+  this.to = jasmine.createSpy('userSocketTo').and.callFake(function (roomKey) {
+    sm.roomCalls.push(roomKey);
+    return {
+      emit: broadcastEmitSpy,
+    };
+  }),
 
   this.broadcast = {
-    to: jasmine.createSpy('userSocketBroadcastTo').and.callFake(function (roomKey) {
-      sm.roomCalls.push(roomKey);
-      return {
-        emit: broadcastEmitSpy,
-      };
-    }),
+    to: this.to
   };
 
   this.id = 'socketid';

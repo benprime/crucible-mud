@@ -34,8 +34,8 @@ describe('move', function () {
       spyOn(Room, 'getById').and.callFake(() => room);
       shortDir = 'n';
       spyOn(Room, 'oppositeDirection').and.callFake(() => 'opposite');
-      spyOn(Room, 'exitName').and.callFake(() => 'exit name');
-      spyOn(Room, 'ValidDirectionInput').and.callFake(() => shortDir);
+      spyOn(Room, 'shortToLong').and.callFake(() => 'exit name');
+      spyOn(Room, 'validDirectionInput').and.callFake(() => shortDir);
       socket.emit.calls.reset();
     });
 
@@ -65,7 +65,7 @@ describe('move', function () {
       shortDir = 'zzz';
       sut.execute(socket, shortDir);
       
-      expect(socket.to().emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the wall to the ${Room.exitName('zzz')}.</span>` });
+      expect(socket.to().emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the wall to the exit name.</span>` });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
     });
    
@@ -95,7 +95,7 @@ describe('move', function () {
       room.exits[exitIndex].closed = true;
       sut.execute(socket, shortDir);
       
-      expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the door to the ${Room.exitName('w')}.</span>` });
+      expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the door to the exit name.</span>` });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
     });
     /*

@@ -41,7 +41,7 @@ describe('create', function () {
       spyOn(room, 'createRoom').and.callFake((dir, someFunc) => {
         someFunc();
       });
-      spyOn(Room, 'exitName').and.callFake(() => shortDir);
+      spyOn(Room, 'shortToLong').and.callFake(() => shortDir);
     });
 
     describe('when type is room', function () {

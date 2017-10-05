@@ -22,9 +22,7 @@ app.set('port', 3000);
 const mongoose = require('mongoose');
 
 // load room cache
-const Room = require('./models/room');
-
-Room.loadRooms();
+//const Room = require('./models/room');
 
 const db = mongoose.connection;
 

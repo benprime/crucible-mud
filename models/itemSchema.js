@@ -44,7 +44,7 @@ const ItemSchema = new mongoose.Schema({
   },
 });
 
-ItemSchema.methods.Look = function (socket) {
+ItemSchema.methods.look = function (socket) {
   socket.emit('output', { message: this.desc });
   if (socket.user.admin) {
     socket.emit('output', { message: `Item ID: ${this.id}` });

@@ -20,18 +20,18 @@ module.exports = {
   execute(socket, type, param) {
     const room = Room.getById(socket.user.roomId);
     if (type === 'room') {
-      const dir = Room.ValidDirectionInput(param.toLowerCase());
+      const dir = Room.validDirectionInput(param.toLowerCase());
       if (!dir) {
         socket.emit('output', { message: 'Invalid direction!' });
         return;
       }
       room.createRoom(dir, function () {
         socket.emit('output', { message: 'Room created.' });
-        socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${Room.exitName(dir)}!` });
+        socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!` });
       });
     }
     else if (type == 'door') {
-      const dir = Room.ValidDirectionInput(param);
+      const dir = Room.validDirectionInput(param);
       const exit = room.getExit(dir);
 
       if (exit) {

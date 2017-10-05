@@ -28,7 +28,7 @@ function Mob(mobType, roomId) {
   return instance;
 }
 
-Mob.prototype.Look = function (socket) {
+Mob.prototype.look = function (socket) {
   socket.emit('output', { message: this.desc });
   if (socket.user.admin) {
     socket.emit('output', { message: `Mob ID: ${this.id}` });
@@ -101,7 +101,7 @@ Mob.prototype.attack = function (now) {
     return false;
   }
 
-  if (!global.SocketInRoom(this.roomId, this.attackTarget)) {
+  if (!global.socketInRoom(this.roomId, this.attackTarget)) {
     this.attackTarget = undefined;
     return false;
   }

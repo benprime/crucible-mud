@@ -1,3 +1,5 @@
+'use strict';
+
 const sut = require('../../models/room');
 
 describe('room model', function () {
@@ -25,26 +27,36 @@ describe('room model', function () {
     });
   });
 
-  describe('instance method', function() {
-    describe('socketInRoom', function() {
+  describe('instance method', function () {
+
+    describe('socketInRoom', function () {
     });
-    describe('usersInRoom', function() {
+
+    describe('usersInRoom', function () {
     });
-    describe('userInRoom', function() {
+
+    describe('userInRoom', function () {
     });
-    describe('createRoom', function() {
+
+    describe('createRoom', function () {
     });
-    describe('getSockets', function() {
+
+    describe('getSockets', function () {
     });
-    describe('look', function() {
+
+    describe('look', function () {
     });
-    describe('getMobById', function() {
+
+    describe('getMobById', function () {
     });
-    describe('dirToCoords', function() {
+
+    describe('dirToCoords', function () {
     });
-    describe('getExit', function() {
+
+    describe('getExit', function () {
     });
-    describe('addExit', function() {
+
+    describe('addExit', function () {
     });
   });
 });

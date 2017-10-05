@@ -87,15 +87,6 @@ RoomSchema.statics.getById = function (roomId) {
   return roomCache[roomId];
 };
 
-RoomSchema.statics.loadRooms = function () {
-  this.find({}, function (err, result) {
-    result.forEach(function (room) {
-      room.mobs = [];
-      roomCache[room.id] = room;
-    });
-  });
-};
-
 RoomSchema.statics.oppositeDirection = function (dir) {
   switch (dir) {
     case 'n':
@@ -301,5 +292,15 @@ RoomSchema.methods.addExit = function (dir, roomId) {
 };
 
 const Room = mongoose.model('Room', RoomSchema);
+
+// populate cache
+(function () {
+  Room.find({}, function (err, result) {
+    result.forEach(function (room) {
+      room.mobs = [];
+      roomCache[room.id] = room;
+    });
+  });
+})();
 
 module.exports = Room;

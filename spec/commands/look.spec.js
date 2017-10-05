@@ -48,21 +48,21 @@ describe('look', function () {
       spyOn(Room, 'getById').and.callFake(() => room);
       shortDir = 'n';
       spyOn(Room, 'oppositeDirection').and.callFake(() => 'opposite');
-      spyOn(Room, 'exitName').and.callFake(() => 'exit name');
-      spyOn(Room, 'ValidDirectionInput').and.callFake(() => shortDir);
+      spyOn(Room, 'shortToLong').and.callFake(() => 'exit name');
+      spyOn(Room, 'validDirectionInput').and.callFake(() => shortDir);
       socket.emit.calls.reset();
     });
 
     it('should output short room look when short param is true', function () {
       sut.execute(socket, true);
 
-      expect(room.Look).toHaveBeenCalledWith(socket, true);
+      expect(room.look).toHaveBeenCalledWith(socket, true);
     });
 
     it('should output room look when lookTarget is not passed', function () {
       sut.execute(socket, false);
 
-      expect(room.Look).toHaveBeenCalledWith(socket, false);
+      expect(room.look).toHaveBeenCalledWith(socket, false);
     });
 
     it('should output room look when lookTarget is a direction', function () {
@@ -75,7 +75,7 @@ describe('look', function () {
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You look to the exit name...' });
       expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: `<span class="yellow">${socket.user.username} peaks in from the exit name.</span>` });
-      expect(room.Look).toHaveBeenCalledWith(socket, false);
+      expect(room.look).toHaveBeenCalledWith(socket, false);
     });
 
     it('should output a message when lookTarget is a direction with a closed door', function () {
@@ -90,7 +90,7 @@ describe('look', function () {
     });
 
     it('should output item look when lookTarget is an inventory item', function () {
-      Room.ValidDirectionInput.and.callFake(() => null);
+      Room.validDirectionInput.and.callFake(() => null);
       socket.user.inventory = [{ displayName: 'boot', desc: 'an old boot' }];
       autocompleteResult = undefined;
 
@@ -103,12 +103,12 @@ describe('look', function () {
       // this is not yet implemented
       shortDir = 'invalid direction';
       autocompleteResult = {
-        Look: jasmine.createSpy('mobLook')
+        look: jasmine.createSpy('moblook')
       };
 
       sut.execute(socket, false, 'someObj');
 
-      expect(autocompleteResult.Look).toHaveBeenCalled();
+      expect(autocompleteResult.look).toHaveBeenCalled();
     });
   });
 

@@ -4,7 +4,7 @@ const Room = require('../models/room');
 const autocomplete = require('../autocomplete');
 
 function lookDir(socket, room, dir) {
-  dir = Room.ValidDirectionInput(dir);
+  dir = Room.validDirectionInput(dir);
   const exit = room.exits.find(e => e.dir === dir);
   if (!exit) {
     return;
@@ -16,9 +16,9 @@ function lookDir(socket, room, dir) {
   }
 
   const lookRoom = Room.getById(exit.roomId);
-  socket.emit('output', { message: `You look to the ${Room.exitName(dir)}...` });
-  socket.broadcast.to(lookRoom.id).emit('output', { message: `<span class="yellow">${socket.user.username} peaks in from the ${Room.exitName(Room.oppositeDirection(dir))}.</span>` });
-  lookRoom.Look(socket, false);
+  socket.emit('output', { message: `You look to the ${Room.shortToLong(dir)}...` });
+  socket.broadcast.to(lookRoom.id).emit('output', { message: `<span class="yellow">${socket.user.username} peaks in from the ${Room.shortToLong(Room.oppositeDirection(dir))}.</span>` });
+  lookRoom.look(socket, false);
 }
 
 // for items and mobs
@@ -28,7 +28,7 @@ function lookItem(socket, room, itemName) {
     socket.emit('output', { message: 'You don\'t see that here!' });
     return;    
   }
-  lookTargetObj.Look(socket);
+  lookTargetObj.look(socket);
 }
 
 
@@ -59,13 +59,13 @@ module.exports = {
     if (lookTarget) {
       lookTarget = lookTarget.toLowerCase();
 
-      if (Room.ValidDirectionInput(lookTarget)) {
+      if (Room.validDirectionInput(lookTarget)) {
         lookDir(socket, room, lookTarget);
       } else {
         lookItem(socket, room, lookTarget);
       }
     } else {
-      room.Look(socket, short);
+      room.look(socket, short);
     }
   },
 

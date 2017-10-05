@@ -6,8 +6,8 @@ const breakCommand = require('./break');
 const lookCommand = require('./look');
 
 function Feedback(dir) {
-  const d = Room.ValidDirectionInput(dir);
-  const displayDir = Room.exitName(d);
+  const d = Room.validDirectionInput(dir);
+  const displayDir = Room.shortToLong(d);
   return `You move ${displayDir}...`;
 }
 
@@ -20,7 +20,7 @@ function HitWall(socket, dir) {
   } else if (dir === 'd') {
     message = `${socket.user.username} runs into the floor.`;
   } else {
-    message = `${socket.user.username} runs into the wall to the ${Room.exitName(dir)}.`;
+    message = `${socket.user.username} runs into the wall to the ${Room.shortToLong(dir)}.`;
   }
   socket.broadcast.to(socket.user.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
   socket.emit('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
@@ -35,7 +35,7 @@ function HitDoor(socket, dir) {
   } else if (dir === 'd') {
     message = `${socket.user.username} runs into the trapdoor on the floor.`;
   } else {
-    message = `${socket.user.username} runs into the door to the ${Room.exitName(dir)}.`;
+    message = `${socket.user.username} runs into the door to the ${Room.shortToLong(dir)}.`;
   }
   socket.broadcast.to(socket.user.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
   socket.emit('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
@@ -55,7 +55,7 @@ function MovementSounds(socket, room, excludeDir) {
     } else if (exit.dir === 'd') {
       message = 'You hear movement from above.';
     } else {
-      message = `You hear movement to the ${Room.exitName(Room.oppositeDirection(exit.dir))}.`;
+      message = `You hear movement to the ${Room.shortToLong(Room.oppositeDirection(exit.dir))}.`;
     }
 
     // ES6 object literal shorthand syntax... message here becomes message: message
@@ -94,7 +94,7 @@ module.exports = {
   },
 
   execute(socket, dir) {
-    const d = Room.ValidDirectionInput(dir.toLowerCase());
+    const d = Room.validDirectionInput(dir.toLowerCase());
     const room = Room.getById(socket.user.roomId);
 
     // valid exit in that direction?
@@ -125,7 +125,7 @@ module.exports = {
     } else if (d === 'd') {
       message = `${username} has gone below.`;
     } else {
-      message = `${username} has left to the ${Room.exitName(d)}.`;
+      message = `${username} has left to the ${Room.shortToLong(d)}.`;
     }
 
     // stop mobs attacking this user (since he is leaving the room)
@@ -148,7 +148,7 @@ module.exports = {
     } else if (d === 'd') {
       message = `${username} has entered from above.`;
     } else {
-      message = `${username} has entered from the ${Room.exitName(Room.oppositeDirection(d))}.`;
+      message = `${username} has entered from the ${Room.shortToLong(Room.oppositeDirection(d))}.`;
     }
     socket.broadcast.to(exit.roomId).emit('output', { message });
 

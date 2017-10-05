@@ -24,7 +24,7 @@ module.exports = {
 
   execute(socket, dir, keyName) {
     const room = Room.getById(socket.user.roomId);
-    dir = Room.ValidDirectionInput(dir);
+    dir = Room.validDirectionInput(dir);
     let exit = room.getExit(dir);
     if (!exit) {
       socket.emit('output', { message: 'No door in that direction.' });
@@ -63,7 +63,7 @@ module.exports = {
       } else if (exit.dir === 'd') {
         doorDesc = 'below';
       } else {
-        doorDesc = `to the ${Room.exitName(exit.dir)}`;
+        doorDesc = `to the ${Room.shortToLong(exit.dir)}`;
       }
 
       if (exit.closed === true) {

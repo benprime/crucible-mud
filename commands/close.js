@@ -16,7 +16,7 @@ module.exports = {
   execute(socket, dir) {
 
     // changes "north" to "n" (just returns "n" if that's what's passed in)
-    const d = Room.ValidDirectionInput(dir.toLowerCase());
+    const d = Room.validDirectionInput(dir.toLowerCase());
     const room = Room.getById(socket.user.roomId);
 
     // valid exit in that direction?
@@ -32,7 +32,7 @@ module.exports = {
     }
 
     exit.closed = true;
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} closes the door to the ${Room.exitName(d)}.` });
+    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} closes the door to the ${Room.shortToLong(d)}.` });
     socket.emit('output', { message: 'Door closed.' });
   },
 

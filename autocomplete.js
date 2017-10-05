@@ -19,7 +19,7 @@ function filterMatch(array, pattern) {
 }
 
 function getTargetList(socket, target) {
-  const room = Room.getRoomById(socket.user.roomId);
+  const room = Room.getById(socket.user.roomId);
   switch (target) {
     case TargetTypes.Mob:
       return room.mobs;

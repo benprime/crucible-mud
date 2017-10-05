@@ -19,17 +19,16 @@ setInterval(() => {
     const socket = global.io.sockets.connected[socketId];
     // if socket is a logged in user
     if (socket.user && socket.user.readyToAttack(now)) {
-      console.log('player attacking!');
-      const room = Room.getRoomById(socket.user.roomId);
+      const room = Room.getById(socket.user.roomId);
       let mob = room.getMobById(socket.user.attackTarget);
       //if(!mob) socket.user.attackTarget = null;
-      console.log('Attacking from room: ', socket.user.roomId);
       socket.user.attack(socket, mob, now);
     }
   }
 
   // loop through rooms that contain mobs...
-  Room.roomsWithMobs().forEach(function (room) {
+  const roomsWithMobs = Object.values(Room.roomCache).filter(r => r.mobs.length > 0);
+  roomsWithMobs.forEach(function (room) {
     room.mobs.forEach(function (mob) {
       if (mob.readyToAttack(now)) {
         if (!mob.attack(now)) {

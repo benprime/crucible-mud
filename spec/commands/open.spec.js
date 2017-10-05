@@ -21,7 +21,7 @@ describe('open', function () {
         { dir: 'sw', roomId: 'swRoomId' },
       ],
     };
-    spyOn(Room, 'getRoomById').and.callFake(() => room);
+    spyOn(Room, 'getById').and.callFake(() => room);
   });
 
   beforeEach(function () {

@@ -13,7 +13,7 @@ describe('attack', function () {
   beforeAll(function () {
     socket = new mocks.SocketMock();
     room = mocks.getMockRoom();
-    spyOn(Room, 'getRoomById').and.callFake(() => room);
+    spyOn(Room, 'getById').and.callFake(() => room);
     spyOn(autocomplete, 'autocomplete').and.callFake(() => autocompleteResult);
   });
 

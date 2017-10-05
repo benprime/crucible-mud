@@ -28,7 +28,6 @@ module.exports = {
     }
     let typeName = match[1];
     let itemTypeName = match[2];
-    console.log('Attempting to spawn: ', typeName, ': ', itemTypeName);
     module.exports.execute(socket, typeName, itemTypeName);
   },
 
@@ -42,7 +41,7 @@ module.exports = {
         return;
       }
 
-      const room = Room.getRoomById(socket.user.roomId);
+      const room = Room.getById(socket.user.roomId);
       // clone the create type and give it an id
       let mob = new Mob(createType, room.id);
 

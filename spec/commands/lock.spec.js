@@ -18,7 +18,7 @@ describe('lock', function () {
       getExit: jasmine.createSpy('getExit').and.callFake(dir => room.exits.find(e => e.dir == dir)),
       save: jasmine.createSpy('roomSave'),
     };
-    spyOn(Room, 'getRoomById').and.callFake(() => room);
+    spyOn(Room, 'getById').and.callFake(() => room);
   });
 
   beforeEach(function() {

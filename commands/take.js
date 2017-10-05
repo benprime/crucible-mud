@@ -39,7 +39,7 @@ module.exports = {
     }
 
     // take the item from the room
-    const room = Room.getRoomById(socket.user.roomId);
+    const room = Room.getById(socket.user.roomId);
     room.inventory.remove(item);
 
     // and give it to the user

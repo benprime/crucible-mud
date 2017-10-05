@@ -45,7 +45,7 @@ describe('look', function () {
     beforeEach(function () {
       room = mocks.getMockRoom();
       spyOn(autocomplete, 'autocomplete').and.callFake(() => autocompleteResult);
-      spyOn(Room, 'getRoomById').and.callFake(() => room);
+      spyOn(Room, 'getById').and.callFake(() => room);
       shortDir = 'n';
       spyOn(Room, 'oppositeDirection').and.callFake(() => 'opposite');
       spyOn(Room, 'exitName').and.callFake(() => 'exit name');

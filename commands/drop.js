@@ -21,7 +21,7 @@ module.exports = {
   },
 
   execute(socket, itemName) {
-    const room = Room.getRoomById(socket.user.roomId);
+    const room = Room.getById(socket.user.roomId);
     const item = autocomplete.autocomplete(socket, ['inventory', 'key'], itemName);
     if (!item) {
       socket.emit('output', { message: 'You don\'t seem to be carrying that!' });

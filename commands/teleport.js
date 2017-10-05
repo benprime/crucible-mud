@@ -33,7 +33,7 @@ module.exports = {
       toRoomId = userSocket.user.roomId;
     }
 
-    const room = Room.getRoomById(toRoomId);
+    const room = Room.getById(toRoomId);
     if (!room) {
       socket.emit('output', { message: 'Room not found.' });
       return;

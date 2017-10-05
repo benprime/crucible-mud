@@ -20,11 +20,10 @@ module.exports = {
           username = null;
         } else {
           // make sure the user is someone in the room
-          const room = Room.getRoomById(socket.user.roomId);
+          const room = Room.getById(socket.user.roomId);
 
           const userInRoom = room.UserInRoom(username);
           if (!userInRoom) {
-            console.log(action);
             socket.emit('output', { message: `You don't see ${username} anywhere!` });
             return true;
           }

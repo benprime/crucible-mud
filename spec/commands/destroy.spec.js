@@ -12,7 +12,7 @@ describe('destroy', function () {
   beforeAll(function () {
     socket = new mocks.SocketMock();
     room = mocks.getMockRoom();
-    spyOn(Room, 'getRoomById').and.callFake(() => room);
+    spyOn(Room, 'getById').and.callFake(() => room);
     spyOn(room.mobs, 'remove');
     spyOn(socket.user.inventory, 'remove');
     spyOn(autocomplete, 'autocomplete');
@@ -21,7 +21,7 @@ describe('destroy', function () {
   beforeEach(function () {
     socket.emit.calls.reset();
     socket.broadcast.to().emit.calls.reset();
-    Room.getRoomById.calls.reset();
+    Room.getById.calls.reset();
     room.mobs.remove.calls.reset();
     socket.user.inventory.remove.calls.reset();
     socket.user.save.calls.reset();

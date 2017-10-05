@@ -22,7 +22,6 @@
     /*
     if(data.message.includes('You say "boogie"')) {
       ta.classList.toggle('shake');
-      console.log(ta.class);
     }
     */
   });

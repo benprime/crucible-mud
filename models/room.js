@@ -11,6 +11,7 @@ const roomCache = {};
 // Direction Support
 //============================================================================
 const dirEnum = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw', 'u', 'd'];
+
 const longToShort = {
   north: 'n',
   northeast: 'ne',
@@ -35,6 +36,19 @@ const shortToLong = {
   nw: 'northwest',
   u: 'up',
   d: 'down',
+};
+
+const oppositeDir = {
+  n: 's',
+  ne: 'sw',
+  e: 'w',
+  se: 'nw',
+  s: 'n',
+  sw: 'ne',
+  w: 'e',
+  nw: 'se',
+  u: 'd',
+  d: 'u',
 };
 
 //============================================================================
@@ -88,34 +102,12 @@ RoomSchema.statics.getById = function (roomId) {
 };
 
 RoomSchema.statics.oppositeDirection = function (dir) {
-  switch (dir) {
-    case 'n':
-      return 's';
-    case 'ne':
-      return 'sw';
-    case 'e':
-      return 'w';
-    case 'se':
-      return 'nw';
-    case 's':
-      return 'n';
-    case 'sw':
-      return 'ne';
-    case 'w':
-      return 'e';
-    case 'nw':
-      return 'se';
-    case 'u':
-      return 'd';
-    case 'd':
-      return 'u';
-    default:
-      return null;
-  }
+  if (dir in oppositeDir) return oppositeDir[dir];
+  return null;
 };
 
 RoomSchema.statics.byCoords = function (coords, cb) {
-  return this.findOne({ x: coords.x, y: coords.y, z: coords.z }, cb);
+  return this.findOne(coords, cb);
 };
 
 RoomSchema.statics.shortToLong = function (dir) {
@@ -138,22 +130,17 @@ RoomSchema.statics.validDirectionInput = function (dir) {
 // Instance methods
 //============================================================================
 RoomSchema.methods.socketInRoom = function (socketId) {
-  if (!(this.id in global.io.sockets.adapter.rooms)) {
-    return false;
-  }
-  const sockets = global.io.sockets.adapter.rooms[this.id].sockets;
-  return socketId in sockets;
+  const ioRoom = global.io.sockets.adapter.rooms[this.id];
+  return ioRoom && socketId in ioRoom.sockets;
 };
 
 RoomSchema.methods.usersInRoom = function () {
-  if (!(this.id in global.io.sockets.adapter.rooms)) {
+  const ioRoom = global.io.sockets.adapter.rooms[this.id];
+  if (!ioRoom) {
     return [];
   }
 
-  const clients = global.io.sockets.adapter.rooms[this.id].sockets;
-  const otherUsers = Object.keys(clients);
-
-  // return array of string usernames
+  const otherUsers = Object.keys(ioRoom.sockets);
   return otherUsers.map(socketId => global.io.sockets.connected[socketId].user.username);
 };
 

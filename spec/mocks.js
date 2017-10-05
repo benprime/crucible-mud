@@ -28,7 +28,7 @@ if (!JSON.orderedStringify) {
 function getMockRoom() {
   var room = new Room();
   room.mobs = [];
-  
+
   room.roomIds = {
     u: new ObjectID(),
     d: new ObjectID(),
@@ -41,7 +41,7 @@ function getMockRoom() {
     se: new ObjectID(),
     sw: new ObjectID(),
   };
-  
+
   room.exits = [
     { dir: 'u', roomId: room.roomIds.u, closed: false },
     { dir: 'd', roomId: room.roomIds.d },
@@ -55,13 +55,11 @@ function getMockRoom() {
     { dir: 'sw', roomId: room.roomIds.sw },
   ];
 
-
-
   room.getExit = jasmine.createSpy('getExit').and.callFake(function () { return room.exits[0]; });
   room.save = jasmine.createSpy('save').and.callFake(() => { });
   room.look = jasmine.createSpy('look').and.callFake(() => { });
 
-  room.reset = function() {
+  room.reset = function () {
     room.getExit.calls.reset();
     room.save.calls.reset();
     room.look.calls.reset();
@@ -70,12 +68,11 @@ function getMockRoom() {
   return room;
 }
 
-
 function IOMock() {
   // todo: restructure this to bind the roomCalls and emit spies together
   const ioMock = this;
   this.roomCalls = [];
-  this.ioEmitSpy = jasmine.createSpy('globalEmitSpy'),
+  this.ioEmitSpy = jasmine.createSpy('globalEmitSpy');
 
   this.to = jasmine.createSpy().and.callFake(function (roomKey) {
     ioMock.roomCalls.push(roomKey);
@@ -84,13 +81,24 @@ function IOMock() {
     };
   });
 
+  // confused as to why sometimes the structure is:
+  // sockets.adapter.rooms
+  // sockets.sockets.adapter.rooms
   this.sockets = {
-    sockets: {},
+    adapter: {
+      rooms: {},
+    },
+    sockets: {
+      adapter: {
+        rooms: {},
+      },
+    },
   };
 }
 
 function SocketMock() {
   const sm = this;
+  this.id = new ObjectID();
   this.roomCalls = [];
   const broadcastEmitSpy = jasmine.createSpy('userSocketBroadcastEmit');
   this.emit = jasmine.createSpy('userSocketEmit');

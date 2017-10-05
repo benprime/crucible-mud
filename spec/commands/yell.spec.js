@@ -11,7 +11,7 @@ xdescribe('yell', function () {
 
   beforeAll(function () {
     room = mocks.getMockRoom();
-    spyOn(Room, 'getRoomById').and.callFake(() => room);
+    spyOn(Room, 'getById').and.callFake(() => room);
     socket = new mocks.SocketMock();
     socket.user = { roomId: 123 };
   });

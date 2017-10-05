@@ -37,7 +37,7 @@ describe('create', function () {
 
     beforeEach(function () {
       room = mocks.getMockRoom();
-      spyOn(Room, 'getRoomById').and.callFake(() => room);
+      spyOn(Room, 'getById').and.callFake(() => room);
       spyOn(room, 'createRoom').and.callFake((dir, someFunc) => {
         someFunc();
       });

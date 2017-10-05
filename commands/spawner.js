@@ -11,21 +11,22 @@ setInterval(() => {
   const now = Date.now();
 
   // loop through rooms that contain spawners...
-  Room.roomsWithSpawners().forEach(function (room) {
+  const roomsWithSpawners = Object.values(Room.roomCache).filter(r => r.spawner && r.spawner.timeout);
+  roomsWithSpawners.forEach(function (room) {
     let max = room.spawner.max ? room.spawner.max : 10;
     let timeout = room.spawner.timeout ? room.spawner.timeout : 4000;
-    
-    if(!room.lastMobDeath) {
+
+    if (!room.lastMobDeath) {
       room.lastMobDeath = now;
     }
 
-    if(room.mobs.length < max && now - room.lastMobDeath >= timeout && room.spawner.mobTypes.length > 0) {
+    if (room.mobs.length < max && now - room.lastMobDeath >= timeout && room.spawner.mobTypes.length > 0) {
       let mobTypeIndex = global.getRandomNumber(0, room.spawner.mobTypes.length);
       let mobTypeName = room.spawner.mobTypes[mobTypeIndex];
       let mobType = mobData.catalog.find(mob => mob.name.toLowerCase() === mobTypeName.toLowerCase());
       let mob = new Mob(mobType, room.id);
       room.mobs.push(mob);
-      global.io.to(room.id).emit('output', {message: `<span class="yellow">A ${mobType.displayName} appears!</span>`});
+      global.io.to(room.id).emit('output', { message: `<span class="yellow">A ${mobType.displayName} appears!</span>` });
     }
 
   });
@@ -52,7 +53,7 @@ module.exports = {
   },
 
   execute(socket, action, param) {
-    const room = Room.getRoomById(socket.user.roomId);
+    const room = Room.getById(socket.user.roomId);
     action = action ? action.toLowerCase() : null;
 
     if (!room.spawner) {

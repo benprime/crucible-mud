@@ -16,7 +16,7 @@ module.exports = {
 
   execute(socket, message) {
 
-    const room = Room.getRoomById(socket.user.roomId);
+    const room = Room.getById(socket.user.roomId);
 
     room.exits.forEach((exit) => {
       let preMsg = '';

@@ -15,7 +15,7 @@ function lookDir(socket, room, dir) {
     return;
   }
 
-  const lookRoom = Room.getRoomById(exit.roomId);
+  const lookRoom = Room.getById(exit.roomId);
   socket.emit('output', { message: `You look to the ${Room.exitName(dir)}...` });
   socket.broadcast.to(lookRoom.id).emit('output', { message: `<span class="yellow">${socket.user.username} peaks in from the ${Room.exitName(Room.oppositeDirection(dir))}.</span>` });
   lookRoom.Look(socket, false);
@@ -54,7 +54,7 @@ module.exports = {
   },
 
   execute(socket, short, lookTarget) {
-    const room = Room.getRoomById(socket.user.roomId);
+    const room = Room.getById(socket.user.roomId);
 
     if (lookTarget) {
       lookTarget = lookTarget.toLowerCase();

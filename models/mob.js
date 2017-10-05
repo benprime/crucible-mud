@@ -43,7 +43,7 @@ Mob.prototype.TakeDamage = function (socket, damage) {
 };
 
 Mob.prototype.Die = function (socket) {
-  const room = Room.getRoomById(socket.user.roomId);
+  const room = Room.getById(socket.user.roomId);
   room.lastMobDeath = new Date();
   global.io.to(room.id).emit('output', { message: `The ${this.displayName} collapses.` });
   room.mobs.remove(this);
@@ -53,7 +53,7 @@ Mob.prototype.Die = function (socket) {
 // todo: cleaning up for current room. This may needs some rework when the mobs
 // can move from room to room.
 Mob.prototype.Dispose = function (socket) {
-  const room = Room.getRoomById(socket.user.roomId);
+  const room = Room.getById(socket.user.roomId);
   let sockets = room.getSockets();
   sockets.forEach((s) => {
     if (s.user.attackTarget === this.id) {
@@ -73,14 +73,11 @@ Mob.prototype.selectTarget = function (roomid) {
   if (room) {
     // todo: check if this player has left or died or whatever.
     if (!this.attackTarget) {
-      console.log('Finding mob attack target...');
-
       // select random player to attack
       const clients = room.sockets;
       const socketsInRoom = Object.keys(clients);
       const targetIndex = global.getRandomNumber(0, socketsInRoom.length);
       const socketId = socketsInRoom[targetIndex];
-      console.log('target\'s socket id: ' + socketId);
 
       // get player socket
       const socket = global.io.sockets.connected[socketId];
@@ -105,12 +102,10 @@ Mob.prototype.attack = function (now) {
   }
 
   if (!global.SocketInRoom(this.roomId, this.attackTarget)) {
-    console.log('Invalid attack target for mob.');
     this.attackTarget = undefined;
     return false;
   }
 
-  console.log('mob target:' + this.attackTarget);
   this.lastAttack = now;
   const dmg = 0;
   let socketId = this.attackTarget;

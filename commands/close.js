@@ -17,7 +17,7 @@ module.exports = {
 
     // changes "north" to "n" (just returns "n" if that's what's passed in)
     const d = Room.ValidDirectionInput(dir.toLowerCase());
-    const room = Room.getRoomById(socket.user.roomId);
+    const room = Room.getById(socket.user.roomId);
 
     // valid exit in that direction?
     const exit = room.exits.find(e => e.dir === d);

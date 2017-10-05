@@ -90,13 +90,12 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    console.log(match);
     module.exports.execute(socket, match[0]);
   },
 
   execute(socket, dir) {
     const d = Room.ValidDirectionInput(dir.toLowerCase());
-    const room = Room.getRoomById(socket.user.roomId);
+    const room = Room.getById(socket.user.roomId);
 
     // valid exit in that direction?
     const exit = room.exits.find(e => e.dir === d);
@@ -134,12 +133,10 @@ module.exports = {
 
     socket.broadcast.to(room.id).emit('output', { message });
     MovementSounds(socket, room, d);
-    console.log('Leaving room: ', room.id);
     socket.leave(room.id);
 
     // update user session
     socket.user.roomId = exit.roomId;
-    console.log('Joining room: ', exit.roomId);
     socket.user.save();
     socket.join(exit.roomId);
 

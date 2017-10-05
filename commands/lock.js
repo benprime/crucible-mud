@@ -14,7 +14,6 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    console.log(match);
     if (match.length != 3) {
       module.exports.help(socket);
       return;
@@ -25,7 +24,7 @@ module.exports = {
   },
 
   execute(socket, dir, keyName) {
-    const room = Room.getRoomById(socket.user.roomId);
+    const room = Room.getById(socket.user.roomId);
     dir = Room.ValidDirectionInput(dir);
     let exit = room.getExit(dir);
     if (!exit || !('closed' in exit)) {

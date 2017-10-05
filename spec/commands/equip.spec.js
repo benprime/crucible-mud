@@ -11,7 +11,7 @@ describe('equip', function () {
   beforeAll(function() {
     socket = new mocks.SocketMock();
     room = mocks.getMockRoom();
-    spyOn(Room, 'getRoomById').and.callFake(() => room);
+    spyOn(Room, 'getById').and.callFake(() => room);
   });
 
   describe('execute', function () {

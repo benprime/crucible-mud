@@ -38,7 +38,7 @@ describe('drop', function () {
   beforeEach(function () {
 
     room = mocks.getMockRoom();
-    spyOn(Room, 'getRoomById').and.callFake(() => room);
+    spyOn(Room, 'getById').and.callFake(() => room);
     socket = new mocks.SocketMock();
 
     item = new Item();

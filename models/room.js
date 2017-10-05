@@ -5,8 +5,9 @@ const mongoose = require('mongoose');
 const ItemSchema = require('./itemSchema');
 const SpawnerSchema = require('./spawnerSchema');
 
+
 //============================================================================
-// Constants
+// Direction Support
 //============================================================================
 const dirEnum = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw', 'u', 'd'];
 const longToShort = {
@@ -22,13 +23,8 @@ const longToShort = {
   down: 'd',
 };
 
-//============================================================================
-// Room Cache
-//============================================================================
-const rooms = {};
-
 function LongToShort(dir) {
-  if(dir in longToShort) return longToShort[dir];
+  if (dir in longToShort) return longToShort[dir];
   return dir;
 }
 
@@ -68,35 +64,27 @@ const RoomSchema = new mongoose.Schema({
     locked: {
       type: Boolean,
     },
-
   }],
-
   spawner: SpawnerSchema,
   inventory: [ItemSchema],
 });
 
 //============================================================================
-// Static methods
+// Statics
 //============================================================================
-RoomSchema.statics.getRoomById = function(roomId) {
-  return rooms[roomId];
+RoomSchema.statics.roomCache = {};
+
+RoomSchema.statics.getById = function (roomId) {
+  return RoomSchema.statics.roomCache[roomId];
 };
 
-RoomSchema.statics.loadRooms = function() {
+RoomSchema.statics.loadRooms = function () {
   this.find({}, function (err, result) {
     result.forEach(function (room) {
       room.mobs = [];
-      rooms[room.id] = room;
+      RoomSchema.statics.roomCache[room.id] = room;
     });
   });
-};
-
-RoomSchema.statics.roomsWithMobs = function() {
-  return Object.values(rooms).filter(r => r.mobs.length > 0);
-};
-
-RoomSchema.statics.roomsWithSpawners = function() {
-  return Object.values(rooms).filter(r => r.spawner && r.spawner.timeout);
 };
 
 RoomSchema.statics.oppositeDirection = function (dir) {
@@ -122,7 +110,7 @@ RoomSchema.statics.oppositeDirection = function (dir) {
     case 'd':
       return 'u';
     default:
-      return 'WHAT';
+      return null;
   }
 };
 
@@ -157,7 +145,7 @@ RoomSchema.statics.exitName = function (dir) {
   }
 };
 
-RoomSchema.statics.ValidDirectionInput = function(dir) {
+RoomSchema.statics.ValidDirectionInput = function (dir) {
   let input = dir.toLowerCase();
   input = LongToShort(input);
   switch (input) {
@@ -246,7 +234,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
 
       // update this room with exit to new room
       targetRoom.save(function (err, updatedRoom) {
-        
+
         // add new room to room cache
         rooms[updatedRoom.id] = updatedRoom;
 
@@ -277,8 +265,6 @@ RoomSchema.methods.Look = function (socket, short) {
 
   let names = this.UsersInRoom(this.id).filter(name => name !== socket.user.username);
 
-  console.log('Users in room names: ', names);
-
   const mobNames = this.mobs.map(mob => mob.displayName + ' ' + mob.hp);
   if (mobNames) { names = names.concat(mobNames); }
   const displayNames = names.join('<span class=\'mediumOrchid\'>, </span>');
@@ -303,7 +289,6 @@ RoomSchema.methods.getMobById = function (mobId) {
 };
 
 RoomSchema.methods.dirToCoords = function (dir) {
-
   let x = this.x;
   let y = this.y;
   let z = this.z;

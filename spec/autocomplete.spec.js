@@ -22,7 +22,7 @@ describe('autocomplete', function () {
       keys: [],
     };
     room = mocks.getMockRoom();
-    spyOn(Room, 'getRoomById').and.callFake(() => room);
+    spyOn(Room, 'getById').and.callFake(() => room);
   });
 
   it('TargetTypes should be expected object', function () {

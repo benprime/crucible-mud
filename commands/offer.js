@@ -14,7 +14,7 @@ module.exports = {
   },
 
   execute(socket, userName, itemName) {
-    const room = Room.getRoomById(socket.user.roomId);
+    const room = Room.getById(socket.user.roomId);
     //todo: probably a bad pratice to change parameters directly. Make a copy.
     userName = userName.toLowerCase();
     itemName = itemName.toLowerCase();

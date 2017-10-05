@@ -18,7 +18,7 @@ module.exports = {
   },
 
   execute(socket, type, param) {
-    const room = Room.getRoomById(socket.user.roomId);
+    const room = Room.getById(socket.user.roomId);
     if (type === 'room') {
       const dir = Room.ValidDirectionInput(param.toLowerCase());
       if (!dir) {

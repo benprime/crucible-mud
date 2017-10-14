@@ -81,17 +81,11 @@ function IOMock() {
     };
   });
 
-  // confused as to why sometimes the structure is:
-  // sockets.adapter.rooms
-  // sockets.sockets.adapter.rooms
   this.sockets = {
     adapter: {
       rooms: {},
     },
-    sockets: {
-      adapter: {
-        rooms: {},
-      },
+    connected: {
     },
   };
 }
@@ -113,7 +107,7 @@ function SocketMock() {
   }),
 
   this.broadcast = {
-    to: this.to
+    to: this.to,
   };
 
   this.id = 'socketid';

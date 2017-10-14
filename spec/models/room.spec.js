@@ -9,7 +9,9 @@ describe('room model', function () {
 
     describe('getById', function () {
       it('should return correct room', function () {
-        Room.roomCache['123'] = { name: 'a room' };
+        Room.roomCache['123'] = {
+          name: 'a room',
+        };
 
         const result = Room.getById('123');
 
@@ -17,7 +19,9 @@ describe('room model', function () {
       });
 
       it('should return undefined when room not found', function () {
-        Room.roomCache['123'] = { name: 'a room' };
+        Room.roomCache['123'] = {
+          name: 'a room',
+        };
 
         const result = Room.getById('222');
 
@@ -53,7 +57,11 @@ describe('room model', function () {
       });
 
       it('should call findOne with coordinates', function () {
-        const coords = { x: 1, y: 2, z: 3 };
+        const coords = {
+          x: 1,
+          y: 2,
+          z: 3,
+        };
 
         Room.byCoords(coords);
 
@@ -137,7 +145,7 @@ describe('room model', function () {
 
   describe('instance method', function () {
     let room;
-    beforeEach(function() {
+    beforeEach(function () {
       room = new Room();
     });
 
@@ -155,13 +163,13 @@ describe('room model', function () {
 
       it('should return true when socket in room', function () {
         const result = room.socketInRoom(socket.id);
-        
+
         expect(result).toBe(true);
       });
 
       it('should return false when socket not in room', function () {
         const result = room.socketInRoom('socket id not in room');
-        
+
         expect(result).toBe(false);
       });
     });
@@ -178,35 +186,43 @@ describe('room model', function () {
         global.io.sockets.adapter.rooms[room.id].sockets = {};
 
         const result = room.usersInRoom(socket.id);
-        
-        expect(Array.isArray(result)).toBe(true);
 
+        expect(Array.isArray(result)).toBe(true);
+        expect(result.length).toBe(0);
       });
 
       it('should return array of names when users in room', function () {
+        const sockets = {};
+        sockets[socket.id] = new mocks.SocketMock();
+        sockets[socket.id].user.username = 'TestUser1';
+        sockets['socket2'] = new mocks.SocketMock();
+        sockets['socket2'].user.username = 'TestUser2';
 
+        global.io.sockets.adapter.rooms[room.id] = {
+          sockets: sockets,
+        };
+        global.io.sockets.connected = sockets;
+
+        const result = room.usersInRoom(socket.id);
+
+        expect(Array.isArray(result)).toBe(true);
+        expect(result.length).toBe(2);
+        expect(result).toEqual(['TestUser1', 'TestUser2']);
       });
     });
 
-    describe('createRoom', function () {
-    });
+    describe('createRoom', function () {});
 
-    describe('getSockets', function () {
-    });
+    describe('getSockets', function () {});
 
-    describe('look', function () {
-    });
+    describe('look', function () {});
 
-    describe('getMobById', function () {
-    });
+    describe('getMobById', function () {});
 
-    describe('dirToCoords', function () {
-    });
+    describe('dirToCoords', function () {});
 
-    describe('getExit', function () {
-    });
+    describe('getExit', function () {});
 
-    describe('addExit', function () {
-    });
+    describe('addExit', function () {});
   });
 });

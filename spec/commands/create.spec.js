@@ -51,7 +51,7 @@ describe('create', function () {
 
         expect(room.createRoom).toHaveBeenCalledWith(dir, jasmine.any(Function));
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Room created.' });
-        expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${shortDir}!` });
+        expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${shortDir}!` });
       });
 
       it('should output error message when direction in invalid', function () {

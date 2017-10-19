@@ -68,7 +68,7 @@ describe('drop', function () {
 
       expect(socket.user.save).not.toHaveBeenCalled();
       expect(room.save).not.toHaveBeenCalled();
-      expect(socket.broadcast.to().emit).not.toHaveBeenCalled();
+      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t seem to be carrying that!' });
     });
 
@@ -78,7 +78,7 @@ describe('drop', function () {
         sut.execute(socket, 'non-existent item');
         expect(socket.user.save).not.toHaveBeenCalled();
         expect(room.save).not.toHaveBeenCalled();
-        expect(socket.broadcast.to().emit).not.toHaveBeenCalled();
+        expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t seem to be carrying that!' });
       });
 
@@ -89,7 +89,7 @@ describe('drop', function () {
         expect(room.save).toHaveBeenCalled();
         expect(socket.user.inventory.length).toBe(0);
         expect(room.inventory[0].toObject()).toBeJsonEqual(item.toObject());
-        expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: 'TestUser drops dropItem.' });
+        expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser drops dropItem.' });
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Dropped.' });
       });
     });
@@ -101,7 +101,7 @@ describe('drop', function () {
         expect(room.save).toHaveBeenCalled();
         expect(socket.user.keys.length).toBe(0);
         expect(room.inventory[0].toObject()).toBeJsonEqual(key.toObject());
-        expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: 'TestUser drops dropKey.' });
+        expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser drops dropKey.' });
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Dropped.' });
       });
     });
@@ -118,7 +118,7 @@ describe('drop', function () {
       expect(room.save).not.toHaveBeenCalled();
       expect(socket.user.keys.length).toBe(1);
       expect(socket.user.inventory.length).toBe(1);
-      expect(socket.broadcast.to().emit).not.toHaveBeenCalled();
+      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown item type!' });
     });
 

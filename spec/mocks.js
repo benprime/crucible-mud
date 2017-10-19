@@ -27,6 +27,7 @@ if (!JSON.orderedStringify) {
 
 function getMockRoom() {
   var room = new Room();
+  room.id = new ObjectID();
   room.mobs = [];
 
   room.roomIds = {

@@ -211,18 +211,63 @@ describe('room model', function () {
       });
     });
 
-    describe('createRoom', function () {});
+    describe('createRoom', function () {
+      let socket;
+      let room;
+      
+      beforeAll(function () {
+        socket = new mocks.SocketMock();
+        global.io = new mocks.IOMock();
+      });
 
-    describe('getSockets', function () {});
+      beforeEach(function () {
+        socket.reset();
+        global.io.reset();
+        room = new Room();
+      });
 
-    describe('look', function () {});
+      it('should return false if direction is invalid', function () {
+        const result = room.createRoom('invalid direction');
 
-    describe('getMobById', function () {});
+        expect(result).toBe(false);
+        expect(socket.emit).not.toHaveBeenCalled();
+      });
 
-    describe('dirToCoords', function () {});
+      it('should return false if there is already an exit in a valid input direction', function () {
+        room.exits.push({dir: 'n', roomId: 'some-id'});
+        const result = room.createRoom('n');
 
-    describe('getExit', function () {});
+        expect(result).toBe(false);
+        expect(socket.emit).not.toHaveBeenCalled();
+      });
 
-    describe('addExit', function () {});
+      it('should create a new room if room does not already exist in target direction', function () {
+
+      });
+
+      it('should only make a new door if room exists at coords in target direction', function () {
+
+      });
+
+      it('should update room cache on success', function () {
+
+      });
+
+      it('should execute callback if passed', function () {
+
+      });
+    });
+
+    describe('getSockets', function () { });
+
+    describe('look', function () { });
+
+    describe('getMobById', function () { });
+
+    describe('dirToCoords', function () { });
+
+    describe('getExit', function () { });
+
+    describe('addExit', function () { });
   });
 });

@@ -24,7 +24,7 @@ describe('say', function () {
 
       // assert
       expect(socket.broadcast.to).toHaveBeenCalledWith(socket.user.roomId);
-      expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: 'TestUser says \"This is a message.\"' });
+      expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser says \"This is a message.\"' });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You say \"This is a message.\"' });
 
     });
@@ -39,7 +39,7 @@ describe('say', function () {
       
             // assert
             expect(socket.broadcast.to).toHaveBeenCalledWith(socket.user.roomId);
-            expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: 'TestUser says \"&lt;Safety_First.com&gt;\"' });
+            expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser says \"&lt;Safety_First.com&gt;\"' });
             expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You say \"&lt;Safety_First.com&gt;\"' });
       
     });

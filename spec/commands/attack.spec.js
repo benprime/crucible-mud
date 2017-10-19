@@ -39,10 +39,8 @@ describe('attack', function () {
   describe('execute', function () {
     beforeAll(function () {
       socket = new mocks.SocketMock();
-      socket.user = {
-        username: 'aName',
-        roomId: 123,
-      };
+      socket.user.username = 'aName';
+      socket.user.roomId = room.id;
     });
 
     it('emits and broadcasts', function () {
@@ -53,7 +51,7 @@ describe('attack', function () {
       attack.execute(socket, 'thing');
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="olive">*** Combat Engaged ***</span>' });
-      expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} moves to attack ${autocompleteResult.displayName}!` });
+      expect(socket.broadcast.to(socket.user.roomId.toString()).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} moves to attack ${autocompleteResult.displayName}!` });
     });
 
     it('emits with no target', function () {

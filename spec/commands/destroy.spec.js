@@ -20,7 +20,7 @@ describe('destroy', function () {
 
   beforeEach(function () {
     socket.emit.calls.reset();
-    socket.broadcast.to().emit.calls.reset();
+    socket.broadcast.to(socket.user.roomId).emit.calls.reset();
     Room.getById.calls.reset();
     room.mobs.remove.calls.reset();
     socket.user.inventory.remove.calls.reset();

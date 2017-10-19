@@ -32,7 +32,7 @@ describe('open', function () {
     it('should output message when direction is invalid', function () {
       sut.execute(socket, 'ne');
       
-      expect(socket.broadcast.to().emit).not.toHaveBeenCalled();
+      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'There is no exit in that direction!' });
     });
 
@@ -41,7 +41,7 @@ describe('open', function () {
       const exit = room.exits.find(e => e.dir === 'sw');
       
       expect(exit.hasOwnProperty('closed')).toBe(false);
-      expect(socket.broadcast.to().emit).not.toHaveBeenCalled();
+      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'There is no door in that direction!' });
     });
 
@@ -53,7 +53,7 @@ describe('open', function () {
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(true);
         expect(exit.closed).toBe(true);
-        expect(socket.broadcast.to().emit).not.toHaveBeenCalled();
+        expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'That door is locked.' });
       });
 
@@ -64,7 +64,7 @@ describe('open', function () {
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(false);
         expect(exit.closed).toBe(false);
-        expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: 'TestUser opens the door to the southeast.' });
+        expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser opens the door to the southeast.' });
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Door opened.' });
       });
 
@@ -75,7 +75,7 @@ describe('open', function () {
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(false);
         expect(exit.closed).toBe(false);
-        expect(socket.broadcast.to().emit).not.toHaveBeenCalled();
+        expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'That door is already open.' });
       });
     });
@@ -86,7 +86,7 @@ describe('open', function () {
         const exit = room.exits.find(e => e.dir === 'n');
         
         expect(exit.closed).toBe(false);
-        expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: 'TestUser opens the door to the north.' });
+        expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser opens the door to the north.' });
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Door opened.' });
       });
 
@@ -95,7 +95,7 @@ describe('open', function () {
         const exit = room.exits.find(e => e.dir === 's');
         
         expect(exit.closed).toBe(false);
-        expect(socket.broadcast.to().emit).not.toHaveBeenCalled();
+        expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'That door is already open.' });
       });
     });

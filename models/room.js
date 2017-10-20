@@ -129,11 +129,13 @@ RoomSchema.statics.validDirectionInput = function (dir) {
 //============================================================================
 // Instance methods
 //============================================================================
+// Candidate for static method.
 RoomSchema.methods.socketInRoom = function (socketId) {
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
   return ioRoom && socketId in ioRoom.sockets;
 };
 
+// Candidate for static method.
 RoomSchema.methods.usersInRoom = function () {
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
   if (!ioRoom) {
@@ -144,6 +146,7 @@ RoomSchema.methods.usersInRoom = function () {
   return otherUsers.map(socketId => global.io.sockets.connected[socketId].user.username);
 };
 
+// Candidate for static method.
 RoomSchema.methods.userInRoom = function (username) {
   let usernames = this.usersInRoom(this.RoomId);
   usernames = usernames.map(u => u.toLowerCase());
@@ -205,6 +208,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
   });
 };
 
+// Note: this could just as easily be a static method that takes the id
 RoomSchema.methods.getSockets = function () {
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
   if (!ioRoom) return [];

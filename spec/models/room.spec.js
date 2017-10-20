@@ -279,7 +279,34 @@ describe('room model', function () {
       });
     });
 
-    describe('getSockets', function () { });
+    describe('getSockets', function () {
+
+      beforeAll(function () {
+        global.io = new mocks.IOMock();
+      });
+
+      it('should return an empty array when no sockets exist in the room', function () {
+        let result = room.getSockets();
+
+        expect(Array.isArray(result)).toBe(true);
+        expect(result.length).toBe(0);
+      });
+
+      it('should return an array of sockets when the room is populated with users', function () {
+        global.io.sockets.adapter.rooms[room.id] = {
+          sockets: [
+            {},
+            {},
+          ],
+        };
+
+        let result = room.getSockets();
+
+        expect(Array.isArray(result)).toBe(true);
+        expect(result.length).toBe(2);
+
+      });
+    });
 
     describe('look', function () { });
 

@@ -147,6 +147,11 @@ describe('room model', function () {
     let room;
     beforeEach(function () {
       room = new Room();
+      Room.prototype.save = jasmine.createSpy('room save spy').and.callFake((cb) => {
+        if (cb) {
+          cb(null, new Room({ id: '12345' }));
+        }
+      });
     });
 
     describe('socketInRoom', function () {
@@ -214,7 +219,7 @@ describe('room model', function () {
     describe('createRoom', function () {
       let socket;
       let room;
-      
+
       beforeAll(function () {
         socket = new mocks.SocketMock();
         global.io = new mocks.IOMock();
@@ -227,34 +232,50 @@ describe('room model', function () {
       });
 
       it('should return false if direction is invalid', function () {
-        const result = room.createRoom('invalid direction');
-
-        expect(result).toBe(false);
-        expect(socket.emit).not.toHaveBeenCalled();
+        room.createRoom('invalid direction', (result) => {
+          expect(result).toBe(false);
+          expect(socket.emit).not.toHaveBeenCalled();
+          expect(Room.prototype.save).not.toHaveBeenCalled();
+        });
       });
 
       it('should return false if there is already an exit in a valid input direction', function () {
-        room.exits.push({dir: 'n', roomId: 'some-id'});
-        const result = room.createRoom('n');
-
-        expect(result).toBe(false);
-        expect(socket.emit).not.toHaveBeenCalled();
+        room.exits.push({ dir: 'n', roomId: 'some-id' });
+        room.createRoom('n', (result) => {
+          expect(result).toBe(false);
+          expect(socket.emit).not.toHaveBeenCalled();
+          expect(Room.prototype.save).not.toHaveBeenCalled();
+        });
       });
 
       it('should create a new room if room does not already exist in target direction', function () {
+        // mock "findByCoords"
+        spyOn(Room, 'findOne').and.callFake(function (coords, cb) {
+          cb(null);
+        });
 
+        room.createRoom('s', (result) => {
+          var exit = room.exits.find(e => e.dir === 's');
+
+          expect(exit).not.toBeUndefined();
+          expect(result.id in Room.roomCache).toBe(true);
+          expect(Room.prototype.save).toHaveBeenCalledTimes(2);
+        });
       });
 
-      it('should only make a new door if room exists at coords in target direction', function () {
+      it('should not load new room to cache when creating a door in a direction where room exists', function () {
+        // mock "findByCoords"
+        spyOn(Room, 'findOne').and.callFake(function (coords, cb) {
+          cb(new Room());
+        });
 
-      });
+        room.createRoom('s', (result) => {
+          var exit = room.exits.find(e => e.dir === 's');
 
-      it('should update room cache on success', function () {
-
-      });
-
-      it('should execute callback if passed', function () {
-
+          expect(exit).not.toBeUndefined();
+          expect(result.id in Room.roomCache).toBe(false);
+          expect(Room.prototype.save).toHaveBeenCalledTimes(2);
+        });
       });
     });
 

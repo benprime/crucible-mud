@@ -153,12 +153,14 @@ RoomSchema.methods.userInRoom = function (username) {
 RoomSchema.methods.createRoom = function (dir, cb) {
   const self = this;
   if (!Room.validDirectionInput(dir)) {
-    return false;
+    cb(false);
+    return;
   }
 
   let exit = self.getExit(dir);
   if (exit) {
-    return false;
+    cb(false);
+    return;
   }
 
   // see if room exists at the coords
@@ -171,7 +173,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
       targetRoom.addExit(oppDir, self.id);
       self.save();
       targetRoom.save();
-      if (cb) cb();
+      if (cb) cb(targetRoom);
     } else {
       // if room does not exist, create a new room
       // with an exit to this room
@@ -197,7 +199,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
 
         self.addExit(dir, updatedRoom.id);
         self.save();
-        if (cb) cb();
+        if (cb) cb(updatedRoom);
       });
     }
   });

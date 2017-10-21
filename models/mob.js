@@ -1,5 +1,7 @@
 'use strict';
 
+require('../globals');
+
 /* State only model */
 const ObjectId = require('mongodb').ObjectId;
 const Room = require('../models/room');

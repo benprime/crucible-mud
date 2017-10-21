@@ -45,10 +45,11 @@ const ItemSchema = new mongoose.Schema({
 });
 
 ItemSchema.methods.look = function (socket) {
-  socket.emit('output', { message: this.desc });
-  if (socket.user.admin) {
-    socket.emit('output', { message: `Item ID: ${this.id}` });
+  let output = this.desc;
+  if(socket.user.admin) {
+    output += `\nItem ID: ${this.id}`;
   }
+  socket.emit('output', { message: output });
 };
 
 module.exports = ItemSchema;

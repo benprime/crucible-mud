@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+- "6.11.3"
+before_install:
+#- export DISPLAY=:99.0
+#- sh -e /etc/init.d/xvfb start
+before_script:
+- npm install
+cache:
+ directories:
+ - node_modules
+script: node_modules/jasmine/bin/jasmine.js

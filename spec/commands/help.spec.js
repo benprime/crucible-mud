@@ -12,10 +12,13 @@ describe('help', function () {
 
   describe('execute', function () {
     it('should display general help with no parameters', function() {
+
     });
     it('should display topic help with a parameter', function() {
+
     });
     it('should display error message when topic is invalid', function() {
+      
     });
   });
 

@@ -96,6 +96,13 @@ module.exports = {
   execute(socket, dir) {
     const d = Room.validDirectionInput(dir.toLowerCase());
     const room = Room.getById(socket.user.roomId);
+    
+    if (!room) {
+      // hrmm if the exit was just validated, this should never happen.
+      HitWall(socket, d);
+      console.log('WARNING: Query couldn\'t find next room when going through a exit.');
+      return;
+    }
 
     // valid exit in that direction?
     const exit = room.exits.find(e => e.dir === d);
@@ -110,15 +117,7 @@ module.exports = {
     }
 
     let message = '';
-    if (!room) {
-      // hrmm if the exit was just validated, this should never happen.
-      HitWall(socket, d);
-      console.log('WARNING: Query couldn\'t find next room when going through a exit.');
-      return;
-    }
-
     var username = socket.user.username;
-
     // send message to everyone in old room that player is leaving
     if (d === 'u') {
       message = `${username} has gone above.`;
@@ -155,7 +154,6 @@ module.exports = {
     // You have moved south...
     socket.emit('output', { message: Feedback(dir) });
     lookCommand.execute(socket);
-
   },
 
   help(socket) {

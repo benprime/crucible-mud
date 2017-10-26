@@ -109,52 +109,84 @@ describe('move', function () {
       shortDir = 'u';
       sut.execute(socket, shortDir);
 
-      expect(socket.to().emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the ceiling.</span>` });
+      expect(socket.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the ceiling.</span>` });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
     });
 
-    xit('should process movement when direction is up', function(){
+    it('should process movement when direction is up', function(){
       shortDir = 'u';
-      var exitIndex = room.exits.findIndex(e => e.dir === 'u');
-      room.exits[exitIndex].closed = false;
+      var exit = room.exits.find(e => e.dir === shortDir);
+      exit.closed = false;
 
       sut.execute(socket, shortDir);
 
       expect(breakCommand.execute).toHaveBeenCalledWith(socket);
-      expect(socket.broadcast.to().emit.calls.first().args).toEqual(['output', { message: `${socket.user.username} has gone above.` }])
-      expect(socket.broadcast.to().emit.calls.any().args).toEqual(['output', { message:  'You hear movement from below.' }]);
-      expect(socket.broadcast.to().emit.calls.mostRecent().args).toEqual(['output', {message: `${socket.user.username} has entered from below.`}]);
+      expect(socket.broadcast.to(room.id).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} has gone above.` });
+      expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(0)).toEqual(['output', { message:  'You hear movement from below.' }]);
+      expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(1)).toEqual(['output', { message: `${socket.user.username} has entered from below.`}]);
       expect(socket.leave).toHaveBeenCalledWith(room.id);
       expect(socket.user.save).toHaveBeenCalled();
-      var exit = room.exits.find(e => e.dir === shortDir);
       expect(socket.join).toHaveBeenCalledWith(exit.roomId);
-    });
-    /*
-
-    it('should output messages when direction is invalid', function() {
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You move exit name...'});
+      expect(lookCommand.execute).toHaveBeenCalledWith(socket);
     });
 
-    it('should output messages when direction has closed door', function() {
+    it('should process movement when direction is down', function(){
+      shortDir = 'd';
+      var exit = room.exits.find(e => e.dir === shortDir);
+      exit.closed = false;
+
+      sut.execute(socket, shortDir);
+
+      expect(breakCommand.execute).toHaveBeenCalledWith(socket);
+      expect(socket.broadcast.to(room.id).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} has gone below.` });
+      expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(0)).toEqual(['output', { message:  'You hear movement from above.' }]);
+      expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(1)).toEqual(['output', { message: `${socket.user.username} has entered from above.`}]);
+      expect(socket.leave).toHaveBeenCalledWith(room.id);
+      expect(socket.user.save).toHaveBeenCalled();
+      expect(socket.join).toHaveBeenCalledWith(exit.roomId);
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You move exit name...'});
+      expect(lookCommand.execute).toHaveBeenCalledWith(socket);
     });
-    
-    it('should be successful when direction has open door', function() {
+
+    it('should process movement when direction is not up or down', function(){
+      shortDir = 'w';
+      var exit = room.exits.find(e => e.dir === shortDir);
+      exit.closed = false;
+
+      sut.execute(socket, shortDir);
+
+      expect(breakCommand.execute).toHaveBeenCalledWith(socket);
+      expect(socket.broadcast.to(room.id).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} has left to the exit name.` });
+      expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(0)).toEqual(['output', { message:  'You hear movement to the exit name.' }]);
+      expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(1)).toEqual(['output', { message: `${socket.user.username} has entered from the exit name.`}]);
+      expect(socket.leave).toHaveBeenCalledWith(room.id);
+      expect(socket.user.save).toHaveBeenCalled();
+      expect(socket.join).toHaveBeenCalledWith(exit.roomId);
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You move exit name...'});
+      expect(lookCommand.execute).toHaveBeenCalledWith(socket);
     });
 
-    it('should emit movement sounds to adjacent rooms on successful move', function() {
 
-    });
-
-    it('should output messages on successful move', function() {
-
-    });
-
-    it('should break off combat on successful move', function() {
-
-    });
-
-    it('should update user object and database on successful move', function() {
-
-    });
-    */
   });
+
+  describe('help', function() {
+    it('should print help message', function(){
+      sut.help(socket);
+      let output = '';
+      output += '<span class="cyan">move command </span><span class="darkcyan">-</span> Move in specified direction. Move command word is not used.<br />';
+      output += '<span class="mediumOrchid">n<span class="purple"> | </span>north</span> <span class="purple">-</span> Move north.<br />';
+      output += '<span class="mediumOrchid">s<span class="purple"> | </span>south</span> <span class="purple">-</span> Move south.<br />';
+      output += '<span class="mediumOrchid">e<span class="purple"> | </span>east</span> <span class="purple">-</span> Move east.<br />';
+      output += '<span class="mediumOrchid">w<span class="purple"> | </span>west</span> <span class="purple">-</span> Move west.<br />';
+      output += '<span class="mediumOrchid">ne<span class="purple"> | </span>northeast</span> <span class="purple">-</span> Move northeast.<br />';
+      output += '<span class="mediumOrchid">se<span class="purple"> | </span>southeast</span> <span class="purple">-</span> Move southeast.<br />';
+      output += '<span class="mediumOrchid">nw<span class="purple"> | </span>northwest</span> <span class="purple">-</span> Move northwest.<br />';
+      output += '<span class="mediumOrchid">sw<span class="purple"> | </span>southwest</span> <span class="purple">-</span> Move southwest.<br />';
+      output += '<span class="mediumOrchid">u<span class="purple"> | </span>up</span> <span class="purple">-</span> Move up.<br />';
+      output += '<span class="mediumOrchid">d<span class="purple"> | </span>down</span> <span class="purple">-</span> Move down.<br />';
+
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: output });
+    });
+  })
 });

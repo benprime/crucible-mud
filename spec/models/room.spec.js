@@ -428,7 +428,7 @@ describe('room model', function () {
         let result = room.getExit('n');
 
         expect(result.dir).toEqual(exit.dir);
-        expect(result.roomId).toEqual(exit.roomId);
+        expect(result.roomId.toString()).toEqual(exit.roomId.toString());
       });
 
     });

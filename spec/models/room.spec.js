@@ -2,6 +2,8 @@
 
 const mocks = require('../mocks');
 const Room = require('../../models/room');
+const Mob = require('../../models/mob');
+const ObjectId = require('mongodb').ObjectId;
 
 describe('room model', function () {
 
@@ -146,7 +148,16 @@ describe('room model', function () {
   describe('instance method', function () {
     let room;
     beforeEach(function () {
-      room = new Room();
+      room = new Room({
+        name: 'Test Room',
+        desc: 'Test Room Description',
+      });
+      room.mobs = [];
+      Room.prototype.save = jasmine.createSpy('room save spy').and.callFake((cb) => {
+        if (cb) {
+          cb(null, new Room({ id: '12345' }));
+        }
+      });
     });
 
     describe('socketInRoom', function () {
@@ -211,18 +222,235 @@ describe('room model', function () {
       });
     });
 
-    describe('createRoom', function () {});
+    describe('createRoom', function () {
+      let socket;
+      let room;
 
-    describe('getSockets', function () {});
+      beforeAll(function () {
+        socket = new mocks.SocketMock();
+        global.io = new mocks.IOMock();
+      });
 
-    describe('look', function () {});
+      beforeEach(function () {
+        socket.reset();
+        global.io.reset();
+        room = new Room();
+      });
 
-    describe('getMobById', function () {});
+      it('should return false if direction is invalid', function () {
+        room.createRoom('invalid direction', (result) => {
+          expect(result).toBe(false);
+          expect(socket.emit).not.toHaveBeenCalled();
+          expect(Room.prototype.save).not.toHaveBeenCalled();
+        });
+      });
 
-    describe('dirToCoords', function () {});
+      it('should return false if there is already an exit in a valid input direction', function () {
+        room.exits.push({ dir: 'n', roomId: 'some-id' });
+        room.createRoom('n', (result) => {
+          expect(result).toBe(false);
+          expect(socket.emit).not.toHaveBeenCalled();
+          expect(Room.prototype.save).not.toHaveBeenCalled();
+        });
+      });
 
-    describe('getExit', function () {});
+      it('should create a new room if room does not already exist in target direction', function () {
+        // mock "findByCoords"
+        spyOn(Room, 'findOne').and.callFake(function (coords, cb) {
+          cb(null);
+        });
 
-    describe('addExit', function () {});
+        room.createRoom('s', (result) => {
+          var exit = room.exits.find(e => e.dir === 's');
+
+          expect(exit).not.toBeUndefined();
+          expect(result.id in Room.roomCache).toBe(true);
+          expect(Room.prototype.save).toHaveBeenCalledTimes(2);
+        });
+      });
+
+      it('should not load new room to cache when creating a door in a direction where room exists', function () {
+        // mock "findByCoords"
+        spyOn(Room, 'findOne').and.callFake(function (coords, cb) {
+          cb(new Room());
+        });
+
+        room.createRoom('s', (result) => {
+          var exit = room.exits.find(e => e.dir === 's');
+
+          expect(exit).not.toBeUndefined();
+          expect(result.id in Room.roomCache).toBe(false);
+          expect(Room.prototype.save).toHaveBeenCalledTimes(2);
+        });
+      });
+    });
+
+    describe('getSockets', function () {
+
+      beforeAll(function () {
+        global.io = new mocks.IOMock();
+      });
+
+      it('should return an empty array when no sockets exist in the room', function () {
+        let result = room.getSockets();
+
+        expect(Array.isArray(result)).toBe(true);
+        expect(result.length).toBe(0);
+      });
+
+      it('should return an array of sockets when the room is populated with users', function () {
+        global.io.sockets.adapter.rooms[room.id] = {
+          sockets: [
+            {},
+            {},
+          ],
+        };
+
+        let result = room.getSockets();
+
+        expect(Array.isArray(result)).toBe(true);
+        expect(result.length).toBe(2);
+      });
+    });
+
+    describe('look', function () {
+
+      let socket;
+
+      beforeEach(function () {
+        socket = new mocks.SocketMock();
+      });
+
+      it('should build output string with just title and exits when short parameter is passed', function () {
+        room.look(socket, true);
+
+        expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan">Test Room</span>\n' });
+      });
+
+      it('should build output string with description when short parameter is false', function () {
+        room.look(socket, false);
+
+        expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan">Test Room</span>\n<span class="silver">Test Room Description</span>\n' });
+      });
+
+      it('should include inventory in output when inventory length is not zero', function () {
+        room.inventory = [{ displayName: 'An Item' }];
+        room.look(socket);
+
+        expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan">Test Room</span>\n<span class="silver">Test Room Description</span>\n<span class="darkcyan">You notice: An Item.</span>\n' });
+      });
+
+      it('should include users in room when the user is not the only user in room', function () {
+        const sockets = {};
+        sockets[socket.id] = new mocks.SocketMock();
+        sockets[socket.id].user.username = 'TestUser1';
+        sockets['socket2'] = new mocks.SocketMock();
+        sockets['socket2'].user.username = 'TestUser2';
+
+        global.io.sockets.adapter.rooms[room.id] = {
+          sockets: sockets,
+        };
+        global.io.sockets.connected = sockets;
+
+        room.look(socket);
+
+        expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan">Test Room</span>\n<span class="silver">Test Room Description</span>\n<span class="purple">Also here: <span class="teal">TestUser1<span class="mediumOrchid">, </span>TestUser2</span>.</span>\n' });
+      });
+
+      it('should include exits when there is at least one exit in the room', function () {
+        room.exits = [{ dir: 'n' }];
+        room.look(socket);
+
+        expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan">Test Room</span>\n<span class="silver">Test Room Description</span>\n<span class="green">Exits: north</span>\n' });
+      });
+
+      it('should display room id when user is an admin', function () {
+        socket.user.admin = true;
+        room.look(socket);
+
+        expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan">Test Room</span>\n<span class="silver">Test Room Description</span>\n<span class="gray">Room ID: ' + room.id + '</span>\n' });
+      });
+    });
+
+    describe('getMobById', function () {
+      it('should return mob by in the room', function () {
+        let mob = Object.create(Mob.prototype);
+        mob.displayName = 'Test Mob';
+        room.mobs = [mob];
+
+        let result = room.getMobById(mob.id);
+
+        expect(result).toBe(mob);
+      });
+
+      it('should return falsy when mob not found', function () {
+        let mob = Object.create(Mob.prototype);
+        mob.displayName = 'Test Mob';
+
+        let result = room.getMobById(mob.id);
+
+        expect(result).toBeFalsy();
+      });
+    });
+
+    describe('dirToCoords', function () {
+      const dirToCoordsParamTest = function (inputDir, expectedOutput) {
+        it('should return correct direction', function () {
+          const result = Room.oppositeDirection(inputDir);
+
+          expect(result).toBe(expectedOutput);
+        });
+      };
+      dirToCoordsParamTest('n', 's');
+      dirToCoordsParamTest('ne', 'sw');
+      dirToCoordsParamTest('e', 'w');
+      dirToCoordsParamTest('se', 'nw');
+      dirToCoordsParamTest('s', 'n');
+      dirToCoordsParamTest('sw', 'ne');
+      dirToCoordsParamTest('w', 'e');
+      dirToCoordsParamTest('nw', 'se');
+      dirToCoordsParamTest('u', 'd');
+      dirToCoordsParamTest('d', 'u');
+      dirToCoordsParamTest('?', null);
+    });
+
+    describe('getExit', function () {
+      it('should return undefined if exit does not exists', function () {
+        let result = room.getExit('s');
+
+        expect(result).toBeUndefined();
+      });
+
+      it('should return exit object when exit exists', function () {
+        let exit = { _id: new ObjectId(), dir: 'n', roomId: new ObjectId() };
+        room.exits.push(exit);
+
+        let result = room.getExit('n');
+
+        expect(result.dir).toEqual(exit.dir);
+        expect(result.roomId).toEqual(exit.roomId);
+      });
+
+    });
+
+    describe('addExit', function () {
+      it('should return false if exit already exists', function () {
+        let exit = { _id: new ObjectId(), dir: 's', roomId: new ObjectId() };
+        room.exits.push(exit);
+
+        let result = room.addExit('s');
+
+        expect(result).toBeFalsy();
+      });
+
+      it('should return true when exit successfully added to object', function () {
+        let result = room.addExit('e');
+
+        let exit = room.exits.find(e => e.dir === 'e');
+
+        expect(result).toBeTruthy();
+        expect(exit).toBeDefined();
+      });
+    });
   });
 });

@@ -42,15 +42,26 @@ describe('look', function () {
     let autocompleteResult;
     let shortDir;
 
-    beforeEach(function () {
+    beforeAll(function () {
       room = mocks.getMockRoom();
+      room.id = socket.user.roomId;
       spyOn(autocomplete, 'autocomplete').and.callFake(() => autocompleteResult);
       spyOn(Room, 'getById').and.callFake(() => room);
       shortDir = 'n';
       spyOn(Room, 'oppositeDirection').and.callFake(() => 'opposite');
       spyOn(Room, 'shortToLong').and.callFake(() => 'exit name');
       spyOn(Room, 'validDirectionInput').and.callFake(() => shortDir);
+    });
+
+    beforeEach(function () {
+      autocomplete.autocomplete.calls.reset();
+      Room.getById.and.callFake(() => room);
+      Room.getById.calls.reset();
+      Room.oppositeDirection.calls.reset();
+      Room.shortToLong.calls.reset();
+      Room.validDirectionInput.calls.reset();
       socket.emit.calls.reset();
+      room.exits = [];
     });
 
     it('should output short room look when short param is true', function () {
@@ -66,25 +77,28 @@ describe('look', function () {
     });
 
     it('should output room look when lookTarget is a direction', function () {
+      const targetRoom = mocks.getMockRoom();
       room.exits.push({
         closed: false,
         dir: shortDir,
+        roomId: targetRoom.id,
       });
+
+      Room.getById.and.returnValues(room, targetRoom);
 
       sut.execute(socket, false, shortDir);
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You look to the exit name...' });
-      expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: `<span class="yellow">${socket.user.username} peaks in from the exit name.</span>` });
-      expect(room.look).toHaveBeenCalledWith(socket, false);
+      expect(socket.broadcast.to(targetRoom.id).emit).toHaveBeenCalledWith('output', { message: `<span class="yellow">${socket.user.username} peaks in from the exit name.</span>` });
+      expect(targetRoom.look).toHaveBeenCalledWith(socket, false);
     });
 
     it('should output a message when lookTarget is a direction with a closed door', function () {
-      shortDir = 'closedDir';
       room.exits.push({
         closed: true,
-        dir: shortDir,
+        dir: 'n',
       });
-      sut.execute(socket, false, shortDir);
+      sut.execute(socket, false, 'n');
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'The door in that direction is closed!' });
     });

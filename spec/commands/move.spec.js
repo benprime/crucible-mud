@@ -51,7 +51,7 @@ describe('move', function () {
 
       sut.execute(socket, shortDir);
 
-      expect(socket.to().emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the ceiling.</span>` });
+      expect(socket.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the ceiling.</span>` });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
     });
 
@@ -62,7 +62,7 @@ describe('move', function () {
 
       sut.execute(socket, shortDir);
       
-      expect(socket.to().emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the floor.</span>` });
+      expect(socket.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the floor.</span>` });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
     });
 
@@ -70,7 +70,7 @@ describe('move', function () {
       shortDir = 'zzz';
       sut.execute(socket, shortDir);
       
-      expect(socket.to().emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the wall to the exit name.</span>` });
+      expect(socket.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the wall to the exit name.</span>` });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
     });
    
@@ -80,7 +80,7 @@ describe('move', function () {
       room.exits[exitIndex].closed = true;
       sut.execute(socket, shortDir);
       
-      expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the closed door above.</span>` });
+      expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the closed door above.</span>` });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
     });
 
@@ -90,7 +90,7 @@ describe('move', function () {
       room.exits[exitIndex].closed = true;
       sut.execute(socket, shortDir);
       
-      expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the trapdoor on the floor.</span>` });
+      expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the trapdoor on the floor.</span>` });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
     });
 
@@ -100,7 +100,7 @@ describe('move', function () {
       room.exits[exitIndex].closed = true;
       sut.execute(socket, shortDir);
       
-      expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the door to the exit name.</span>` });
+      expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the door to the exit name.</span>` });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
     });
 

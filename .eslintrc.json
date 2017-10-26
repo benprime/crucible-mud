@@ -39,6 +39,7 @@
       "always-multiline"
     ],
     "no-console": "off",
+    "jasmine/no-focused-tests":  "off",
     "jasmine/no-spec-dupes": 
     [
       1,

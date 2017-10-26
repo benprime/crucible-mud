@@ -12,11 +12,11 @@ describe('break', function () {
       // arrange
       socket = new mocks.SocketMock();
       socket.user = {
-        roomId: 123,
+        roomId: '123',
         username: 'TestUser',
         attackInterval: 1,
         lastAttack: 1,
-        attackTarget: 1
+        attackTarget: 1,
       };
 
       // act
@@ -26,8 +26,8 @@ describe('break', function () {
       expect(socket.user.attackInterval).toBeUndefined();
       expect(socket.user.lastAttack).toBeUndefined();
       expect(socket.user.attackTarget).toBeUndefined();
-      expect(socket.broadcast.to).toHaveBeenCalledWith(123);
-      expect(socket.broadcast.to().emit).toHaveBeenCalledWith('output', { message: 'TestUser breaks off his attack.' });
+      expect(socket.broadcast.to).toHaveBeenCalledWith(socket.user.roomId);
+      expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser breaks off his attack.' });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
     });
 
@@ -39,7 +39,7 @@ describe('break', function () {
         username: 'TestUser',
         attackInterval: undefined,
         lastAttack: undefined,
-        attackTarget: undefined
+        attackTarget: undefined,
       };
 
       // act
@@ -50,7 +50,7 @@ describe('break', function () {
       expect(socket.user.lastAttack).toBeUndefined();
       expect(socket.user.attackTarget).toBeUndefined();
       expect(socket.broadcast.to).not.toHaveBeenCalled();
-      expect(socket.broadcast.to().emit).not.toHaveBeenCalled();
+      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
       expect(socket.emit).not.toHaveBeenCalledWith();
     });
   });

@@ -129,11 +129,13 @@ RoomSchema.statics.validDirectionInput = function (dir) {
 //============================================================================
 // Instance methods
 //============================================================================
+// Candidate for static method.
 RoomSchema.methods.socketInRoom = function (socketId) {
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
   return ioRoom && socketId in ioRoom.sockets;
 };
 
+// Candidate for static method.
 RoomSchema.methods.usersInRoom = function () {
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
   if (!ioRoom) {
@@ -144,6 +146,7 @@ RoomSchema.methods.usersInRoom = function () {
   return otherUsers.map(socketId => global.io.sockets.connected[socketId].user.username);
 };
 
+// Candidate for static method.
 RoomSchema.methods.userInRoom = function (username) {
   let usernames = this.usersInRoom(this.RoomId);
   usernames = usernames.map(u => u.toLowerCase());
@@ -153,12 +156,14 @@ RoomSchema.methods.userInRoom = function (username) {
 RoomSchema.methods.createRoom = function (dir, cb) {
   const self = this;
   if (!Room.validDirectionInput(dir)) {
-    return false;
+    cb(false);
+    return;
   }
 
   let exit = self.getExit(dir);
   if (exit) {
-    return false;
+    cb(false);
+    return;
   }
 
   // see if room exists at the coords
@@ -171,7 +176,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
       targetRoom.addExit(oppDir, self.id);
       self.save();
       targetRoom.save();
-      if (cb) cb();
+      if (cb) cb(targetRoom);
     } else {
       // if room does not exist, create a new room
       // with an exit to this room
@@ -197,12 +202,13 @@ RoomSchema.methods.createRoom = function (dir, cb) {
 
         self.addExit(dir, updatedRoom.id);
         self.save();
-        if (cb) cb();
+        if (cb) cb(updatedRoom);
       });
     }
   });
 };
 
+// Note: this could just as easily be a static method that takes the id
 RoomSchema.methods.getSockets = function () {
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
   if (!ioRoom) return [];
@@ -210,38 +216,39 @@ RoomSchema.methods.getSockets = function () {
 };
 
 RoomSchema.methods.look = function (socket, short) {
-  let output = `<span class='cyan'>${this.name}</span>\n`;
+  let output = `<span class="cyan">${this.name}</span>\n`;
 
   if (!short) {
-    output += `<span class='silver'>${this.desc}</span>\n`;
+    output += `<span class="silver">${this.desc}</span>\n`;
   }
 
   if (this.inventory && this.inventory.length > 0) {
-    output += `<span class='darkcyan'>You notice: ${this.inventory.map(item => item.displayName).join(', ')}.</span>\n`;
+    output += `<span class="darkcyan">You notice: ${this.inventory.map(item => item.displayName).join(', ')}.</span>\n`;
   }
 
   let names = this.usersInRoom(this.id).filter(name => name !== socket.user.username);
 
   const mobNames = this.mobs.map(mob => mob.displayName + ' ' + mob.hp);
   if (mobNames) { names = names.concat(mobNames); }
-  const displayNames = names.join('<span class=\'mediumOrchid\'>, </span>');
+  const displayNames = names.join('<span class="mediumOrchid">, </span>');
 
   if (displayNames) {
-    output += `<span class='purple'>Also here: <span class='teal'>${displayNames}</span>.</span>\n`;
+    output += `<span class="purple">Also here: <span class="teal">${displayNames}</span>.</span>\n`;
   }
 
   if (this.exits.length > 0) {
-    output += `<span class='green'>Exits: ${this.exits.map(exit => Room.shortToLong(exit.dir)).join(', ')}</span>\n`;
+    output += `<span class="green">Exits: ${this.exits.map(exit => Room.shortToLong(exit.dir)).join(', ')}</span>\n`;
   }
 
   if (!short && socket.user.admin) {
-    output += `<span class='gray'>Room ID: ${this.id}</span>\n`;
+    output += `<span class="gray">Room ID: ${this.id}</span>\n`;
   }
 
   socket.emit('output', { message: output });
 };
 
 RoomSchema.methods.getMobById = function (mobId) {
+  if(!this.mobs) return;
   return this.mobs.find(m => m.id === mobId);
 };
 
@@ -265,6 +272,8 @@ RoomSchema.methods.getExit = function (dir) {
   return this.exits.find(e => e.dir === ldir);
 };
 
+// make it clear this is an internal methoid (maybe make this private)
+// it does not save anything to database
 RoomSchema.methods.addExit = function (dir, roomId) {
   const ldir = dir.toLowerCase();
   const exit = this.getExit(ldir);

@@ -187,5 +187,5 @@ describe('move', function () {
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: output });
     });
-  })
+  });
 });

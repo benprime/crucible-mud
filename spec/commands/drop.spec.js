@@ -36,7 +36,6 @@ describe('drop', function () {
   });
 
   beforeEach(function () {
-
     room = mocks.getMockRoom();
     spyOn(Room, 'getById').and.callFake(() => room);
     socket = new mocks.SocketMock();
@@ -63,23 +62,23 @@ describe('drop', function () {
 
   describe('execute', function () {
     // TODO: fix this test when autocomplete is updated
-    xit('should output error message item to drop is ambiguous', function () {
+    it('should do nothing when item to drop is ambiguous', function () {
       sut.execute(socket, 'drop');
 
       expect(socket.user.save).not.toHaveBeenCalled();
       expect(room.save).not.toHaveBeenCalled();
       expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t seem to be carrying that!' });
     });
 
     describe('when item.type is item', function () {
 
       it('should output error message when item is not found in user inventory', function () {
         sut.execute(socket, 'non-existent item');
+
         expect(socket.user.save).not.toHaveBeenCalled();
         expect(room.save).not.toHaveBeenCalled();
         expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t seem to be carrying that!' });
+        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t see that here.' });
       });
 
       it('should remove item from user inventory and add to room inventory', function () {
@@ -97,6 +96,7 @@ describe('drop', function () {
     describe('when item.type is key', function () {
       it('should remove key from user keys and add to room inventory', function () {
         sut.execute(socket, 'dropKey');
+
         expect(socket.user.save).toHaveBeenCalled();
         expect(room.save).toHaveBeenCalled();
         expect(socket.user.keys.length).toBe(0);

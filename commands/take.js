@@ -26,9 +26,7 @@ module.exports = {
 
     // get any items offered to the user
     const item = autocomplete.autocomplete(socket, ['room'], itemName);
-
     if (!item) {
-      socket.emit('output', { message: 'You don\'t see that here!' });
       return;
     }
 
@@ -51,7 +49,7 @@ module.exports = {
 
     room.save();
     socket.user.save();
-    
+
     socket.emit('output', { message: `${item.displayName} taken.` });
     socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} takes ${item.displayName}.` });
 

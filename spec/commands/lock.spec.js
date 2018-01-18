@@ -28,22 +28,22 @@ describe('lock', function () {
 
   it('should output message when direction is invalid', function () {
     sut.execute(socket, 'e', 'some key');
-    
+
     expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No door in that direction.' });
     expect(room.save).not.toHaveBeenCalled();
   });
 
   it('should output message when direction is not a door', function () {
     sut.execute(socket, 's', 'some key');
-    
+
     expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No door in that direction.' });
     expect(room.save).not.toHaveBeenCalled();
   });
 
-  it('should output message when key name is invalid', function () {
+  it('should do nothing (and autocomplete should print error) when key name is invalid', function () {
     sut.execute(socket, 'n', 'some key');
-    
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You are not carrying that key.' });
+
+    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t see that here.' });
     expect(room.save).not.toHaveBeenCalled();
   });
 
@@ -51,7 +51,7 @@ describe('lock', function () {
     socket.user.keys = [{name: 'key', displayName: 'some key'}];
     sut.execute(socket, 'n', 'some key');
     var exit = room.exits.find(e => e.dir === 'n');
-    
+
     expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Door locked.' });
     expect(room.save).toHaveBeenCalledTimes(1);
     expect(exit.closed).toBe(true);

@@ -28,7 +28,7 @@ describe('create', function () {
       let type = 'room';
       let param = 'thing';
       sut.dispatch(socket, ['create', type, param]);
-      
+
       expect(executeSpy).toHaveBeenCalledWith(socket, type, param);
     });
   });
@@ -46,10 +46,9 @@ describe('create', function () {
 
     describe('when type is room', function () {
       it('should accept valid forms of direction input', function () {
-        let dir = 'n';
-        sut.execute(socket, 'room', dir);
+        sut.execute(socket, 'room', 'n');
 
-        expect(room.createRoom).toHaveBeenCalledWith(dir, jasmine.any(Function));
+        expect(room.createRoom).toHaveBeenCalledWith('n', jasmine.any(Function));
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Room created.' });
         expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${shortDir}!` });
       });
@@ -60,9 +59,6 @@ describe('create', function () {
 
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Invalid direction!' });
       });
-
-      xit('should update roomManager current state and database with door on success', function () {
-      });
     });
 
     describe('when type is door', function () {
@@ -71,6 +67,7 @@ describe('create', function () {
         sut.execute(socket, 'door', dir);
 
         expect(room.getExit).toHaveBeenCalledWith(dir);
+        expect(room.getExit('n').closed).toBe(true);
         expect(room.save).toHaveBeenCalled();
       });
 

@@ -23,10 +23,10 @@ describe('equip', function () {
   });
 
   describe('execute', function () {
-    it('should output message when item is not in inventory', function () {
+    it('should do nothing when item is not in inventory', function () {
       autocompleteResult = null;
       sut.execute(socket, 'boot');
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t seem be carrying that.\n' });
+      expect(socket.emit).not.toHaveBeenCalled();
     });
 
     it('should output message when item is not equipable', function () {
@@ -51,7 +51,7 @@ describe('equip', function () {
 
     });
 
-    // good candidate for that test case custom runner 
+    // good candidate for that test case custom runner
     it('should equip item of equip type and remove from backpack', function () {
       // test case for each type
     });

@@ -103,27 +103,16 @@ describe('look', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'The door in that direction is closed!' });
     });
 
-    it('should output item look when lookTarget is an inventory item', function () {
+    it('should do nothing when lookTarget is an invalid inventory item', function () {
       Room.validDirectionInput.and.callFake(() => null);
       socket.user.inventory = [{ displayName: 'boot', desc: 'an old boot' }];
       autocompleteResult = undefined;
 
       sut.execute(socket, false, 'boot');
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t see that here!' });
+      expect(socket.emit).not.toHaveBeenCalled();
     });
 
-    xit('should output mob look when lookTarget is a valid autocomplete result', function () {
-      // this is not yet implemented
-      shortDir = 'invalid direction';
-      autocompleteResult = {
-        look: jasmine.createSpy('moblook')
-      };
-
-      sut.execute(socket, false, 'someObj');
-
-      expect(autocompleteResult.look).toHaveBeenCalled();
-    });
   });
 
   it('help should output message', function () {

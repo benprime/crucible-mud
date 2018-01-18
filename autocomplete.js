@@ -37,7 +37,7 @@ function getTargetList(socket, target) {
 function ambigiousMessage(results) {
   let output = 'Which did you mean?\n';
   results.forEach(r => {
-    output += `- ${r.displayName}\n`;
+    output += `- ${r.matchedValue}\n\n`;
   });
   return output;
 }
@@ -75,17 +75,15 @@ module.exports = {
 
     var results = displayNameResults.concat(nameResults);
 
-    // TODO: Currently we print the message out, but the command will still
-    // return null, which leads to "not found" messages in calling commands.
-    if(results.length > 1) {
-      socket.emit('output', {message: ambigiousMessage(results)});
-    }
-    
-    if (results.length === 1) {
+    if (results.length > 1) {
+      socket.emit('output', { message: ambigiousMessage(results) });
+      return null;
+    } else if (results.length == 0) {
+      socket.emit('output', { message: 'You don\'t see that here.' });
+      return null;
+    } else {
       const list = getTargetList(socket, results[0].target);
       return list.find(i => i[results[0].property] === results[0].matchedValue);
-    } else {
-      return null;
     }
   },
 

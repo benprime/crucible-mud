@@ -29,8 +29,7 @@ module.exports = {
     if (type === 'mob') {
       // look for mob in user's current room
       const mob = autocomplete.autocomplete(socket, ['mob'], name);
-      if(!mob) {
-        socket.emit('output', { message: 'You don\'t see that here.' });
+      if (!mob) {
         return;
       }
 
@@ -42,8 +41,7 @@ module.exports = {
     }
     else if (type === 'item') {
       var item = autocomplete.autocomplete(socket, ['inventory'], name);
-      if(!item) {
-        socket.emit('output', { message: 'You don\'t see that here.' });
+      if (!item) {
         return;
       }
 

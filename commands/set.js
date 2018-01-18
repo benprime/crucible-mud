@@ -46,6 +46,10 @@ module.exports = {
       socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} has altered the fabric of reality.` });
       lookCmd.execute(socket);
     }
+    else {
+      socket.emit('output', { message: 'Invalid type.' });
+      return;
+    }
   },
 
   help(socket) {

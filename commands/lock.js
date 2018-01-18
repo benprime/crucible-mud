@@ -34,7 +34,6 @@ module.exports = {
 
     const key = autocomplete.autocomplete(socket, ['key'], keyName);
     if (!key) {
-      socket.emit('output', { message: 'You are not carrying that key.' });
       return;
     }
 

@@ -17,7 +17,6 @@ module.exports = {
 
   execute(socket, itemName, hand) {
 
-    //const item = autocomplete.autocomplete(socket, ['equipSlots'], itemName);
     var item;
     for (var i in socket.user.equipSlots) {
       if(!socket.user.equipSlots[i]) continue;

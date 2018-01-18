@@ -30,13 +30,13 @@ module.exports = {
     }
 
     const userNames = room.usersInRoom()
-      .filter(name => name !== socket.user.username);
+      .filter(name => name !== socket.user.username && name == userName);
 
     if (userNames.length == 0) {
       socket.emit('output', { message: `${userName} is not here!` });
       return;
     } else if (userNames.length > 1) {
-      socket.emit('output', { message: `${userName} is a common name here. Be more specific.` });
+      socket.emit('output', { message: `'${userName}' is a common name here. Be more specific.` });
       return;
     } else {
       userName = userNames[0];

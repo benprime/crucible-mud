@@ -59,11 +59,13 @@ function getMockRoom() {
   room.getExit = jasmine.createSpy('getExit').and.callFake(function () { return room.exits[0]; });
   room.save = jasmine.createSpy('save').and.callFake(() => { });
   room.look = jasmine.createSpy('look').and.callFake(() => { });
+  room.usersInRoom = jasmine.createSpy('usersInRoom');
 
   room.reset = function () {
     room.getExit.calls.reset();
     room.save.calls.reset();
     room.look.calls.reset();
+    room.usersInRoom.calls.reset();
   };
 
   return room;

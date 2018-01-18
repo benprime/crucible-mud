@@ -152,7 +152,7 @@ UserSchema.statics.findByName = function (name, cb) {
 UserSchema.methods.nextExp = function () {
   const BASE_XP = 300;
   const BASE_RATE = 1;
-  return BASE_XP * Math.pow(1 + BASE_RATE, this.level);
+  return BASE_XP * Math.pow(1 + BASE_RATE, this.level - 1);
 };
 
 UserSchema.methods.addExp = function (amount) {
@@ -182,7 +182,7 @@ UserSchema.methods.attackRoll = function (weapon) {
   */
 
   // just return 0 or 1 for now
-  return dice.Roll('1d2'); 
+  return dice.Roll('1d2');
 };
 
 UserSchema.methods.attack = function (socket, mob, now) {

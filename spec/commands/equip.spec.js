@@ -48,7 +48,12 @@ describe('equip', function () {
     });
 
     it('should output message to specify which hand for hand related slots', function () {
-
+      var ring = new Item();
+      ring.equip = 'finger';
+      ring.name = 'mood';
+      autocompleteResult = ring;
+      sut.execute(socket, 'mood');
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Please specify which hand to equip the item\n' });
     });
 
     // good candidate for that test case custom runner 

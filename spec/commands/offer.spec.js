@@ -27,11 +27,13 @@ describe('offer', function () {
     let autocompleteResult;
     let usersInRoom = ['TestUser', 'aUser'];
     let room = mocks.getMockRoom();
+    let otherUserSocket;
 
     beforeEach(function(){
       spyOn(autocomplete, 'autocomplete').and.callFake(() => autocompleteResult);
       spyOn(Room, 'getById').and.returnValue(room);
-      spyOn(global, 'GetSocketByUsername').and.callFake(() => socket);
+      otherUserSocket = new mocks.SocketMock();
+      spyOn(global, 'GetSocketByUsername').and.callFake(() => otherUserSocket);
       socket.user.inventory = [{id: 'aItemId', name: 'aItem'}];
       socket.user.username = 'TestUser';
       room.usersInRoom.and.callFake(() => usersInRoom);
@@ -54,10 +56,121 @@ describe('offer', function () {
 
     it('should output message when user is not in room', function() {
       autocompleteResult = [{id: 'aItemId', name:'aItem'}];
-      usersInRoom = ['TestUser', 'aUser', 'aUser']
+      usersInRoom = ['TestUser'];
+
+      sut.execute(socket, 'aUser', 'aItem');
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: `aUser is not here!` });
+    });
+
+    it('should output message when multiple users match', function() {
+      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      usersInRoom = ['TestUser', 'aUser', 'aUser'];
 
       sut.execute(socket, 'aUser', 'aItem');
       expect(socket.emit).toHaveBeenCalledWith('output', { message: `'aUser' is a common name here. Be more specific.` });
+    });
+
+    it('should output message if user socket is not found', function(){
+      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      usersInRoom = ['TestUser', 'aUser'];
+
+      otherUserSocket = undefined;
+
+      sut.execute(socket, 'aUser', 'aItem');
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: `aUser is not here!`});
+    });
+
+    it('should add offer to other user socket offers collection if offers collection is undefined', function(){
+      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      usersInRoom = ['TestUser', 'aUser'];
+
+      socket.user = { 
+        username: 'TestUser',
+        inventory: [{id: 'aItemId', name:'aItem'}]
+      };
+      otherUserSocket.offers = undefined;
+      let expectedOffers = [{ 
+        fromUserName: socket.user.username,
+        toUserName: 'aUser',
+        item: autocompleteResult[0]
+      }];
+      
+      sut.execute(socket, 'aUser', 'aItem');
+      expect(otherUserSocket.offers).toEqual(expectedOffers);
+    });
+
+    it('should add offer to other user socket offers collection if offers collection is empty', function(){
+      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      usersInRoom = ['TestUser', 'aUser'];
+
+      socket.user = { 
+        username: 'TestUser',
+        inventory: [{id: 'aItemId', name:'aItem'}]
+      };
+      otherUserSocket.offers = [];
+      let expectedOffers = [{ 
+        fromUserName: socket.user.username,
+        toUserName: 'aUser',
+        item: autocompleteResult[0]
+      }];
+      
+      sut.execute(socket, 'aUser', 'aItem');
+      expect(otherUserSocket.offers).toEqual(expectedOffers);
+    });
+
+    it('should overwrite offer to other user socket offers collection if same offer item exists', function(){
+      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      usersInRoom = ['TestUser', 'aUser'];
+
+      socket.user = { 
+        username: 'TestUser',
+        inventory: [{id: 'aItemId', name:'aItem'}]
+      };
+
+      let existingOffer = { 
+        fromUserName: 'TestUser',
+        toUserName: 'aUser',
+        item: {id: 'aItemId', name:'differentItem'}
+      };
+
+      otherUserSocket.offers = [existingOffer];
+
+      let expectedOffers = [{
+        fromUserName: socket.user.username,
+        toUserName: 'aUser',
+        item: autocompleteResult[0]
+      }];
+      
+      sut.execute(socket, 'aUser', 'aItem');
+      expect(otherUserSocket.offers).toEqual(expectedOffers);
+    });
+
+    it('should add offer to other user socket offers collection if existing offers exist', function(){
+      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      usersInRoom = ['TestUser', 'aUser'];
+
+      socket.user = { 
+        username: 'TestUser',
+        inventory: [{id: 'aItemId', name:'aItem'}]
+      };
+
+      let existingOffer = { 
+        fromUserName: 'TestUser',
+        toUserName: 'aUser',
+        item: {id: 'aDifferentItemId', name:'aDifferentItem'}
+      };
+
+      otherUserSocket.offers = [existingOffer];
+
+      let expectedOffers = [
+        existingOffer, {
+        fromUserName: socket.user.username,
+        toUserName: 'aUser',
+        item: autocompleteResult[0]
+      }];
+      
+      sut.execute(socket, 'aUser', 'aItem');
+      expect(otherUserSocket.offers).toEqual(expectedOffers);
     });
   });
 });

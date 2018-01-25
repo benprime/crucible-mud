@@ -50,7 +50,7 @@ module.exports = {
     };
 
     let toUserSocket = global.GetSocketByUsername(userName);
-        if (!toUserSocket) {
+    if (!toUserSocket) {
       socket.emit('output', { message: `${userName} is not here!` });
       return;
     }
@@ -58,7 +58,7 @@ module.exports = {
     let existingOfferIndex;
 
     if(!toUserSocket.offers || toUserSocket.offers.length < 1) {
-      toUserSocket.offers = [offer];
+      toUserSocket.offers = [ offer ];
     } else {
       existingOfferIndex = toUserSocket.offers.findIndex(o => o.item.id === offer.item.id);
       if (existingOfferIndex !== -1) {

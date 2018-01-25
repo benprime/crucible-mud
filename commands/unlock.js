@@ -1,5 +1,6 @@
 'use strict';
 
+const autocomplete = require('../autocomplete');
 const Room = require('../models/room');
 
 module.exports = {
@@ -22,7 +23,7 @@ module.exports = {
     module.exports.execute(socket, dir, keyName);
   },
 
-  execute(socket, dir, keyName) {
+  execute(socket, dir, keyName, cb) {
     const room = Room.getById(socket.user.roomId);
     dir = Room.validDirectionInput(dir);
     let exit = room.getExit(dir);
@@ -36,21 +37,10 @@ module.exports = {
       return;
     }
 
-    const keyNames = socket.user.keys.map(key => key.displayName);
-    const keyCompletedNames = global.AutocompleteName(socket, keyName, keyNames);
-    if (keyCompletedNames.length === 0) {
-      socket.emit('output', { message: 'You are not carrying that key.' });
-      return;
-    }
+    const key = autocomplete.autocomplete(socket, ['key'], keyName);
+    if(!key) return;
 
-    if (keyCompletedNames.length > 1) {
-      // todo: print a list of matching keys
-      socket.emit('output', { message: 'Which key did you mean?' });
-      return;
-    }
-
-    const foundKey = socket.user.keys.find(key => key.displayName === keyCompletedNames[0]);
-    if (foundKey.name != exit.keyName) {
+    if (key.name != exit.keyName) {
       socket.emit('output', { message: 'That key does not unlock that door.' });
       return;
     }
@@ -72,7 +62,8 @@ module.exports = {
         exit.closed = true;
         global.io.to(room.id).emit('output', { message: `The door ${doorDesc} slams shut and clicks locked!` });
       }
-    }, 10000);
+      if(cb) cb(exit);
+    }, global.DOOR_CLOSE_TIMER);
 
     exit.locked = false;
     socket.emit('output', { message: 'Door unlocked.' });

@@ -231,6 +231,8 @@ describe('offer', function () {
       jasmine.clock().tick(600001);
 
       expect(otherUserSocket.offers.length).toEqual(0);
+
+      jasmine.clock().uninstall();
     });
   });
 

@@ -26,36 +26,45 @@ module.exports = {
     function saveItem(item) {
       // and give it to the user
       if (item.type === 'key') {
-        socket.user.keys.push(roomItem);
+        socket.user.keys.push(item);
       } else {
-        socket.user.inventory.push(roomItem);
+        socket.user.inventory.push(item);
       }
       socket.user.save();
+      socket.emit('output', {message: `${item.displayName} was added to your inventory.`});
     }
 
     // get any items offered to the user
-    const offerIndex = socket.offers.findIndex(o => o.item.id === roomItem.id);
-    
+    let offers;
+    if(socket.offers && socket.offers.length > 0){
+      offers = socket.offers.filter(o => o.toUserName.toLowerCase() === socket.user.username.toLowerCase());
+    }
+
+    let offerIndex;
     // handle an item offered from another user
-    if (offerIndex !== -1) {
-      let offer = socket.offers[offerIndex];
-      let offeringUserSocket = global.GetSocketByUsername(offer.fromUserName);
-      if (!offeringUserSocket) {
-        socket.emit('output', { message: 'Invalid username or user is offline.' });
+    if (offers.length > 0) {
+      let offerIndex = socket.offers.findIndex(o => o.item.name === itemName);
+      if(offerIndex !== -1) {
+        let offer = socket.offers[offerIndex];
+        let offeringUserSocket = global.GetSocketByUsername(offer.fromUserName);
+        if (!offeringUserSocket) {
+          socket.emit('output', { message: 'Invalid username or user is offline.' });
+          return;
+        }
+
+        saveItem(offer.item);
+
+        // remove the offer from the list of offers
+        socket.offers.splice(offerIndex, 1);
+
+        // remove the item from the other users' inventory
+        const otherUserItemIndex = offeringUserSocket.user.inventory.findIndex(item => item.id === offer.item.id);
+        offeringUserSocket.user.inventory.splice(otherUserItemIndex, 1);
+        offeringUserSocket.emit('output', { message: `${offer.item.displayName} was removed from your inventory.` });
+        offeringUserSocket.user.save();
+
         return;
       }
-
-      saveItem(offer.item);
-
-      // remove the offer from the list of offers
-      socket.offers.splice(offerIndex, 1);
-
-      // remove the item from the other users' inventory
-      const otherUserItemIndex = offeringUserSocket.user.inventory.findIndex(item => item.id === offer.item.id);
-      offeringUserSocket.user.inventory.splice(otherUserItemIndex, 1);
-      offeringUserSocket.emit('output', { message: `${roomItem.displayName} was removed from your inventory.` });
-      offeringUserSocket.user.save();
-      return;
     }
 
     const roomItem = autocomplete.autocomplete(socket, ['room'], itemName);

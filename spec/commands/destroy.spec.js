@@ -30,10 +30,8 @@ describe('destroy', function () {
   describe('execute', function () {
 
     describe('when type is mob', function () {
-      beforeEach(function () {
-      });
 
-      it('should output error message when mob not found', function () {
+      it('should do nothing when mob is not found', function () {
         // arrange
         autocomplete.autocomplete.and.callFake(() => null);
 
@@ -41,8 +39,7 @@ describe('destroy', function () {
         sut.execute(socket, 'mob', 'not found name');
 
         // assert
-        expect(socket.emit).toHaveBeenCalledTimes(1);
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t see that here.' });
+        expect(socket.emit).not.toHaveBeenCalled();
         expect(room.mobs.remove).not.toHaveBeenCalled();
       });
 
@@ -61,7 +58,7 @@ describe('destroy', function () {
     });
 
     describe('when type is item', function () {
-      it('should output error when inventory does not contain item', function () {
+      it('should do nothing when inventory does not contain item', function () {
         // arrange
         autocomplete.autocomplete.and.callFake(() => null);
 
@@ -69,8 +66,7 @@ describe('destroy', function () {
         sut.execute(socket, 'item', 'non-existant item');
 
         // assert
-        expect(socket.emit).toHaveBeenCalledTimes(1);
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t see that here.' });
+        expect(socket.emit).not.toHaveBeenCalled();
         expect(socket.user.inventory.remove).not.toHaveBeenCalled();
         expect(socket.user.save).not.toHaveBeenCalled();
       });

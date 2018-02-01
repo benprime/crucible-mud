@@ -12,36 +12,30 @@ describe('help', function () {
 
     command = {
       name: 'gossip',
-      help: jasmine.createSpy('gossip')
-    }
+      help: jasmine.createSpy('gossip'),
+    };
 
     sut.registerCommand(command);
   });
 
   describe('execute', function () {
 
-
-    //TODO: Mock command handler
-
-
-
-    xit('should display general help with no parameters', function () {
+    it('should display general help with no parameters', function () {
       sut.execute(socket);
 
-      //check general help output
       //TODO: Preload entire help message into a variable or whatnot to check for accuracy
-      //expect(socket.emit).toHaveBeenCalledWith('output', { message: '' });
+      expect(socket.emit).toHaveBeenCalled();
     });
 
     it('should display topic help with a parameter', function () {
-      sut.execute(socket,"gossip");
+      sut.execute(socket, 'gossip');
 
       //check accuracy of output for gossip
       expect(command.help).toHaveBeenCalled();
     });
 
     it('should display error message when topic is invalid', function () {
-      sut.execute(socket,"yourface");
+      sut.execute(socket, 'yourface');
 
       //check output for bad command
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No help for that topic.' });

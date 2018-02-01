@@ -96,11 +96,10 @@ module.exports = {
   execute(socket, dir) {
     const d = Room.validDirectionInput(dir.toLowerCase());
     const room = Room.getById(socket.user.roomId);
-    
+
     if (!room) {
       // hrmm if the exit was just validated, this should never happen.
       HitWall(socket, d);
-      console.log('WARNING: Query couldn\'t find next room when going through a exit.');
       return;
     }
 

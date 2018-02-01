@@ -16,21 +16,14 @@ module.exports = {
 
   execute(socket, userName, itemName) {
     const room = Room.getById(socket.user.roomId);
-    const items = autocomplete.autocomplete(socket, ['inventory'], itemName);
+    const item = autocomplete.autocomplete(socket, ['inventory'], itemName);
 
-    let item;
-    if (!items || items.length < 1) {
-      socket.emit('output', { message: `${itemName} is not in your inventory!` });
+    if(!item) {
       return;
-    } else if (items.length > 1) {
-      socket.emit('output', { message: `Many items can be described as '${itemName}'. Be more specific.` });
-      return;
-    } else {
-      item = items[0];
     }
 
     const userNames = room.usersInRoom()
-      .filter(name => name !== socket.user.username && name == userName);
+      .filter(name => name !== socket.user.username && name.toLowerCase() == userName.toLowerCase());
 
     if (userNames.length == 0) {
       socket.emit('output', { message: `${userName} is not here!` });

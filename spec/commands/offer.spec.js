@@ -96,7 +96,10 @@ describe('offer', function () {
       }];
       
       sut.execute(socket, 'aUser', 'aItem');
+
       expect(otherUserSocket.offers).toEqual(expectedOffers);
+      expect(otherUserSocket.emit).toHaveBeenCalledWith('output', { message: `TestUser offered you a aItem.` });
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: `You offered a aItem to aUser.` });
     });
 
     it('should add offer to other user socket offers collection if offers collection is empty', function(){
@@ -116,6 +119,8 @@ describe('offer', function () {
       
       sut.execute(socket, 'aUser', 'aItem');
       expect(otherUserSocket.offers).toEqual(expectedOffers);
+      expect(otherUserSocket.emit).toHaveBeenCalledWith('output', { message: `TestUser offered you a aItem.` });
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: `You offered a aItem to aUser.` });
     });
 
     it('should overwrite offer to other user socket offers collection if same offer item exists', function(){
@@ -143,6 +148,8 @@ describe('offer', function () {
       
       sut.execute(socket, 'aUser', 'aItem');
       expect(otherUserSocket.offers).toEqual(expectedOffers);
+      expect(otherUserSocket.emit).toHaveBeenCalledWith('output', { message: `TestUser offered you a aItem.` });
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: `You offered a aItem to aUser.` });
     });
 
     it('should add offer to other user socket offers collection if existing offers exist', function(){
@@ -171,6 +178,68 @@ describe('offer', function () {
       
       sut.execute(socket, 'aUser', 'aItem');
       expect(otherUserSocket.offers).toEqual(expectedOffers);
+      expect(otherUserSocket.emit).toHaveBeenCalledWith('output', { message: `TestUser offered you a aItem.` });
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: `You offered a aItem to aUser.` });
+    });
+
+    it('should add offer to other user socket offers collection if existing offers exist', function(){
+      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      usersInRoom = ['TestUser', 'aUser'];
+
+      socket.user = { 
+        username: 'TestUser',
+        inventory: [{id: 'aItemId', name:'aItem'}]
+      };
+
+      let existingOffer = { 
+        fromUserName: 'TestUser',
+        toUserName: 'aUser',
+        item: {id: 'aDifferentItemId', name:'aDifferentItem'}
+      };
+
+      otherUserSocket.offers = [existingOffer];
+
+      let expectedOffers = [
+        existingOffer, {
+        fromUserName: socket.user.username,
+        toUserName: 'aUser',
+        item: autocompleteResult[0]
+      }];
+      
+      sut.execute(socket, 'aUser', 'aItem');
+      expect(otherUserSocket.offers).toEqual(expectedOffers);
+      expect(otherUserSocket.emit).toHaveBeenCalledWith('output', { message: `TestUser offered you a aItem.` });
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: `You offered a aItem to aUser.` });
+    });
+
+    it('should remove offer if it is not taken before the timeout', function(){
+      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      usersInRoom = ['TestUser', 'aUser'];
+
+      socket.user = { 
+        username: 'TestUser',
+        inventory: [{id: 'aItemId', name:'aItem'}]
+      };
+
+      // Install the clock so we can mock setting the ticks ahead
+      jasmine.clock().install();
+      
+      sut.execute(socket, 'aUser', 'aItem');
+      expect(otherUserSocket.offers.length).toEqual(1);
+
+      // Set the clock ahead to trigger the timeout
+      jasmine.clock().tick(600001);
+
+      expect(otherUserSocket.offers.length).toEqual(0);
+    });
+  });
+
+  describe('help', function(){
+    it('should output message', function(){
+      sut.help(socket);
+
+      const output = '<span class="mediumOrchid">offer &lt;item&gt; &lt;player&gt; </span><span class="purple">-</span> Offer an item to a player.<br />';
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: output });
     });
   });
 });

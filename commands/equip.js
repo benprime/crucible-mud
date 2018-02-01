@@ -18,10 +18,7 @@ module.exports = {
   execute(socket, itemName, hand) {
 
     const item = autocomplete.autocomplete(socket, ['inventory'], itemName);
-
-    // if no match emit "itemName is not in your inventory" and return
-    if(!item) {
-      socket.emit('output', { message: 'You don\'t seem be carrying that.\n' });
+    if (!item) {
       return;
     }
 
@@ -99,7 +96,7 @@ module.exports = {
 
       //add bonuses from itemName to corresponding character stats
     }
-    
+
     // remove item from backpack
     socket.user.inventory.remove(item);
     socket.user.save();

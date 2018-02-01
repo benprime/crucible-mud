@@ -17,7 +17,6 @@ module.exports = {
 
   execute(socket, itemName, hand) {
 
-    //const item = autocomplete.autocomplete(socket, ['equipSlots'], itemName);
     var item;
     for (var i in socket.user.equipSlots) {
       if(!socket.user.equipSlots[i]) continue;
@@ -53,7 +52,7 @@ module.exports = {
           socket.user.equipSlots.weaponOff = null;
         }
         else {
-          socket.emit('output', { message: 'Please specify which hand to equip the item\n' });
+          socket.emit('output', { message: 'Please specify which hand to unequip the item from\n' });
           return;
         }
         break;
@@ -89,7 +88,7 @@ module.exports = {
           socket.user.equipSlots.fingerOff = null;
         }
         else {
-          socket.emit('output', { message: 'Please specify which hand to equip the item\n' });
+          socket.emit('output', { message: 'Please specify which hand to unequip the item from\n' });
           return;
         }
         break;

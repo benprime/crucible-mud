@@ -17,6 +17,10 @@ describe('attack', function () {
     spyOn(autocomplete, 'autocomplete').and.callFake(() => autocompleteResult);
   });
 
+  beforeEach(function() {
+    socket.reset();
+  });
+
   describe('dispatch triggers execute', function () {
     let executeSpy;
 
@@ -31,7 +35,7 @@ describe('attack', function () {
     it('on short pattern', function () {
       autocompleteResult = 'thing';
       attack.dispatch(socket, ['a th', 'thing']);
-      
+
       expect(executeSpy).toHaveBeenCalledWith(socket, autocompleteResult);
     });
   });
@@ -58,7 +62,7 @@ describe('attack', function () {
       autocompleteResult = undefined;
       attack.execute(socket, 'thing');
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t see that here or it\'s ambigous!' });
+      expect(socket.emit).not.toHaveBeenCalled();
     });
   });
 });

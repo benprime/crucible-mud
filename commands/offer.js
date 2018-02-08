@@ -18,12 +18,12 @@ module.exports = {
     const room = Room.getById(socket.user.roomId);
     const item = autocomplete.autocomplete(socket, ['inventory'], itemName);
 
-    if(!item) {
+    if(!item || item.length === 0) {
       return;
     }
 
     const userNames = room.usersInRoom()
-      .filter(name => name !== socket.user.username && name.toLowerCase() == userName.toLowerCase());
+      .filter(name => name !== socket.user.username && name.toLowerCase() === userName.toLowerCase());
 
     if (userNames.length == 0) {
       socket.emit('output', { message: `${userName} is not here!` });

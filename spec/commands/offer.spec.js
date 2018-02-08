@@ -40,18 +40,11 @@ describe('offer', function () {
       socket.emit.calls.reset();
     });
 
-    it('should output message when item is not in inventory', function() {
-      autocompleteResult = [];
+    it('should return when item is not in inventory', function() {
+      autocompleteResult = null;
 
       sut.execute(socket, 'aUser', 'aItem');
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: `aItem is not in your inventory!` });
-    });
-
-    it('should output message when multiple items are in inventory', function() {
-      autocompleteResult = [{id: 'aItemId', name:'aItem'}, {id: 'anotherItemId', name:'aItem'}];
-
-      sut.execute(socket, 'aUser', 'aItem');
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: `Many items can be described as 'aItem'. Be more specific.` });
+      expect(socket.emit).not.toHaveBeenCalled();
     });
 
     it('should output message when user is not in room', function() {
@@ -81,7 +74,7 @@ describe('offer', function () {
     });
 
     it('should add offer to other user socket offers collection if offers collection is undefined', function(){
-      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      autocompleteResult = {id: 'aItemId', name:'aItem'};
       usersInRoom = ['TestUser', 'aUser'];
 
       socket.user = { 
@@ -92,7 +85,7 @@ describe('offer', function () {
       let expectedOffers = [{ 
         fromUserName: socket.user.username,
         toUserName: 'aUser',
-        item: autocompleteResult[0]
+        item: autocompleteResult
       }];
       
       sut.execute(socket, 'aUser', 'aItem');
@@ -103,7 +96,7 @@ describe('offer', function () {
     });
 
     it('should add offer to other user socket offers collection if offers collection is empty', function(){
-      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      autocompleteResult = {id: 'aItemId', name:'aItem'};
       usersInRoom = ['TestUser', 'aUser'];
 
       socket.user = { 
@@ -114,7 +107,7 @@ describe('offer', function () {
       let expectedOffers = [{ 
         fromUserName: socket.user.username,
         toUserName: 'aUser',
-        item: autocompleteResult[0]
+        item: autocompleteResult
       }];
       
       sut.execute(socket, 'aUser', 'aItem');
@@ -124,7 +117,7 @@ describe('offer', function () {
     });
 
     it('should overwrite offer to other user socket offers collection if same offer item exists', function(){
-      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      autocompleteResult = {id: 'aItemId', name:'aItem'};
       usersInRoom = ['TestUser', 'aUser'];
 
       socket.user = { 
@@ -143,7 +136,7 @@ describe('offer', function () {
       let expectedOffers = [{
         fromUserName: socket.user.username,
         toUserName: 'aUser',
-        item: autocompleteResult[0]
+        item: autocompleteResult
       }];
       
       sut.execute(socket, 'aUser', 'aItem');
@@ -153,7 +146,7 @@ describe('offer', function () {
     });
 
     it('should add offer to other user socket offers collection if existing offers exist', function(){
-      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      autocompleteResult = {id: 'aItemId', name:'aItem'};
       usersInRoom = ['TestUser', 'aUser'];
 
       socket.user = { 
@@ -173,7 +166,7 @@ describe('offer', function () {
         existingOffer, {
         fromUserName: socket.user.username,
         toUserName: 'aUser',
-        item: autocompleteResult[0]
+        item: autocompleteResult
       }];
       
       sut.execute(socket, 'aUser', 'aItem');
@@ -183,7 +176,7 @@ describe('offer', function () {
     });
 
     it('should add offer to other user socket offers collection if existing offers exist', function(){
-      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      autocompleteResult = {id: 'aItemId', name:'aItem'};
       usersInRoom = ['TestUser', 'aUser'];
 
       socket.user = { 
@@ -203,7 +196,7 @@ describe('offer', function () {
         existingOffer, {
         fromUserName: socket.user.username,
         toUserName: 'aUser',
-        item: autocompleteResult[0]
+        item: autocompleteResult
       }];
       
       sut.execute(socket, 'aUser', 'aItem');
@@ -213,7 +206,7 @@ describe('offer', function () {
     });
 
     it('should remove offer if it is not taken before the timeout', function(){
-      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
+      autocompleteResult = {id: 'aItemId', name:'aItem'};
       usersInRoom = ['TestUser', 'aUser'];
 
       socket.user = { 

@@ -1,6 +1,7 @@
 'use strict';
 
 const Room = require('../models/room');
+const autocomplete = require('../autocomplete');
 
 module.exports = {
   name: 'offer',
@@ -15,64 +16,59 @@ module.exports = {
 
   execute(socket, userName, itemName) {
     const room = Room.getById(socket.user.roomId);
-    //todo: probably a bad pratice to change parameters directly. Make a copy.
-    userName = userName.toLowerCase();
-    itemName = itemName.toLowerCase();
-    const itemNames = socket.user.inventory.map(item => item.displayName);
-    const itemNamesCompleted = global.AutocompleteName(socket, itemName, itemNames);
+    const item = autocomplete.autocomplete(socket, ['inventory'], itemName);
 
-    if (itemNamesCompleted.length == 0) {
-      socket.emit('output', { message: `${itemName} is not in your inventory!` });
+    if(!item || item.length === 0) {
       return;
-    } else if (itemNamesCompleted.length > 1) {
-      socket.emit('output', { message: `Many items can be described as '${itemName}'. Be more specific.` });
-      return;
-    } else {
-      itemName = itemNamesCompleted[0];
     }
 
-    const userNames = room.UsersInRoom()
-      .filter(name => name !== socket.user.username);
+    const userNames = room.usersInRoom()
+      .filter(name => name !== socket.user.username && name.toLowerCase() === userName.toLowerCase());
 
-    const userNamesCompleted = global.AutocompleteName(socket, userName, userNames);
-    if (userNamesCompleted.length == 0) {
+    if (userNames.length == 0) {
       socket.emit('output', { message: `${userName} is not here!` });
       return;
-    } else if (userNamesCompleted.length > 1) {
-      socket.emit('output', { message: `${userName} is a common name here. Be more specific.` });
+    } else if (userNames.length > 1) {
+      socket.emit('output', { message: `'${userName}' is a common name here. Be more specific.` });
       return;
     } else {
-      userName = userNamesCompleted[0];
+      userName = userNames[0];
     }
 
-    const userItem = socket.user.inventory.find(item => item.displayName == itemName);
-    const existingOfferIndex = global.offers.findIndex(offer => offer.itemId == userItem.id);
+    const userItemIndex = socket.user.inventory.findIndex(i => i.id === item.id);
     const offer = {
       fromUserName: socket.user.username,
       toUserName: userName,
-      item: userItem,
+      item: socket.user.inventory[userItemIndex],
     };
 
-    if (existingOfferIndex !== -1) {
-      global.offers[existingOfferIndex] = offer;
-    } else {
-      global.offers.push(offer);
-    }
-
-    setTimeout(() => {
-      let itemIndex = global.offers.findIndex(offer => offer.item.id === userItem.id);
-      if (itemIndex !== -1) {
-        global.offers.splice(itemIndex, 1);
-      }
-    }, 60000);
-
-    const userSocket = global.GetSocketByUsername(userName);
-    if (!userSocket) {
-      socket.emit('output', { message: 'Invalid username.' });
+    let toUserSocket = global.GetSocketByUsername(userName);
+    if (!toUserSocket) {
+      socket.emit('output', { message: `${userName} is not here!` });
       return;
     }
 
-    userSocket.emit('output', { message: `${socket.user.username} offered you a ${itemName}.` });
+    let existingOfferIndex;
+
+    if(!toUserSocket.offers || toUserSocket.offers.length < 1) {
+      toUserSocket.offers = [ offer ];
+    } else {
+      existingOfferIndex = toUserSocket.offers.findIndex(o => o.item.id === offer.item.id);
+      if (existingOfferIndex !== -1) {
+        toUserSocket.offers[existingOfferIndex] = offer;
+      } else {
+        toUserSocket.offers.push(offer);
+      }
+    }
+
+    setTimeout(() => {
+      let itemIndex = toUserSocket.offers.findIndex(o => o.item.id === item.id);
+      if (itemIndex !== -1) {
+        toUserSocket.offers.splice(itemIndex, 1);
+      }
+    }, 60000);
+
+    toUserSocket.emit('output', { message: `${socket.user.username} offered you a ${itemName}.` });
     socket.emit('output', { message: `You offered a ${itemName} to ${userName}.` });
   },
 

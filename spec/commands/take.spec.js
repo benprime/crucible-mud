@@ -37,7 +37,7 @@ describe('take', function () {
     })
 
     it('should add offered item to inventory', function(){
-      let offeredItem = {id: 'aItemId', name:'aItem'}
+      let offeredItem = {id: 'aItemId', name:'aItem', displayName:'aItem display name'}
       otherUserSocket.user.inventory = [offeredItem];
       socket.offers = [{ 
         fromUserName: 'aUser',
@@ -48,7 +48,12 @@ describe('take', function () {
       sut.execute(socket, 'aItem');
 
       expect(socket.user.inventory[0].name).toEqual('aItem');
+      expect(socket.emit).toHaveBeenCalledWith('output', {message: `${offeredItem.displayName} was added to your inventory.`});
+      expect(socket.user.save).toHaveBeenCalled();
       expect(otherUserSocket.user.inventory.length).toEqual(0);
+      expect(otherUserSocket.emit).toHaveBeenCalledWith('output', { message: `${offeredItem.displayName} was removed from your inventory.` });
+      expect(otherUserSocket.user.save).toHaveBeenCalled();
+      expect(socket.offers.length).toEqual(0);
     });
 
     xit('should output message when item is not found', function() {

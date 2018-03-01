@@ -45,7 +45,7 @@ describe('look', function () {
     beforeAll(function () {
       room = mocks.getMockRoom();
       room.id = socket.user.roomId;
-      spyOn(autocomplete, 'autocomplete').and.callFake(() => autocompleteResult);
+      spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
       spyOn(Room, 'getById').and.callFake(() => room);
       shortDir = 'n';
       spyOn(Room, 'oppositeDirection').and.callFake(() => 'opposite');
@@ -54,7 +54,7 @@ describe('look', function () {
     });
 
     beforeEach(function () {
-      autocomplete.autocomplete.calls.reset();
+      autocomplete.autocompleteTypes.calls.reset();
       Room.getById.and.callFake(() => room);
       Room.getById.calls.reset();
       Room.oppositeDirection.calls.reset();

@@ -23,7 +23,7 @@ function lookDir(socket, room, dir) {
 
 // for items and mobs
 function lookItem(socket, room, itemName) {
-  const lookTargetObj = autocomplete.autocomplete(socket, ['inventory', 'mob', 'room'], itemName);
+  const lookTargetObj = autocomplete.autocompleteTypes(socket, ['inventory', 'mob', 'room'], itemName);
   if (!lookTargetObj) {
     return;
   }

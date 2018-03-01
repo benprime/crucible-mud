@@ -3,88 +3,80 @@
 require('./extensionMethods');
 const Room = require('./models/room');
 
-const TargetTypes = Object.freeze({
-  Mob: 'mob',
-  Inventory: 'inventory',
-  Key: 'key',
-  Room: 'room',
+const propertyNames = ['displayName', 'name'];
+
+// ------------------------------------------
+// TypeConfigs objects:
+// - source: The array to search for objects.
+// ------------------------------------------
+const TypeConfig = Object.freeze({
+  mob: {
+    source: function (socket) {
+      const room = Room.getById(socket.user.roomId);
+      return room.mobs;
+    }
+  },
+  inventory: {
+    source: function (socket) {
+      return socket.user.inventory;
+    }
+  },
+  key: {
+    source: function (socket) {
+      return socket.user.keys;
+    }
+  },
+  room: {
+    source: function (socket) {
+      const room = Room.getById(socket.user.roomId);
+      return room.inventory;
+    }
+  }
 });
 
-function filterMatch(array, pattern) {
-  const re = new RegExp(`^${pattern}`, 'i');
-  const matches = array.filter(value => !!re.exec(value));
-
-  // return unique matches only
-  return matches.filter((item, i, matches) => matches.indexOf(item) === i);
-}
-
-function getTargetList(socket, target) {
-  const room = Room.getById(socket.user.roomId);
-  switch (target) {
-    case TargetTypes.Mob:
-      return room.mobs;
-    case TargetTypes.Inventory:
-      return socket.user.inventory;
-    case TargetTypes.Key:
-      return socket.user.keys;
-    case TargetTypes.Room:
-      return room.inventory;
-    default:
-      throw new Error('Invalid target.');
-  }
-}
-
-function ambigiousMessage(results) {
-  let output = 'Which did you mean?\n';
-  results.forEach(r => {
-    output += `- ${r.matchedValue}\n\n`;
+function distinctByProperty(arr, property) {
+  var alreadyAdded = {};
+  return arr.filter(function (obj) {
+    if (alreadyAdded[obj[property]]) return false;
+    alreadyAdded[obj[property]] = true;
+    return true;
   });
-  return output;
 }
 
-function autocompleteByProperty(socket, targets, property, fragment) {
+function autocompleteByProperty(source, property, fragment) {
+  const distinctSource = distinctByProperty(source, property);
+  const re = new RegExp(`^${fragment}`, 'i');
+  return distinctSource.filter(value => !!re.exec(value[property]));
+}
 
-  let results = [];
+function autocompleteTypes(socket, types, fragment) {
+  for (var typeKey in types) {
+    if (!types.hasOwnProperty(typeKey)) continue;
 
-  targets.forEach(target => {
-    const list = getTargetList(socket, target);
-    const names = list.map(i => i[property]).distinct();
-    var matches = filterMatch(names, fragment);
-    if (matches.length > 0) {
-      let matched = matches.map(matchedString => {
-        return {
-          target: target,
-          matchedValue: matchedString,
-          property: property,
-        };
-      });
-      results = results.concat(matched);
+    let type = types[typeKey];
+    let typeConfig = TypeConfig[type];
+    if (!typeConfig) {
+      throw `Invalid type: ${type}`;
     }
-  });
+    let source = typeConfig.source(socket);
 
-  return results;
+    for (var prop of propertyNames) {
+      let result = autocompleteByProperty(source, prop, fragment);
+
+      if (result.length > 0) {
+        return {
+          type: type,
+          item: result[0]
+        }
+      }
+    }
+  }
+
+  socket.emit('output', { message: 'You don\'t see that here.' });
+  return null;
 }
 
 module.exports = {
-
-  TargetTypes: TargetTypes,
-
-  autocomplete(socket, targets, fragment) {
-    const displayNameResults = autocompleteByProperty(socket, targets, 'displayName', fragment);
-    const nameResults = autocompleteByProperty(socket, targets, 'name', fragment);
-
-    var results = displayNameResults.concat(nameResults);
-
-    if (results.length > 1) {
-      socket.emit('output', { message: ambigiousMessage(results) });
-      return null;
-    } else if (results.length == 0) {
-      socket.emit('output', { message: 'You don\'t see that here.' });
-      return null;
-    } else {
-      const list = getTargetList(socket, results[0].target);
-      return list.find(i => i[results[0].property] === results[0].matchedValue);
-    }
-  },
-
+  autocompleteTypes,
+  autocompleteByProperty
 };

@@ -140,8 +140,44 @@ function SocketMock() {
   };
 }
 
+const mobType = {
+  name: 'kobold',
+  desc: 'an ugly kobold',
+  displayName: 'kobold sentry',
+  adjectives: [
+    {
+      name: 'big',
+      modifiers: {
+        hp: 10,
+        xp: 0,
+        minDamage: 0,
+        maxDamage: 0,
+        hitDice: 0,
+        attackInterval: 250,
+      },
+    },
+  ],
+  attackInterval: 4000,
+  hitDice: '1d4',
+  hp: 10,
+  xp: 20,
+  minDamage: 1,
+  maxDamage: 3,
+  tauntInterval: 12000, // every 3 rounds
+  deathMessage: 'The {0} crumbles to dust.',
+  taunts: [
+    'The {0} growls at {1} aggressively!',
+    'The {0} circles {1}, looking for an opening!',
+    'The {0} bellows a challenge!',
+  ],
+};
+
+
+
+
 module.exports = {
   getMockRoom,
   IOMock,
   SocketMock,
+  mobType,
 };

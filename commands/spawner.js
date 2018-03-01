@@ -96,7 +96,7 @@ module.exports = {
         socket.emit('output', { message: `Timeout updated to ${param}.` });
         break;
       case 'clear':
-        room.spawner = {};
+        room.spawner = null;
         room.save();
         socket.emit('output', { message: 'Spawner cleared.' });
         break;

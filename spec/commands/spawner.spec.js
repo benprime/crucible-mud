@@ -12,7 +12,7 @@ describe('spawner', function () {
   beforeEach(function () {
     currentRoom = mocks.getMockRoom();
     currentRoom.name = 'Dance Floor';
-    currentRoom.spawner = Spawner;
+    currentRoom.spawner = new Spawner();
     currentRoom.spawner.mobTypes.push(mocks.mobType.name);
     socket = new mocks.SocketMock();
     socket.user.roomId = currentRoom.id;

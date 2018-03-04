@@ -28,7 +28,7 @@ module.exports = {
     const room = Room.getById(socket.user.roomId);
     if (type === 'mob') {
       // look for mob in user's current room
-      const mob = autocomplete.autocomplete(socket, ['mob'], name);
+      const mob = autocomplete.autocompleteTypes(socket, ['mob'], name);
       if (!mob) {
         return;
       }
@@ -40,7 +40,7 @@ module.exports = {
       socket.broadcast.to(room.id).emit('output', { message: 'Mob erased from existence!' });
     }
     else if (type === 'item') {
-      var item = autocomplete.autocomplete(socket, ['inventory'], name);
+      var item = autocomplete.autocompleteTypes(socket, ['inventory'], name);
       if (!item) {
         return;
       }

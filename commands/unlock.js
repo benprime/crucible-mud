@@ -37,7 +37,7 @@ module.exports = {
       return;
     }
 
-    const key = autocomplete.autocomplete(socket, ['key'], keyName);
+    const key = autocomplete.autocompleteTypes(socket, ['key'], keyName);
     if(!key) return;
 
     if (key.name != exit.keyName) {

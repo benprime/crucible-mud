@@ -15,7 +15,7 @@ describe('destroy', function () {
     spyOn(Room, 'getById').and.callFake(() => room);
     spyOn(room.mobs, 'remove');
     spyOn(socket.user.inventory, 'remove');
-    spyOn(autocomplete, 'autocomplete');
+    spyOn(autocomplete, 'autocompleteTypes');
   });
 
   beforeEach(function () {
@@ -33,7 +33,7 @@ describe('destroy', function () {
 
       it('should do nothing when mob is not found', function () {
         // arrange
-        autocomplete.autocomplete.and.callFake(() => null);
+        autocomplete.autocompleteTypes.and.callFake(() => null);
 
         // act
         sut.execute(socket, 'mob', 'not found name');
@@ -45,7 +45,7 @@ describe('destroy', function () {
 
       it('should remove mob from room and output messages when successful', function () {
         // arrange
-        autocomplete.autocomplete.and.callFake(() => { return {}; });
+        autocomplete.autocompleteTypes.and.callFake(() => { return {}; });
 
         // act
         sut.execute(socket, 'mob', 'mob name');
@@ -60,7 +60,7 @@ describe('destroy', function () {
     describe('when type is item', function () {
       it('should do nothing when inventory does not contain item', function () {
         // arrange
-        autocomplete.autocomplete.and.callFake(() => null);
+        autocomplete.autocompleteTypes.and.callFake(() => null);
 
         // act
         sut.execute(socket, 'item', 'non-existant item');
@@ -74,7 +74,7 @@ describe('destroy', function () {
       it('should remove item from inventory when successful', function () {
         // arrange
         let item = {};
-        autocomplete.autocomplete.and.callFake(() => { return {}; });
+        autocomplete.autocompleteTypes.and.callFake(() => { return {}; });
 
         // act
         sut.execute(socket, 'item', 'item name');

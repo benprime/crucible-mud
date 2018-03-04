@@ -16,7 +16,7 @@ module.exports = {
 
   execute(socket, userName, itemName) {
     const room = Room.getById(socket.user.roomId);
-    const item = autocomplete.autocomplete(socket, ['inventory'], itemName);
+    const item = autocomplete.autocompleteTypes(socket, ['inventory'], itemName);
 
     if(!item || item.length === 0) {
       return;

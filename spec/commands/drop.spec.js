@@ -61,14 +61,6 @@ describe('drop', function () {
   });
 
   describe('execute', function () {
-    // TODO: fix this test when autocomplete is updated
-    it('should do nothing when item to drop is ambiguous', function () {
-      sut.execute(socket, 'drop');
-
-      expect(socket.user.save).not.toHaveBeenCalled();
-      expect(room.save).not.toHaveBeenCalled();
-      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
-    });
 
     describe('when item.type is item', function () {
 

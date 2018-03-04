@@ -17,7 +17,7 @@ module.exports = {
 
   execute(socket, targetName) {
     const room = Room.getById(socket.user.roomId);
-    const target = autocomplete.autocomplete(socket, ['mob'], targetName);
+    const target = autocomplete.autocompleteTypes(socket, ['mob'], targetName);
     if (!target) {
       return;
     }

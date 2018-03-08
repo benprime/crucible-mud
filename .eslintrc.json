@@ -24,7 +24,7 @@
     ],
     "linebreak-style": [
       "error",
-      "windows"
+      "unix"
     ],
     "quotes": [
       "error",
@@ -40,7 +40,7 @@
     ],
     "no-console": "off",
     "jasmine/no-focused-tests":  "off",
-    "jasmine/no-spec-dupes": 
+    "jasmine/no-spec-dupes":
     [
       1,
       "branch"

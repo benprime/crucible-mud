@@ -11,6 +11,7 @@
     "socket.io": "^1.7.2"
   },
   "devDependencies": {
+    "editorconfig": "^0.15.0",
     "eslint-config-airbnb-base": "^11.3.2",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jasmine": "^2.8.5",

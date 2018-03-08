@@ -32,6 +32,15 @@ setInterval(() => {
   });
 }, global.SPAWNER_INTERVAL);
 
+function toInteger(n) {
+  const parsed = parseInt(n);
+  if(!isNaN(parsed) && isFinite(n)) {
+    return parsed;
+  } else {
+
+  }
+}
+
 module.exports = {
   name: 'spawner',
   admin: true,
@@ -68,14 +77,20 @@ module.exports = {
     switch (action) {
       case 'add':
         addMobType = mobData.catalog.find(mob => mob.name.toLowerCase() === param.toLowerCase());
-        // todo: maybe just save the mob name? Saving the whole object right now.
+        if(!addMobType) {
+          socket.emit('output', { message: 'Invalid mobType.' });
+          break;
+        }
         room.spawner.mobTypes.push(addMobType.name);
         room.save();
         socket.emit('output', { message: 'Creature added to spawner.' });
         break;
       case 'remove':
         removeMobType = mobData.catalog.find(mob => mob.name.toLowerCase() === param.toLowerCase());
-        // todo: maybe just save the mob name? Saving the whole object right now.
+        if(!removeMobType) {
+          socket.emit('output', { message: 'Invalid mobType.' });
+          break;
+        }
         index = room.spawner.mobTypes.indexOf(removeMobType.name);
         if (index !== -1) {
           room.spawner.mobTypes.splice(index);
@@ -86,14 +101,24 @@ module.exports = {
         }
         break;
       case 'max':
-        room.spawner.max = param;
+        var maxVal = parseInt(param);
+        if(isNaN(maxVal)) {
+          socket.emit('output', { message: 'Invalid max value - must be an integer.' });
+          break;
+        }
+        room.spawner.max = maxVal;
         room.save();
-        socket.emit('output', { message: `Max creatures updated to ${param}.` });
+        socket.emit('output', { message: `Max creatures updated to ${maxVal}.` });
         break;
       case 'timeout':
-        room.spawner.timeout = param;
+        var timeoutVal = parseInt(param);
+        if(isNaN(timeoutVal)) {
+          socket.emit('output', { message: 'Invalid max value - must be an integer.' });
+          break;
+        }
+        room.spawner.timeout = timeoutVal;
         room.save();
-        socket.emit('output', { message: `Timeout updated to ${param}.` });
+        socket.emit('output', { message: `Timeout updated to ${timeoutVal}.` });
         break;
       case 'clear':
         room.spawner = null;

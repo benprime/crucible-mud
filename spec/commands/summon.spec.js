@@ -40,7 +40,7 @@ describe('summon', function () {
       expect(otherSocket.join).toHaveBeenCalledWith(currentRoom._id);
     });
 
-    it('should should update target user room id and save user to database', function() {
+    it('should update target user room id and save user to database', function() {
       //set current room
       otherSocket.user.roomId = otherRoom.id;
 

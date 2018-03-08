@@ -26,13 +26,13 @@ describe('unlock', function () {
     };
     room.id = 'bogus';
     spyOn(Room, 'getById').and.callFake(() => room);
-    spyOn(autocomplete, 'autocomplete').and.callFake(() => autocompleteResult);
+    spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
   });
 
   beforeEach(function () {
     socket.emit.calls.reset();
     room.save.calls.reset();
-    autocomplete.autocomplete.calls.reset();
+    autocomplete.autocompleteTypes.calls.reset();
   });
 
   it('should output message when direction is invalid', function () {

@@ -15,11 +15,11 @@ describe('equip', function () {
     socket = new mocks.SocketMock();
     room = mocks.getMockRoom();
     spyOn(Room, 'getById').and.callFake(() => room);
-    spyOn(autocomplete, 'autocomplete').and.callFake(() => autocompleteResult);
+    spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
   });
 
   beforeEach(function () {
-    autocomplete.autocomplete.calls.reset();
+    autocomplete.autocompleteTypes.calls.reset();
   });
 
   describe('execute', function () {

@@ -67,7 +67,7 @@ module.exports = {
       }
     }
 
-    const roomItem = autocomplete.autocomplete(socket, ['room'], itemName);
+    const roomItem = autocomplete.autocompleteTypes(socket, ['room'], itemName);
     if (roomItem) {
       // fixed items cannot be taken, such as a sign.
       if (roomItem.fixed) {

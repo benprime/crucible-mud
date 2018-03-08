@@ -17,7 +17,7 @@ module.exports = {
 
   execute(socket, itemName, hand) {
 
-    const item = autocomplete.autocomplete(socket, ['inventory'], itemName);
+    const item = autocomplete.autocompleteTypes(socket, ['inventory'], itemName);
     if (!item) {
       return;
     }

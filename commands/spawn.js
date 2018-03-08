@@ -22,7 +22,6 @@ module.exports = {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      // todo: print help
       socket.emit('output', { message: 'Invalid spawn usage.' });
       return;
     }
@@ -33,6 +32,9 @@ module.exports = {
 
   execute(socket, type, name) {
 
+
+    // Mob
+    //---------------------
     if (type === 'mob') {
       const createType = mobData.catalog.find(mob => mob.name.toLowerCase() === name.toLowerCase());
 
@@ -48,6 +50,10 @@ module.exports = {
       room.mobs.push(mob);
       socket.emit('output', { message: 'Summoning successful.' });
       socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
+
+
+      // Item
+      //---------------------
     } else if (type === 'item') {
       const createType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'item');
 
@@ -76,8 +82,12 @@ module.exports = {
       socket.user.save();
       socket.emit('output', { message: 'Item created.' });
 
-      // todo: determine if we want to hide when an admin creates and item      
+      // todo: determine if we want to hide when an admin creates an item
       //socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
+
+
+      // Key
+      //---------------------
     } else if (type === 'key') {
       const keyType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'key');
 
@@ -96,6 +106,13 @@ module.exports = {
       socket.user.keys.push(key);
       socket.user.save();
       socket.emit('output', { message: 'Key created.' });
+    }
+
+    // Invalid
+    //---------------------
+    else {
+      socket.emit('output', { message: 'Unknown object type.' });
+      return;
     }
   },
 

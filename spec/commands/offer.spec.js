@@ -30,7 +30,7 @@ describe('offer', function () {
     let otherUserSocket;
 
     beforeEach(function(){
-      spyOn(autocomplete, 'autocomplete').and.callFake(() => autocompleteResult);
+      spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
       spyOn(Room, 'getById').and.returnValue(room);
       otherUserSocket = new mocks.SocketMock();
       spyOn(global, 'GetSocketByUsername').and.callFake(() => otherUserSocket);

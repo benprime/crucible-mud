@@ -40,9 +40,8 @@ module.exports = {
       offers = socket.offers.filter(o => o.toUserName.toLowerCase() === socket.user.username.toLowerCase());
     }
 
-    let offerIndex;
     // handle an item offered from another user
-    if (offers.length > 0) {
+    if (offers && offers.length > 0) {
       let offerIndex = socket.offers.findIndex(o => o.item.name === itemName);
       if(offerIndex !== -1) {
         let offer = socket.offers[offerIndex];

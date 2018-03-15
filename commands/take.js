@@ -36,13 +36,12 @@ module.exports = {
 
     // get any items offered to the user
     let offers;
-    if(socket.offers && socket.offers.length > 0){
+    if(Array.isArray(socket.offers) && socket.offers.length > 0){
       offers = socket.offers.filter(o => o.toUserName.toLowerCase() === socket.user.username.toLowerCase());
     }
 
-    let offerIndex;
     // handle an item offered from another user
-    if (offers.length > 0) {
+    if (Array.isArray(offers) && offers.length > 0) {
       let offerIndex = socket.offers.findIndex(o => o.item.name === itemName);
       if(offerIndex !== -1) {
         let offer = socket.offers[offerIndex];

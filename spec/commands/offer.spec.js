@@ -85,7 +85,7 @@ describe('offer', function () {
       let expectedOffers = [{ 
         fromUserName: socket.user.username,
         toUserName: 'aUser',
-        item: autocompleteResult
+        item: autocompleteResult,
       }];
       
       sut.execute(socket, 'aUser', 'aItem');

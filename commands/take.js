@@ -41,7 +41,7 @@ module.exports = {
     }
 
     // handle an item offered from another user
-    if (Array.isArray(offers)) {
+    if (Array.isArray(offers) && offers.length > 0) {
       let offerIndex = socket.offers.findIndex(o => o.item.name === itemName);
       if(offerIndex !== -1) {
         let offer = socket.offers[offerIndex];

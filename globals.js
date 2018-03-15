@@ -15,6 +15,11 @@ global.STATES = {
 
 global.offers = [];
 
+// used by mob prototype
+global.SocketInRoom = function (roomId, socketId) {
+  const ioRoom = global.io.sockets.adapter.rooms[roomId];
+  return ioRoom && socketId in ioRoom.sockets;
+};
 
 global.GetSocketByUsername = (username) => {
   const sockets = Object.keys(global.io.sockets.sockets);

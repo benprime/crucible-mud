@@ -98,7 +98,11 @@ const RoomSchema = new mongoose.Schema({
 RoomSchema.statics.roomCache = roomCache;
 
 RoomSchema.statics.getById = function (roomId) {
-  return roomCache[roomId];
+  var room = roomCache[roomId];
+  if(!room) {
+    throw `Room ${roomId} not found in room cache!`;
+  }
+  return room;
 };
 
 RoomSchema.statics.oppositeDirection = function (dir) {
@@ -129,7 +133,6 @@ RoomSchema.statics.validDirectionInput = function (dir) {
 //============================================================================
 // Instance methods
 //============================================================================
-// Candidate for static method.
 RoomSchema.methods.socketInRoom = function (socketId) {
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
   return ioRoom && socketId in ioRoom.sockets;

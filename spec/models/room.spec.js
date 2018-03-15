@@ -25,9 +25,9 @@ describe('room model', function () {
           name: 'a room',
         };
 
-        const result = Room.getById('222');
-
-        expect(result).toBeUndefined();
+        expect( function() {
+          Room.getById('222');
+        }).toThrow();
       });
     });
 

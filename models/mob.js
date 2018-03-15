@@ -8,6 +8,9 @@ const Room = require('../models/room');
 const dice = require('../dice');
 
 function Mob(mobType, roomId) {
+
+  // TODO: When we refactor this, the mob instance does
+  // not need to contain the entire mobType.
   const instance = Object.assign(this, mobType);
   if (!this.id) {
     this.id = new ObjectId().toString();
@@ -37,24 +40,24 @@ Mob.prototype.look = function (socket) {
   }
 };
 
-Mob.prototype.TakeDamage = function (socket, damage) {
+Mob.prototype.takeDamage = function (socket, damage) {
   this.hp -= damage;
   if (this.hp <= 0) {
-    this.Die(socket);
+    this.die(socket);
   }
 };
 
-Mob.prototype.Die = function (socket) {
+Mob.prototype.die = function (socket) {
   const room = Room.getById(socket.user.roomId);
   room.lastMobDeath = new Date();
   global.io.to(room.id).emit('output', { message: `The ${this.displayName} collapses.` });
   room.mobs.remove(this);
-  this.Dispose(socket);
+  this.awardExperience(socket);
 };
 
-// todo: cleaning up for current room. This may needs some rework when the mobs
+// todo: cleaning up for current room. This may need some rework when the mobs
 // can move from room to room.
-Mob.prototype.Dispose = function (socket) {
+Mob.prototype.awardExperience = function (socket) {
   const room = Room.getById(socket.user.roomId);
   let sockets = room.getSockets();
   sockets.forEach((s) => {

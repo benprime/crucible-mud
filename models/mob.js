@@ -133,7 +133,7 @@ Mob.prototype.attack = function (now) {
   }
 
   playerSocket.emit('output', { message: playerMessage });
-  global.io.to(playerSocket.user.roomId).emit('output', { message: roomMessage });
+  global.roomMessage(this.roomId, roomMessage, [playerSocket.id]);
 
   return true;
 };

@@ -63,34 +63,51 @@ function MovementSounds(socket, room, excludeDir) {
   });
 }
 
+const commands = [
+  /^go\s+(.+)$/i,
+  /^walk\s+(.+)$/i,
+  /^move\s+(.+)$/i,
+];
+
+const directions = [
+  /^n$/i,
+  /^s$/i,
+  /^e$/i,
+  /^w$/i,
+  /^ne$/i,
+  /^nw$/i,
+  /^se$/i,
+  /^sw$/i,
+  /^u$/i,
+  /^d$/i,
+  /^north$/i,
+  /^south$/i,
+  /^east$/i,
+  /^west$/i,
+  /^northeast$/i,
+  /^northwest$/i,
+  /^southeast$/i,
+  /^southwest$/i,
+  /^up$/i,
+  /^down$/i,
+];
+
 module.exports = {
   name: 'move',
 
-  patterns: [
-    /^n$/i,
-    /^s$/i,
-    /^e$/i,
-    /^w$/i,
-    /^ne$/i,
-    /^nw$/i,
-    /^se$/i,
-    /^sw$/i,
-    /^u$/i,
-    /^d$/i,
-    /^north$/i,
-    /^south$/i,
-    /^east$/i,
-    /^west$/i,
-    /^northeast$/i,
-    /^northwest$/i,
-    /^southeast$/i,
-    /^southwest$/i,
-    /^up$/i,
-    /^down$/i,
-  ],
+  patterns: commands.concat(directions),
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[0]);
+    let direction = null;
+    let command = match.find(m => commands.some(cmd => m.match(cmd)));
+
+    if(command) {
+      direction = command.split(' ')[1];
+    } else{
+      direction = match[0];
+    }
+
+    module.exports.execute(socket, direction);
   },
 
   execute(socket, dir) {

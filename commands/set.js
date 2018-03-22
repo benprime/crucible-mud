@@ -35,14 +35,21 @@ module.exports = {
 
     //todo: break these out into seperate helper methods?
     if (type === 'room') {
-      const roomPropertyWhiteList = ['name', 'desc','alias'];
+      const roomPropertyWhiteList = ['name', 'desc', 'alias'];
       if (roomPropertyWhiteList.indexOf(prop) === -1) {
         socket.emit('output', { message: 'Invalid property.' });
         return;
       }
 
       const room = Room.getById(socket.user.roomId);
-      if(prop === 'alias' && value.toUpperCase() === 'NULL') value = null;
+      if (prop === 'alias') {
+        if (value.toUpperCase() === 'NULL') {
+          value = null;
+          delete Room.roomCache[room.alias];
+        }
+        if (Room.roomCache[value]) return;
+        Room.roomCache[value] = room;
+      }
       room[prop] = value;
       room.save();
       socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} has altered the fabric of reality.` });

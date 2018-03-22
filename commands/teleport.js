@@ -18,10 +18,9 @@ module.exports = {
   },
 
   execute(socket, teleportTo) {
-    // if the parameter is an object id, we are teleporting to a room.
-    const objectIdCheck = /^[0-9a-fA-F]{24}$/;
+    // if the parameter is an object id or alias, we are definitely teleporting to a room.
     let toRoomId = '';
-    if (objectIdCheck.test(teleportTo)) {
+    if (Room.roomCache[teleportTo]) {
       toRoomId = teleportTo;
     } else {
       // otherwise, we are teleporting to a user

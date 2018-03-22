@@ -18,6 +18,7 @@ module.exports = {
   },
 
   execute(socket, teleportTo) {
+    if(!teleportTo) return;
     // if the parameter is an object id or alias, we are definitely teleporting to a room.
     let toRoomId = '';
     if (Room.roomCache[teleportTo]) {
@@ -26,7 +27,7 @@ module.exports = {
       // otherwise, we are teleporting to a user
       const userSocket = global.GetSocketByUsername(teleportTo);
       if (!userSocket) {
-        socket.emit('output', { message: 'Player not found.' });
+        socket.emit('output', { message: 'Target not found.' });
         return;
       }
       toRoomId = userSocket.user.roomId;

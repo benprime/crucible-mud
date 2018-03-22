@@ -10,6 +10,7 @@ module.exports = {
   patterns: [
     /^set\s+(room)\s+(desc)\s+(.+)$/i,
     /^set\s+(room)\s+(name)\s+(.+)$/i,
+    /^set\s+(room)\s+(alias)\s+(.+)$/i,
     /^set$/i,
   ],
 
@@ -34,13 +35,14 @@ module.exports = {
 
     //todo: break these out into seperate helper methods?
     if (type === 'room') {
-      const roomPropertyWhiteList = ['name', 'desc'];
+      const roomPropertyWhiteList = ['name', 'desc','alias'];
       if (roomPropertyWhiteList.indexOf(prop) === -1) {
         socket.emit('output', { message: 'Invalid property.' });
         return;
       }
 
       const room = Room.getById(socket.user.roomId);
+      if(prop === 'alias' && value.toUpperCase() === 'NULL') value = null;
       room[prop] = value;
       room.save();
       socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} has altered the fabric of reality.` });
@@ -56,6 +58,7 @@ module.exports = {
     let output = '';
     output += '<span class="mediumOrchid">set room name &lt;new room name&gt; </span><span class="purple">-</span> Change name of current room.<br />';
     output += '<span class="mediumOrchid">set room desc &lt;new room desc&gt; </span><span class="purple">-</span> Change description of current room.<br />';
+    output += '<span class="mediumOrchid">set room alias &lt;new room alias&gt; </span><span class="purple">-</span> Change admin alias of current room. Set alias to "null" to clear it.<br />';
     socket.emit('output', { message: output });
   },
 };

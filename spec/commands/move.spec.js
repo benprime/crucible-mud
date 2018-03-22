@@ -21,11 +21,13 @@ describe('move', function () {
 
     it('should call execute with direction match', function () {
       sut.dispatch(socket, ['aMatch']);
+      
       expect(sut.execute).toHaveBeenCalledWith(socket, 'aMatch');
     });
 
     it('should call execute with command match', function () {
       sut.dispatch(socket, ['go aMatch']);
+
       expect(sut.execute).toHaveBeenCalledWith(socket, 'aMatch');
     });
   });

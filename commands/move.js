@@ -99,9 +99,11 @@ module.exports = {
 
   dispatch(socket, match) {
     let direction = null;
+    // Get any commands that match
     let command = match.find(m => commands.some(cmd => m.match(cmd)));
 
     if(command) {
+      // get the second word in the command match (ex, 'west' in 'go west')
       direction = command.split(' ')[1];
     } else{
       direction = match[0];

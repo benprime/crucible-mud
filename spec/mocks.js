@@ -128,6 +128,8 @@ function SocketMock() {
   user.userId = new ObjectID();
   user.roomId = new ObjectID();
   user.save = jasmine.createSpy('userSave');
+  user.addExp = jasmine.createSpy('addExp');
+  user.attackTarget = null;
   this.user = user;
 
   this.reset = function () {

@@ -61,6 +61,9 @@ const RoomSchema = new mongoose.Schema({
   desc: {
     type: String,
   },
+  alias: {
+    type: String,
+  },
   x: {
     type: Number,
   },
@@ -99,7 +102,7 @@ RoomSchema.statics.roomCache = roomCache;
 
 RoomSchema.statics.getById = function (roomId) {
   var room = roomCache[roomId];
-  if(!room) {
+  if (!room) {
     throw `Room ${roomId} not found in room cache!`;
   }
   return room;
@@ -186,6 +189,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
       targetRoom = new Room({
         name: 'Default Room Name',
         desc: 'Room Description',
+        alias: null,
         x: targetCoords.x,
         y: targetCoords.y,
         z: targetCoords.z,
@@ -245,13 +249,14 @@ RoomSchema.methods.look = function (socket, short) {
 
   if (!short && socket.user.admin) {
     output += `<span class="gray">Room ID: ${this.id}</span>\n`;
+    if (this.alias) output += `<span class="gray">Alias: ${this.alias}</span>\n`;
   }
 
   socket.emit('output', { message: output });
 };
 
 RoomSchema.methods.getMobById = function (mobId) {
-  if(!this.mobs) return;
+  if (!this.mobs) return;
   return this.mobs.find(m => m.id === mobId);
 };
 
@@ -298,6 +303,8 @@ const Room = mongoose.model('Room', RoomSchema);
     result.forEach(function (room) {
       room.mobs = [];
       roomCache[room.id] = room;
+      if (room.alias)
+        roomCache[room.alias] = room;
     });
   });
 })();

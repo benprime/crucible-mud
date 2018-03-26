@@ -21,6 +21,16 @@ global.socketInRoom = function (roomId, socketId) {
   return ioRoom && socketId in ioRoom.sockets;
 };
 
+// method for sending a message to all players in a room, except one.
+// using the io.send instead of relying on the "sender" socket.
+global.roomMessage = function (roomId, message, exclude) {
+  const ioRoom = global.io.sockets.adapter.rooms[roomId];
+  for (let socketId in ioRoom) {
+    if (Array.isArray(exclude) && exclude.includes(socketId)) continue;
+    ioRoom[socketId].emit('output', { message: message });
+  }
+};
+
 global.GetSocketByUsername = (username) => {
   const sockets = Object.keys(global.io.sockets.sockets);
   let socket = null;
@@ -46,7 +56,6 @@ global.GetSocketByUserId = (userId) => {
   });
   return socket;
 };
-
 
 global.getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min))) + min;

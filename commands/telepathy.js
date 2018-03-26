@@ -32,7 +32,7 @@ module.exports = {
   help(socket) {
     let output = '';
     output += '<span class="cyan">telepathy command</span><br/>';
-    output += '<span class="mediumOrchid">.<message></span> <span class="purple">-</span> Send message directly to a single player.<br />';
+    output += '<span class="mediumOrchid">&#x2F;<message></span> <span class="purple">-</span> Send message directly to a single player.<br />';
     socket.emit('output', { message: output });
   },
 };

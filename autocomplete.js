@@ -3,6 +3,7 @@
 require('./extensionMethods');
 const Room = require('./models/room');
 
+// properties in order of search use
 const propertyNames = ['displayName', 'name'];
 
 // ------------------------------------------
@@ -14,24 +15,24 @@ const TypeConfig = Object.freeze({
     source: function (socket) {
       const room = Room.getById(socket.user.roomId);
       return room.mobs;
-    }
+    },
   },
   inventory: {
     source: function (socket) {
       return socket.user.inventory;
-    }
+    },
   },
   key: {
     source: function (socket) {
       return socket.user.keys;
-    }
+    },
   },
   room: {
     source: function (socket) {
       const room = Room.getById(socket.user.roomId);
       return room.inventory;
-    }
-  }
+    },
+  },
 });
 
 function distinctByProperty(arr, property) {
@@ -66,8 +67,8 @@ function autocompleteTypes(socket, types, fragment) {
       if (result.length > 0) {
         return {
           type: type,
-          item: result[0]
-        }
+          item: result[0],
+        };
       }
     }
   }
@@ -78,5 +79,5 @@ function autocompleteTypes(socket, types, fragment) {
 
 module.exports = {
   autocompleteTypes,
-  autocompleteByProperty
+  autocompleteByProperty,
 };

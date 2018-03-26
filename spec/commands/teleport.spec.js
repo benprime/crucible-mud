@@ -40,7 +40,7 @@ describe('teleport', function () {
       sut.execute(socket, 'OtherUser');
 
       //check current room
-      expect(socket.user.roomId.toString()).toEqual(otherRoom.id.toString());
+      expect(socket.user.roomId).toEqual(otherRoom._id);
       expect(socket.user.save).toHaveBeenCalled();
 
     });
@@ -59,7 +59,7 @@ describe('teleport', function () {
       sut.execute(socket, toRoom);
 
       //check current room
-      expect(socket.user.roomId.toString()).toEqual(otherRoom.id.toString());
+      expect(socket.user.roomId).toEqual(otherRoom._id);
       expect(socket.user.save).toHaveBeenCalled();
 
     });

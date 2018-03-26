@@ -15,10 +15,13 @@ describe('mob model', function () {
   beforeEach(function () {
     socket = new mocks.SocketMock();
     room = new mocks.getMockRoom();
+    room._id = socket.user.roomId;
+    global.io = new mocks.IOMock();
+
     mobType = mobData.catalog[0];
     const Mob = require('../../models/mob');
     mob = new Mob(mobType, room.roomId);
-    mob.roomId = room.id;
+
     spyOn(Room, 'getById').and.callFake(() => room);
     spyOn(mob, 'die').and.callThrough();
     spyOn(global, 'roomMessage');
@@ -251,7 +254,7 @@ describe('mob model', function () {
 
       // assert
       expect(socket.emit).toHaveBeenCalledWith('output', { message: playerMessage });
-      expect(global.roomMessage).toHaveBeenCalledWith(room.id, roomMessage, [socket.id]);
+      expect(global.roomMessage).toHaveBeenCalledWith(room._id, roomMessage, [socket.id]);
     });
 
     it('should output miss messages if attack roll fails', function () {
@@ -268,7 +271,7 @@ describe('mob model', function () {
 
       // assert
       expect(socket.emit).toHaveBeenCalledWith('output', { message: playerMessage });
-      expect(global.roomMessage).toHaveBeenCalledWith(room.id, roomMessage, [socket.id]);
+      expect(global.roomMessage).toHaveBeenCalledWith(room._id, roomMessage, [socket.id]);
     });
   });
 

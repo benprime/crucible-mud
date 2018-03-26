@@ -13,7 +13,7 @@ function Mob(mobType, roomId) {
   // not need to contain the entire mobType.
   const instance = Object.assign(this, mobType);
   if (!this.id) {
-    this.id = new ObjectId().toString();
+    this.id = new ObjectId();
   }
 
   // apply modifiers
@@ -133,7 +133,8 @@ Mob.prototype.attack = function (now) {
   }
 
   playerSocket.emit('output', { message: playerMessage });
-  global.roomMessage(this.roomId, roomMessage, [playerSocket.id]);
+  global.roomMessage(playerSocket.user.roomId, roomMessage, [playerSocket.id]);
+  global.io.to(playerSocket.user.roomId).emit('output', { message: roomMessage });
 
   return true;
 };

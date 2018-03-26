@@ -19,14 +19,13 @@ before_deploy:
 - chmod 600 /tmp/deploy_rsa
 - ssh-add /tmp/deploy_rsa
 deploy:
-  provider: script
-  skip_cleanup: true
-  script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/ root@cruciblemud.com:/root/develop && ssh root@cruciblemud.com '~/forever restart ~/develop/server.js'
-  on:
-    branch: develop
-deploy:
-  provider: script
-  skip_cleanup: true
-  script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/ root@cruciblemud.com:/root/mud && ssh root@cruciblemud.com '~/forever restart ~/mud/server.js'
-  on:
-    branch: master
+  - provider: script
+    skip_cleanup: true
+    script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/ root@cruciblemud.com:/root/develop && ssh root@cruciblemud.com '~/forever restart ~/develop/server.js'
+    on:
+      branch: develop
+  - provider: script
+    skip_cleanup: true
+    script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/ root@cruciblemud.com:/root/mud && ssh root@cruciblemud.com '~/forever restart ~/mud/server.js'
+    on:
+      branch: master

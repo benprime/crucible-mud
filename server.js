@@ -20,7 +20,7 @@ const look = require('./commands/look');
 
 // environment variables
 const NODE_PORT = process.env.NODE_PORT;
-const MONGO_DB = process.env.NODE_PORT;
+const MONGO_DB = process.env.MONGO_DB;
 const MONGO_PORT = process.env.MONGO_PORT;
 
 app.set('port', NODE_PORT);

@@ -102,9 +102,6 @@ RoomSchema.statics.roomCache = roomCache;
 
 RoomSchema.statics.getById = function (roomId) {
   var room = roomCache[roomId];
-  if (!room) {
-    throw `Room ${roomId} not found in room cache!`;
-  }
   return room;
 };
 

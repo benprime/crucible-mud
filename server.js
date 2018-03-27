@@ -18,11 +18,13 @@ const welcome = require('./welcome');
 const loginUtil = require('./login');
 const look = require('./commands/look');
 
-app.set('port', 3000);
-const mongoose = require('mongoose');
+// environment variables
+const NODE_PORT = process.env.NODE_PORT;
+const MONGO_DB = process.env.MONGO_DB;
+const MONGO_PORT = process.env.MONGO_PORT;
 
-// load room cache
-//const Room = require('./models/room');
+app.set('port', NODE_PORT);
+const mongoose = require('mongoose');
 
 const db = mongoose.connection;
 
@@ -31,7 +33,7 @@ global.io = io;
 
 require('./combat');
 
-mongoose.connect('mongodb://localhost:27017/mud');
+mongoose.connect(`mongodb://localhost:${MONGO_PORT}/${MONGO_DB}`);
 db.on('error', console.error.bind(console, 'connection error:'));
 
 db.once('open', function () {

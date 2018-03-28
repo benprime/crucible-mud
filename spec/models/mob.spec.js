@@ -246,7 +246,7 @@ describe('mob model', function () {
       spyOn(dice, 'Roll').and.callFake(() => 1);
       mob.attackTarget = socket.id;
       mob.lastAttack = new Date();
-      const playerMessage = `<span class="${global.DMG_COLOR}">${mob.displayName} hits you for 0 damage!</span>`;
+      const playerMessage = `<span class="${global.DMG_COLOR}">The ${mob.displayName} hits you for 0 damage!</span>`;
       const roomMessage = `<span class="${global.DMG_COLOR}">The ${mob.displayName} hits ${socket.user.username} for 0 damage!</span>`;
 
       // act

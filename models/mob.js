@@ -125,7 +125,7 @@ Mob.prototype.attack = function (now) {
   let playerName = playerSocket.user.username;
 
   if (this.attackRoll() == 1) {
-    playerMessage = `<span class="${global.DMG_COLOR}">${this.displayName} hits you for ${dmg} damage!</span>`;
+    playerMessage = `<span class="${global.DMG_COLOR}">The ${this.displayName} hits you for ${dmg} damage!</span>`;
     roomMessage = `<span class="${global.DMG_COLOR}">The ${this.displayName} hits ${playerName} for ${dmg} damage!</span>`;
   } else {
     playerMessage = `<span class="${global.MSG_COLOR}">The ${this.displayName} swings at you, but misses!</span>`;
@@ -134,7 +134,7 @@ Mob.prototype.attack = function (now) {
 
   playerSocket.emit('output', { message: playerMessage });
   global.roomMessage(playerSocket.user.roomId, roomMessage, [playerSocket.id]);
-  global.io.to(playerSocket.user.roomId).emit('output', { message: roomMessage });
+  //global.io.to(playerSocket.user.roomId).emit('output', { message: roomMessage });
 
   return true;
 };

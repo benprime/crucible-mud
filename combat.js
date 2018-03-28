@@ -2,18 +2,7 @@
 
 const Room = require('./models/room');
 
-// Base round will be 4000 millseconds.
-// An average dexterity character, with an "average" weapon will attack every 4 seconds.
-
-
-// mob checks will be hit every 500 millseconds? to check if they should be attacking again...
-
-
-
-setInterval(() => {
-
-  const now = Date.now();
-
+function playerAttack(now) {
   // check all players...
   for (const socketId in global.io.sockets.connected) {
     const socket = global.io.sockets.connected[socketId];
@@ -25,7 +14,9 @@ setInterval(() => {
       socket.user.attack(socket, mob, now);
     }
   }
+}
 
+function mobAttack(now) {
   // loop through rooms that contain mobs...
   const roomsWithMobs = Object.values(Room.roomCache).filter(r => r.mobs.length > 0);
   roomsWithMobs.forEach(function (room) {
@@ -52,6 +43,13 @@ setInterval(() => {
 
     });
   });
-}, global.COMBAT_INTERVAL);
+}
 
+function combatFrame() {
+  const now = Date.now();
+  playerAttack(now);
+  mobAttack(now);
+}
+
+setInterval(combatFrame, global.COMBAT_INTERVAL);
 module.exports = {};

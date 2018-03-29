@@ -26,7 +26,7 @@ describe('move', function () {
     });
 
     it('should call execute with command match', function () {
-      sut.dispatch(socket, ['go aMatch']);
+      sut.dispatch(socket, ['go aMatch', 'aMatch']);
 
       expect(sut.execute).toHaveBeenCalledWith(socket, 'aMatch');
     });

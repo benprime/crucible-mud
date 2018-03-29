@@ -66,8 +66,8 @@ function autocompleteTypes(socket, types, fragment) {
       if (result.length > 0) {
         return {
           type: type,
-          item: result[0]
-        }
+          item: result[0],
+        };
       }
     }
   }

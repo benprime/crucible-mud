@@ -64,9 +64,9 @@ function MovementSounds(socket, room, excludeDir) {
 }
 
 const commands = [
-  /^go\s+(.+)$/i,
-  /^walk\s+(.+)$/i,
-  /^move\s+(.+)$/i,
+  /^go\s+(\w+)$/i,
+  /^walk\s+(\w+)$/i,
+  /^move\s+(\w+)$/i,
 ];
 
 const directions = [
@@ -98,17 +98,8 @@ module.exports = {
   patterns: commands.concat(directions),
 
   dispatch(socket, match) {
-    let direction = null;
-    // Get any commands that match
-    let command = match.find(m => commands.some(cmd => m.match(cmd)));
-
-    if(command) {
-      // get the second word in the command match (ex, 'west' in 'go west')
-      direction = command.split(' ')[1];
-    } else{
-      direction = match[0];
-    }
-
+    // Multiple in the array means this matched to a command and not a direction
+    let direction = match.length > 1 ? match[1] : match[0];
     module.exports.execute(socket, direction);
   },
 

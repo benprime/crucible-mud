@@ -2,7 +2,9 @@
 
 global.MSG_COLOR = 'darkcyan';
 global.DMG_COLOR = 'firebrick';
-global.COMBAT_INTERVAL = 500;
+
+global.COMBAT_INTERVAL = 500; // how often combat logic is run
+global.ROUND_DURATION = 4000; // how long a round is considered to be
 global.SPAWNER_INTERVAL = 500;
 global.DOOR_CLOSE_TIMER = 10000;
 
@@ -22,12 +24,13 @@ global.socketInRoom = function (roomId, socketId) {
 };
 
 // method for sending a message to all players in a room, except one.
-// using the io.send instead of relying on the "sender" socket.
+// using the receiver's socket instead of relying on the "sender" socket.
 global.roomMessage = function (roomId, message, exclude) {
   const ioRoom = global.io.sockets.adapter.rooms[roomId];
-  for (let socketId in ioRoom) {
+  for (let socketId in ioRoom.sockets) {
     if (Array.isArray(exclude) && exclude.includes(socketId)) continue;
-    ioRoom[socketId].emit('output', { message: message });
+    const socket = global.io.sockets.connected[socketId];
+    socket.emit('output', { message: message });
   }
 };
 

@@ -24,8 +24,7 @@
     "test": "jasmine",
     "start": "nodemon server.js",
     "db": "mongod --dbpath c:/dev/mongo/data",
-    "client": "concurrently \"http-server -a localhost -p 8000\" \"start http://localhost:8000/client\"",
-    "open": "concurrently \"mongod --dbpath c:/dev/mongo/data\" \"nodemon server.js\" \"http-server -a localhost -p 1234\" \"start http://localhost:1234/client\""
+    "open": "concurrently \"mongod --dbpath c:/dev/mongo/data\" \"nodemon server.js\""
   },
   "repository": {
     "type": "git",

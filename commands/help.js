@@ -46,7 +46,7 @@ function generalHelp(socket) {
   output += '<span class="cyan">Communication:</span><br>';
   output += '<span class="mediumOrchid">.<message></span> <span class="purple">-</span> Start command with . to speak to users in current room.<br />';
   output += '<span class="mediumOrchid">"<message></span> <span class="purple">-</span> Yell to this room and all adjacent rooms.<br />';
-  output += '<span class="mediumOrchid">/&lt;username&gt; <message></span> <span class="purple">-</span> Send message directly to a single player.<br />';
+  output += '<span class="mediumOrchid">&#x2F;&lt;username&gt; <message></span> <span class="purple">-</span> Send message directly to a single player.<br />';
   output += '<span class="mediumOrchid">gossip &lt;message&gt;</span> <span class="purple">-</span> Send messages to all connected players.<br /><br>';
 
   output += '<span class="cyan">Actions:</span><br />';

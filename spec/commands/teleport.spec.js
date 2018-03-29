@@ -40,12 +40,12 @@ describe('teleport', function () {
       sut.execute(socket, 'OtherUser');
 
       //check current room
-      expect(socket.user.roomId.toString()).toEqual(otherRoom.id.toString());
+      expect(socket.user.roomId).toEqual(otherRoom._id);
       expect(socket.user.save).toHaveBeenCalled();
 
     });
 
-    it('should teleport to room if parameter is an ObjectId', function () {
+    it('should teleport to room if parameter is a room', function () {
 
       //TODO: make mock room to send target to
       spyOn(Room, "getById").and.callFake(() => otherRoom);
@@ -55,10 +55,11 @@ describe('teleport', function () {
 
       //teleport to room
       let toRoom = otherRoom.id;
+      Room.roomCache[toRoom] = {};
       sut.execute(socket, toRoom);
 
       //check current room
-      expect(socket.user.roomId.toString()).toEqual(otherRoom.id.toString());
+      expect(socket.user.roomId).toEqual(otherRoom._id);
       expect(socket.user.save).toHaveBeenCalled();
 
     });
@@ -68,6 +69,7 @@ describe('teleport', function () {
       spyOn(Room, "getById").and.callFake(() => null);
 
       let toRoom = otherRoom.id;
+      Room.roomCache[toRoom] = {};
       sut.execute(socket, toRoom);
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Room not found.' });
@@ -80,7 +82,7 @@ describe('teleport', function () {
 
       sut.execute(socket, 'Bobby');
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Player not found.' });
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Target not found.' });
 
     });
 

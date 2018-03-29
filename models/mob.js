@@ -13,7 +13,7 @@ function Mob(mobType, roomId) {
   // not need to contain the entire mobType.
   const instance = Object.assign(this, mobType);
   if (!this.id) {
-    this.id = new ObjectId().toString();
+    this.id = new ObjectId();
   }
 
   // apply modifiers
@@ -71,16 +71,19 @@ Mob.prototype.awardExperience = function (socket) {
 };
 
 Mob.prototype.selectTarget = function (roomid) {
+
+  if(!roomid) return;
+
   // if everyone has disconnected from a room (but mobs still there) the room will not be defined.
-  const room = global.io.sockets.adapter.rooms[roomid];
+  const ioRoom = global.io.sockets.adapter.rooms[roomid];
 
   // if there is at least one player in the room
-  if (room) {
+  if (ioRoom) {
     // todo: check if this player has left or died or whatever.
     if (!this.attackTarget) {
       // select random player to attack
-      const clients = room.sockets;
-      const socketsInRoom = Object.keys(clients);
+      const socketsInRoom = Object.keys(ioRoom.sockets);
+      if(socketsInRoom.length == 0) return;
       const targetIndex = global.getRandomNumber(0, socketsInRoom.length);
       const socketId = socketsInRoom[targetIndex];
 
@@ -107,7 +110,7 @@ Mob.prototype.attack = function (now) {
   }
 
   if (!global.socketInRoom(this.roomId, this.attackTarget)) {
-    this.attackTarget = undefined;
+    this.attackTarget = null;
     return false;
   }
 
@@ -129,48 +132,43 @@ Mob.prototype.attack = function (now) {
     roomMessage = `<span class="${global.MSG_COLOR}">The ${this.displayName} swings at ${playerName}, but misses!</span>`;
   }
 
-  // todo: should not rely on target player's socket to inform other players of combat stuffs.
-  // If the player disconnects, game should still inform players. Perhaps just loop through all sockets in room (like in actions.)
-  // If there is a problem with this in the future, use room.getSockets and loop through them instead.
-  // todo: test by disconnecting during combat.
   playerSocket.emit('output', { message: playerMessage });
-  playerSocket.broadcast.to(playerSocket.user.roomId).emit('output', { message: roomMessage });
-  //io.to(roomId).emit('output', { message });
+  global.roomMessage(playerSocket.user.roomId, roomMessage, [playerSocket.id]);
+  global.io.to(playerSocket.user.roomId).emit('output', { message: roomMessage });
 
   return true;
 };
 
 Mob.prototype.taunt = function (now) {
-  const tauntIndex = global.getRandomNumber(0, this.taunts.length);
-
-  let taunt = this.taunts[tauntIndex];
-  taunt = taunt.format(this.displayName, 'you');
-
-  const socket = global.io.sockets.connected[this.attackTarget];
-  let username = '';
-  if (!socket) {
-    this.attackTarget = null;
-  } else {
-    username = socket.user.username;
-  }
-  let roomTaunt = this.taunts[tauntIndex].format(this.displayName, username);
-
   this.lastTaunt = now;
 
+  if(!this.attackTarget) return;
+  const socket = global.io.sockets.connected[this.attackTarget];
+
+  if (!global.socketInRoom(this.roomId, this.attackTarget)) {
+    this.attackTarget = null;
+    return;
+  }
+
+  const tauntIndex = global.getRandomNumber(0, this.taunts.length);
+  let taunt = this.taunts[tauntIndex];
+  taunt = taunt.format(this.displayName, 'you');
+  let username = socket.user.username;
+  let roomTaunt = this.taunts[tauntIndex].format(this.displayName, username);
   socket.emit('output', { message: taunt });
   socket.broadcast.to(socket.user.roomId).emit('output', { message: roomTaunt });
 };
 
 Mob.prototype.readyToAttack = function (now) {
-  return this.attackInterval && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
+  return !!this.attackInterval && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
 };
 
 Mob.prototype.readyToTaunt = function (now) {
-  return this.tauntInterval && this.attackTarget && (!this.lastTaunt || this.lastTaunt + this.tauntInterval <= now);
+  return !!this.tauntInterval && this.attackTarget && (!this.lastTaunt || this.lastTaunt + this.tauntInterval <= now);
 };
 
 Mob.prototype.readyToIdle = function (now) {
-  return this.idleInterval && (!this.lastIdle || this.lastIdle + this.idleInterval <= now);
+  return !!this.idleInterval && (!this.lastIdle || this.lastIdle + this.idleInterval <= now);
 };
 
 module.exports = Mob;

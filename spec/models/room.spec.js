@@ -160,31 +160,6 @@ describe('room model', function () {
       });
     });
 
-    describe('socketInRoom', function () {
-      let socket;
-      beforeEach(function () {
-        socket = new mocks.SocketMock();
-        global.io = new mocks.IOMock();
-        let ioRoom = {};
-        global.io.sockets.adapter.rooms[room.id] = ioRoom;
-        let sockets = {};
-        sockets[socket.id] = {};
-        ioRoom.sockets = sockets;
-      });
-
-      it('should return true when socket in room', function () {
-        const result = room.socketInRoom(socket.id);
-
-        expect(result).toBe(true);
-      });
-
-      it('should return false when socket not in room', function () {
-        const result = room.socketInRoom('socket id not in room');
-
-        expect(result).toBe(false);
-      });
-    });
-
     describe('usersInRoom', function () {
       let socket;
       beforeEach(function () {

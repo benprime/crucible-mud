@@ -1,6 +1,5 @@
 'use strict';
 
-require('../globals');
 const Room = require('../models/room');
 const mocks = require('./mocks');
 const rewire = require('rewire');

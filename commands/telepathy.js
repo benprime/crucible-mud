@@ -1,5 +1,7 @@
 'use strict';
 
+const socketUtil = require('../socketUtil');
+
 module.exports = {
   name: 'telepathy',
 
@@ -17,7 +19,7 @@ module.exports = {
   },
 
   execute(socket, username, message) {
-    const userSocket = global.GetSocketByUsername(username);
+    const userSocket = socketUtil.GetSocketByUsername(username);
     if (!userSocket) {
       socket.emit('output', { message: 'Invalid username.' });
       return;

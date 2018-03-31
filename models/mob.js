@@ -1,6 +1,6 @@
 'use strict';
 
-require('../globals');
+const socketUtil = require('../socketUtil');
 
 /* State only model */
 const ObjectId = require('mongodb').ObjectId;
@@ -17,7 +17,7 @@ function Mob(mobType, roomId) {
   }
 
   // apply modifiers
-  const adjIndex = global.getRandomNumber(0, mobType.adjectives.length);
+  const adjIndex = dice.getRandomNumber(0, mobType.adjectives.length);
   const adjective = mobType.adjectives[adjIndex];
   instance.hp += adjective.modifiers.hp;
   instance.xp += adjective.modifiers.xp;
@@ -84,7 +84,7 @@ Mob.prototype.selectTarget = function (roomid) {
       // select random player to attack
       const socketsInRoom = Object.keys(ioRoom.sockets);
       if(socketsInRoom.length == 0) return;
-      const targetIndex = global.getRandomNumber(0, socketsInRoom.length);
+      const targetIndex = dice.getRandomNumber(0, socketsInRoom.length);
       const socketId = socketsInRoom[targetIndex];
 
       // get player socket
@@ -99,8 +99,8 @@ Mob.prototype.selectTarget = function (roomid) {
   }
 };
 
-Mob.prototype.attackRoll = function () {
-  return dice.Roll('1d2');
+Mob.prototype.attackroll = function () {
+  return dice.roll('1d2');
 };
 
 Mob.prototype.attack = function (now) {
@@ -109,7 +109,7 @@ Mob.prototype.attack = function (now) {
     return false;
   }
 
-  if (!global.socketInRoom(this.roomId, this.attackTarget)) {
+  if (!socketUtil.socketInRoom(this.roomId, this.attackTarget)) {
     this.attackTarget = null;
     return false;
   }
@@ -124,16 +124,16 @@ Mob.prototype.attack = function (now) {
   if (!playerSocket) return false;
   let playerName = playerSocket.user.username;
 
-  if (this.attackRoll() == 1) {
-    playerMessage = `<span class="${global.DMG_COLOR}">The ${this.displayName} hits you for ${dmg} damage!</span>`;
-    roomMessage = `<span class="${global.DMG_COLOR}">The ${this.displayName} hits ${playerName} for ${dmg} damage!</span>`;
+  if (this.attackroll() == 1) {
+    playerMessage = `<span class="${socketUtil.DMG_COLOR}">The ${this.displayName} hits you for ${dmg} damage!</span>`;
+    roomMessage = `<span class="${socketUtil.DMG_COLOR}">The ${this.displayName} hits ${playerName} for ${dmg} damage!</span>`;
   } else {
-    playerMessage = `<span class="${global.MSG_COLOR}">The ${this.displayName} swings at you, but misses!</span>`;
-    roomMessage = `<span class="${global.MSG_COLOR}">The ${this.displayName} swings at ${playerName}, but misses!</span>`;
+    playerMessage = `<span class="${socketUtil.MSG_COLOR}">The ${this.displayName} swings at you, but misses!</span>`;
+    roomMessage = `<span class="${socketUtil.MSG_COLOR}">The ${this.displayName} swings at ${playerName}, but misses!</span>`;
   }
 
   playerSocket.emit('output', { message: playerMessage });
-  global.roomMessage(playerSocket.user.roomId, roomMessage, [playerSocket.id]);
+  socketUtil.roomMessage(playerSocket.user.roomId, roomMessage, [playerSocket.id]);
   //global.io.to(playerSocket.user.roomId).emit('output', { message: roomMessage });
 
   return true;
@@ -145,12 +145,12 @@ Mob.prototype.taunt = function (now) {
   if(!this.attackTarget) return;
   const socket = global.io.sockets.connected[this.attackTarget];
 
-  if (!global.socketInRoom(this.roomId, this.attackTarget)) {
+  if (!socketUtil.socketInRoom(this.roomId, this.attackTarget)) {
     this.attackTarget = null;
     return;
   }
 
-  const tauntIndex = global.getRandomNumber(0, this.taunts.length);
+  const tauntIndex = dice.getRandomNumber(0, this.taunts.length);
   let taunt = this.taunts[tauntIndex];
   taunt = taunt.format(this.displayName, 'you');
   let username = socket.user.username;

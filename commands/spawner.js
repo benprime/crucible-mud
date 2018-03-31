@@ -2,7 +2,9 @@
 
 const Room = require('../models/room');
 const Mob = require('../models/mob');
+const config = require('../config');
 const mobData = require('../data/mobData');
+const dice = require('../dice');
 
 // Not sure if the global server code should really be living with
 // the command, but it's okay here for now.
@@ -21,7 +23,7 @@ setInterval(() => {
     }
 
     if (room.mobs.length < max && now - room.lastMobDeath >= timeout && room.spawner.mobTypes.length > 0) {
-      let mobTypeIndex = global.getRandomNumber(0, room.spawner.mobTypes.length);
+      let mobTypeIndex = dice.getRandomNumber(0, room.spawner.mobTypes.length);
       let mobTypeName = room.spawner.mobTypes[mobTypeIndex];
       let mobType = mobData.catalog.find(mob => mob.name.toLowerCase() === mobTypeName.toLowerCase());
       let mob = new Mob(mobType, room.id);
@@ -30,16 +32,7 @@ setInterval(() => {
     }
 
   });
-}, global.SPAWNER_INTERVAL);
-
-function toInteger(n) {
-  const parsed = parseInt(n);
-  if(!isNaN(parsed) && isFinite(n)) {
-    return parsed;
-  } else {
-
-  }
-}
+}, config.SPAWNER_INTERVAL);
 
 module.exports = {
   name: 'spawner',

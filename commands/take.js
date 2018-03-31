@@ -1,6 +1,7 @@
 'use strict';
 
 const Room = require('../models/room');
+const socketUtil = require('../socketUtil');
 const autocomplete = require('../autocomplete');
 
 module.exports = {
@@ -45,7 +46,7 @@ module.exports = {
       let offerIndex = socket.offers.findIndex(o => o.item.name === itemName);
       if(offerIndex !== -1) {
         let offer = socket.offers[offerIndex];
-        let offeringUserSocket = global.GetSocketByUsername(offer.fromUserName);
+        let offeringUserSocket = socketUtil.GetSocketByUsername(offer.fromUserName);
         if (!offeringUserSocket) {
           socket.emit('output', { message: 'Invalid username or user is offline.' });
           return;

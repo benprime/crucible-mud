@@ -1,18 +1,21 @@
 'use strict';
 
+const socketUtil = require('./socketUtil');
+const config = require('./config');
+const hud = require('./hud');
 const Room = require('./models/room');
 const User = require('./models/user');
 
 module.exports = {
   LoginUsername(socket, username) {
-    if (!socket.userId && (socket.state == global.STATES.LOGIN_USERNAME)) {
+    if (!socket.userId && (socket.state == config.STATES.LOGIN_USERNAME)) {
       User.findByName(username.value, function (err, user) {
         if (!user) {
           socket.emit('output', { message: 'Unknown user, please try again.' });
         } else {
           // todo: maybe we don't need states for username and password separately. We can just check socket.username
           socket.tempUsername = user.username;
-          socket.state = global.STATES.LOGIN_PASSWORD;
+          socket.state = config.STATES.LOGIN_PASSWORD;
           socket.emit('output', { message: 'Enter password:' });
         }
       });
@@ -20,7 +23,7 @@ module.exports = {
   },
 
   LoginPassword(socket, password, callback) {
-    if (!socket.userId && (socket.state == global.STATES.LOGIN_PASSWORD)) {
+    if (!socket.userId && (socket.state == config.STATES.LOGIN_PASSWORD)) {
 
       User.findOne({ username: socket.tempUsername, password: password.value })
         //.lean()
@@ -36,7 +39,7 @@ module.exports = {
           delete socket.tempUsername;
 
           // if the user is logged in from another connection, disconnect it.
-          var existingSocket = global.GetSocketByUsername(user.username);
+          var existingSocket = socketUtil.GetSocketByUsername(user.username);
           if (existingSocket) {
             existingSocket.emit('output', { message: 'You have logged in from another session.\n<span class="gray">*** Disconnected ***</span>' });
             existingSocket.disconnect();
@@ -53,7 +56,7 @@ module.exports = {
           socket.user = user;
 
           // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
-          socket.state = global.STATES.MUD;
+          socket.state = config.STATES.MUD;
 
           socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
 
@@ -62,7 +65,7 @@ module.exports = {
 
           socket.join('gossip');
 
-          global.updateHUD(socket);
+          hud.updateHUD(socket);
 
           const currentRoom = Room.getById(user.roomId);
           if (!currentRoom) {

@@ -3,6 +3,7 @@
 const mocks = require('../mocks');
 const sut = require('../../commands/take');
 const autocomplete = require('../../autocomplete');
+const socketUtil = require('../../socketUtil');
 const Room = require('../../models/room');
 
 describe('take', function () {
@@ -20,11 +21,13 @@ describe('take', function () {
 
     it('should call execute with match', function(){
       sut.dispatch(socket, ['take', 'aItem']);
+
       expect(sut.execute).toHaveBeenCalledWith(socket, 'aItem');
     });
 
     it('should output message if multiple matches', function(){
       sut.dispatch(socket, 'take', 'aItem', 'anotherItem');
+
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'What do you want to take?' });
     });
   });
@@ -35,7 +38,7 @@ describe('take', function () {
     let autocompleteResult;
     
     beforeEach(function(){
-      spyOn(global, 'GetSocketByUsername').and.returnValue(otherUserSocket);
+      spyOn(socketUtil, 'GetSocketByUsername').and.returnValue(otherUserSocket);
       spyOn(Room, 'getById').and.callFake(() => room);
       spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
       spyOn(room.inventory, 'remove').and.callFake(() => {});

@@ -1,11 +1,12 @@
 'use strict';
 
 const actionsData = require('./data/actionData');
+const socketUtil = require('./socketUtil');
 const Room = require('./models/room');
 
 module.exports = {
   actionDispatcher(socket, action, username) {
-    const targetSocket = username ? global.GetSocketByUsername(username) : null;
+    const targetSocket = username ? socketUtil.GetSocketByUsername(username) : null;
 
     if (action in actionsData.actions) {
       // user is attempting to action another user

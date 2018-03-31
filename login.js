@@ -1,21 +1,21 @@
 'use strict';
 
 const socketUtil = require('./socketUtil');
-const config = require('./config');
+const settings = require('./settings');
 const hud = require('./hud');
 const Room = require('./models/room');
 const User = require('./models/user');
 
 module.exports = {
   LoginUsername(socket, username) {
-    if (!socket.userId && (socket.state == config.STATES.LOGIN_USERNAME)) {
+    if (!socket.userId && (socket.state == settings.STATES.LOGIN_USERNAME)) {
       User.findByName(username.value, function (err, user) {
         if (!user) {
           socket.emit('output', { message: 'Unknown user, please try again.' });
         } else {
           // todo: maybe we don't need states for username and password separately. We can just check socket.username
           socket.tempUsername = user.username;
-          socket.state = config.STATES.LOGIN_PASSWORD;
+          socket.state = settings.STATES.LOGIN_PASSWORD;
           socket.emit('output', { message: 'Enter password:' });
         }
       });
@@ -23,7 +23,7 @@ module.exports = {
   },
 
   LoginPassword(socket, password, callback) {
-    if (!socket.userId && (socket.state == config.STATES.LOGIN_PASSWORD)) {
+    if (!socket.userId && (socket.state == settings.STATES.LOGIN_PASSWORD)) {
 
       User.findOne({ username: socket.tempUsername, password: password.value })
         //.lean()
@@ -56,7 +56,7 @@ module.exports = {
           socket.user = user;
 
           // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
-          socket.state = config.STATES.MUD;
+          socket.state = settings.STATES.MUD;
 
           socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
 

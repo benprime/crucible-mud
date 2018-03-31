@@ -1,6 +1,7 @@
 'use strict';
 
 const Room = require('./models/room');
+const config = require('./config');
 
 function playerAttack(now) {
   // check all players...
@@ -33,7 +34,7 @@ function mobAttack(now) {
 
       /*
       if (readyToIdle(mob, now)) {
-        let idleIndex = global.getRandomNumber(0, mob.idleActions.length);
+        let idleIndex = socketUtil.getRandomNumber(0, mob.idleActions.length);
         let idleAction = mob.idleActions[idleIndex];
         mob.lastIdle = now;
         socket.emit("output", { message: "<span class=\"" + MSG_COLOR + "\">" + idleAction + "</span>" });
@@ -51,5 +52,5 @@ function combatFrame() {
   mobAttack(now);
 }
 
-setInterval(combatFrame, global.COMBAT_INTERVAL);
+setInterval(combatFrame, config.COMBAT_INTERVAL);
 module.exports = {};

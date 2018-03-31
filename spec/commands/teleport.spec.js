@@ -2,8 +2,8 @@
 
 const mocks = require('../mocks');
 const Room = require('../../models/room');
+const socketUtil = require('../../socketUtil');
 const sut = require('../../commands/teleport');
-const ObjectID = require('mongodb').ObjectID;
 
 describe('teleport', function () {
   let socket, otherSocket;
@@ -30,8 +30,8 @@ describe('teleport', function () {
     it('should teleport to another user\'s room if parameter is a username', function () {
 
       //TODO: get this to find OtherUser
-      spyOn(global, "GetSocketByUsername").and.callFake(() => otherSocket);
-      spyOn(Room, "getById").and.callFake(() => otherRoom);
+      spyOn(socketUtil, 'GetSocketByUsername').and.callFake(() => otherSocket);
+      spyOn(Room, 'getById').and.callFake(() => otherRoom);
 
       //set current room
       socket.user.roomId = currentRoom.id;
@@ -48,7 +48,7 @@ describe('teleport', function () {
     it('should teleport to room if parameter is a room', function () {
 
       //TODO: make mock room to send target to
-      spyOn(Room, "getById").and.callFake(() => otherRoom);
+      spyOn(Room, 'getById').and.callFake(() => otherRoom);
 
       //set current room
       socket.user.roomId = currentRoom.id;
@@ -66,7 +66,7 @@ describe('teleport', function () {
 
     it('should output messages when room cannot be found', function () {
 
-      spyOn(Room, "getById").and.callFake(() => null);
+      spyOn(Room, 'getById').and.callFake(() => null);
 
       let toRoom = otherRoom.id;
       Room.roomCache[toRoom] = {};
@@ -78,7 +78,7 @@ describe('teleport', function () {
 
     it('should output messages when target is invalid user', function () {
 
-      spyOn(global, "GetSocketByUsername").and.callFake(() => null);
+      spyOn(socketUtil, 'GetSocketByUsername').and.callFake(() => null);
 
       sut.execute(socket, 'Bobby');
 

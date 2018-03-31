@@ -174,9 +174,6 @@ const mobType = {
   ],
 };
 
-
-
-
 module.exports = {
   getMockRoom,
   IOMock,

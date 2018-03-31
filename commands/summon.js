@@ -1,6 +1,7 @@
 'use strict';
 
 const breakCmd = require('./break');
+const socketUtil = require('../socketUtil');
 const lookCmd = require('./look');
 
 module.exports = {
@@ -17,7 +18,7 @@ module.exports = {
   },
 
   execute(socket, username) {
-    const userSocket = global.GetSocketByUsername(username);
+    const userSocket = socketUtil.GetSocketByUsername(username);
 
     //verify summoned player
     if (!userSocket) {
@@ -37,12 +38,12 @@ module.exports = {
     //announce summoned player's arrival
     userSocket.emit('output', { message: `You were summoned to ${socket.user.username}'s room!` });
     userSocket.broadcast.to(userSocket.user.roomId).emit('output', { message: `${userSocket.user.username} appears out of thin air!` });
-    
+
     //display room info to summoned player
     lookCmd.execute(userSocket);
   },
 
-  help(socket) { 
+  help(socket) {
     let output = '';
     output += '<span class="mediumOrchid">summon &lt;username&gt; </span><span class="purple">-</span> Summon &lt;player&gt; to current room.<br />';
     socket.emit('output', { message: output });

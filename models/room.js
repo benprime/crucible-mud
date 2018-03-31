@@ -133,12 +133,6 @@ RoomSchema.statics.validDirectionInput = function (dir) {
 //============================================================================
 // Instance methods
 //============================================================================
-RoomSchema.methods.socketInRoom = function (socketId) {
-  const ioRoom = global.io.sockets.adapter.rooms[this.id];
-  return ioRoom && socketId in ioRoom.sockets;
-};
-
-// Candidate for static method.
 RoomSchema.methods.usersInRoom = function () {
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
   if (!ioRoom) {

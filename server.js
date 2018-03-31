@@ -9,10 +9,10 @@ const serve = http.createServer(app);
 const io = require('socket.io')(serve);
 
 require('./extensionMethods');
-require('./globals');
 
 // parses command files and prepares them
 const commands = require('./commands/');
+const config = require('./config');
 
 const welcome = require('./welcome');
 const loginUtil = require('./login');
@@ -40,7 +40,7 @@ db.once('open', function () {
 
   io.on('connection', (socket) => {
 
-    socket.state = global.STATES.LOGIN_USERNAME;
+    socket.state = config.STATES.LOGIN_USERNAME;
     socket.emit('output', { message: 'Connected.' });
     welcome.WelcomeMessage(socket);
     socket.emit('output', { message: 'Enter username:' });
@@ -54,13 +54,13 @@ db.once('open', function () {
     socket.on('command', (data) => {
       // todo: remove state logic when there is a login process
       switch (socket.state) {
-        case global.STATES.MUD:
+        case config.STATES.MUD:
           commands.Dispatch(socket, data.value);
           break;
-        case global.STATES.LOGIN_USERNAME:
+        case config.STATES.LOGIN_USERNAME:
           loginUtil.LoginUsername(socket, data);
           break;
-        case global.STATES.LOGIN_PASSWORD:
+        case config.STATES.LOGIN_PASSWORD:
           loginUtil.LoginPassword(socket, data, () => {
             look.execute(socket);
           });

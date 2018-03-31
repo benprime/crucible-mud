@@ -1,6 +1,6 @@
 'use strict';
 
-const config = require('../config');
+const settings = require('../settings');
 const autocomplete = require('../autocomplete');
 const Room = require('../models/room');
 
@@ -64,7 +64,7 @@ module.exports = {
         global.io.to(room.id).emit('output', { message: `The door ${doorDesc} slams shut and clicks locked!` });
       }
       if(cb) cb(exit);
-    }, config.DOOR_CLOSE_TIMER);
+    }, settings.DOOR_CLOSE_TIMER);
 
     exit.locked = false;
     socket.emit('output', { message: 'Door unlocked.' });

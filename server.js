@@ -12,7 +12,7 @@ require('./extensionMethods');
 
 // parses command files and prepares them
 const commands = require('./commands/');
-const config = require('./config');
+const settings = require('./settings');
 
 const welcome = require('./welcome');
 const loginUtil = require('./login');
@@ -40,7 +40,7 @@ db.once('open', function () {
 
   io.on('connection', (socket) => {
 
-    socket.state = config.STATES.LOGIN_USERNAME;
+    socket.state = settings.STATES.LOGIN_USERNAME;
     socket.emit('output', { message: 'Connected.' });
     welcome.WelcomeMessage(socket);
     socket.emit('output', { message: 'Enter username:' });
@@ -54,13 +54,13 @@ db.once('open', function () {
     socket.on('command', (data) => {
       // todo: remove state logic when there is a login process
       switch (socket.state) {
-        case config.STATES.MUD:
+        case settings.STATES.MUD:
           commands.Dispatch(socket, data.value);
           break;
-        case config.STATES.LOGIN_USERNAME:
+        case settings.STATES.LOGIN_USERNAME:
           loginUtil.LoginUsername(socket, data);
           break;
-        case config.STATES.LOGIN_PASSWORD:
+        case settings.STATES.LOGIN_PASSWORD:
           loginUtil.LoginPassword(socket, data, () => {
             look.execute(socket);
           });

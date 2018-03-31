@@ -1,7 +1,7 @@
 'use strict';
 
 const Room = require('./models/room');
-const config = require('./config');
+const settings = require('./settings');
 
 function playerAttack(now) {
   // check all players...
@@ -52,5 +52,5 @@ function combatFrame() {
   mobAttack(now);
 }
 
-setInterval(combatFrame, config.COMBAT_INTERVAL);
+setInterval(combatFrame, settings.COMBAT_INTERVAL);
 module.exports = {};

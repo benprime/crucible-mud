@@ -2,7 +2,7 @@
 
 const Room = require('../models/room');
 const Mob = require('../models/mob');
-const config = require('../config');
+const settings = require('../settings');
 const mobData = require('../data/mobData');
 const dice = require('../dice');
 
@@ -32,7 +32,7 @@ setInterval(() => {
     }
 
   });
-}, config.SPAWNER_INTERVAL);
+}, settings.SPAWNER_INTERVAL);
 
 module.exports = {
   name: 'spawner',

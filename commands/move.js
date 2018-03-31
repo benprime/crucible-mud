@@ -63,34 +63,44 @@ function MovementSounds(socket, room, excludeDir) {
   });
 }
 
+const commands = [
+  /^go\s+(\w+)$/i,
+  /^walk\s+(\w+)$/i,
+  /^move\s+(\w+)$/i,
+];
+
+const directions = [
+  /^n$/i,
+  /^s$/i,
+  /^e$/i,
+  /^w$/i,
+  /^ne$/i,
+  /^nw$/i,
+  /^se$/i,
+  /^sw$/i,
+  /^u$/i,
+  /^d$/i,
+  /^north$/i,
+  /^south$/i,
+  /^east$/i,
+  /^west$/i,
+  /^northeast$/i,
+  /^northwest$/i,
+  /^southeast$/i,
+  /^southwest$/i,
+  /^up$/i,
+  /^down$/i,
+];
+
 module.exports = {
   name: 'move',
 
-  patterns: [
-    /^n$/i,
-    /^s$/i,
-    /^e$/i,
-    /^w$/i,
-    /^ne$/i,
-    /^nw$/i,
-    /^se$/i,
-    /^sw$/i,
-    /^u$/i,
-    /^d$/i,
-    /^north$/i,
-    /^south$/i,
-    /^east$/i,
-    /^west$/i,
-    /^northeast$/i,
-    /^northwest$/i,
-    /^southeast$/i,
-    /^southwest$/i,
-    /^up$/i,
-    /^down$/i,
-  ],
+  patterns: commands.concat(directions),
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[0]);
+    // Multiple in the array means this matched to a command and not a direction
+    let direction = match.length > 1 ? match[1] : match[0];
+    module.exports.execute(socket, direction);
   },
 
   execute(socket, dir) {

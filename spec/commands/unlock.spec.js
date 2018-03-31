@@ -1,7 +1,7 @@
 'use strict';
 
 const autocomplete = require('../../autocomplete');
-const settings = require('../../settings');
+const config = require('../../config');
 const Item = require('../../models/item');
 const Room = require('../../models/room');
 const mocks = require('../mocks');
@@ -83,7 +83,7 @@ describe('unlock', function () {
     var worked = false;
     beforeEach(function (done) {
       global.io = new mocks.IOMock();
-      settings.DOOR_CLOSE_TIMER = 100;
+      config.DOOR_CLOSE_TIMER = 100;
       var key = new Item();
       key.itemTypeEnum = 'key';
       key.name = 'Silver';

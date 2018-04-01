@@ -4,6 +4,7 @@
 
 const mongoose = require('mongoose');
 const socketUtil = require('../socketUtil');
+const config = require('../config');
 const ItemSchema = require('./itemSchema');
 const dice = require('../dice');
 
@@ -197,11 +198,11 @@ UserSchema.methods.attack = function (socket, mob, now) {
   let attackResult = this.attackroll();
 
   if (attackResult == 2) {
-    actorMessage = `<span class="${socketUtil.DMG_COLOR}">You hit ${mob.displayName} for ${playerDmg} damage!</span>`;
-    roomMessage = `<span class="${socketUtil.DMG_COLOR}">The ${this.username} hits ${mob.displayName} for ${playerDmg} damage!</span>`;
+    actorMessage = `<span class="${config.DMG_COLOR}">You hit ${mob.displayName} for ${playerDmg} damage!</span>`;
+    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} hits ${mob.displayName} for ${playerDmg} damage!</span>`;
   } else {
-    actorMessage = `<span class="${socketUtil.MSG_COLOR}">You swing at the ${mob.displayName} but miss!</span>`;
-    roomMessage = `<span class="${socketUtil.MSG_COLOR}">${this.username} swings at the ${mob.displayName} but misses!</span>`;
+    actorMessage = `<span class="${config.MSG_COLOR}">You swing at the ${mob.displayName} but miss!</span>`;
+    roomMessage = `<span class="${config.MSG_COLOR}">${this.username} swings at the ${mob.displayName} but misses!</span>`;
   }
 
   socket.emit('output', { message: actorMessage });

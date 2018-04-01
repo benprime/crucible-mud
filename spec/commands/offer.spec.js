@@ -35,7 +35,7 @@ describe('offer', function () {
       spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
       spyOn(Room, 'getById').and.returnValue(room);
       otherUserSocket = new mocks.SocketMock();
-      spyOn(socketUtil, 'GetSocketByUsername').and.callFake(() => otherUserSocket);
+      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => otherUserSocket);
       socket.user.inventory = [{id: 'aItemId', name: 'aItem'}];
       socket.user.username = 'TestUser';
       room.usersInRoom.and.callFake(() => usersInRoom);

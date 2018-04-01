@@ -11,17 +11,17 @@ module.exports = {
   // using the receiver's socket instead of relying on the "sender" socket.
   roomMessage(roomId, message, exclude) {
     const ioRoom = global.io.sockets.adapter.rooms[roomId];
-    if(!ioRoom) return;
+    if (!ioRoom) return;
     for (let socketId in ioRoom.sockets) {
       if (Array.isArray(exclude) && exclude.includes(socketId)) continue;
       const socket = global.io.sockets.connected[socketId];
-      if(!socket) continue;
+      if (!socket) continue;
       socket.emit('output', { message: message });
     }
   },
 
-  GetSocketByUsername: (username) => {
-    for(let socketId in global.io.sockets.connected) {
+  getSocketByUsername: (username) => {
+    for (let socketId in global.io.sockets.connected) {
       let socket = global.io.sockets.connected[socketId];
       if (socket.user && socket.user.username.toLowerCase() == username.toLowerCase()) {
         return socket;
@@ -30,14 +30,20 @@ module.exports = {
     return null;
   },
 
-  GetSocketByUserId: (userId) => {
-    for(let socketId in global.io.sockets.connected) {
+  getSocketByUserId: (userId) => {
+    for (let socketId in global.io.sockets.connected) {
       let socket = global.io.sockets.connected[socketId];
       if (socket.user && socket.user.id == userId) {
         return socket;
       }
     }
     return null;
+  },
+
+  getRoomSockets: (roomId) => {
+    const ioRoom = global.io.sockets.adapter.rooms[roomId];
+    if (!ioRoom) return [];
+    return Object.keys(ioRoom.sockets).map((socketId) => global.io.sockets.connected[socketId]);
   },
 };
 

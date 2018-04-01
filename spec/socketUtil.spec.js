@@ -4,7 +4,6 @@
 delete require.cache[require.resolve('../socketUtil')];
 
 const socketUtil = require('../socketUtil');
-const dice = require('../dice');
 const mocks = require('./mocks');
 
 describe('socketUtil', function () {
@@ -35,10 +34,10 @@ describe('socketUtil', function () {
       global.io.sockets.adapter.rooms['testroom'] = {
         sockets: sockets,
       };
- 
+
       // act
       const result = socketUtil.socketInRoom('testroom', socket.id);
- 
+
       // arrange
       expect(result).toBe(true);
     });
@@ -75,14 +74,14 @@ describe('socketUtil', function () {
       let sockets = {};
       sockets[socket.id] = socket;
       global.io.sockets.connected[socket.id] = socket;
-      global.io.sockets.adapter.rooms = {};      
+      global.io.sockets.adapter.rooms = {};
       global.io.sockets.adapter.rooms[room.id] = {
         sockets: sockets,
       };
-      
+
       // act
       socketUtil.roomMessage('invalid room id', message, exclude);
-      
+
       // arrange
       expect(socket.emit).not.toHaveBeenCalled();
     });
@@ -98,19 +97,19 @@ describe('socketUtil', function () {
       sockets[socketA.id] = socketA;
       sockets[socketB.id] = socketB;
       sockets[socketC.id] = socketC;
-      
+
       global.io.sockets.connected[socketA.id] = socketA;
       global.io.sockets.connected[socketB.id] = socketB;
       global.io.sockets.connected[socketC.id] = socketC;
 
-      global.io.sockets.adapter.rooms = {};      
+      global.io.sockets.adapter.rooms = {};
       global.io.sockets.adapter.rooms[room.id] = {
         sockets: sockets,
       };
-       
+
       // act
       socketUtil.roomMessage(room.id, message, exclude);
-       
+
       // arrange
       expect(socketA.emit).toHaveBeenCalled();
       expect(socketB.emit).toHaveBeenCalled();
@@ -128,19 +127,19 @@ describe('socketUtil', function () {
       sockets[socketA.id] = socketA;
       sockets[socketB.id] = socketB;
       sockets[socketC.id] = socketC;
-      
+
       global.io.sockets.connected[socketA.id] = socketA;
       global.io.sockets.connected[socketB.id] = socketB;
       global.io.sockets.connected[socketC.id] = socketC;
 
-      global.io.sockets.adapter.rooms = {};      
+      global.io.sockets.adapter.rooms = {};
       global.io.sockets.adapter.rooms[room.id] = {
         sockets: sockets,
       };
-       
+
       // act
       socketUtil.roomMessage(room.id, message, exclude);
-       
+
       // arrange
       expect(socketA.emit).toHaveBeenCalled();
       expect(socketB.emit).not.toHaveBeenCalled();
@@ -149,16 +148,16 @@ describe('socketUtil', function () {
 
   });
 
-  describe('GetSocketByUsername', function () {
+  describe('getSocketByUsername', function () {
     let socket;
 
     it('returns socket when username found in connected sockets', function () {
       // arrange
       socket = new mocks.SocketMock();
       global.io.sockets.connected[socket.id] = socket;
-            
+
       // act
-      const result = socketUtil.GetSocketByUsername(socket.user.username);
+      const result = socketUtil.getSocketByUsername(socket.user.username);
 
       // assert
       expect(result).toBe(socket);
@@ -166,7 +165,7 @@ describe('socketUtil', function () {
 
     it('returns null when username not found in connected sockets', function () {
       // act
-      const result = socketUtil.GetSocketByUsername('unknown username');
+      const result = socketUtil.getSocketByUsername('unknown username');
 
       // assert
       expect(result).toBeNull();
@@ -174,7 +173,7 @@ describe('socketUtil', function () {
 
   });
 
-  describe('GetSocketByUserId', function () {
+  describe('getSocketByUserId', function () {
     let socket;
 
     it('returns socket when userId found in connected sockets', function () {
@@ -183,7 +182,7 @@ describe('socketUtil', function () {
       global.io.sockets.connected[socket.id] = socket;
 
       // act
-      const result = socketUtil.GetSocketByUserId(socket.user.id);
+      const result = socketUtil.getSocketByUserId(socket.user.id);
 
       // assert
       expect(result).toBe(socket);
@@ -191,29 +190,40 @@ describe('socketUtil', function () {
 
     it('returns null when userId not found in connected sockets', function () {
       // act
-      const result = socketUtil.GetSocketByUserId(socket.user.id);
+      const result = socketUtil.getSocketByUserId(socket.user.id);
 
       // assert
       expect(result).toBeNull();
     });
   });
 
-  describe('getRandomNumber', function () {
-    it('number in range when min and max are same number', function () {
-      // act
-      const result = dice.getRandomNumber(5, 5);
+  describe('getRoomSockets', function () {
+    let room;
 
-      // assert
-      expect(result).toBe(5);
+    beforeAll(function () {
+      global.io = new mocks.IOMock();
+      room = mocks.getMockRoom();
     });
 
-    it('number in range', function () {
-      // act
-      const result = dice.getRandomNumber(10, 15);
+    it('should return an empty array when no sockets exist in the room', function () {
+      let result = socketUtil.getRoomSockets(room.id);
 
-      // assert
-      expect(result).toBeGreaterThanOrEqual(10);
-      expect(result).toBeLessThanOrEqual(15);
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBe(0);
+    });
+
+    it('should return an array of sockets when the room is populated with users', function () {
+      global.io.sockets.adapter.rooms[room.id] = {
+        sockets: [
+          {},
+          {},
+        ],
+      };
+
+      let result = socketUtil.getRoomSockets(room.id);
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBe(2);
     });
   });
 

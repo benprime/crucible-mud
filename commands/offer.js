@@ -43,7 +43,7 @@ module.exports = {
       item: socket.user.inventory[userItemIndex],
     };
 
-    let toUserSocket = socketUtil.GetSocketByUsername(userName);
+    let toUserSocket = socketUtil.getSocketByUsername(userName);
     if (!toUserSocket) {
       socket.emit('output', { message: `${userName} is not here!` });
       return;

@@ -38,7 +38,7 @@ describe('take', function () {
     let autocompleteResult;
     
     beforeEach(function(){
-      spyOn(socketUtil, 'GetSocketByUsername').and.returnValue(otherUserSocket);
+      spyOn(socketUtil, 'getSocketByUsername').and.returnValue(otherUserSocket);
       spyOn(Room, 'getById').and.callFake(() => room);
       spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
       spyOn(room.inventory, 'remove').and.callFake(() => {});

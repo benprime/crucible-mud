@@ -1,6 +1,7 @@
 'use strict';
 
 const socketUtil = require('../../socketUtil');
+const config = require('../../config');
 const Room = require('../../models/room');
 const dice = require('../../dice');
 const mocks = require('../mocks');
@@ -20,7 +21,7 @@ describe('mob model', function () {
 
     mobType = mobData.catalog[0];
     const Mob = require('../../models/mob');
-    mob = new Mob(mobType, room.roomId);
+    mob = new Mob(mobType, room.roomId, 0);
 
     spyOn(Room, 'getById').and.callFake(() => room);
     spyOn(mob, 'die').and.callThrough();
@@ -128,7 +129,7 @@ describe('mob model', function () {
   describe('awardExperience', function () {
     beforeEach(function () {
       socket.user.attackTarget = mob.id;
-      spyOn(room, 'getSockets').and.callFake(() => [socket]);
+      spyOn(socketUtil, 'getRoomSockets').and.callFake(() => [socket]);
     });
 
     it('should award experience to each player currently attacking mob', function () {
@@ -224,11 +225,10 @@ describe('mob model', function () {
       expect(result).toBe(false);
     });
 
-    it('should update lastAttack and return true on every attack', function () {
+    it('should update lastAttack and return true on every successful attack', function () {
       // arrange
       spyOn(socketUtil, 'socketInRoom').and.callFake(() => true);
       mob.attackTarget = socket.id;
-      mob.lastAttack = new Date();
 
       // act
       const result = mob.attack(new Date());
@@ -245,9 +245,8 @@ describe('mob model', function () {
       spyOn(socketUtil, 'socketInRoom').and.callFake(() => true);
       spyOn(dice, 'roll').and.callFake(() => 1);
       mob.attackTarget = socket.id;
-      mob.lastAttack = new Date();
-      const playerMessage = `<span class="${socketUtil.DMG_COLOR}">The ${mob.displayName} hits you for 0 damage!</span>`;
-      const roomMessage = `<span class="${socketUtil.DMG_COLOR}">The ${mob.displayName} hits ${socket.user.username} for 0 damage!</span>`;
+      const playerMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits you for 0 damage!</span>`;
+      const roomMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits ${socket.user.username} for 0 damage!</span>`;
 
       // act
       mob.attack(new Date());
@@ -262,9 +261,8 @@ describe('mob model', function () {
       spyOn(socketUtil, 'socketInRoom').and.callFake(() => true);
       spyOn(dice, 'roll').and.callFake(() => 0);
       mob.attackTarget = socket.id;
-      mob.lastAttack = new Date();
-      const playerMessage = `<span class="${socketUtil.MSG_COLOR}">The ${mob.displayName} swings at you, but misses!</span>`;
-      const roomMessage = `<span class="${socketUtil.MSG_COLOR}">The ${mob.displayName} swings at ${socket.user.username}, but misses!</span>`;
+      const playerMessage = `<span class="${config.MSG_COLOR}">The ${mob.displayName} swings at you, but misses!</span>`;
+      const roomMessage = `<span class="${config.MSG_COLOR}">The ${mob.displayName} swings at ${socket.user.username}, but misses!</span>`;
 
       // act
       mob.attack(new Date());

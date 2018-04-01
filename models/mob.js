@@ -1,13 +1,14 @@
 'use strict';
 
 const socketUtil = require('../socketUtil');
+const config = require('../config');
 
 /* State only model */
 const ObjectId = require('mongodb').ObjectId;
 const Room = require('../models/room');
 const dice = require('../dice');
 
-function Mob(mobType, roomId) {
+function Mob(mobType, roomId, adjectiveIndex) {
 
   // TODO: When we refactor this, the mob instance does
   // not need to contain the entire mobType.
@@ -16,8 +17,14 @@ function Mob(mobType, roomId) {
     this.id = new ObjectId();
   }
 
+  let adjIndex;
+  if (Number.isInteger(adjectiveIndex)) {
+    adjIndex = adjectiveIndex;
+  } else {
+    adjIndex = dice.getRandomNumber(0, mobType.adjectives.length);
+  }
+
   // apply modifiers
-  const adjIndex = dice.getRandomNumber(0, mobType.adjectives.length);
   const adjective = mobType.adjectives[adjIndex];
   instance.hp += adjective.modifiers.hp;
   instance.xp += adjective.modifiers.xp;
@@ -59,7 +66,7 @@ Mob.prototype.die = function (socket) {
 // can move from room to room.
 Mob.prototype.awardExperience = function (socket) {
   const room = Room.getById(socket.user.roomId);
-  let sockets = room.getSockets();
+  let sockets = socketUtil.getRoomSockets(room.id);
   sockets.forEach((s) => {
     if (s.user.attackTarget === this.id) {
       s.user.attackTarget = null;
@@ -72,7 +79,7 @@ Mob.prototype.awardExperience = function (socket) {
 
 Mob.prototype.selectTarget = function (roomid) {
 
-  if(!roomid) return;
+  if (!roomid) return;
 
   // if everyone has disconnected from a room (but mobs still there) the room will not be defined.
   const ioRoom = global.io.sockets.adapter.rooms[roomid];
@@ -83,7 +90,7 @@ Mob.prototype.selectTarget = function (roomid) {
     if (!this.attackTarget) {
       // select random player to attack
       const socketsInRoom = Object.keys(ioRoom.sockets);
-      if(socketsInRoom.length == 0) return;
+      if (socketsInRoom.length == 0) return;
       const targetIndex = dice.getRandomNumber(0, socketsInRoom.length);
       const socketId = socketsInRoom[targetIndex];
 
@@ -109,6 +116,10 @@ Mob.prototype.attack = function (now) {
     return false;
   }
 
+  if (!this.readyToAttack(now)) {
+    return false;
+  }
+
   if (!socketUtil.socketInRoom(this.roomId, this.attackTarget)) {
     this.attackTarget = null;
     return false;
@@ -125,11 +136,11 @@ Mob.prototype.attack = function (now) {
   let playerName = playerSocket.user.username;
 
   if (this.attackroll() == 1) {
-    playerMessage = `<span class="${socketUtil.DMG_COLOR}">The ${this.displayName} hits you for ${dmg} damage!</span>`;
-    roomMessage = `<span class="${socketUtil.DMG_COLOR}">The ${this.displayName} hits ${playerName} for ${dmg} damage!</span>`;
+    playerMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits you for ${dmg} damage!</span>`;
+    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits ${playerName} for ${dmg} damage!</span>`;
   } else {
-    playerMessage = `<span class="${socketUtil.MSG_COLOR}">The ${this.displayName} swings at you, but misses!</span>`;
-    roomMessage = `<span class="${socketUtil.MSG_COLOR}">The ${this.displayName} swings at ${playerName}, but misses!</span>`;
+    playerMessage = `<span class="${config.MSG_COLOR}">The ${this.displayName} swings at you, but misses!</span>`;
+    roomMessage = `<span class="${config.MSG_COLOR}">The ${this.displayName} swings at ${playerName}, but misses!</span>`;
   }
 
   playerSocket.emit('output', { message: playerMessage });
@@ -140,9 +151,10 @@ Mob.prototype.attack = function (now) {
 };
 
 Mob.prototype.taunt = function (now) {
+  if (!this.readyToTaunt(now)) return;
   this.lastTaunt = now;
 
-  if(!this.attackTarget) return;
+  if (!this.attackTarget) return;
   const socket = global.io.sockets.connected[this.attackTarget];
 
   if (!socketUtil.socketInRoom(this.roomId, this.attackTarget)) {

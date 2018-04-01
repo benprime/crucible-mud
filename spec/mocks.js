@@ -130,6 +130,7 @@ function SocketMock() {
   user.save = jasmine.createSpy('userSave');
   user.addExp = jasmine.createSpy('addExp');
   user.attackTarget = null;
+  user.attack = jasmine.createSpy('userAttack');
   this.user = user;
 
   this.reset = function () {

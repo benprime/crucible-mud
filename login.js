@@ -39,7 +39,7 @@ module.exports = {
           delete socket.tempUsername;
 
           // if the user is logged in from another connection, disconnect it.
-          var existingSocket = socketUtil.GetSocketByUsername(user.username);
+          var existingSocket = socketUtil.getSocketByUsername(user.username);
           if (existingSocket) {
             existingSocket.emit('output', { message: 'You have logged in from another session.\n<span class="gray">*** Disconnected ***</span>' });
             existingSocket.disconnect();

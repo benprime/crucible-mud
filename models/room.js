@@ -4,6 +4,7 @@ require('../extensionMethods');
 const mongoose = require('mongoose');
 const ItemSchema = require('./itemSchema');
 const SpawnerSchema = require('./spawnerSchema');
+const socketUtil = require('../socketUtil');
 
 const roomCache = {};
 
@@ -206,13 +207,6 @@ RoomSchema.methods.createRoom = function (dir, cb) {
   });
 };
 
-// Note: this could just as easily be a static method that takes the id
-RoomSchema.methods.getSockets = function () {
-  const ioRoom = global.io.sockets.adapter.rooms[this.id];
-  if (!ioRoom) return [];
-  return Object.keys(ioRoom.sockets).map((socketId) => global.io.sockets.connected[socketId]);
-};
-
 RoomSchema.methods.look = function (socket, short) {
   let output = `<span class="cyan">${this.name}</span>\n`;
 
@@ -284,6 +278,31 @@ RoomSchema.methods.addExit = function (dir, roomId) {
     roomId: roomId,
   });
   return true;
+};
+
+//============================================================================
+// Instance methods : Combat
+//============================================================================
+RoomSchema.methods.processPlayerCombatActions = function (now) {
+  const sockets = socketUtil.getRoomSockets(this.id);
+  for (let socket of sockets) {
+    if (!socket.user.attackTarget) continue;
+    let mob = this.getMobById(socket.user.attackTarget);
+    if (!mob) continue;
+    socket.user.attack(socket, mob, now);
+  }
+};
+
+RoomSchema.methods.processMobCombatActions = function (now) {
+  if (Array.isArray(this.mobs) && this.mobs.length > 0) {
+    const room = this;
+    this.mobs.forEach(function (mob) {
+      if (!mob.attack(now)) {
+        mob.selectTarget(room.id, mob);
+      }
+      mob.taunt(now);
+    });
+  }
 };
 
 const Room = mongoose.model('Room', RoomSchema);

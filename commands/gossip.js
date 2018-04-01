@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = {
+module.exports = Object.freeze({
   name: 'gossip',
 
   patterns: [
@@ -26,4 +26,4 @@ module.exports = {
     output += '<span class="mediumOrchid">gossip &lt;message&gt; </span><span class="purple">-</span> Send messages to all connected players.<br />';
     socket.emit('output', { message: output });
   },
-};
+});

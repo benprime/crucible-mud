@@ -1,10 +1,11 @@
 'use strict';
 
+const socketUtil = require('../../socketUtil');
+const config = require('../../config');
 const Room = require('../../models/room');
 const dice = require('../../dice');
 const mocks = require('../mocks');
 const mobData = require('../../data/mobData');
-
 
 describe('mob model', function () {
   let mobType;
@@ -20,11 +21,11 @@ describe('mob model', function () {
 
     mobType = mobData.catalog[0];
     const Mob = require('../../models/mob');
-    mob = new Mob(mobType, room.roomId);
+    mob = new Mob(mobType, room.roomId, 0);
 
     spyOn(Room, 'getById').and.callFake(() => room);
     spyOn(mob, 'die').and.callThrough();
-    spyOn(global, 'roomMessage');
+    spyOn(socketUtil, 'roomMessage');
   });
 
   describe('constructor', function () {
@@ -128,7 +129,7 @@ describe('mob model', function () {
   describe('awardExperience', function () {
     beforeEach(function () {
       socket.user.attackTarget = mob.id;
-      spyOn(room, 'getSockets').and.callFake(() => [socket]);
+      spyOn(socketUtil, 'getRoomSockets').and.callFake(() => [socket]);
     });
 
     it('should award experience to each player currently attacking mob', function () {
@@ -188,7 +189,7 @@ describe('mob model', function () {
 
   });
 
-  describe('attackRoll', function () {
+  describe('attackroll', function () {
     // TODO: Fill this in when logic is added
   });
 
@@ -206,13 +207,13 @@ describe('mob model', function () {
 
       // assert
       expect(socket.emit).not.toHaveBeenCalled();
-      expect(global.roomMessage).not.toHaveBeenCalled();
+      expect(socketUtil.roomMessage).not.toHaveBeenCalled();
     });
 
     it('should set attackTarget to null if target socket is not in room', function () {
       // arrange
       mob.attackTarget = 'non existant socket';
-      spyOn(global, 'socketInRoom').and.callFake(() => false);
+      spyOn(socketUtil, 'socketInRoom').and.callFake(() => false);
 
       // act
       const result = mob.attack(new Date());
@@ -220,15 +221,14 @@ describe('mob model', function () {
       // assert
       expect(mob.attackTarget).toBeNull();
       expect(socket.emit).not.toHaveBeenCalled();
-      expect(global.roomMessage).not.toHaveBeenCalled();
+      expect(socketUtil.roomMessage).not.toHaveBeenCalled();
       expect(result).toBe(false);
     });
 
-    it('should update lastAttack and return true on every attack', function () {
+    it('should update lastAttack and return true on every successful attack', function () {
       // arrange
-      spyOn(global, 'socketInRoom').and.callFake(() => true);
+      spyOn(socketUtil, 'socketInRoom').and.callFake(() => true);
       mob.attackTarget = socket.id;
-      mob.lastAttack = new Date();
 
       // act
       const result = mob.attack(new Date());
@@ -236,42 +236,40 @@ describe('mob model', function () {
       // assert
       expect(mob.attackTarget).toBe(socket.id);
       expect(socket.emit).toHaveBeenCalled();
-      expect(global.roomMessage).toHaveBeenCalled();
+      expect(socketUtil.roomMessage).toHaveBeenCalled();
       expect(result).toBe(true);
     });
 
     it('should output hit messages if attack roll successful', function () {
       // arrange
-      spyOn(global, 'socketInRoom').and.callFake(() => true);
-      spyOn(dice, 'Roll').and.callFake(() => 1);
+      spyOn(socketUtil, 'socketInRoom').and.callFake(() => true);
+      spyOn(dice, 'roll').and.callFake(() => 1);
       mob.attackTarget = socket.id;
-      mob.lastAttack = new Date();
-      const playerMessage = `<span class="${global.DMG_COLOR}">The ${mob.displayName} hits you for 0 damage!</span>`;
-      const roomMessage = `<span class="${global.DMG_COLOR}">The ${mob.displayName} hits ${socket.user.username} for 0 damage!</span>`;
+      const playerMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits you for 0 damage!</span>`;
+      const roomMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits ${socket.user.username} for 0 damage!</span>`;
 
       // act
       mob.attack(new Date());
 
       // assert
       expect(socket.emit).toHaveBeenCalledWith('output', { message: playerMessage });
-      expect(global.roomMessage).toHaveBeenCalledWith(room._id, roomMessage, [socket.id]);
+      expect(socketUtil.roomMessage).toHaveBeenCalledWith(room._id, roomMessage, [socket.id]);
     });
 
     it('should output miss messages if attack roll fails', function () {
       // arrange
-      spyOn(global, 'socketInRoom').and.callFake(() => true);
-      spyOn(dice, 'Roll').and.callFake(() => 0);
+      spyOn(socketUtil, 'socketInRoom').and.callFake(() => true);
+      spyOn(dice, 'roll').and.callFake(() => 0);
       mob.attackTarget = socket.id;
-      mob.lastAttack = new Date();
-      const playerMessage = `<span class="${global.MSG_COLOR}">The ${mob.displayName} swings at you, but misses!</span>`;
-      const roomMessage = `<span class="${global.MSG_COLOR}">The ${mob.displayName} swings at ${socket.user.username}, but misses!</span>`;
+      const playerMessage = `<span class="${config.MSG_COLOR}">The ${mob.displayName} swings at you, but misses!</span>`;
+      const roomMessage = `<span class="${config.MSG_COLOR}">The ${mob.displayName} swings at ${socket.user.username}, but misses!</span>`;
 
       // act
       mob.attack(new Date());
 
       // assert
       expect(socket.emit).toHaveBeenCalledWith('output', { message: playerMessage });
-      expect(global.roomMessage).toHaveBeenCalledWith(room._id, roomMessage, [socket.id]);
+      expect(socketUtil.roomMessage).toHaveBeenCalledWith(room._id, roomMessage, [socket.id]);
     });
   });
 
@@ -302,7 +300,7 @@ describe('mob model', function () {
 
     it('should send an individual message and a room message', function () {
       // arrange
-      global.socketInRoom = jasmine.createSpy('socketInRoomSpy').and.returnValue(true);
+      socketUtil.socketInRoom = jasmine.createSpy('socketInRoomSpy').and.returnValue(true);
       //mob.roomId = socket.user.roomId;
       global.io.sockets.connected[socket.id] = socket;
       mob.attackTarget = socket.id;

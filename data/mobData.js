@@ -65,6 +65,7 @@ module.exports = {
           minDamage: 0,
           maxDamage: 0,
           hitDice: 0,
+          attackInterval: 0,
         },
       },
       {
@@ -75,6 +76,7 @@ module.exports = {
           minDamage: 0,
           maxDamage: 0,
           hitDice: 0,
+          attackInterval: 0,
         },
       },
       {
@@ -85,6 +87,7 @@ module.exports = {
           minDamage: 2,
           maxDamage: 2,
           hitDice: 1,
+          attackInterval: 0,
         },
       },
     ],

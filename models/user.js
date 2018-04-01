@@ -3,6 +3,8 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const socketUtil = require('../socketUtil');
+const config = require('../config');
 const ItemSchema = require('./itemSchema');
 const dice = require('../dice');
 
@@ -167,22 +169,22 @@ UserSchema.methods.readyToAttack = function (now) {
   return this.attackTarget && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
 };
 
-UserSchema.methods.attackRoll = function (weapon) {
+UserSchema.methods.attackroll = function (weapon) {
   /*
   var wdParts = weapon.damage.split(" ");
 
   if(!weapon) {
-    return this.strengh + (dice.Roll(this.actionDie) - 2);  --bare fist
+    return this.strengh + (dice.roll(this.actionDie) - 2);  --bare fist
   }
   if(weapon.range = 'melee') {
-    return this.strengh + dice.Roll(wdParts[0]) + wdParts[1];
+    return this.strengh + dice.roll(wdParts[0]) + wdParts[1];
   }
-  console.log('attackRoll weapon resolution error');
+  console.log('attackroll weapon resolution error');
   return 0;
   */
 
   // just return 0 or 1 for now
-  return dice.Roll('1d2');
+  return dice.roll('1d2');
 };
 
 UserSchema.methods.attack = function (socket, mob, now) {
@@ -191,16 +193,16 @@ UserSchema.methods.attack = function (socket, mob, now) {
 
   let actorMessage = '';
   let roomMessage = '';
-  const playerDmg = 5; //dice.Roll(this.actionDie) + this.strength;
+  const playerDmg = 5; //dice.roll(this.actionDie) + this.strength;
 
-  let attackResult = this.attackRoll();
+  let attackResult = this.attackroll();
 
   if (attackResult == 2) {
-    actorMessage = `<span class="${global.DMG_COLOR}">You hit ${mob.displayName} for ${playerDmg} damage!</span>`;
-    roomMessage = `<span class="${global.DMG_COLOR}">The ${this.username} hits ${mob.displayName} for ${playerDmg} damage!</span>`;
+    actorMessage = `<span class="${config.DMG_COLOR}">You hit ${mob.displayName} for ${playerDmg} damage!</span>`;
+    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} hits ${mob.displayName} for ${playerDmg} damage!</span>`;
   } else {
-    actorMessage = `<span class="${global.MSG_COLOR}">You swing at the ${mob.displayName} but miss!</span>`;
-    roomMessage = `<span class="${global.MSG_COLOR}">${this.username} swings at the ${mob.displayName} but misses!</span>`;
+    actorMessage = `<span class="${config.MSG_COLOR}">You swing at the ${mob.displayName} but miss!</span>`;
+    roomMessage = `<span class="${config.MSG_COLOR}">${this.username} swings at the ${mob.displayName} but misses!</span>`;
   }
 
   socket.emit('output', { message: actorMessage });

@@ -17,7 +17,7 @@ describe('attack', function () {
     spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
   });
 
-  beforeEach(function() {
+  beforeEach(function () {
     socket.reset();
   });
 
@@ -47,22 +47,27 @@ describe('attack', function () {
       socket.user.roomId = room.id;
     });
 
-    it('emits and broadcasts', function () {
+    it('should set state and emit output when valid target found', function () {
       autocompleteResult = {
-        id: 123,
-        displayName: 'a thing!',
+        item: {
+          id: 123,
+          displayName: 'a thing!',
+        },
+        type: 'mob',
       };
       attack.execute(socket, 'thing');
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="olive">*** Combat Engaged ***</span>' });
       expect(socket.broadcast.to(socket.user.roomId.toString()).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} moves to attack ${autocompleteResult.displayName}!` });
+      expect(socket.user.attackTarget).toBe(autocompleteResult.item.id);
     });
 
-    it('emits with no target', function () {
-      autocompleteResult = undefined;
+    it('should set state and emit output when no target found', function () {
+      autocompleteResult = null;
       attack.execute(socket, 'thing');
 
       expect(socket.emit).not.toHaveBeenCalled();
+      expect(socket.user.attackTarget).toBeFalsy();
     });
   });
 });

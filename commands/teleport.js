@@ -1,5 +1,6 @@
 'use strict';
 
+const socketUtil = require('../socketUtil');
 const breakCmd = require('./break');
 const lookCmd = require('./look');
 const Room = require('../models/room');
@@ -25,7 +26,7 @@ module.exports = {
       toRoomId = teleportTo;
     } else {
       // otherwise, we are teleporting to a user
-      const userSocket = global.GetSocketByUsername(teleportTo);
+      const userSocket = socketUtil.getSocketByUsername(teleportTo);
       if (!userSocket) {
         socket.emit('output', { message: 'Target not found.' });
         return;

@@ -1,6 +1,7 @@
 'use strict';
 
 const socketUtil = require('../socketUtil');
+const config = require('../config');
 
 /* State only model */
 const ObjectId = require('mongodb').ObjectId;
@@ -135,11 +136,11 @@ Mob.prototype.attack = function (now) {
   let playerName = playerSocket.user.username;
 
   if (this.attackroll() == 1) {
-    playerMessage = `<span class="${socketUtil.DMG_COLOR}">The ${this.displayName} hits you for ${dmg} damage!</span>`;
-    roomMessage = `<span class="${socketUtil.DMG_COLOR}">The ${this.displayName} hits ${playerName} for ${dmg} damage!</span>`;
+    playerMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits you for ${dmg} damage!</span>`;
+    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits ${playerName} for ${dmg} damage!</span>`;
   } else {
-    playerMessage = `<span class="${socketUtil.MSG_COLOR}">The ${this.displayName} swings at you, but misses!</span>`;
-    roomMessage = `<span class="${socketUtil.MSG_COLOR}">The ${this.displayName} swings at ${playerName}, but misses!</span>`;
+    playerMessage = `<span class="${config.MSG_COLOR}">The ${this.displayName} swings at you, but misses!</span>`;
+    roomMessage = `<span class="${config.MSG_COLOR}">The ${this.displayName} swings at ${playerName}, but misses!</span>`;
   }
 
   playerSocket.emit('output', { message: playerMessage });

@@ -1,6 +1,6 @@
 'use strict';
 
-module.export = {
+module.exports = {
   MSG_COLOR: 'darkcyan',
   DMG_COLOR: 'firebrick',
 

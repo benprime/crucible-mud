@@ -30,7 +30,7 @@ describe('teleport', function () {
     it('should teleport to another user\'s room if parameter is a username', function () {
 
       //TODO: get this to find OtherUser
-      spyOn(socketUtil, 'GetSocketByUsername').and.callFake(() => otherSocket);
+      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => otherSocket);
       spyOn(Room, 'getById').and.callFake(() => otherRoom);
 
       //set current room
@@ -78,7 +78,7 @@ describe('teleport', function () {
 
     it('should output messages when target is invalid user', function () {
 
-      spyOn(socketUtil, 'GetSocketByUsername').and.callFake(() => null);
+      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => null);
 
       sut.execute(socket, 'Bobby');
 

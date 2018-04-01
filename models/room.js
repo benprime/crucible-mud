@@ -206,13 +206,6 @@ RoomSchema.methods.createRoom = function (dir, cb) {
   });
 };
 
-// Note: this could just as easily be a static method that takes the id
-RoomSchema.methods.getSockets = function () {
-  const ioRoom = global.io.sockets.adapter.rooms[this.id];
-  if (!ioRoom) return [];
-  return Object.keys(ioRoom.sockets).map((socketId) => global.io.sockets.connected[socketId]);
-};
-
 RoomSchema.methods.look = function (socket, short) {
   let output = `<span class="cyan">${this.name}</span>\n`;
 

@@ -25,7 +25,7 @@ describe('summon', function () {
 
   describe('execute', function () {
     it('should output message when user is not found', function() {
-      spyOn(socketUtil, 'GetSocketByUsername').and.callFake(() => null);
+      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => null);
       sut.execute(socket, 'Wrong');
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Player not found.' });
@@ -34,7 +34,7 @@ describe('summon', function () {
     it('should join target user to admin room and leave current room', function() {
       // arrange
       otherSocket.user.roomId = otherRoom.id;
-      spyOn(socketUtil, 'GetSocketByUsername').and.callFake(() => otherSocket);
+      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => otherSocket);
       spyOn(lookCmd, 'execute').and.callFake(() => null);
 
       // act
@@ -48,7 +48,7 @@ describe('summon', function () {
     it('should update target user room id and save user to database', function() {
       // arrange
       otherSocket.user.roomId = otherRoom.id;
-      spyOn(socketUtil, 'GetSocketByUsername').and.callFake(() => otherSocket);
+      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => otherSocket);
       spyOn(lookCmd, 'execute').and.callFake(() => null);
 
       // act
@@ -62,7 +62,7 @@ describe('summon', function () {
     it('should output messages when command successful', function() {
       // arrange
       otherSocket.user.roomId = otherRoom.id;
-      spyOn(socketUtil, 'GetSocketByUsername').and.callFake(() => otherSocket);
+      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => otherSocket);
       spyOn(lookCmd, 'execute').and.callFake(() => null);
 
       // act

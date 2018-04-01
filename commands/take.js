@@ -46,7 +46,7 @@ module.exports = {
       let offerIndex = socket.offers.findIndex(o => o.item.name === itemName);
       if(offerIndex !== -1) {
         let offer = socket.offers[offerIndex];
-        let offeringUserSocket = socketUtil.GetSocketByUsername(offer.fromUserName);
+        let offeringUserSocket = socketUtil.getSocketByUsername(offer.fromUserName);
         if (!offeringUserSocket) {
           socket.emit('output', { message: 'Invalid username or user is offline.' });
           return;

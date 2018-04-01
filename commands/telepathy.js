@@ -19,7 +19,7 @@ module.exports = {
   },
 
   execute(socket, username, message) {
-    const userSocket = socketUtil.GetSocketByUsername(username);
+    const userSocket = socketUtil.getSocketByUsername(username);
     if (!userSocket) {
       socket.emit('output', { message: 'Invalid username.' });
       return;

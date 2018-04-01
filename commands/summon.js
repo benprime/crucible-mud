@@ -18,7 +18,7 @@ module.exports = {
   },
 
   execute(socket, username) {
-    const userSocket = socketUtil.GetSocketByUsername(username);
+    const userSocket = socketUtil.getSocketByUsername(username);
 
     //verify summoned player
     if (!userSocket) {

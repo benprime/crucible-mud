@@ -20,7 +20,7 @@ describe('telepathy', function () {
     it('should output messages when user is invalid', function () {
       // arrange
       const msg = 'This is a telepath message!';
-      spyOn(socketUtil, 'GetSocketByUsername').and.callFake(() => null);
+      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => null);
 
       // act
       sut.execute(socket, 'Wrong', msg);
@@ -32,7 +32,7 @@ describe('telepathy', function () {
     it('should output messages when command is successful', function () {
       // arrange
       const msg = 'This is a telepath message!';
-      spyOn(socketUtil, 'GetSocketByUsername').and.callFake(() => otherSocket);
+      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => otherSocket);
 
       // act
       sut.execute(socket, otherSocket.username, msg);

@@ -6,7 +6,7 @@ const Room = require('./models/room');
 
 module.exports = {
   actionDispatcher(socket, action, username) {
-    const targetSocket = username ? socketUtil.GetSocketByUsername(username) : null;
+    const targetSocket = username ? socketUtil.getSocketByUsername(username) : null;
 
     if (action in actionsData.actions) {
       // user is attempting to action another user

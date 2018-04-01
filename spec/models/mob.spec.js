@@ -128,7 +128,7 @@ describe('mob model', function () {
   describe('awardExperience', function () {
     beforeEach(function () {
       socket.user.attackTarget = mob.id;
-      spyOn(room, 'getSockets').and.callFake(() => [socket]);
+      spyOn(socketUtil, 'getRoomSockets').and.callFake(() => [socket]);
     });
 
     it('should award experience to each player currently attacking mob', function () {

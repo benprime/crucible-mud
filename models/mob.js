@@ -59,7 +59,7 @@ Mob.prototype.die = function (socket) {
 // can move from room to room.
 Mob.prototype.awardExperience = function (socket) {
   const room = Room.getById(socket.user.roomId);
-  let sockets = room.getSockets();
+  let sockets = socketUtil.getRoomSockets(room.id);
   sockets.forEach((s) => {
     if (s.user.attackTarget === this.id) {
       s.user.attackTarget = null;

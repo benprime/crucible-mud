@@ -26,7 +26,7 @@ module.exports = {
       toRoomId = teleportTo;
     } else {
       // otherwise, we are teleporting to a user
-      const userSocket = socketUtil.GetSocketByUsername(teleportTo);
+      const userSocket = socketUtil.getSocketByUsername(teleportTo);
       if (!userSocket) {
         socket.emit('output', { message: 'Target not found.' });
         return;

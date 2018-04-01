@@ -1,5 +1,5 @@
 
-describe('processPlayerAttacks', function () {
+describe('processPlayerCombatActions', function () {
   it('should only call attack method on players that are logged in', function () {
   });
 
@@ -7,7 +7,7 @@ describe('processPlayerAttacks', function () {
   });
 });
 
-describe('processMobAttacks', function () {
+describe('processMobCombatActions', function () {
   it('should only iterate over rooms that contain a mob', function () {
   });
 });

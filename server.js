@@ -19,9 +19,9 @@ const loginUtil = require('./login');
 const look = require('./commands/look');
 
 // environment variables
-const NODE_PORT = process.env.NODE_PORT;
-const MONGO_DB = process.env.MONGO_DB;
-const MONGO_PORT = process.env.MONGO_PORT;
+const NODE_PORT = process.env.NODE_PORT || 3000;
+const MONGO_DB = process.env.MONGO_DB || 'mud';
+const MONGO_PORT = process.env.MONGO_PORT || 27017;
 
 app.set('port', NODE_PORT);
 const mongoose = require('mongoose');

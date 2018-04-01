@@ -19,10 +19,11 @@ module.exports = {
     const room = Room.getById(socket.user.roomId);
     const target = autocomplete.autocompleteTypes(socket, ['mob'], targetName);
     if (!target) {
+      socket.user.attackTarget = null;
       return;
     }
 
-    socket.user.attackTarget = target.id;
+    socket.user.attackTarget = target.item.id;
     socket.user.attackInterval = 4000;
 
     socket.emit('output', { message: '<span class="olive">*** Combat Engaged ***</span>' });

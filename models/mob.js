@@ -7,7 +7,7 @@ const ObjectId = require('mongodb').ObjectId;
 const Room = require('../models/room');
 const dice = require('../dice');
 
-function Mob(mobType, roomId) {
+function Mob(mobType, roomId, adjectiveIndex) {
 
   // TODO: When we refactor this, the mob instance does
   // not need to contain the entire mobType.
@@ -16,8 +16,14 @@ function Mob(mobType, roomId) {
     this.id = new ObjectId();
   }
 
+  let adjIndex;
+  if (Number.isInteger(adjectiveIndex)) {
+    adjIndex = adjectiveIndex;
+  } else {
+    adjIndex = dice.getRandomNumber(0, mobType.adjectives.length);
+  }
+
   // apply modifiers
-  const adjIndex = dice.getRandomNumber(0, mobType.adjectives.length);
   const adjective = mobType.adjectives[adjIndex];
   instance.hp += adjective.modifiers.hp;
   instance.xp += adjective.modifiers.xp;
@@ -72,7 +78,7 @@ Mob.prototype.awardExperience = function (socket) {
 
 Mob.prototype.selectTarget = function (roomid) {
 
-  if(!roomid) return;
+  if (!roomid) return;
 
   // if everyone has disconnected from a room (but mobs still there) the room will not be defined.
   const ioRoom = global.io.sockets.adapter.rooms[roomid];
@@ -83,7 +89,7 @@ Mob.prototype.selectTarget = function (roomid) {
     if (!this.attackTarget) {
       // select random player to attack
       const socketsInRoom = Object.keys(ioRoom.sockets);
-      if(socketsInRoom.length == 0) return;
+      if (socketsInRoom.length == 0) return;
       const targetIndex = dice.getRandomNumber(0, socketsInRoom.length);
       const socketId = socketsInRoom[targetIndex];
 
@@ -106,6 +112,10 @@ Mob.prototype.attackroll = function () {
 Mob.prototype.attack = function (now) {
 
   if (!this.attackTarget) {
+    return false;
+  }
+
+  if (!this.readyToAttack(now)) {
     return false;
   }
 
@@ -140,9 +150,10 @@ Mob.prototype.attack = function (now) {
 };
 
 Mob.prototype.taunt = function (now) {
+  if (!this.readyToTaunt(now)) return;
   this.lastTaunt = now;
 
-  if(!this.attackTarget) return;
+  if (!this.attackTarget) return;
   const socket = global.io.sockets.connected[this.attackTarget];
 
   if (!socketUtil.socketInRoom(this.roomId, this.attackTarget)) {

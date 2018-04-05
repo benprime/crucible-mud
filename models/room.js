@@ -90,6 +90,9 @@ const RoomSchema = new mongoose.Schema({
     locked: {
       type: Boolean,
     },
+    hidden: {
+      type: Boolean,
+    },
   }],
   spawner: SpawnerSchema,
   inventory: [ItemSchema],

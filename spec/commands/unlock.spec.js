@@ -1,6 +1,7 @@
 'use strict';
 
 const autocomplete = require('../../autocomplete');
+const config = require('../../config');
 const Item = require('../../models/item');
 const Room = require('../../models/room');
 const mocks = require('../mocks');
@@ -14,7 +15,7 @@ describe('unlock', function () {
   beforeAll(function () {
     global.io = new mocks.IOMock();
     socket = new mocks.SocketMock();
-    room = { 
+    room = {
       exits: [
         { dir: 'n', roomId: 'nRoomId', closed: true },
         { dir: 'w', roomId: 'wRoomId', closed: true, keyName: 'Gold', locked: true },
@@ -82,17 +83,18 @@ describe('unlock', function () {
     var worked = false;
     beforeEach(function (done) {
       global.io = new mocks.IOMock();
-      global.DOOR_CLOSE_TIMER = 100;
+      config.DOOR_CLOSE_TIMER = 100;
       var key = new Item();
       key.itemTypeEnum = 'key';
       key.name = 'Silver';
       autocompleteResult = key;
 
-      sut.execute(socket, 'nw', 'Silver', function (exit) {
+      sut.execute(socket, 'nw', 'Silver', function () {
         worked = true;
         done();
       });
     });
+
     it('should automatically relock door after timeout', function () {
       expect(global.io.to('bogus').emit).toHaveBeenCalledWith('output', { message: 'The door to the northwest clicks locked!' });
       expect(room.save).not.toHaveBeenCalled();

@@ -1,6 +1,7 @@
 'use strict';
 
 const mocks = require('../mocks');
+const socketUtil = require('../../socketUtil');
 const sut = require('../../commands/telepathy');
 
 describe('telepathy', function () {
@@ -18,11 +19,11 @@ describe('telepathy', function () {
 
     it('should output messages when user is invalid', function () {
       // arrange
-      const msg = "This is a telepath message!";
-      spyOn(global, "GetSocketByUsername").and.callFake(() => null);
+      const msg = 'This is a telepath message!';
+      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => null);
 
       // act
-      sut.execute(socket, "Wrong", msg);
+      sut.execute(socket, 'Wrong', msg);
 
       // assert
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Invalid username.' });
@@ -30,8 +31,8 @@ describe('telepathy', function () {
 
     it('should output messages when command is successful', function () {
       // arrange
-      const msg = "This is a telepath message!";
-      spyOn(global, "GetSocketByUsername").and.callFake(() => otherSocket);
+      const msg = 'This is a telepath message!';
+      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => otherSocket);
 
       // act
       sut.execute(socket, otherSocket.username, msg);

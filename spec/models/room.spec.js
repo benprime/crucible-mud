@@ -4,6 +4,8 @@ const mocks = require('../mocks');
 const Room = require('../../models/room');
 const Mob = require('../../models/mob');
 const ObjectId = require('mongodb').ObjectId;
+const mobData = require('../../data/mobData');
+const socketUtil = require('../../socketUtil');
 
 describe('room model', function () {
 
@@ -160,31 +162,6 @@ describe('room model', function () {
       });
     });
 
-    describe('socketInRoom', function () {
-      let socket;
-      beforeEach(function () {
-        socket = new mocks.SocketMock();
-        global.io = new mocks.IOMock();
-        let ioRoom = {};
-        global.io.sockets.adapter.rooms[room.id] = ioRoom;
-        let sockets = {};
-        sockets[socket.id] = {};
-        ioRoom.sockets = sockets;
-      });
-
-      it('should return true when socket in room', function () {
-        const result = room.socketInRoom(socket.id);
-
-        expect(result).toBe(true);
-      });
-
-      it('should return false when socket not in room', function () {
-        const result = room.socketInRoom('socket id not in room');
-
-        expect(result).toBe(false);
-      });
-    });
-
     describe('usersInRoom', function () {
       let socket;
       beforeEach(function () {
@@ -282,34 +259,6 @@ describe('room model', function () {
           expect(result.id in Room.roomCache).toBe(false);
           expect(Room.prototype.save).toHaveBeenCalledTimes(2);
         });
-      });
-    });
-
-    describe('getSockets', function () {
-
-      beforeAll(function () {
-        global.io = new mocks.IOMock();
-      });
-
-      it('should return an empty array when no sockets exist in the room', function () {
-        let result = room.getSockets();
-
-        expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBe(0);
-      });
-
-      it('should return an array of sockets when the room is populated with users', function () {
-        global.io.sockets.adapter.rooms[room.id] = {
-          sockets: [
-            {},
-            {},
-          ],
-        };
-
-        let result = room.getSockets();
-
-        expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBe(2);
       });
     });
 
@@ -450,6 +399,82 @@ describe('room model', function () {
 
         expect(result).toBeTruthy();
         expect(exit).toBeDefined();
+      });
+    });
+
+    describe('processPlayerCombatActions', function () {
+      it('should iterate over players in room with attackTarget', function () {
+        // arrange
+        const socketA = new mocks.SocketMock();
+        socketA.user.attackTarget = {};
+        const socketB = new mocks.SocketMock();
+        socketB.user.attackTarget = {};
+        const socketC = new mocks.SocketMock();
+        socketC.user.attackTarget = {};
+        spyOn(socketUtil, 'getRoomSockets').and.callFake(() => [socketA, socketB, socketC]);
+        spyOn(room, 'getMobById').and.returnValue({});
+
+        // act
+        room.processPlayerCombatActions(new Date());
+
+        // assert
+        expect(socketA.user.attack).toHaveBeenCalled();
+        expect(socketB.user.attack).toHaveBeenCalled();
+        expect(socketC.user.attack).toHaveBeenCalled();
+      });
+
+      it('should not call attack when player attack target is null', function () {
+        // arrange
+        const socketA = new mocks.SocketMock();
+        socketA.user.attackTarget = {};
+        const socketB = new mocks.SocketMock();
+        socketB.user.attackTarget = null;
+        const socketC = new mocks.SocketMock();
+        socketC.user.attackTarget = {};
+        spyOn(socketUtil, 'getRoomSockets').and.callFake(() => [socketA, socketB, socketC]);
+        spyOn(room, 'getMobById').and.returnValue({});
+
+        // act
+        room.processPlayerCombatActions(new Date());
+
+        // assert
+        expect(socketA.user.attack).toHaveBeenCalled();
+        expect(socketB.user.attack).not.toHaveBeenCalled();
+        expect(socketC.user.attack).toHaveBeenCalled();
+      });
+    });
+
+    describe('processMobCombatActions', function () {
+      it('should call attack and taunt on all mobs', function () {
+        // arrange
+        const mobType = mobData.catalog[0];
+        room.mobs = [];
+
+        const mobA = new Mob(mobType, room.id);
+        mobA.attack = jasmine.createSpy('mobAattack');
+        mobA.taunt = jasmine.createSpy('mobAtaunt');
+        room.mobs.push(mobA);
+
+        const mobB = new Mob(mobType, room.id);
+        mobB.attack = jasmine.createSpy('mobBattack');
+        mobB.taunt = jasmine.createSpy('mobBtaunt');
+        room.mobs.push(mobB);
+
+        const mobC = new Mob(mobType, room.id);
+        mobC.attack = jasmine.createSpy('mobCattack');
+        mobC.taunt = jasmine.createSpy('mobCtaunt');
+        room.mobs.push(mobC);
+
+        // act
+        room.processMobCombatActions();
+
+        // assert
+        expect(room.mobs[0].attack).toHaveBeenCalled();
+        expect(room.mobs[0].taunt).toHaveBeenCalled();
+        expect(room.mobs[1].attack).toHaveBeenCalled();
+        expect(room.mobs[1].taunt).toHaveBeenCalled();
+        expect(room.mobs[2].attack).toHaveBeenCalled();
+        expect(room.mobs[2].taunt).toHaveBeenCalled();
       });
     });
   });

@@ -64,6 +64,8 @@ function autocompleteTypes(socket, types, fragment) {
     for (var prop of propertyNames) {
       let result = autocompleteByProperty(source, prop, fragment);
 
+      // TODO: Is 'item' the best name for this?
+      // This can be anything... a mob, a key, a player, etc.
       if (result.length > 0) {
         return {
           type: type,

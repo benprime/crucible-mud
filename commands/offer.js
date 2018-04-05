@@ -1,6 +1,7 @@
 'use strict';
 
 const Room = require('../models/room');
+const socketUtil = require('../socketUtil');
 const autocomplete = require('../autocomplete');
 
 module.exports = {
@@ -42,7 +43,7 @@ module.exports = {
       item: socket.user.inventory[userItemIndex],
     };
 
-    let toUserSocket = global.GetSocketByUsername(userName);
+    let toUserSocket = socketUtil.getSocketByUsername(userName);
     if (!toUserSocket) {
       socket.emit('output', { message: `${userName} is not here!` });
       return;

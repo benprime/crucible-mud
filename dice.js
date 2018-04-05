@@ -1,5 +1,6 @@
 'use strict';
 
+// dice regex that matches format of "2d6+4"
 const diceRegex = /^(\d+)d(\d+)(?:([+-])(\d*))?$/i;
 
 // max is not inclusive
@@ -10,7 +11,10 @@ function rollDie(sides) {
 }
 
 module.exports = {
-  Roll(s) {
+  getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min))) + min;
+  },
+  roll(s) {
     let match = s.match(diceRegex);
     if (match) {
       const qty = ~~match[1];

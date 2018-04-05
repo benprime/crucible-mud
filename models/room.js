@@ -218,7 +218,7 @@ RoomSchema.methods.look = function (socket, short) {
   }
 
   if (this.inventory && this.inventory.length > 0) {
-    output += `<span class="darkcyan">You notice: ${this.inventory.map(item => item.displayName).join(', ')}.</span>\n`;
+    output += `<span class="darkcyan">You notice: ${this.inventory.filter(item => !item.hidden).map(item => item.displayName).join(', ')}.</span>\n`;
   }
 
   let names = this.usersInRoom(this.id).filter(name => name !== socket.user.username);
@@ -232,7 +232,7 @@ RoomSchema.methods.look = function (socket, short) {
   }
 
   if (this.exits.length > 0) {
-    output += `<span class="green">Exits: ${this.exits.map(exit => Room.shortToLong(exit.dir)).join(', ')}</span>\n`;
+    output += `<span class="green">Exits: ${this.exits.filter(exit => !exit.hidden).map(exit => Room.shortToLong(exit.dir)).join(', ')}</span>\n`;
   }
 
   if (!short && socket.user.admin) {

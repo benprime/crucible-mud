@@ -16,7 +16,7 @@
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jasmine": "^2.8.5",
     "http-server": "^0.10.0",
-    "jasmine": "^2.8.0",
+    "jasmine": "^2.99.0",
     "nodemon": "^1.17.2",
     "rewire": "^2.5.2"
   },

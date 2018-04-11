@@ -3,7 +3,6 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const socketUtil = require('../socketUtil');
 const config = require('../config');
 const ItemSchema = require('./itemSchema');
 const dice = require('../dice');

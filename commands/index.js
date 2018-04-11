@@ -2,9 +2,39 @@
 
 const actionHandler = require('../actionHandler');
 const helpHandler = require('./help');
-const normalizedPath = require('path').join(__dirname);
 
-let handlers = [];
+let commands = [
+  'attack.js',
+  'break.js',
+  'close.js',
+  'create.js',
+  'destroy.js',
+  'drop.js',
+  'equip.js',
+  'exp.js',
+  'gossip.js',
+  'help.js',
+  'inventory.js',
+  'keys.js',
+  'list.js',
+  'lock.js',
+  'look.js',
+  'move.js',
+  'offer.js',
+  'open.js',
+  'say.js',
+  'set.js',
+  'spawner.js',
+  'spawn.js',
+  'summon.js',
+  'take.js',
+  'telepathy.js',
+  'teleport.js',
+  'unequip.js',
+  'unlock.js',
+  'who.js',
+  'yell.js',
+];
 let defaultCommand;
 
 function validateCommand(commandHandler, file) {
@@ -15,21 +45,15 @@ function validateCommand(commandHandler, file) {
   if (!commandHandler.help) throw `command ${file} missing help!`;
 }
 
-require('fs').readdirSync(normalizedPath).forEach(function (file) {
-  if (file != 'index.js') {
-
-    // Turning off no-dynamic-require rule for our command loader.
-    // eslint-disable-next-line
-    let commandHandler = require('./' + file);
-
-    validateCommand(commandHandler, file);
-
-    handlers.push(commandHandler);
-    helpHandler.registerCommand(commandHandler);
-  }
-
-  defaultCommand = handlers.find(h => h.name === 'say');
+commands.forEach(function (file) {
+  // eslint-disable-next-line
+  let commandHandler = require('./' + file);
+  validateCommand(commandHandler, file);
+  commands.push(commandHandler);
+  helpHandler.registerCommand(commandHandler);
 });
+
+defaultCommand = commands.find(h => h.name === 'say');
 
 function matches(commandHandler, input) {
   for (let p = 0; p < commandHandler.patterns.length; p++) {
@@ -44,11 +68,11 @@ function processDispatch(socket, input) {
   input = input.trim();
   // check if input string matches any of our matching patterns.
   // then call the handler with the input, socket
-  for (let h = 0; h < handlers.length; h++) {
-    let match = matches(handlers[h], input);
+  for (let h = 0; h < commands.length; h++) {
+    let match = matches(commands[h], input);
     if (match) {
-      if (!handlers[h].admin || socket.user.admin) {
-        handlers[h].dispatch(socket, match);
+      if (!commands[h].admin || socket.user.admin) {
+        commands[h].dispatch(socket, match);
         return;
       }
     }

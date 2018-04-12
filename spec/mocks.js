@@ -60,6 +60,7 @@ function getMockRoom() {
   room.save = jasmine.createSpy('save').and.callFake(() => { });
   room.look = jasmine.createSpy('look').and.callFake(() => { });
   room.usersInRoom = jasmine.createSpy('usersInRoom');
+  room.processPlayerCombatActions = jasmine.createSpy('processPlayerCombatActions').and.callFake(() => { });
 
   room.reset = function () {
     room.getExit.calls.reset();

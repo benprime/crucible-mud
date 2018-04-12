@@ -6,9 +6,7 @@ const config = require('./config');
 // TODO: It may make more sense to have the room process it's own attacks and loop
 // through the room and call a room-specific processPlayerCombatActions and processMobCombatActions.
 // This way, we can have room states affect combat.
-
 function processPlayerCombatActions(now) {
-
   // get all rooms with subscribers
   // check all players...
 
@@ -39,5 +37,10 @@ function combatFrame() {
   processMobCombatActions(now);
 }
 
+module.exports = {
+  processPlayerCombatActions,
+  processMobCombatActions,
+  combatFrame,
+};
+
 setInterval(combatFrame, config.COMBAT_INTERVAL);
-module.exports = {};

@@ -6,7 +6,7 @@ const autocomplete = require('../autocomplete');
 function lookDir(socket, room, dir) {
   dir = Room.validDirectionInput(dir);
   const exit = room.exits.find(e => e.dir === dir);
-  if (!exit) {
+  if (!exit || exit.hidden) {
     return;
   }
 
@@ -24,7 +24,7 @@ function lookDir(socket, room, dir) {
 // for items and mobs
 function lookItem(socket, room, itemName) {
   const lookTargetObj = autocomplete.autocompleteTypes(socket, ['inventory', 'mob', 'room'], itemName);
-  if (!lookTargetObj) {
+  if (!lookTargetObj || lookTargetObj.hidden) {
     return;
   }
   lookTargetObj.look(socket);

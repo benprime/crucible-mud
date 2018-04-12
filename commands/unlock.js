@@ -6,7 +6,6 @@ const Room = require('../models/room');
 
 module.exports = {
   name: 'unlock',
-  admin: true,
 
   patterns: [
     /^unlock\s+(\w+)\s+with\s+(.+)$/i,

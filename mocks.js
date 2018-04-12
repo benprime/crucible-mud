@@ -1,7 +1,7 @@
 'use strict';
 
-const Room = require('../models/room');
-const User = require('../models/user');
+const Room = require('./models/room');
+const User = require('./models/user');
 const ObjectID = require('mongodb').ObjectID;
 
 // this method provides a serialization of an

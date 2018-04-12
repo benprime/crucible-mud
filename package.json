@@ -22,7 +22,7 @@
   },
   "scripts": {
     "test": "jasmine",
-    "start": "nodemon server.js",
+    "start": "nodemon src/server.js",
     "db": "mongod --dbpath c:/dev/mongo/data",
     "open": "concurrently \"mongod --dbpath c:/dev/mongo/data\" \"nodemon server.js\""
   },

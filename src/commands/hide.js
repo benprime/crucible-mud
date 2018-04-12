@@ -1,7 +1,7 @@
 'use strict';
 
 const Room = require('../models/room');
-const autocomplete = require('../autocomplete');
+const autocomplete = require('../core/autocomplete');
 
 function hideDir(socket, room, dir) {
   dir = Room.validDirectionInput(dir);

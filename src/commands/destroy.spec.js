@@ -1,30 +1,31 @@
 'use strict';
 
-const autocomplete = require('../core/autocomplete');
-const Room = require('../models/room');
-const mocks = require('../../mocks');
-const sut = require('../commands/destroy');
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
+
+let mockRoom = mocks.getMockRoom();
+let autocompleteResult;
+const sut = SandboxedModule.require('./destroy', {
+  requires: {
+    '../core/autocomplete': {
+      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
+    },
+    '../models/room': {
+      getById: () => mockRoom,
+    },
+  },
+});
 
 describe('destroy', function () {
   let socket;
-  let room;
 
   beforeAll(function () {
     socket = new mocks.SocketMock();
-    room = mocks.getMockRoom();
-    spyOn(Room, 'getById').and.callFake(() => room);
-    spyOn(room.mobs, 'remove');
-    spyOn(socket.user.inventory, 'remove');
-    spyOn(autocomplete, 'autocompleteTypes');
   });
 
   beforeEach(function () {
-    socket.emit.calls.reset();
-    socket.broadcast.to(socket.user.roomId).emit.calls.reset();
-    Room.getById.calls.reset();
-    room.mobs.remove.calls.reset();
-    socket.user.inventory.remove.calls.reset();
-    socket.user.save.calls.reset();
+    socket.reset();
+    mockRoom.reset();
   });
 
   describe('execute', function () {
@@ -33,19 +34,19 @@ describe('destroy', function () {
 
       it('should do nothing when mob is not found', function () {
         // arrange
-        autocomplete.autocompleteTypes.and.callFake(() => null);
+        autocompleteResult = null;
 
         // act
         sut.execute(socket, 'mob', 'not found name');
 
         // assert
         expect(socket.emit).not.toHaveBeenCalled();
-        expect(room.mobs.remove).not.toHaveBeenCalled();
+        expect(mockRoom.mobs.remove).not.toHaveBeenCalled();
       });
 
       it('should remove mob from room and output messages when successful', function () {
         // arrange
-        autocomplete.autocompleteTypes.and.callFake(() => { return {}; });
+        autocompleteResult = {};
 
         // act
         sut.execute(socket, 'mob', 'mob name');
@@ -53,14 +54,19 @@ describe('destroy', function () {
         // assert
         expect(socket.emit).toHaveBeenCalledTimes(1);
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Mob successfully destroyed.' });
-        expect(room.mobs.remove).toHaveBeenCalledTimes(1);
+        expect(mockRoom.mobs.remove).toHaveBeenCalledTimes(1);
       });
     });
 
     describe('when type is item', function () {
+      beforeEach(function() {
+        socket.reset();
+        mockRoom.reset();
+      });
+
       it('should do nothing when inventory does not contain item', function () {
         // arrange
-        autocomplete.autocompleteTypes.and.callFake(() => null);
+        autocompleteResult = null;
 
         // act
         sut.execute(socket, 'item', 'non-existant item');
@@ -74,7 +80,7 @@ describe('destroy', function () {
       it('should remove item from inventory when successful', function () {
         // arrange
         let item = {};
-        autocomplete.autocompleteTypes.and.callFake(() => { return {}; });
+        autocompleteResult = {};
 
         // act
         sut.execute(socket, 'item', 'item name');

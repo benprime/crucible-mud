@@ -1,8 +1,23 @@
 'use strict';
 
-const mocks = require('../../mocks');
-const socketUtil = require('../core/socketUtil');
-const sut = require('../commands/telepathy');
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
+
+let mockGlobalIO = new mocks.IOMock();
+let mockReturnSocket = {};
+let autocompleteResult = {};
+const sut = SandboxedModule.require('./telepathy', {
+  requires: {
+    '../core/autocomplete': {
+      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
+    },
+    '../models/room': {},
+    '../core/socketUtil': {
+      'getSocketByUsername' : () => mockReturnSocket,
+    },
+  },
+  globals: { io: mockGlobalIO },
+});
 
 describe('telepathy', function () {
   let socket;
@@ -20,7 +35,7 @@ describe('telepathy', function () {
     it('should output messages when user is invalid', function () {
       // arrange
       const msg = 'This is a telepath message!';
-      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => null);
+      mockReturnSocket = null;
 
       // act
       sut.execute(socket, 'Wrong', msg);
@@ -32,7 +47,7 @@ describe('telepathy', function () {
     it('should output messages when command is successful', function () {
       // arrange
       const msg = 'This is a telepath message!';
-      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => otherSocket);
+      mockReturnSocket = otherSocket;
 
       // act
       sut.execute(socket, otherSocket.username, msg);

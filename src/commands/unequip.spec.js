@@ -2,8 +2,15 @@
 
 const Room = require('../models/room');
 const Item = require('../models/item');
-const mocks = require('../../mocks');
-const sut = require('../commands/unequip');
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
+
+const sut = SandboxedModule.require('./unequip', {
+  requires: {
+    '../core/autocomplete': {},
+    '../models/room': {},
+  },
+});
 const autocomplete = require('../core/autocomplete');
 
 describe('unequip', function () {
@@ -26,6 +33,7 @@ describe('unequip', function () {
     it('should output message when item is not equipped', function () {
       autocompleteResult = null;
       sut.execute(socket, 'monocle');
+
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t have that equipped.\n' });
     });
 
@@ -36,10 +44,11 @@ describe('unequip', function () {
       autocompleteResult = ring;
       socket.user.equipSlots.fingerMain = ring;
       sut.execute(socket, 'diamond');
+
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Please specify which hand to unequip the item from\n' });
     });
 
-    // good candidate for that test case custom runner 
+    // good candidate for that test case custom runner
     it('should unequip item put it into backpack', function () {
       // test case for each type
     });

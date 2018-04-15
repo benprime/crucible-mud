@@ -1,16 +1,24 @@
 'use strict';
 
-const mocks = require('../../mocks');
-const sut = require('../commands/set');
-const Room = require('../models/room');
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
+
+let mockRoom = mocks.getMockRoom();
+const sut = SandboxedModule.require('./set', {
+  requires: {
+    '../models/room': {
+      getById: jasmine.createSpy('getByIdSpy').and.callFake(() => mockRoom),
+    },
+    './look': {
+      execute: jasmine.createSpy('lookCommandSpy'),
+    },
+  },
+});
 
 describe('set', function () {
   let socket;
-  let room;
 
   beforeAll(function () {
-    room = mocks.getMockRoom();
-    spyOn(Room, 'getById').and.callFake(() => room);
     socket = new mocks.SocketMock();
   });
 
@@ -30,8 +38,8 @@ describe('set', function () {
       it('should update room in room cache and room database object on success', function() {
         sut.execute(socket, 'room', 'name', 'new name value');
 
-        expect(room.name).toBe('new name value');
-        expect(room.save).toHaveBeenCalled();
+        expect(mockRoom.name).toBe('new name value');
+        expect(mockRoom.save).toHaveBeenCalled();
         expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser has altered the fabric of reality.' });
       });
     });

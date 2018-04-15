@@ -1,7 +1,9 @@
 'use strict';
 
-const mocks = require('../../mocks');
-const sut = require('../commands/keys');
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
+
+const sut = SandboxedModule.require('./keys', {});
 
 describe('keys', function () {
   let socket;

@@ -18,10 +18,12 @@
     "http-server": "^0.10.0",
     "jasmine": "^2.99.0",
     "nodemon": "^1.17.2",
-    "rewire": "^2.5.2"
+    "rewire": "^2.5.2",
+    "sandboxed-module": "^2.0.3"
   },
   "scripts": {
     "test": "jasmine",
+    "test:watch": "nodemon node_modules/jasmine/bin/jasmine.js",
     "start": "nodemon src/server.js",
     "db": "mongod --dbpath c:/dev/mongo/data",
     "open": "concurrently \"mongod --dbpath c:/dev/mongo/data\" \"nodemon server.js\""

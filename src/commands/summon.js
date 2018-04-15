@@ -18,29 +18,29 @@ module.exports = {
   },
 
   execute(socket, username) {
-    const userSocket = socketUtil.getSocketByUsername(username);
+    const targetUserSocket = socketUtil.getSocketByUsername(username);
 
     //verify summoned player
-    if (!userSocket) {
+    if (!targetUserSocket) {
       socket.emit('output', { message: 'Player not found.' });
       return;
     }
 
     //remove summoned player from combat
-    breakCmd.execute(userSocket);
+    breakCmd.execute(targetUserSocket);
 
     //move summoned player to summoner's room
-    userSocket.leave(userSocket.user.roomId);
-    userSocket.join(socket.user.roomId);
-    userSocket.user.roomId = socket.user.roomId;
-    userSocket.user.save();
+    targetUserSocket.leave(targetUserSocket.user.roomId);
+    targetUserSocket.join(socket.user.roomId);
+    targetUserSocket.user.roomId = socket.user.roomId;
+    targetUserSocket.user.save();
 
     //announce summoned player's arrival
-    userSocket.emit('output', { message: `You were summoned to ${socket.user.username}'s room!` });
-    userSocket.broadcast.to(userSocket.user.roomId).emit('output', { message: `${userSocket.user.username} appears out of thin air!` });
+    targetUserSocket.emit('output', { message: `You were summoned to ${socket.user.username}'s room!` });
+    targetUserSocket.broadcast.to(targetUserSocket.user.roomId).emit('output', { message: `${targetUserSocket.user.username} appears out of thin air!` });
 
     //display room info to summoned player
-    lookCmd.execute(userSocket);
+    lookCmd.execute(targetUserSocket);
   },
 
   help(socket) {

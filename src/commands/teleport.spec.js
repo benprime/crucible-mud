@@ -1,9 +1,23 @@
 'use strict';
 
-const mocks = require('../../mocks');
-const Room = require('../models/room');
-const socketUtil = require('../core/socketUtil');
-const sut = require('../commands/teleport');
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
+
+let mockRoom = {};
+let mockRoomCache = {};
+let mockReturnSocket = {};
+const sut = SandboxedModule.require('./teleport', {
+  requires: {
+    '../core/autocomplete': {},
+    '../models/room': {
+      roomCache: mockRoomCache,
+      getById: jasmine.createSpy('getByIdSpy').and.callFake(() => mockRoom),
+    },
+    '../core/socketUtil': {
+      'getSocketByUsername' : () => mockReturnSocket,
+    },
+  },
+});
 
 describe('teleport', function () {
   let socket, otherSocket;
@@ -15,50 +29,42 @@ describe('teleport', function () {
     otherRoom = mocks.getMockRoom();
     otherRoom.name = 'NEW';
     socket = new mocks.SocketMock();
-    //socket.user = { roomId: 123, username: 'TestUser' };
     socket.user.username = 'TestUser';
     socket.user.roomId = currentRoom.id;
     otherSocket = new mocks.SocketMock();
-    //otherSocket.user = { roomId: 321, username: 'OtherUser' };
     otherSocket.user.username = 'OtherUser';
     otherSocket.user.roomId = otherRoom.id;
-
   });
 
   describe('execute', function () {
 
     it('should teleport to another user\'s room if parameter is a username', function () {
+      mockReturnSocket = otherSocket;
+      mockRoom = otherRoom;
 
-      //TODO: get this to find OtherUser
-      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => otherSocket);
-      spyOn(Room, 'getById').and.callFake(() => otherRoom);
-
-      //set current room
+      // set current room
       socket.user.roomId = currentRoom.id;
 
-      //teleport to user
+      // teleport to user
       sut.execute(socket, 'OtherUser');
 
-      //check current room
+      // check current room
       expect(socket.user.roomId).toEqual(otherRoom._id);
       expect(socket.user.save).toHaveBeenCalled();
-
     });
 
     it('should teleport to room if parameter is a room', function () {
+      mockRoom = otherRoom;
+      mockReturnSocket = socket;
 
-      //TODO: make mock room to send target to
-      spyOn(Room, 'getById').and.callFake(() => otherRoom);
-
-      //set current room
+      // set current room
       socket.user.roomId = currentRoom.id;
 
-      //teleport to room
+      // teleport to room
       let toRoom = otherRoom.id;
-      Room.roomCache[toRoom] = {};
       sut.execute(socket, toRoom);
 
-      //check current room
+      // check current room
       expect(socket.user.roomId).toEqual(otherRoom._id);
       expect(socket.user.save).toHaveBeenCalled();
 
@@ -66,10 +72,10 @@ describe('teleport', function () {
 
     it('should output messages when room cannot be found', function () {
 
-      spyOn(Room, 'getById').and.callFake(() => null);
+      mockRoom = null;
 
       let toRoom = otherRoom.id;
-      Room.roomCache[toRoom] = {};
+      mockRoomCache[toRoom] = {};
       sut.execute(socket, toRoom);
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Room not found.' });
@@ -77,13 +83,14 @@ describe('teleport', function () {
     });
 
     it('should output messages when target is invalid user', function () {
+      // arrange
+      mockReturnSocket = null;
 
-      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => null);
-
+      // act
       sut.execute(socket, 'Bobby');
 
+      // assert
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Target not found.' });
-
     });
 
     it('should be an admin command', function () {

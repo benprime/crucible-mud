@@ -155,7 +155,11 @@ Mob.prototype.taunt = function (now) {
   this.lastTaunt = now;
 
   if (!this.attackTarget) return;
+
   const socket = global.io.sockets.connected[this.attackTarget];
+  if(!socket) {
+    return;
+  }
 
   if (!socketUtil.socketInRoom(this.roomId, this.attackTarget)) {
     this.attackTarget = null;

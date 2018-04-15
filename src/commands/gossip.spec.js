@@ -1,14 +1,19 @@
 'use strict';
 
-const mocks = require('../../mocks');
-const sut = require('../commands/gossip');
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
+
+let mockGlobalIO = new mocks.IOMock();
+const sut = SandboxedModule.require('./gossip', {
+  globals: {io:mockGlobalIO},
+});
 
 describe('gossip', function () {
   let socket;
 
   beforeAll(function () {
     socket = new mocks.SocketMock();
-    global.io = new mocks.IOMock();
+    mockGlobalIO.reset();
   });
 
   describe('execute', function () {
@@ -21,8 +26,8 @@ describe('gossip', function () {
       sut.execute(socket, msg);
 
       // assert
-      expect(global.io.to).toHaveBeenCalledWith('gossip');
-      expect(global.io.to('gossip').emit).toHaveBeenCalledWith('output', { message: '<span class="silver">TestUser gossips: </span><span class="mediumOrchid">This is a gossiped message!</span>' });
+      expect(mockGlobalIO.to).toHaveBeenCalledWith('gossip');
+      expect(mockGlobalIO.to('gossip').emit).toHaveBeenCalledWith('output', { message: '<span class="silver">TestUser gossips: </span><span class="mediumOrchid">This is a gossiped message!</span>' });
     });
 
   });

@@ -1,79 +1,88 @@
 'use strict';
 
-const mocks = require('../../mocks');
-const sut = require('../commands/summon');
-const lookCmd = require('../commands/look');
-const socketUtil = require('../core/socketUtil');
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
+
+let mockGlobalIO = new mocks.IOMock();
+let mockTargetSocket = new mocks.SocketMock();
+let mockRoom = mocks.getMockRoom();
+const sut = SandboxedModule.require('./summon', {
+  requires: {
+    '../core/autocomplete': {},
+    '../models/room': {
+      getById: jasmine.createSpy('getByIdSpy').and.callFake(() => mockRoom),
+    },
+    '../core/socketUtil': {
+      'getSocketByUsername': () => mockTargetSocket,
+    },
+
+  },
+  globals: { io: mockGlobalIO },
+});
 
 describe('summon', function () {
   let socket;
-  let otherSocket;
-  let currentRoom, otherRoom;
+  let otherRoom;
 
   beforeEach(function () {
-    currentRoom = mocks.getMockRoom();
-    currentRoom.name = 'OLD';
+    mockRoom.name = 'OLD';
     otherRoom = mocks.getMockRoom();
     otherRoom.name = 'NEW';
+
+    // acting admin socket
     socket = new mocks.SocketMock();
-    socket.user.roomId = currentRoom.id;
+    socket.user.roomId = mockRoom.id;
     socket.user.username = 'TestUser';
-    otherSocket = new mocks.SocketMock();
-    otherSocket.user.roomId = otherRoom.id;
-    otherSocket.user.username = 'OtherUser';
+
+    // target user socket
+    mockTargetSocket = new mocks.SocketMock();
+    mockTargetSocket.user.roomId = otherRoom.id;
+    mockTargetSocket.user.username = 'OtherUser';
+
   });
 
   describe('execute', function () {
-    it('should output message when user is not found', function() {
-      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => null);
+    it('should output message when user is not found', function () {
+      mockTargetSocket = null;
       sut.execute(socket, 'Wrong');
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Player not found.' });
     });
 
-    it('should join target user to admin room and leave current room', function() {
+    it('should join target user to admin room and leave current room', function () {
       // arrange
-      otherSocket.user.roomId = otherRoom.id;
-      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => otherSocket);
-      spyOn(lookCmd, 'execute').and.callFake(() => null);
+      mockTargetSocket.user.roomId = otherRoom.id;
 
       // act
       sut.execute(socket, 'OtherUser');
 
       // assert
-      expect(otherSocket.leave).toHaveBeenCalledWith(otherRoom._id);
-      expect(otherSocket.join).toHaveBeenCalledWith(currentRoom._id);
+      expect(mockTargetSocket.leave).toHaveBeenCalledWith(otherRoom._id);
+      expect(mockTargetSocket.join).toHaveBeenCalledWith(mockRoom._id);
     });
 
-    it('should update target user room id and save user to database', function() {
+    it('should update target user room id and save user to database', function () {
       // arrange
-      otherSocket.user.roomId = otherRoom.id;
-      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => otherSocket);
-      spyOn(lookCmd, 'execute').and.callFake(() => null);
+      mockTargetSocket.user.roomId = otherRoom.id;
 
       // act
       sut.execute(socket, 'OtherUser');
 
       // assert
-      expect(otherSocket.user.roomId).toEqual(currentRoom._id);
-      expect(otherSocket.user.save).toHaveBeenCalled();
+      expect(mockTargetSocket.user.roomId).toEqual(mockRoom._id);
+      expect(mockTargetSocket.user.save).toHaveBeenCalled();
     });
 
-    it('should output messages when command successful', function() {
-      // arrange
-      otherSocket.user.roomId = otherRoom.id;
-      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => otherSocket);
-      spyOn(lookCmd, 'execute').and.callFake(() => null);
-
+    it('should output messages when command successful', function () {
       // act
       sut.execute(socket, 'OtherUser');
 
       // assert
-      expect(otherSocket.emit).toHaveBeenCalledWith('output', { message: 'You were summoned to TestUser\'s room!' });
-      expect(otherSocket.broadcast.to(otherSocket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'OtherUser appears out of thin air!' });
+      expect(mockTargetSocket.emit).toHaveBeenCalledWith('output', { message: 'You were summoned to TestUser\'s room!' });
+      expect(mockTargetSocket.broadcast.to(mockTargetSocket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'OtherUser appears out of thin air!' });
     });
 
-    it('should be an admin command', function() {
+    it('should be an admin command', function () {
       expect(sut.admin).toBe(true);
     });
   });

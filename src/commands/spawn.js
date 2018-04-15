@@ -44,6 +44,10 @@ module.exports = {
       }
 
       const room = Room.getById(socket.user.roomId);
+      if (!room) {
+        throw `no room found for current user room: ${socket.user.roomId}`;
+      }
+
       // clone the create type and give it an id
       let mob = new Mob(createType, room.id);
 

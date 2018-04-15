@@ -1,31 +1,40 @@
 'use strict';
 
-const Room = require('../models/room');
 const Item = require('../models/item');
-const mocks = require('../../mocks');
-const sut = require('../commands/equip');
-const autocomplete = require('../core/autocomplete');
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
+
+let mockRoom;
+let autocompleteResult;
+const sut = SandboxedModule.require('./equip', {
+  requires: {
+    '../core/autocomplete': {
+      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
+    },
+    '../models/item': Item,
+    '../models/room': {
+      getById: () => mockRoom,
+    },
+  },
+});
 
 describe('equip', function () {
   let socket;
-  let room;
-  let autocompleteResult;
 
   beforeAll(function () {
     socket = new mocks.SocketMock();
-    room = mocks.getMockRoom();
-    spyOn(Room, 'getById').and.callFake(() => room);
-    spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
-  });
-
-  beforeEach(function () {
-    autocomplete.autocompleteTypes.calls.reset();
+    mockRoom = mocks.getMockRoom();
   });
 
   describe('execute', function () {
+    beforeEach(function () {
+      socket.emit.calls.reset();
+    });
+
     it('should do nothing when item is not in inventory', function () {
       autocompleteResult = null;
       sut.execute(socket, 'boot');
+
       expect(socket.emit).not.toHaveBeenCalled();
     });
 
@@ -35,6 +44,7 @@ describe('equip', function () {
       sword.name = 'sword';
       autocompleteResult = sword;
       sut.execute(socket, 'sword');
+
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You cannot equip that!\n' });
     });
 
@@ -44,6 +54,7 @@ describe('equip', function () {
       finger.name = 'finger';
       autocompleteResult = finger;
       sut.execute(socket, 'finger');
+
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Um, you want to put that where?!?!\n' });
     });
 
@@ -53,6 +64,7 @@ describe('equip', function () {
       ring.name = 'mood';
       autocompleteResult = ring;
       sut.execute(socket, 'mood');
+
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Please specify which hand to equip the item\n' });
     });
 

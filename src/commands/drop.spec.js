@@ -2,12 +2,24 @@
 
 const Room = require('../models/room');
 const Item = require('../models/item');
-const mocks = require('../../mocks');
-const sut = require('../commands/drop');
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
+
+let mockRoom = mocks.getMockRoom();
+let autocompleteResult;
+const sut = SandboxedModule.require('./drop', {
+  requires: {
+    '../core/autocomplete': {
+      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
+    },
+    '../models/room': {
+      getById: () => mockRoom,
+    },
+  },
+});
 
 describe('drop', function () {
   let socket;
-  let room;
   let item;
   let key;
   let invalidItem;
@@ -36,8 +48,8 @@ describe('drop', function () {
   });
 
   beforeEach(function () {
-    room = mocks.getMockRoom();
-    spyOn(Room, 'getById').and.callFake(() => room);
+    mockRoom.reset();
+    spyOn(Room, 'getById').and.callFake(() => mockRoom);
     socket = new mocks.SocketMock();
 
     item = new Item();
@@ -57,7 +69,7 @@ describe('drop', function () {
 
     socket.user.inventory = [item];
     socket.user.keys = [key];
-    room.inventory = [];
+    mockRoom.inventory = [];
   });
 
   describe('execute', function () {
@@ -65,21 +77,25 @@ describe('drop', function () {
     describe('when item.type is item', function () {
 
       it('should output error message when item is not found in user inventory', function () {
+        autocompleteResult = null;
         sut.execute(socket, 'non-existent item');
 
         expect(socket.user.save).not.toHaveBeenCalled();
-        expect(room.save).not.toHaveBeenCalled();
+        expect(mockRoom.save).not.toHaveBeenCalled();
         expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t see that here.' });
       });
 
       it('should remove item from user inventory and add to room inventory', function () {
+        autocompleteResult = {
+          type: 'item',
+          item: item,
+        };
         sut.execute(socket, 'dropItem');
 
         expect(socket.user.save).toHaveBeenCalled();
-        expect(room.save).toHaveBeenCalled();
+        expect(mockRoom.save).toHaveBeenCalled();
         expect(socket.user.inventory.length).toBe(0);
-        expect(room.inventory[0].toObject()).toBeJsonEqual(item.toObject());
+        expect(mockRoom.inventory[0].name).toEqual(item.name);
         expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser drops dropItem.' });
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Dropped.' });
       });
@@ -87,33 +103,19 @@ describe('drop', function () {
 
     describe('when item.type is key', function () {
       it('should remove key from user keys and add to room inventory', function () {
+        autocompleteResult = {
+          type: 'key',
+          item: key,
+        };
         sut.execute(socket, 'dropKey');
 
         expect(socket.user.save).toHaveBeenCalled();
-        expect(room.save).toHaveBeenCalled();
+        expect(mockRoom.save).toHaveBeenCalled();
         expect(socket.user.keys.length).toBe(0);
-        expect(room.inventory[0].toObject()).toBeJsonEqual(key.toObject());
+        expect(mockRoom.inventory[0].name).toEqual(key.name);
         expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser drops dropKey.' });
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Dropped.' });
       });
     });
-
-    it('should output error when item type is invalid', function () {
-      // Arrange
-      socket.user.inventory = [invalidItem];
-
-      // Act
-      sut.execute(socket, 'invalidDisplayName');
-
-      // Assert
-      expect(socket.user.save).not.toHaveBeenCalled();
-      expect(room.save).not.toHaveBeenCalled();
-      expect(socket.user.keys.length).toBe(1);
-      expect(socket.user.inventory.length).toBe(1);
-      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown item type!' });
-    });
-
   });
-
 });

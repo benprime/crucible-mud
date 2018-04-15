@@ -1,7 +1,12 @@
 'use strict';
 
-const mocks = require('../../mocks');
-const sut = require('../commands/who');
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
+
+let mockGlobalIO = new mocks.IOMock();
+const sut = SandboxedModule.require('./who', {
+  globals: {io:mockGlobalIO},
+});
 
 describe('who', function () {
   let socket;
@@ -15,10 +20,10 @@ describe('who', function () {
     t2.id = '2';
     t1.user.username = 'Test1';
     t2.user.username = 'Test2';
-    global.io = new mocks.IOMock();
-    global.io.sockets.connected = {};
-    global.io.sockets.connected[t1.id] = t1;
-    global.io.sockets.connected[t2.id] = t2;
+    mockGlobalIO.reset();
+    mockGlobalIO.sockets.connected = {};
+    mockGlobalIO.sockets.connected[t1.id] = t1;
+    mockGlobalIO.sockets.connected[t2.id] = t2;
   });
 
   describe('execute', function () {

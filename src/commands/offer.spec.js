@@ -1,10 +1,28 @@
 'use strict';
 
-const mocks = require('../../mocks');
-const sut = require('../commands/offer');
-const autocomplete = require('../core/autocomplete');
-const socketUtil = require('../core/socketUtil');
-const Room = require('../models/room');
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
+
+
+let mockTargetSocket;
+let autocompleteResult;
+let usersInRoomResult = [];
+let mockRoom = mocks.getMockRoom();
+mockRoom.usersInRoom = jasmine.createSpy('usersInRoomSpy').and.callFake(() => usersInRoomResult);
+const sut = SandboxedModule.require('./offer', {
+  requires: {
+    '../core/autocomplete': {
+      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
+    },
+    '../models/room': {
+      getById: () => mockRoom,
+    },
+    '../core/socketUtil': {
+      'getSocketByUsername': () => mockTargetSocket,
+      'usersInRoom': () => usersInRoomResult,
+    },
+  },
+});
 
 describe('offer', function () {
   let socket;
@@ -26,23 +44,16 @@ describe('offer', function () {
   });
 
   describe('execute', function () {
-    let autocompleteResult;
-    let usersInRoom = ['TestUser', 'aUser'];
-    let room = mocks.getMockRoom();
-    let otherUserSocket;
+    usersInRoomResult = ['TestUser', 'aUser'];
 
-    beforeEach(function(){
-      spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
-      spyOn(Room, 'getById').and.returnValue(room);
-      otherUserSocket = new mocks.SocketMock();
-      spyOn(socketUtil, 'getSocketByUsername').and.callFake(() => otherUserSocket);
-      socket.user.inventory = [{id: 'aItemId', name: 'aItem'}];
+    beforeEach(function () {
+      mockTargetSocket = new mocks.SocketMock();
+      socket.user.inventory = [{ id: 'aItemId', name: 'aItem' }];
       socket.user.username = 'TestUser';
-      room.usersInRoom.and.callFake(() => usersInRoom);
       socket.emit.calls.reset();
     });
 
-    it('should return when item is not in inventory', function() {
+    it('should return when item is not in inventory', function () {
       autocompleteResult = null;
 
       sut.execute(socket, 'aUser', 'aItem');
@@ -50,44 +61,44 @@ describe('offer', function () {
       expect(socket.emit).not.toHaveBeenCalled();
     });
 
-    it('should output message when user is not in room', function() {
-      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
-      usersInRoom = ['TestUser'];
+    it('should output message when user is not in room', function () {
+      autocompleteResult = [{ id: 'aItemId', name: 'aItem' }];
+      usersInRoomResult = ['TestUser'];
 
       sut.execute(socket, 'aUser', 'aItem');
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'aUser is not here!' });
     });
 
-    it('should output message when multiple users match', function() {
-      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
-      usersInRoom = ['TestUser', 'aUser', 'aUser'];
+    it('should output message when multiple users match', function () {
+      autocompleteResult = [{ id: 'aItemId', name: 'aItem' }];
+      usersInRoomResult = ['TestUser', 'aUser', 'aUser'];
 
       sut.execute(socket, 'aUser', 'aItem');
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '\'aUser\' is a common name here. Be more specific.' });
     });
 
-    it('should output message if user socket is not found', function(){
-      autocompleteResult = [{id: 'aItemId', name:'aItem'}];
-      usersInRoom = ['TestUser', 'aUser'];
+    it('should output message if user socket is not found', function () {
+      autocompleteResult = [{ id: 'aItemId', name: 'aItem' }];
+      usersInRoomResult = ['TestUser', 'aUser'];
 
-      otherUserSocket = undefined;
+      mockTargetSocket = undefined;
 
       sut.execute(socket, 'aUser', 'aItem');
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'aUser is not here!'});
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'aUser is not here!' });
     });
 
-    it('should add offer to other user socket offers collection if offers collection is undefined', function(){
-      autocompleteResult = {id: 'aItemId', name:'aItem'};
-      usersInRoom = ['TestUser', 'aUser'];
+    it('should add offer to other user socket offers collection if offers collection is undefined', function () {
+      autocompleteResult = { id: 'aItemId', name: 'aItem' };
+      usersInRoomResult = ['TestUser', 'aUser'];
 
       socket.user = {
         username: 'TestUser',
-        inventory: [{id: 'aItemId', name:'aItem'}],
+        inventory: [{ id: 'aItemId', name: 'aItem' }],
       };
-      otherUserSocket.offers = undefined;
+      mockTargetSocket.offers = undefined;
       let expectedOffers = [{
         fromUserName: socket.user.username,
         toUserName: 'aUser',
@@ -96,20 +107,20 @@ describe('offer', function () {
 
       sut.execute(socket, 'aUser', 'aItem');
 
-      expect(otherUserSocket.offers).toEqual(expectedOffers);
-      expect(otherUserSocket.emit).toHaveBeenCalledWith('output', { message: 'TestUser offered you a aItem.' });
+      expect(mockTargetSocket.offers).toEqual(expectedOffers);
+      expect(mockTargetSocket.emit).toHaveBeenCalledWith('output', { message: 'TestUser offered you a aItem.' });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You offered a aItem to aUser.' });
     });
 
-    it('should add offer to other user socket offers collection if offers collection is empty', function(){
-      autocompleteResult = {id: 'aItemId', name:'aItem'};
-      usersInRoom = ['TestUser', 'aUser'];
+    it('should add offer to other user socket offers collection if offers collection is empty', function () {
+      autocompleteResult = { id: 'aItemId', name: 'aItem' };
+      usersInRoomResult = ['TestUser', 'aUser'];
 
       socket.user = {
         username: 'TestUser',
-        inventory: [{id: 'aItemId', name:'aItem'}],
+        inventory: [{ id: 'aItemId', name: 'aItem' }],
       };
-      otherUserSocket.offers = [];
+      mockTargetSocket.offers = [];
       let expectedOffers = [{
         fromUserName: socket.user.username,
         toUserName: 'aUser',
@@ -118,27 +129,27 @@ describe('offer', function () {
 
       sut.execute(socket, 'aUser', 'aItem');
 
-      expect(otherUserSocket.offers).toEqual(expectedOffers);
-      expect(otherUserSocket.emit).toHaveBeenCalledWith('output', { message: 'TestUser offered you a aItem.' });
+      expect(mockTargetSocket.offers).toEqual(expectedOffers);
+      expect(mockTargetSocket.emit).toHaveBeenCalledWith('output', { message: 'TestUser offered you a aItem.' });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You offered a aItem to aUser.' });
     });
 
-    it('should overwrite offer to other user socket offers collection if same offer item exists', function(){
-      autocompleteResult = {id: 'aItemId', name:'aItem'};
-      usersInRoom = ['TestUser', 'aUser'];
+    it('should overwrite offer to other user socket offers collection if same offer item exists', function () {
+      autocompleteResult = { id: 'aItemId', name: 'aItem' };
+      usersInRoomResult = ['TestUser', 'aUser'];
 
       socket.user = {
         username: 'TestUser',
-        inventory: [{id: 'aItemId', name:'aItem'}],
+        inventory: [{ id: 'aItemId', name: 'aItem' }],
       };
 
       let existingOffer = {
         fromUserName: 'TestUser',
         toUserName: 'aUser',
-        item: {id: 'aItemId', name:'differentItem'},
+        item: { id: 'aItemId', name: 'differentItem' },
       };
 
-      otherUserSocket.offers = [existingOffer];
+      mockTargetSocket.offers = [existingOffer];
 
       let expectedOffers = [{
         fromUserName: socket.user.username,
@@ -148,27 +159,27 @@ describe('offer', function () {
 
       sut.execute(socket, 'aUser', 'aItem');
 
-      expect(otherUserSocket.offers).toEqual(expectedOffers);
-      expect(otherUserSocket.emit).toHaveBeenCalledWith('output', { message: 'TestUser offered you a aItem.' });
+      expect(mockTargetSocket.offers).toEqual(expectedOffers);
+      expect(mockTargetSocket.emit).toHaveBeenCalledWith('output', { message: 'TestUser offered you a aItem.' });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You offered a aItem to aUser.' });
     });
 
-    it('should add offer to other user socket offers collection if existing offers exist', function(){
-      autocompleteResult = {id: 'aItemId', name:'aItem'};
-      usersInRoom = ['TestUser', 'aUser'];
+    it('should add offer to other user socket offers collection if existing offers exist', function () {
+      autocompleteResult = { id: 'aItemId', name: 'aItem' };
+      usersInRoomResult = ['TestUser', 'aUser'];
 
       socket.user = {
         username: 'TestUser',
-        inventory: [{id: 'aItemId', name:'aItem'}],
+        inventory: [{ id: 'aItemId', name: 'aItem' }],
       };
 
       let existingOffer = {
         fromUserName: 'TestUser',
         toUserName: 'aUser',
-        item: {id: 'aDifferentItemId', name:'aDifferentItem'},
+        item: { id: 'aDifferentItemId', name: 'aDifferentItem' },
       };
 
-      otherUserSocket.offers = [existingOffer];
+      mockTargetSocket.offers = [existingOffer];
 
       let expectedOffers = [
         existingOffer, {
@@ -179,38 +190,29 @@ describe('offer', function () {
 
       sut.execute(socket, 'aUser', 'aItem');
 
-      expect(otherUserSocket.offers).toEqual(expectedOffers);
-      expect(otherUserSocket.emit).toHaveBeenCalledWith('output', { message: 'TestUser offered you a aItem.' });
+      expect(mockTargetSocket.offers).toEqual(expectedOffers);
+      expect(mockTargetSocket.emit).toHaveBeenCalledWith('output', { message: 'TestUser offered you a aItem.' });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You offered a aItem to aUser.' });
     });
 
-    it('should remove offer if it is not taken before the timeout', function(){
-      autocompleteResult = {id: 'aItemId', name:'aItem'};
-      usersInRoom = ['TestUser', 'aUser'];
+    it('should remove offer if it is not taken before the timeout', function () {
+
+      autocompleteResult = { id: 'aItemId', name: 'aItem' };
+      usersInRoomResult = ['TestUser', 'aUser'];
 
       socket.user = {
         username: 'TestUser',
-        inventory: [{id: 'aItemId', name:'aItem'}],
+        inventory: [{ id: 'aItemId', name: 'aItem' }],
       };
 
-      // Install the clock so we can mock setting the ticks ahead
-      jasmine.clock().install();
-
-      sut.execute(socket, 'aUser', 'aItem');
-
-      expect(otherUserSocket.offers.length).toEqual(1);
-
-      // Set the clock ahead to trigger the timeout
-      jasmine.clock().tick(600001);
-
-      expect(otherUserSocket.offers.length).toEqual(0);
-
-      jasmine.clock().uninstall();
+      sut.execute(socket, 'aUser', 'aItem', function () {
+        expect(mockTargetSocket.offers.length).toEqual(0);
+      });
     });
   });
 
-  describe('help', function(){
-    it('should output message', function(){
+  describe('help', function () {
+    it('should output message', function () {
       sut.help(socket);
 
       const output = '<span class="mediumOrchid">offer &lt;item&gt; &lt;player&gt; </span><span class="purple">-</span> Offer an item to a player.<br />';

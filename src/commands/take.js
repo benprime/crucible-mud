@@ -59,6 +59,9 @@ module.exports = {
 
         // remove the item from the other users' inventory
         const otherUserItemIndex = offeringUserSocket.user.inventory.findIndex(item => item.id === offer.item.id);
+        if(otherUserItemIndex === -1){
+          throw 'User took offered item, but was unable to remove item from source inventory.';
+        }
         offeringUserSocket.user.inventory.splice(otherUserItemIndex, 1);
         offeringUserSocket.emit('output', { message: `${offer.item.displayName} was removed from your inventory.` });
         offeringUserSocket.user.save();

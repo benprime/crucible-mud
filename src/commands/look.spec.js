@@ -1,9 +1,28 @@
 'use strict';
 
-const mocks = require('../../mocks');
+const mocks = require('../../spec/mocks');
 const Room = require('../models/room');
-const sut = require('../commands/look');
-const autocomplete = require('../core/autocomplete');
+const SandboxedModule = require('sandboxed-module');
+
+let autocompleteResult;
+let mockRoom;
+let mockRooms = {};
+const sut = SandboxedModule.require('./look', {
+  requires: {
+    '../core/autocomplete': {
+      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
+    },
+    '../models/room': {
+      getById: (key) => {
+        return mockRooms[key];
+      },
+      shortToLong: Room.shortToLong,
+      validDirectionInput: Room.validDirectionInput,
+      longToShort: Room.longToShort,
+      oppositeDirection: Room.oppositeDirection,
+    },
+  },
+});
 
 describe('look', function () {
   let socket;
@@ -38,68 +57,67 @@ describe('look', function () {
   });
 
   describe('execute', function () {
-    let room;
-    let autocompleteResult;
     let shortDir;
 
-    beforeAll(function () {
-      room = mocks.getMockRoom();
-      room.id = socket.user.roomId;
-      spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
-      spyOn(Room, 'getById').and.callFake(() => room);
+    beforeEach(function () {
+      mockRoom = mocks.getMockRoom();
+      mockRooms = {};
+      mockRooms[socket.user.roomId] = mockRoom;
+
       shortDir = 'n';
       spyOn(Room, 'oppositeDirection').and.callFake(() => 'opposite');
       spyOn(Room, 'shortToLong').and.callFake(() => 'exit name');
       spyOn(Room, 'validDirectionInput').and.callFake(() => shortDir);
-    });
 
-    beforeEach(function () {
-      autocomplete.autocompleteTypes.calls.reset();
-      Room.getById.and.callFake(() => room);
-      Room.getById.calls.reset();
       Room.oppositeDirection.calls.reset();
       Room.shortToLong.calls.reset();
       Room.validDirectionInput.calls.reset();
       socket.emit.calls.reset();
-      room.exits = [];
+      mockRoom.exits = [];
     });
 
     it('should output short room look when short param is true', function () {
       sut.execute(socket, true);
 
-      expect(room.look).toHaveBeenCalledWith(socket, true);
+      expect(mockRoom.look).toHaveBeenCalledWith(socket, true);
     });
 
     it('should output room look when lookTarget is not passed', function () {
       sut.execute(socket, false);
 
-      expect(room.look).toHaveBeenCalledWith(socket, false);
+      expect(mockRoom.look).toHaveBeenCalledWith(socket, false);
     });
 
     it('should output room look when lookTarget is a direction', function () {
+      // arrange
       const targetRoom = mocks.getMockRoom();
-      room.exits.push({
+      mockRoom.exits.push({
         closed: false,
         dir: shortDir,
         roomId: targetRoom.id,
       });
+      mockRooms[targetRoom.id] = targetRoom;
 
-      Room.getById.and.returnValues(room, targetRoom);
-
+      // act
       sut.execute(socket, false, shortDir);
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You look to the exit name...' });
-      expect(socket.broadcast.to(targetRoom.id).emit).toHaveBeenCalledWith('output', { message: `<span class="yellow">${socket.user.username} peaks in from the exit name.</span>` });
+      // assert
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You look to the north...' });
+      expect(socket.broadcast.to(targetRoom.id).emit).toHaveBeenCalledWith('output', { message: `<span class="yellow">${socket.user.username} peaks in from the south.</span>` });
       expect(targetRoom.look).toHaveBeenCalledWith(socket, false);
     });
 
     it('should output a message when lookTarget is a direction with a closed door', function () {
-      room.exits.push({
+      // arrange
+      mockRoom.exits.push({
         closed: true,
         dir: 'n',
       });
+
+      // act
       sut.execute(socket, false, 'n');
 
+      // assert
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'The door in that direction is closed!' });
     });
 

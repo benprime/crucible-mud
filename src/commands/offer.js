@@ -15,11 +15,11 @@ module.exports = {
     module.exports.execute(socket, match[1], match[2]);
   },
 
-  execute(socket, userName, itemName) {
+  execute(socket, userName, itemName, cb) {
     const room = Room.getById(socket.user.roomId);
     const item = autocomplete.autocompleteTypes(socket, ['inventory'], itemName);
 
-    if(!item || item.length === 0) {
+    if (!item || item.length === 0) {
       return;
     }
 
@@ -51,8 +51,8 @@ module.exports = {
 
     let existingOfferIndex;
 
-    if(!toUserSocket.offers || toUserSocket.offers.length < 1) {
-      toUserSocket.offers = [ offer ];
+    if (!toUserSocket.offers || toUserSocket.offers.length < 1) {
+      toUserSocket.offers = [offer];
     } else {
       existingOfferIndex = toUserSocket.offers.findIndex(o => o.item.id === offer.item.id);
       if (existingOfferIndex !== -1) {
@@ -67,6 +67,7 @@ module.exports = {
       if (itemIndex !== -1) {
         toUserSocket.offers.splice(itemIndex, 1);
       }
+      if (cb) cb();
     }, 60000);
 
     toUserSocket.emit('output', { message: `${socket.user.username} offered you a ${itemName}.` });

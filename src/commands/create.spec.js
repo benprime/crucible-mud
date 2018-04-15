@@ -1,13 +1,25 @@
 'use strict';
 
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
 const Room = require('../models/room');
-const mocks = require('../../mocks');
-const sut = require('../commands/create');
+
+let mockRoom;
+const sut = SandboxedModule.require('./create', {
+  requires: {
+    '../models/room': {
+      getById: () => mockRoom,
+      validDirection: Room.validDirection,
+      validDirectionInput: Room.validDirectionInput,
+      longToShort: Room.longToShort,
+      shortToLong: Room.shortToLong,
+    },
+  },
+});
 
 describe('create', function () {
   let socket;
-  let room;
-  let shortDir = 'shortDir';
+  let shortDir = 'north';
 
   beforeAll(function () {
     socket = new mocks.SocketMock();
@@ -36,19 +48,17 @@ describe('create', function () {
   describe('execute', function () {
 
     beforeEach(function () {
-      room = mocks.getMockRoom();
-      spyOn(Room, 'getById').and.callFake(() => room);
-      spyOn(room, 'createRoom').and.callFake((dir, someFunc) => {
+      mockRoom = mocks.getMockRoom();
+      spyOn(mockRoom, 'createRoom').and.callFake((dir, someFunc) => {
         someFunc();
       });
-      spyOn(Room, 'shortToLong').and.callFake(() => shortDir);
     });
 
     describe('when type is room', function () {
       it('should accept valid forms of direction input', function () {
         sut.execute(socket, 'room', 'n');
 
-        expect(room.createRoom).toHaveBeenCalledWith('n', jasmine.any(Function));
+        expect(mockRoom.createRoom).toHaveBeenCalledWith('n', jasmine.any(Function));
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Room created.' });
         expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${shortDir}!` });
       });
@@ -66,19 +76,19 @@ describe('create', function () {
         const dir = 'n';
         sut.execute(socket, 'door', dir);
 
-        expect(room.getExit).toHaveBeenCalledWith(dir);
-        expect(room.getExit('n').closed).toBe(true);
-        expect(room.save).toHaveBeenCalled();
+        expect(mockRoom.getExit).toHaveBeenCalledWith(dir);
+        expect(mockRoom.getExit('n').closed).toBe(true);
+        expect(mockRoom.save).toHaveBeenCalled();
       });
 
       it('should output error message when direction in invalid', function () {
         const dir = 'n';
-        room.getExit.and.returnValue(undefined);
+        mockRoom.getExit.and.returnValue(undefined);
 
         sut.execute(socket, 'door', dir);
 
-        expect(room.getExit).toHaveBeenCalledWith(dir);
-        expect(room.save).not.toHaveBeenCalled();
+        expect(mockRoom.getExit).toHaveBeenCalledWith(dir);
+        expect(mockRoom.save).not.toHaveBeenCalled();
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Invalid direction.' });
       });
     });

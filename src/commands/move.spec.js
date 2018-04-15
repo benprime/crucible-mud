@@ -1,11 +1,31 @@
 'use strict';
 
-const mocks = require('../../mocks');
-const sut = require('../commands/move');
-const breakCommand = require('../commands/break');
-const lookCommand = require('../commands/look');
+const mocks = require('../../spec/mocks');
+const SandboxedModule = require('sandboxed-module');
+
 const Room = require('../models/room');
-const autocomplete = require('../core/autocomplete');
+
+const mockBreakCommand = {
+  execute: jasmine.createSpy('breakCommandSpy'),
+};
+const mockLookCommand = {
+  execute: jasmine.createSpy('breakCommandSpy'),
+};
+
+let mockRoom;
+const sut = SandboxedModule.require('./move', {
+  requires: {
+    '../models/room': {
+      getById: () => mockRoom,
+      oppositeDirection: Room.oppositeDirection,
+      shortToLong: Room.shortToLong,
+      validDirectionInput: Room.validDirectionInput,
+      longToShort: Room.longToShort,
+    },
+    './break': mockBreakCommand,
+    './look': mockLookCommand,
+  },
+});
 
 describe('move', function () {
   let socket;
@@ -33,28 +53,18 @@ describe('move', function () {
   });
 
   describe('execute', function () {
-    let room;
-    let autocompleteResult;
     let shortDir;
 
     beforeEach(function () {
-      room = mocks.getMockRoom();
+      mockRoom = mocks.getMockRoom();
       shortDir = 'n';
-      spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
-      spyOn(Room, 'getById').and.callFake(() => room);
-      spyOn(Room, 'oppositeDirection').and.callFake(() => 'opposite');
-      spyOn(Room, 'shortToLong').and.callFake(() => 'exit name');
-      spyOn(Room, 'validDirectionInput').and.callFake(() => shortDir);
-      spyOn(breakCommand, 'execute');
-      spyOn(lookCommand, 'execute');
-      socket.emit.calls.reset();
-      socket.broadcast.to().emit.calls.reset();
+      socket.reset();
     });
 
     it('should output message when direction is up and there is no exit', function () {
       shortDir = 'u';
-      var exitIndex = room.exits.findIndex(e => e.dir === 'u');
-      room.exits.splice(exitIndex, 1);
+      var exitIndex = mockRoom.exits.findIndex(e => e.dir === 'u');
+      mockRoom.exits.splice(exitIndex, 1);
 
       sut.execute(socket, shortDir);
 
@@ -64,8 +74,8 @@ describe('move', function () {
 
     it('should output message when direction is down and there is no exit', function () {
       shortDir = 'd';
-      var exitIndex = room.exits.findIndex(e => e.dir === 'd');
-      room.exits.splice(exitIndex, 1);
+      var exitIndex = mockRoom.exits.findIndex(e => e.dir === 'd');
+      mockRoom.exits.splice(exitIndex, 1);
 
       sut.execute(socket, shortDir);
 
@@ -73,18 +83,18 @@ describe('move', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
     });
 
-    it('should output message when direction is not up or down and there is no exit', function () {
+    it('should output message when direction is invalid', function () {
       shortDir = 'zzz';
       sut.execute(socket, shortDir);
 
-      expect(socket.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the wall to the exit name.</span>` });
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
+      expect(socket.to(socket.user.roomId).emit).not.toHaveBeenCalledWith();
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">That is not a valid direction!</span>' });
     });
 
     it('should output message when direction is up and there is a closed exit', function () {
       shortDir = 'u';
-      let exitIndex = room.exits.findIndex(e => e.dir === 'u');
-      room.exits[exitIndex].closed = true;
+      let exitIndex = mockRoom.exits.findIndex(e => e.dir === 'u');
+      mockRoom.exits[exitIndex].closed = true;
       sut.execute(socket, shortDir);
 
       expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the closed door above.</span>` });
@@ -93,8 +103,8 @@ describe('move', function () {
 
     it('should output message when direction is down and there is a closed exit', function () {
       shortDir = 'd';
-      let exitIndex = room.exits.findIndex(e => e.dir === 'd');
-      room.exits[exitIndex].closed = true;
+      let exitIndex = mockRoom.exits.findIndex(e => e.dir === 'd');
+      mockRoom.exits[exitIndex].closed = true;
       sut.execute(socket, shortDir);
 
       expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the trapdoor on the floor.</span>` });
@@ -103,16 +113,16 @@ describe('move', function () {
 
     it('should output message when direction is not up or down and there is a closed exit', function () {
       shortDir = 'w';
-      let exitIndex = room.exits.findIndex(e => e.dir === 'w');
-      room.exits[exitIndex].closed = true;
+      let exitIndex = mockRoom.exits.findIndex(e => e.dir === 'w');
+      mockRoom.exits[exitIndex].closed = true;
       sut.execute(socket, shortDir);
 
-      expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the door to the exit name.</span>` });
+      expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the door to the west.</span>` });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
     });
 
     it('should output message when room is not found', function () {
-      room = undefined;
+      mockRoom = undefined;
       shortDir = 'u';
       sut.execute(socket, shortDir);
 
@@ -122,56 +132,56 @@ describe('move', function () {
 
     it('should process movement when direction is up', function () {
       shortDir = 'u';
-      var exit = room.exits.find(e => e.dir === shortDir);
+      var exit = mockRoom.exits.find(e => e.dir === shortDir);
       exit.closed = false;
 
       sut.execute(socket, shortDir);
 
-      expect(breakCommand.execute).toHaveBeenCalledWith(socket);
-      expect(socket.broadcast.to(room.id).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} has gone above.` });
+      expect(mockBreakCommand.execute).toHaveBeenCalledWith(socket);
+      expect(socket.broadcast.to(mockRoom.id).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} has gone above.` });
       expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(0)).toEqual(['output', { message: 'You hear movement from below.' }]);
       expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(1)).toEqual(['output', { message: `${socket.user.username} has entered from below.` }]);
-      expect(socket.leave).toHaveBeenCalledWith(room.id);
+      expect(socket.leave).toHaveBeenCalledWith(mockRoom.id);
       expect(socket.user.save).toHaveBeenCalled();
       expect(socket.join).toHaveBeenCalledWith(exit.roomId);
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You move exit name...' });
-      expect(lookCommand.execute).toHaveBeenCalledWith(socket);
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You move up...' });
+      expect(mockLookCommand.execute).toHaveBeenCalledWith(socket);
     });
 
     it('should process movement when direction is down', function () {
       shortDir = 'd';
-      var exit = room.exits.find(e => e.dir === shortDir);
+      var exit = mockRoom.exits.find(e => e.dir === shortDir);
       exit.closed = false;
 
       sut.execute(socket, shortDir);
 
-      expect(breakCommand.execute).toHaveBeenCalledWith(socket);
-      expect(socket.broadcast.to(room.id).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} has gone below.` });
+      expect(mockBreakCommand.execute).toHaveBeenCalledWith(socket);
+      expect(socket.broadcast.to(mockRoom.id).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} has gone below.` });
       expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(0)).toEqual(['output', { message: 'You hear movement from above.' }]);
       expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(1)).toEqual(['output', { message: `${socket.user.username} has entered from above.` }]);
-      expect(socket.leave).toHaveBeenCalledWith(room.id);
+      expect(socket.leave).toHaveBeenCalledWith(mockRoom.id);
       expect(socket.user.save).toHaveBeenCalled();
       expect(socket.join).toHaveBeenCalledWith(exit.roomId);
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You move exit name...' });
-      expect(lookCommand.execute).toHaveBeenCalledWith(socket);
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You move down...' });
+      expect(mockLookCommand.execute).toHaveBeenCalledWith(socket);
     });
 
     it('should process movement when direction is not up or down', function () {
       shortDir = 'w';
-      var exit = room.exits.find(e => e.dir === shortDir);
+      var exit = mockRoom.exits.find(e => e.dir === shortDir);
       exit.closed = false;
 
       sut.execute(socket, shortDir);
 
-      expect(breakCommand.execute).toHaveBeenCalledWith(socket);
-      expect(socket.broadcast.to(room.id).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} has left to the exit name.` });
-      expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(0)).toEqual(['output', { message: 'You hear movement to the exit name.' }]);
-      expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(1)).toEqual(['output', { message: `${socket.user.username} has entered from the exit name.` }]);
-      expect(socket.leave).toHaveBeenCalledWith(room.id);
+      expect(mockBreakCommand.execute).toHaveBeenCalledWith(socket);
+      expect(socket.broadcast.to(mockRoom.id).emit).toHaveBeenCalledWith('output', { message: `${socket.user.username} has left to the west.` });
+      expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(0)).toEqual(['output', { message: 'You hear movement to the east.' }]);
+      expect(socket.broadcast.to(exit.roomId).emit.calls.argsFor(1)).toEqual(['output', { message: `${socket.user.username} has entered from the east.` }]);
+      expect(socket.leave).toHaveBeenCalledWith(mockRoom.id);
       expect(socket.user.save).toHaveBeenCalled();
       expect(socket.join).toHaveBeenCalledWith(exit.roomId);
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You move exit name...' });
-      expect(lookCommand.execute).toHaveBeenCalledWith(socket);
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You move west...' });
+      expect(mockLookCommand.execute).toHaveBeenCalledWith(socket);
     });
   });
 

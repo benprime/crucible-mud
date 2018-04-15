@@ -7,6 +7,10 @@ const lookCommand = require('./look');
 
 function Feedback(dir) {
   const d = Room.validDirectionInput(dir);
+  if(!d) {
+    // should never happen, but just in case
+    throw 'invalid input directions passed to feedback method';
+  }
   const displayDir = Room.shortToLong(d);
   return `You move ${displayDir}...`;
 }
@@ -104,43 +108,48 @@ module.exports = {
   },
 
   execute(socket, dir) {
-    const d = Room.validDirectionInput(dir.toLowerCase());
+    const validDir = Room.validDirectionInput(dir.toLowerCase());
     const room = Room.getById(socket.user.roomId);
+
+    if(!validDir) {
+      socket.emit('output', { message: '<span class="yellow">That is not a valid direction!</span>' });
+      return;
+    }
 
     if (!room) {
       // hrmm if the exit was just validated, this should never happen.
-      HitWall(socket, d);
+      HitWall(socket, validDir);
       return;
     }
 
     // valid exit in that direction?
-    const exit = room.exits.find(e => e.dir === d);
+    const exit = room.exits.find(e => e.dir === validDir);
     if (!exit) {
-      HitWall(socket, d);
+      HitWall(socket, validDir);
       return;
     }
 
     if (exit.closed) {
-      HitDoor(socket, d);
+      HitDoor(socket, validDir);
       return;
     }
 
     let message = '';
     var username = socket.user.username;
     // send message to everyone in old room that player is leaving
-    if (d === 'u') {
+    if (validDir === 'u') {
       message = `${username} has gone above.`;
-    } else if (d === 'd') {
+    } else if (validDir === 'd') {
       message = `${username} has gone below.`;
     } else {
-      message = `${username} has left to the ${Room.shortToLong(d)}.`;
+      message = `${username} has left to the ${Room.shortToLong(validDir)}.`;
     }
 
     // stop mobs attacking this user (since he is leaving the room)
     breakCommand.execute(socket);
 
     socket.broadcast.to(room.id).emit('output', { message });
-    MovementSounds(socket, room, d);
+    MovementSounds(socket, room, validDir);
     socket.leave(room.id);
 
     // update user session
@@ -148,15 +157,15 @@ module.exports = {
     socket.user.save();
     socket.join(exit.roomId);
 
-    MovementSounds(socket, room, Room.oppositeDirection(d));
+    MovementSounds(socket, room, Room.oppositeDirection(validDir));
 
     // send message to everyone is new room that player has arrived
-    if (d === 'u') {
+    if (validDir === 'u') {
       message = `${username} has entered from below.`;
-    } else if (d === 'd') {
+    } else if (validDir === 'd') {
       message = `${username} has entered from above.`;
     } else {
-      message = `${username} has entered from the ${Room.shortToLong(Room.oppositeDirection(d))}.`;
+      message = `${username} has entered from the ${Room.shortToLong(Room.oppositeDirection(validDir))}.`;
     }
     socket.broadcast.to(exit.roomId).emit('output', { message });
 

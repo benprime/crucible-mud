@@ -115,7 +115,7 @@ module.exports = {
 
     // valid exit in that direction?
     const exit = room.exits.find(e => e.dir === d);
-    if (!exit) {
+    if (!exit || exit.hidden) {
       HitWall(socket, d);
       return;
     }

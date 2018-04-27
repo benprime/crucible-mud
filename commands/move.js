@@ -115,7 +115,13 @@ module.exports = {
 
     // valid exit in that direction?
     const exit = room.exits.find(e => e.dir === d);
-    if (!exit || exit.hidden) {
+    if (!exit) {
+      HitWall(socket, d);
+      return;
+    }
+
+    //general public cannot enter hidden rooms
+    if (exit.hidden && !socket.user.admin) {
       HitWall(socket, d);
       return;
     }

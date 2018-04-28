@@ -2,6 +2,7 @@
 
 const Room = require('../src/models/room');
 const User = require('../src/models/user');
+const Mob = require('../src/models/mob');
 const ObjectID = require('mongodb').ObjectID;
 
 // this method provides a serialization of an
@@ -67,7 +68,9 @@ function getMockRoom() {
     room.save.calls.reset();
     room.look.calls.reset();
     room.usersInRoom.calls.reset();
-    room.mobs.remove.calls.reset();
+    if(room.mobs.remove.calls) {
+      room.mobs.remove.calls.reset();
+    }
   };
 
   return room;
@@ -188,8 +191,15 @@ const mobType = {
   ],
 };
 
+function getMockMob(roomId) {
+  let mob = new Mob(mobType, roomId, 0);
+  mob.die = jasmine.createSpy('mobDie');
+  return mob;
+}
+
 module.exports = {
   getMockRoom,
+  getMockMob,
   IOMock,
   SocketMock,
   mobType,

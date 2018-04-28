@@ -1,5 +1,6 @@
 'use strict';
 
+require('../core/extensionMethods');
 const socketUtil = require('../core/socketUtil');
 const config = require('../../config');
 
@@ -145,7 +146,6 @@ Mob.prototype.attack = function (now) {
 
   playerSocket.emit('output', { message: playerMessage });
   socketUtil.roomMessage(playerSocket.user.roomId, roomMessage, [playerSocket.id]);
-  //global.io.to(playerSocket.user.roomId).emit('output', { message: roomMessage });
 
   return true;
 };

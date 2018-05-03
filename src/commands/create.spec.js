@@ -32,10 +32,6 @@ describe('create', function () {
       executeSpy = spyOn(sut, 'execute');
     });
 
-    afterAll(function () {
-      executeSpy.and.callThrough();
-    });
-
     it('with type and param', function () {
       let type = 'room';
       let param = 'thing';

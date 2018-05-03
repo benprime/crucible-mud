@@ -41,6 +41,7 @@ describe('destroy', function () {
 
         // assert
         expect(socket.emit).not.toHaveBeenCalled();
+        
         expect(mockRoom.mobs.remove).not.toHaveBeenCalled();
       });
 

@@ -35,10 +35,6 @@ describe('attack', function () {
       executeSpy = spyOn(sut, 'execute');
     });
 
-    afterAll(function () {
-      executeSpy.and.callThrough();
-    });
-
     it('on short pattern', function () {
       autocompleteResult = 'thing';
       sut.dispatch(socket, ['a th', 'thing']);

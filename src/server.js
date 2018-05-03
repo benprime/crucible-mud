@@ -8,8 +8,6 @@ const http = require('http');
 const serve = http.createServer(app);
 const io = require('socket.io')(serve);
 
-require('./core/extensionMethods');
-
 // parses command files and prepares them
 const commands = require('./commands/');
 const config = require('../config');

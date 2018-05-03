@@ -1,6 +1,5 @@
 'use strict';
 
-require('../core/extensionMethods');
 const socketUtil = require('../core/socketUtil');
 const config = require('../../config');
 

@@ -7,6 +7,7 @@ let mockRoom = mocks.getMockRoom();
 const sut = SandboxedModule.require('./spawner', {
   requires: {
     '../models/room': {
+      roomCache: {},
       getById: jasmine.createSpy('getByIdSpy').and.callFake(() => mockRoom),
     },
   },

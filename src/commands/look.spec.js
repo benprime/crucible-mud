@@ -38,10 +38,6 @@ describe('look', function () {
       executeSpy = spyOn(sut, 'execute');
     });
 
-    afterAll(function () {
-      executeSpy.and.callThrough();
-    });
-
     it('on short pattern', function () {
       sut.dispatch(socket, ['']);
 

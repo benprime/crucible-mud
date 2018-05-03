@@ -1,7 +1,8 @@
 'use strict';
 
-const Room = require('../models/room');
-const User = require('../models/user');
+const Room = require('../src/models/room');
+const User = require('../src/models/user');
+const Mob = require('../src/models/mob');
 const ObjectID = require('mongodb').ObjectID;
 
 // this method provides a serialization of an
@@ -29,6 +30,7 @@ function getMockRoom() {
   var room = new Room();
   room.id = new ObjectID();
   room.mobs = [];
+  room.mobs.remove = jasmine.createSpy('removeMob').and.callThrough();
 
   room.roomIds = {
     u: new ObjectID(),
@@ -68,6 +70,9 @@ function getMockRoom() {
     room.save.calls.reset();
     room.look.calls.reset();
     room.usersInRoom.calls.reset();
+    if(room.mobs.remove.calls) {
+      room.mobs.remove.calls.reset();
+    }
   };
 
   return room;
@@ -99,14 +104,21 @@ function IOMock() {
   this.reset = function () {
     this.ioEmitSpy.calls.reset();
     this.to.calls.reset();
+    Object.keys(this.roomSpies).forEach(rs => this.roomSpies[rs].calls.reset());
+    this.sockets = {
+      connected: {},
+      adapter: {
+        rooms: {},
+      },
+    };
   };
 }
 
 function SocketMock() {
-  const sm = this;
+  let sm = this;
   this.id = new ObjectID();
   this.roomSpies = {};
-  const broadcastEmitSpy = jasmine.createSpy('userSocketBroadcastEmit');
+  let broadcastEmitSpy = jasmine.createSpy('userSocketBroadcastEmit');
   this.emit = jasmine.createSpy('userSocketEmit');
   this.on = jasmine.createSpy('userSocketOn');
   this.leave = jasmine.createSpy('userSocketLeave');
@@ -133,15 +145,19 @@ function SocketMock() {
   user.addExp = jasmine.createSpy('addExp');
   user.attackTarget = null;
   user.attack = jasmine.createSpy('userAttack');
+  user.inventory = [];
+  user.inventory.remove = jasmine.createSpy('inventoryRemove').and.callThrough();
   this.user = user;
 
+  this.offers = [];
+
   this.reset = function () {
-    this.broadcast.to.calls.reset();
     broadcastEmitSpy.calls.reset();
     this.emit.calls.reset();
     this.on.calls.reset();
     this.user.save.calls.reset();
-    this.roomCalls = [];
+    this.user.inventory.remove.calls.reset();
+    Object.keys(this.roomSpies).forEach(rs => this.roomSpies[rs].calls.reset());
   };
 }
 
@@ -177,8 +193,15 @@ const mobType = {
   ],
 };
 
+function getMockMob(roomId) {
+  let mob = new Mob(mobType, roomId, 0);
+  mob.die = jasmine.createSpy('mobDie');
+  return mob;
+}
+
 module.exports = {
   getMockRoom,
+  getMockMob,
   IOMock,
   SocketMock,
   mobType,

@@ -15,13 +15,15 @@ setInterval(() => {
   // loop through rooms that contain spawners...
   const roomsWithSpawners = Object.values(Room.roomCache).filter(r => r.spawner && r.spawner.timeout);
   roomsWithSpawners.forEach(function (room) {
-    let max = room.spawner.max ? room.spawner.max : 10;
-    let timeout = room.spawner.timeout ? room.spawner.timeout : 4000;
+    let max = room.spawner.max ? room.spawner.max : config.DEFAULT_ROOM_MOB_MAX;
+    let timeout = room.spawner.timeout ? room.spawner.timeout : config.ROUND_DURATION;
 
     if (!room.spawnTimer) {
       room.spawnTimer = now;
     }
 
+    // TODO: This appears to spawn mobs back to back without waiting for timeout between spawns
+    // when the count of mobs is less than max.
     if (room.mobs.length < max && now - room.spawnTimer >= timeout && room.spawner.mobTypes.length > 0) {
       let mobTypeIndex = dice.getRandomNumber(0, room.spawner.mobTypes.length);
       let mobTypeName = room.spawner.mobTypes[mobTypeIndex];

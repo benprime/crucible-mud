@@ -99,6 +99,8 @@ module.exports = {
       processDispatch(socket, input);
     } catch (e) {
       socket.emit('output', { message: `AN ERROR OCCURED!\n${e.message}` });
+      console.error(e);
+      console.error(new Error().stack);
     }
   },
 };

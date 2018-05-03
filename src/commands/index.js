@@ -3,7 +3,7 @@
 const actionHandler = require('../core/actionHandler');
 const helpHandler = require('./help');
 
-let commands = [
+let commandModules = [
   'attack.js',
   'break.js',
   'close.js',
@@ -35,6 +35,7 @@ let commands = [
   'who.js',
   'yell.js',
 ];
+const commands = [];
 let defaultCommand;
 
 function validateCommand(commandHandler, file) {
@@ -45,7 +46,7 @@ function validateCommand(commandHandler, file) {
   if (!commandHandler.help) throw `command ${file} missing help!`;
 }
 
-commands.forEach(function (file) {
+commandModules.forEach(function (file) {
   // eslint-disable-next-line
   let commandHandler = require('./' + file);
   validateCommand(commandHandler, file);

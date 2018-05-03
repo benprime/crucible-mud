@@ -61,6 +61,7 @@ function getMockRoom() {
   room.look = jasmine.createSpy('look').and.callFake(() => { });
   room.usersInRoom = jasmine.createSpy('usersInRoom');
   room.processPlayerCombatActions = jasmine.createSpy('processPlayerCombatActions').and.callFake(() => { });
+  room.processMobCombatActions = jasmine.createSpy('processMobCombatActions').and.callFake(() => { });
 
   room.reset = function () {
     room.getExit.calls.reset();

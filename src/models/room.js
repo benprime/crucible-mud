@@ -251,6 +251,11 @@ RoomSchema.methods.look = function (socket, short) {
     output += `<span class="firebrick">Hidden exits: ${hiddenExits}</span>\n`;
   }
 
+  if (!short && socket.user.admin) {
+    output += `<span class="gray">Room ID: ${this.id}</span>\n`;
+    if (this.alias) output += `<span class="gray">Alias: ${this.alias}</span>\n`;
+  }
+
   socket.emit('output', { message: output });
 };
 

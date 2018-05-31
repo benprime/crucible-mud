@@ -1,5 +1,6 @@
 'use strict';
 
+require('../core/extensionMethods');
 const actionsData = require('../../data/actionData');
 const socketUtil = require('../core/socketUtil');
 const Room = require('../models/room');

@@ -68,9 +68,19 @@ describe('actionHandler', function () {
     it('should output message when no socket is returned for the user', function () {
       mockTargetSocket = undefined;
 
-      sut.actionDispatcher(socket, 'hug', 'aUser');
+      var result = sut.actionDispatcher(socket, 'hug', 'aUser');
 
+      expect(result).toBe(true);
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown user: aUser' });
+    });
+
+    fit('should output message when action is performed on self', function () {
+      mockTargetSocket = socket;
+  
+      var result = sut.actionDispatcher(socket, 'hug', 'aUser');
+  
+      expect(result).toBe(true);
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'aUser hugs himself.' });
     });
   });
 });

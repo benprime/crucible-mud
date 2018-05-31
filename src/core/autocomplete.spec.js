@@ -11,8 +11,6 @@ describe('autocomplete', function () {
   let socket;
   let room;
 
-
-
   describe('autocompleteByProperty', function () {
 
     beforeEach(function () {

@@ -217,12 +217,16 @@ RoomSchema.methods.look = function (socket, short) {
     output += `<span class="silver">${this.desc}</span>\n`;
   }
 
-  if (this.inventory && this.inventory.filter(item => !item.hidden).length > 0) {
-    output += `<span class="darkcyan">You notice: ${this.inventory.filter(item => !item.hidden).map(item => item.displayName).join(', ')}.</span>\n`;
+  var notHiddenItems = '', hiddenItems = '';
+  if(this.inventory) {
+    notHiddenItems = this.inventory.filter(item => !item.hidden).map(item => item.displayName).join(', ');
+    hiddenItems = this.inventory.filter(item => item.hidden).map(item => item.displayName).join(', ');
   }
-
-  if (socket.user.admin && this.inventory && this.inventory.filter(item => item.hidden).length > 0) {
-    output += `<span class="olive">Hidden items: ${this.inventory.filter(item => item.hidden).map(item => item.displayName).join(', ')}.</span>\n`;
+  if (notHiddenItems != '') {
+    output += `<span class="darkcyan">You notice: ${notHiddenItems}.</span>\n`;
+  }
+  if (socket.user.admin && hiddenItems != '') {
+    output += `<span class="olive">Hidden items: ${hiddenItems}.</span>\n`;
   }
 
   let names = this.usersInRoom(this.id).filter(name => name !== socket.user.username);
@@ -235,17 +239,16 @@ RoomSchema.methods.look = function (socket, short) {
     output += `<span class="purple">Also here: <span class="teal">${displayNames}</span>.</span>\n`;
   }
 
-  if (this.exits.filter(exit => !exit.hidden).length > 0) {
-    output += `<span class="green">Exits: ${this.exits.filter(exit => !exit.hidden).map(exit => Room.shortToLong(exit.dir)).join(', ')}</span>\n`;
+  var notHiddenExits = '', hiddenExits = '';
+  if(this.exits) {
+    notHiddenExits = this.exits.filter(exit => !exit.hidden).map(exit => Room.shortToLong(exit.dir)).join(', ');
+    hiddenExits = this.exits.filter(exit => exit.hidden).map(exit => Room.shortToLong(exit.dir)).join(', ');
   }
-
-  if (socket.user.admin && this.exits.filter(exit => exit.hidden).length > 0) {
-    output += `<span class="firebrick">Hidden exits: ${this.exits.filter(exit => exit.hidden).map(exit => Room.shortToLong(exit.dir)).join(', ')}</span>\n`;
+  if (notHiddenExits != '') {
+    output += `<span class="green">Exits: ${notHiddenExits}</span>\n`;
   }
-
-  if (!short && socket.user.admin) {
-    output += `<span class="gray">Room ID: ${this.id}</span>\n`;
-    if (this.alias) output += `<span class="gray">Alias: ${this.alias}</span>\n`;
+  if (socket.user.admin && hiddenExits != '') {
+    output += `<span class="firebrick">Hidden exits: ${hiddenExits}</span>\n`;
   }
 
   socket.emit('output', { message: output });

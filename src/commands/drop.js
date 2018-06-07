@@ -2,6 +2,7 @@
 
 const Room = require('../models/room');
 const autocomplete = require('../core/autocomplete');
+const utils = require('../core/utilities');
 
 module.exports = {
   name: 'drop',
@@ -29,9 +30,9 @@ module.exports = {
 
     // remove item from users inventory or key ring
     if (result.item.type === 'item') {
-      socket.user.inventory.remove(result.item);
+      utils.removeItem(socket.user.inventory, result.item);
     } else if (result.item.type === 'key') {
-      socket.user.keys.remove(result.item);
+      utils.removeItem(socket.user.keys, result.item);
     } else {
       // just a catch for bad data
       socket.emit('output', { message: 'Unknown item type!' });

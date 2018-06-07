@@ -7,6 +7,7 @@ const config = require('../../config');
 const ObjectId = require('mongodb').ObjectId;
 const Room = require('../models/room');
 const dice = require('../core/dice');
+const utils = require('../core/utilities');
 
 function Mob(mobType, roomId, adjectiveIndex) {
 
@@ -58,12 +59,12 @@ Mob.prototype.die = function (socket) {
   const room = Room.getById(socket.user.roomId);
   room.spawnTimer = new Date();
   global.io.to(room.id).emit('output', { message: `The ${this.displayName} collapses.` });
-  room.mobs.remove(this);
+  utils.removeItem(room.mobs, this);
   this.awardExperience(socket);
 };
 
 // todo: cleaning up for current room. This may need some rework when the mobs
-// can move from room to room.
+// can move from room tso room.
 Mob.prototype.awardExperience = function (socket) {
   const room = Room.getById(socket.user.roomId);
   let sockets = socketUtil.getRoomSockets(room.id);
@@ -167,9 +168,9 @@ Mob.prototype.taunt = function (now) {
 
   const tauntIndex = dice.getRandomNumber(0, this.taunts.length);
   let taunt = this.taunts[tauntIndex];
-  taunt = taunt.format(this.displayName, 'you');
+  taunt = utils.formatMessage(taunt, this.displayName, 'you');
   let username = socket.user.username;
-  let roomTaunt = this.taunts[tauntIndex].format(this.displayName, username);
+  let roomTaunt = utils.formatMessage(this.taunts[tauntIndex], this.displayName, username);
   socket.emit('output', { message: taunt });
   socket.broadcast.to(socket.user.roomId).emit('output', { message: roomTaunt });
 };

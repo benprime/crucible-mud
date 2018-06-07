@@ -3,6 +3,7 @@
 const Room = require('../models/room');
 const socketUtil = require('../core/socketUtil');
 const autocomplete = require('../core/autocomplete');
+const utils = require('../core/utilities');
 
 module.exports = {
   name: 'take',
@@ -79,7 +80,7 @@ module.exports = {
       }
       // take the item from the room
       const room = Room.getById(socket.user.roomId);
-      room.inventory.remove(roomItem);
+      utils.removeItem(room.inventory, roomItem);
 
       saveItem(roomItem);
       room.save();

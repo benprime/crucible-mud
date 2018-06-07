@@ -1,9 +1,9 @@
 'use strict';
 
-require('../core/extensionMethods');
 const actionsData = require('../../data/actionData');
 const socketUtil = require('../core/socketUtil');
 const Room = require('../models/room');
+const utils = require('../core/utilities');
 
 module.exports = {
   actionDispatcher(socket, action, username) {
@@ -39,7 +39,7 @@ module.exports = {
       const toUser = targetSocket ? targetSocket.user.username : null;
 
       if (messages.sourceMessage) {
-        socket.emit('output', { message: messages.sourceMessage.format(fromUser, toUser) });
+        socket.emit('output', { message: utils.formatMessage(messages.sourceMessage, fromUser, toUser) });
       }
 
       if (messages.roomMessage) {
@@ -55,12 +55,12 @@ module.exports = {
           if (targetSocket && messages.targetMessage && socketId === targetSocket.id) {
             return;
           }
-          global.io.to(socketId).emit('output', { message: messages.roomMessage.format(fromUser, toUser) });
+          global.io.to(socketId).emit('output', { message: utils.formatMessage(messages.roomMessage, fromUser, toUser) });
         });
       }
 
       if (targetSocket && messages.targetMessage) {
-        targetSocket.emit('output', { message: messages.targetMessage.format(fromUser, toUser) });
+        targetSocket.emit('output', { message: utils.formatMessage(messages.targetMessage, fromUser, toUser) });
       }
       return true;
     }

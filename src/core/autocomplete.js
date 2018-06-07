@@ -1,6 +1,5 @@
 'use strict';
 
-require('./extensionMethods');
 const Room = require('../models/room');
 
 // properties in order of search use

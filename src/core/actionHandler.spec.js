@@ -4,8 +4,9 @@ const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
 
 let mockGlobalIO = new mocks.IOMock();
-let mockTargetSocket = new mocks.SocketMock();
 let mockRoom = mocks.getMockRoom();
+let mockTargetSocket = new mocks.SocketMock();
+
 const sut = SandboxedModule.require('./actionHandler', {
   requires: {
     '../../data/actionData': {  
@@ -51,11 +52,9 @@ const sut = SandboxedModule.require('./actionHandler', {
     '../core/socketUtil': {
       'getSocketByUsername': () => mockTargetSocket,
     },
-  
   },
   globals: { io: mockGlobalIO },
 });
-  
 
 describe('actionHandler', function () {
   let socket;
@@ -63,6 +62,13 @@ describe('actionHandler', function () {
   describe('actionDispatcher', function () {
     beforeEach(function() {
       socket = new mocks.SocketMock();
+      socket.user.roomId = mockRoom.id;
+      let sockets = {};
+      sockets[socket.id] = socket;
+      mockGlobalIO.sockets.adapter.rooms = {};
+      mockGlobalIO.sockets.adapter.rooms[mockRoom.id] = {
+        sockets: sockets,
+      };
     });
 
     it('should output message when no socket is returned for the user', function () {
@@ -80,7 +86,7 @@ describe('actionHandler', function () {
       var result = sut.actionDispatcher(socket, 'hug', 'aUser');
   
       expect(result).toBe(true);
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'aUser hugs himself.' });
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You hug yourself.' });
     });
   });
 });

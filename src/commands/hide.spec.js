@@ -44,6 +44,7 @@ describe('hide', function () {
   });
 
   it('should output message when item is invalid', function () {
+    autocompleteResult = null;
     sut.execute(socket, 'emu');
 
     expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Item does not exist in inventory or in room.' });

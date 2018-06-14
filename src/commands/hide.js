@@ -16,13 +16,17 @@ function hideDir(socket, room, dir) {
   socket.emit('output', { message: 'The exit has been concealed.' });
 }
 
-// for items and mobs
+// for items
 function hideItem(socket, room, itemName) {
-  const hideTargetObj = autocomplete.autocompleteTypes(socket, ['inventory', 'mob', 'room'], itemName);
+  const hideTargetObj = autocomplete.autocompleteTypes(socket, ['inventory', 'room'], itemName);
   if (!hideTargetObj) {
+    socket.emit('output', { message: 'Item does not exist in inventory or in room.' });
     return;
   }
+
   hideTargetObj.hidden = true;
+  room.save();
+  socket.emit('output', { message: `${itemName} has been concealed.` });
 }
 
 

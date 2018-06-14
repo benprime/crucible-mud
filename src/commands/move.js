@@ -129,6 +129,12 @@ module.exports = {
       return;
     }
 
+    //general public cannot enter hidden rooms
+    if (exit.hidden && !socket.user.admin) {
+      HitWall(socket, d);
+      return;
+    }
+
     if (exit.closed) {
       HitDoor(socket, validDir);
       return;

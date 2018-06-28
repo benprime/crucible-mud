@@ -24,6 +24,7 @@ let commandModules = [
   'offer.js',
   'open.js',
   'say.js',
+  'search.js',
   'set.js',
   'spawner.js',
   'spawn.js',

@@ -2,7 +2,6 @@
 
 const Room = require('../models/room');
 const autocomplete = require('../core/autocomplete');
-const utils = require('../core/utilities');
 
 module.exports = {
   name: 'destroy',
@@ -34,7 +33,7 @@ module.exports = {
         return;
       }
 
-      utils.removeItem(room.mobs, mob);
+      room.mobs.remove(mob);
       socket.emit('output', { message: 'Mob successfully destroyed.' });
 
       // announce mob disappearance to any onlookers
@@ -47,7 +46,7 @@ module.exports = {
       }
 
       // delete item
-      utils.removeItem(socket.user.inventory, item);
+      socket.user.inventory.remove(item);
       socket.user.save();
       socket.emit('output', { message: 'Item successfully destroyed.' });
     } else {

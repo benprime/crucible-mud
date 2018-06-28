@@ -6,6 +6,7 @@ const SandboxedModule = require('sandboxed-module');
 let mockGlobalIO = new mocks.IOMock();
 let mockRoom = mocks.getMockRoom();
 let mockTargetSocket = new mocks.SocketMock();
+let usersInRoom = [];
 
 const sut = SandboxedModule.require('./actionHandler', {
   requires: {
@@ -48,6 +49,7 @@ const sut = SandboxedModule.require('./actionHandler', {
     },
     '../models/room': {
       getById: jasmine.createSpy('getByIdSpy').and.callFake(() => mockRoom),
+      usersInRoom: jasmine.createSpy('usersInRoomSpy').and.callFake(() => usersInRoom),
     },
     '../core/socketUtil': {
       'getSocketByUsername': () => mockTargetSocket,
@@ -58,17 +60,18 @@ const sut = SandboxedModule.require('./actionHandler', {
 
 describe('actionHandler', function () {
   let socket;
-  
+  let sockets = {};
+
   describe('actionDispatcher', function () {
     beforeEach(function() {
       socket = new mocks.SocketMock();
       socket.user.roomId = mockRoom.id;
-      let sockets = {};
       sockets[socket.id] = socket;
       mockGlobalIO.sockets.adapter.rooms = {};
       mockGlobalIO.sockets.adapter.rooms[mockRoom.id] = {
         sockets: sockets,
       };
+      mockRoom.usersInRoom = jasmine.createSpy('usersInRoomSpy').and.callFake(() => usersInRoom);
     });
 
     it('should output message when no socket is returned for the user', function () {
@@ -87,6 +90,21 @@ describe('actionHandler', function () {
   
       expect(result).toBe(true);
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You hug yourself.' });
+      // TODO: Needs to test output calls to other sockets
+    });
+
+    it('should output message when action is performed on other user', function () {
+      mockTargetSocket = new mocks.SocketMock();
+      usersInRoom.push('aDifferentUser');
+      mockTargetSocket.user.username = 'aDifferentUser';
+      mockTargetSocket.user.roomId = mockRoom.id;
+      sockets[mockTargetSocket.id] = mockTargetSocket;
+
+      var result = sut.actionDispatcher(socket, 'hug', 'aDifferentUser');
+  
+      expect(result).toBe(true);
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You hug aDifferentUser close!' });
+      // TODO: Needs to test output calls to other sockets
     });
   });
 });

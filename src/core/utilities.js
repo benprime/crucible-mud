@@ -7,9 +7,9 @@ module.exports = {
     return string.replace(/{(\d+)}/g, (match, number) => (typeof args[number] !== 'undefined') ? args[number] : match);
   },
   removeItem(array, item) {
-    var index = this.findIndex(i => i === item);
+    var index = array.findIndex(i => i === item);
     if (index !== -1) {
-      this.splice(index, 1);
+      array.splice(index, 1);
     }
   },
 };

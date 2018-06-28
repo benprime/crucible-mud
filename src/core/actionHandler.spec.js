@@ -80,7 +80,7 @@ describe('actionHandler', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown user: aUser' });
     });
 
-    fit('should output message when action is performed on self', function () {
+    it('should output message when action is performed on self', function () {
       mockTargetSocket = socket;
   
       var result = sut.actionDispatcher(socket, 'hug', 'aUser');

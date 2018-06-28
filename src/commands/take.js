@@ -78,6 +78,11 @@ module.exports = {
         socket.emit('output', { message: 'You cannot take that!' });
         return;
       }
+      if (roomItem.hidden && !socket.user.admin) {
+        //ignore players from unknowingly grabbing a hidden item
+        socket.emit('output', { message: 'You don\'t see that here!' });
+        return;
+      }
       // take the item from the room
       const room = Room.getById(socket.user.roomId);
       utils.removeItem(room.inventory, roomItem);

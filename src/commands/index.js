@@ -13,6 +13,7 @@ let commandModules = [
   'equip.js',
   'exp.js',
   'gossip.js',
+  'hide.js',
   'help.js',
   'inventory.js',
   'keys.js',

@@ -28,6 +28,7 @@ let commandModules = [
   'set.js',
   'spawner.js',
   'spawn.js',
+  'stats.js',
   'summon.js',
   'take.js',
   'telepathy.js',

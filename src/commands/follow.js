@@ -1,6 +1,5 @@
 'use strict';
 
-const Room = require('../models/room');
 const socketUtil = require('../core/socketUtil');
 
 module.exports = {
@@ -16,28 +15,21 @@ module.exports = {
   },
 
   execute(socket, username) {
-    const targetSocket = socketUtil.getSocketByUsername(username);
-    if(!targetSocket) {
-      socket.emit('output', {message: 'Unknown player'});
+    const invitingSocket = socketUtil.validUserInRoom(socket, username);
+    if (!invitingSocket) {
       return;
     }
 
-    if(Array.isArray(targetSocket.partyInvites) && targetSocket.partyInvites.includes(targetSocket.user.id))
-    {
-      socket.emit('output', {message: 'You must be invited.'});
+    if (!Array.isArray(socket.partyInvites) || !socket.partyInvites.includes(invitingSocket.user.id)) {
+      socket.emit('output', { message: 'You must be invited.' });
       return;
     }
 
-    const room = Room.getById(socket.user.roomId);
-    if(!room.userInRoom(username)) {
-      socket.emit('output', {message: `You don't see ${username} here.`});
-      return;
-    }
+    socket.leader = invitingSocket.id;
+    socket.partyInvites.remove(invitingSocket.user.id);
 
-    socket.leader = targetSocket.id;
-    socket.remove(targetSocket.id);
-    socket.emit('output', {message: `You are now following ${username}.`});
-    targetSocket.emit('output', {message: `${socket.user.username} has started following you.`});
+    socket.emit('output', { message: `You are now following ${username}.` });
+    invitingSocket.emit('output', { message: `${socket.user.username} has started following you.` });
   },
 
   help(socket) {

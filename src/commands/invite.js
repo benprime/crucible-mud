@@ -1,6 +1,5 @@
 'use strict';
 
-const Room = require('../models/room');
 const socketUtil = require('../core/socketUtil');
 
 module.exports = {
@@ -12,7 +11,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    if(match.length < 2) {
+    if (match.length < 2) {
       module.exports.help(socket);
       return;
     }
@@ -20,25 +19,21 @@ module.exports = {
   },
 
   execute(socket, username) {
-    const targetSocket = socketUtil.getSocketByUsername(username);
-    if(!targetSocket) {
-      socket.emit('output', {message: 'Unknown user'});
+    const targetSocket = socketUtil.validUserInRoom(socket, username);
+    if (!targetSocket) {
       return;
     }
 
-    const room = Room.getById(socket.user.roomId);
-    if(!room.userInRoom(username)) {
-      socket.emit('output', {message: `You don't see ${username} here.`});
-      return;
+    if (!targetSocket.partyInvites) {
+      targetSocket.partyInvites = [];
     }
 
-    if(!targetSocket.partyInvites) {
-      targetSocket.partyInvites = new Set();
+    if (!targetSocket.partyInvites.includes(socket.user.id)) {
+      targetSocket.partyInvites.push(socket.user.id);
     }
 
-    targetSocket.partyInvites.add(socket.user.id);
-    targetSocket.emit('output', {message: `${socket.user.username} has invited you to join a party.`});
-    socket.emit('output', {message: `You have invited ${targetSocket.user.username} to join your party.`});
+    targetSocket.emit('output', { message: `${socket.user.username} has invited you to join a party.` });
+    socket.emit('output', { message: `You have invited ${targetSocket.user.username} to join your party.` });
 
     // TODO: make party invites timeout
     // setTimeout(() => {

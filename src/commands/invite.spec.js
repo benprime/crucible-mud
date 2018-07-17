@@ -5,9 +5,8 @@ const SandboxedModule = require('sandboxed-module');
 
 const mockGlobalIO = new mocks.IOMock();
 let mockTargetSocket = new mocks.SocketMock();
-let usersInRoomResult = [];
 let mockRoom = mocks.getMockRoom();
-mockRoom.usersInRoom = jasmine.createSpy('usersInRoomSpy').and.callFake(() => usersInRoomResult);
+let validUserInRoomResult = mockTargetSocket;
 const sut = SandboxedModule.require('./invite', {
   requires: {
     '../models/room': {
@@ -16,10 +15,10 @@ const sut = SandboxedModule.require('./invite', {
     },
     '../core/socketUtil': {
       'getSocketByUsername': () => mockTargetSocket,
-      'usersInRoom': () => usersInRoomResult,
+      'validUserInRoom': () => validUserInRoomResult,
     },
   },
-  globals: {io:mockGlobalIO},
+  globals: { io: mockGlobalIO },
 });
 
 describe('invite', function () {
@@ -33,7 +32,6 @@ describe('invite', function () {
   });
 
   describe('execute', function () {
-    usersInRoomResult = ['TestUser', 'aUser', 'TargetUser'];
 
     beforeEach(function () {
       mockTargetSocket.user.username = 'TargetUser';
@@ -43,9 +41,6 @@ describe('invite', function () {
       socket.user.inventory = [{ id: 'aItemId', name: 'aItem' }];
       socket.user.username = 'TestUser';
       socket.emit.calls.reset();
-
-      mockTargetSocket.partyInvites = new Set();
-      mockTargetSocket.partyInvites.add(socket.user.id);
     });
 
     it('adds invite to socket tracking variable of recipient socket', function () {
@@ -53,7 +48,7 @@ describe('invite', function () {
 
       sut.execute(socket, username);
 
-      expect(mockTargetSocket.partyInvites.has(socket.user.id)).toBeTruthy();
+      expect(mockTargetSocket.partyInvites).toContain(socket.user.id);
     });
 
   });

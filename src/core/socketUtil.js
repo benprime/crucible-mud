@@ -40,6 +40,17 @@ module.exports = {
     return null;
   },
 
+  getFollowingSockets: (leaderSocketId) => {
+    const followingSockets = [];
+    for (let socketId in global.io.sockets.connected) {
+      let socket = global.io.sockets.connected[socketId];
+      if (socket.user && socket.leader == leaderSocketId) {
+        followingSockets.push(socket);
+      }
+    }
+    return followingSockets;
+  },
+
   getRoomSockets: (roomId) => {
     const ioRoom = global.io.sockets.adapter.rooms[roomId];
     if (!ioRoom) return [];

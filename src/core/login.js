@@ -8,7 +8,7 @@ const User = require('../models/user');
 
 module.exports = {
   LoginUsername(socket, username) {
-    if (!socket.userId && (socket.state == config.STATES.LOGIN_USERNAME)) {
+    if (socket.state == config.STATES.LOGIN_USERNAME) {
       User.findByName(username.value, function (err, user) {
         if (!user) {
           socket.emit('output', { message: 'Unknown user, please try again.' });
@@ -23,7 +23,7 @@ module.exports = {
   },
 
   LoginPassword(socket, password, callback) {
-    if (!socket.userId && (socket.state == config.STATES.LOGIN_PASSWORD)) {
+    if (socket.state == config.STATES.LOGIN_PASSWORD) {
 
       User.findOne({ username: socket.tempUsername, password: password.value })
         //.lean()

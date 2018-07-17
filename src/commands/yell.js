@@ -18,6 +18,7 @@ module.exports = {
 
     const room = Room.getById(socket.user.roomId);
 
+    // send message to all adjacent exits
     room.exits.forEach((exit) => {
       let preMsg = '';
       if (exit.dir === 'u') {
@@ -31,8 +32,9 @@ module.exports = {
       socket.broadcast.to(exit.roomId).emit('output', { message: surroundMsg });
     });
 
+    // send message to current room
     socket.emit('output', { message: `You yell '${message}'` });
-    socket.broadcast.to(room.id).emit('output', { message: `You yell "${message}"` });
+    socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} yells '${message}'` });
   },
 
   help(socket) {

@@ -28,7 +28,7 @@ if (!JSON.orderedStringify) {
 
 function getMockRoom() {
   var room = new Room();
-  room.id = new ObjectID();
+  room._id = new ObjectID();
   room.mobs = [];
   room.mobs.remove = jasmine.createSpy('removeMob').and.callThrough();
 
@@ -101,6 +101,14 @@ function IOMock() {
     },
   };
 
+  this.addUserToIORoom = function(roomId, socket) {
+
+    this.sockets.adapter.rooms[roomId] = {
+      sockets: {},
+    };
+    this.sockets.adapter.rooms[roomId].sockets[socket.id] = socket;
+  };
+
   this.reset = function () {
     this.ioEmitSpy.calls.reset();
     this.to.calls.reset();
@@ -116,7 +124,10 @@ function IOMock() {
 
 function SocketMock() {
   let sm = this;
-  this.id = new ObjectID();
+  // this is mocking the SocketIO socket, and is not a mongoose object.
+  // we're using ObjectId here for convenience, so it does not have to be set
+  // to the _id property like it does on the mongoose objects.
+  this.id = new ObjectID().toString();
   this.roomSpies = {};
   let broadcastEmitSpy = jasmine.createSpy('userSocketBroadcastEmit');
   this.emit = jasmine.createSpy('userSocketEmit');

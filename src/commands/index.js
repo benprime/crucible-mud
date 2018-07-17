@@ -14,6 +14,7 @@ let commandModules = [
   'exp.js',
   'follow.js',
   'gossip.js',
+  'hide.js',
   'help.js',
   'inventory.js',
   'invite.js',

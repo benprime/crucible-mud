@@ -122,7 +122,7 @@ function IOMock() {
   };
 }
 
-function SocketMock() {
+function SocketMock(username) {
   let sm = this;
   // this is mocking the SocketIO socket, and is not a mongoose object.
   // we're using ObjectId here for convenience, so it does not have to be set
@@ -149,7 +149,7 @@ function SocketMock() {
   };
 
   const user = new User();
-  user.username = 'TestUser';
+  user.username = username ? username : 'TestUser';
   user.userId = new ObjectID();
   user.roomId = new ObjectID();
   user.save = jasmine.createSpy('userSave');

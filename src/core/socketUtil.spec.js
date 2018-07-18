@@ -236,6 +236,45 @@ describe('socketUtil', function () {
     });
   });
 
+  describe('getFollowingSockets', function () {
+    beforeEach(function () {
+      mockGlobalIO.reset();
+    });
+
+    it('should return all sockets where leader matches', function () {
+      // arrange
+      const leaderId = new ObjectId().valueOf();
+
+      const follower1 = new mocks.SocketMock('follower1');
+      const follower2 = new mocks.SocketMock('follower2');
+      const follower3 = new mocks.SocketMock('follower3');
+
+      follower1.leader = leaderId;
+      follower2.leader = leaderId;
+      follower3.leader = leaderId;
+
+      const nonFollower1 = new mocks.SocketMock('nonFollower1');
+      const nonFollower2 = new mocks.SocketMock('nonFollower2');
+      const nonFollower3 = new mocks.SocketMock('nonFollower3');
+
+      mockGlobalIO.sockets.connected[follower1.id] = follower1;
+      mockGlobalIO.sockets.connected[follower2.id] = follower2;
+      mockGlobalIO.sockets.connected[follower3.id] = follower3;
+      mockGlobalIO.sockets.connected[nonFollower1.id] = nonFollower1;
+      mockGlobalIO.sockets.connected[nonFollower2.id] = nonFollower2;
+      mockGlobalIO.sockets.connected[nonFollower3.id] = nonFollower3;
+
+      // act
+      const result = sut.getFollowingSockets(leaderId);
+
+      // assert
+      expect(result.length).toBe(3);
+      expect(result[0]).toBe(follower1);
+      expect(result[1]).toBe(follower2);
+      expect(result[2]).toBe(follower3);
+    });
+  });
+
   describe('validUserInRoom', function () {
     let socket;
 
@@ -245,7 +284,7 @@ describe('socketUtil', function () {
 
     it('should return false if user is not logged in', function () {
       // arrange
-      var roomId = new ObjectId().str;
+      var roomId = new ObjectId().valueOf();
 
       // acting user
       socket = new mocks.SocketMock();
@@ -266,7 +305,7 @@ describe('socketUtil', function () {
 
     it('should return false if user is not in the room', function () {
       // arrange
-      var roomId = new ObjectId().str;
+      var roomId = new ObjectId().valueOf();
 
       // acting user
       socket = new mocks.SocketMock();
@@ -290,7 +329,7 @@ describe('socketUtil', function () {
 
     it('should return socket when user is in the room', function () {
       // arrange
-      var roomId = new ObjectId().str;
+      var roomId = new ObjectId().valueOf();
 
       // acting user
       socket = new mocks.SocketMock();

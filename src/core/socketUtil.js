@@ -44,7 +44,7 @@ module.exports = {
     const followingSockets = [];
     for (let socketId in global.io.sockets.connected) {
       let socket = global.io.sockets.connected[socketId];
-      if (socket.user && socket.leader == leaderSocketId) {
+      if (socket.user && socket.leader === leaderSocketId) {
         followingSockets.push(socket);
       }
     }

@@ -12,6 +12,7 @@ const mockLookCommand = {
   execute: jasmine.createSpy('breakCommandSpy'),
 };
 
+const mockGlobalIO = new mocks.IOMock();
 let mockRoom;
 const sut = SandboxedModule.require('./move', {
   requires: {
@@ -25,6 +26,7 @@ const sut = SandboxedModule.require('./move', {
     './break': mockBreakCommand,
     './look': mockLookCommand,
   },
+  globals: {io:mockGlobalIO},
 });
 
 describe('move', function () {
@@ -49,6 +51,14 @@ describe('move', function () {
       sut.dispatch(socket, ['go aMatch', 'aMatch']);
 
       expect(sut.execute).toHaveBeenCalledWith(socket, 'aMatch');
+    });
+
+    it('should clear leader tracking when user moves', function () {
+      socket.leader = 'test';
+
+      sut.dispatch(socket, ['aMatch']);
+
+      expect(socket.leader).toBeNull();
     });
   });
 

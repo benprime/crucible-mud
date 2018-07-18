@@ -65,7 +65,7 @@ module.exports = {
       return false;
     }
 
-    if (this.socketInRoom(socket.roomId, userSocket.id)) {
+    if (!this.socketInRoom(socket.roomId, userSocket.id)) {
       socket.emit('output', { message: `You don't see ${username} here.` });
       return false;
     }

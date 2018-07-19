@@ -64,7 +64,7 @@ Mob.prototype.die = function (socket) {
 };
 
 // todo: cleaning up for current room. This may need some rework when the mobs
-// can move from room tso room.
+// can move from room to room.
 Mob.prototype.awardExperience = function (socket) {
   const room = Room.getById(socket.user.roomId);
   let sockets = socketUtil.getRoomSockets(room.id);

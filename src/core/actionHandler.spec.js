@@ -24,17 +24,6 @@ const sut = SandboxedModule.require('./actionHandler', {
             sourceMessage: 'You hug {1} close!',
           },
         },
-        kiss: {
-          solo: {
-            sourceMessage: 'You pucker up looking for a kiss.',
-            roomMessage: '{0} puckers up looking for a kiss.',
-          },
-          target: {
-            targetMessage: '{0} kisses you passionately!',
-            roomMessage: '{0} kisses {1} passionately!',
-            sourceMessage: 'You kiss {1} passionately!',
-          },
-        },
       },
     },
     '../models/room': {

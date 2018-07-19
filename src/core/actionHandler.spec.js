@@ -4,8 +4,9 @@ const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
 
 let mockGlobalIO = new mocks.IOMock();
-let mockRoom = mocks.getMockRoom();
-let mockTargetSocket = new mocks.SocketMock();
+let mockRoom;
+let mockTargetSocket;
+let otherMockSocket;
 let usersInRoom = [];
 
 const sut = SandboxedModule.require('./actionHandler', {
@@ -34,17 +35,6 @@ const sut = SandboxedModule.require('./actionHandler', {
             sourceMessage: 'You kiss {1} passionately!',
           },
         },
-        wave: {
-          solo: {
-            roomMessage: '{0} waves farewell!',
-            sourceMessage: 'You wave farewell!',
-          },
-          target: {
-            targetMessage: '{0} waves to you!',
-            roomMessage: '{0} waves to {1}!',
-            sourceMessage: 'You wave to {1}!',
-          },
-        },
       },
     },
     '../models/room': {
@@ -64,9 +54,24 @@ describe('actionHandler', function () {
 
   describe('actionDispatcher', function () {
     beforeEach(function() {
+      mockRoom = mocks.getMockRoom();
+
       socket = new mocks.SocketMock();
       socket.user.roomId = mockRoom.id;
       sockets[socket.id] = socket;
+
+      usersInRoom.push('aDifferentUser');
+      mockTargetSocket = new mocks.SocketMock();
+      mockTargetSocket.user.username = 'aDifferentUser';
+      mockTargetSocket.user.roomId = mockRoom.id;
+      sockets[mockTargetSocket.id] = mockTargetSocket;
+
+      usersInRoom.push('aThirdUser');
+      otherMockSocket = new mocks.SocketMock();
+      otherMockSocket.user.username = 'aThirdUser';
+      otherMockSocket.user.roomId = mockRoom.id;
+      sockets[otherMockSocket.id] = otherMockSocket;
+
       mockGlobalIO.sockets.adapter.rooms = {};
       mockGlobalIO.sockets.adapter.rooms[mockRoom.id] = {
         sockets: sockets,
@@ -90,21 +95,22 @@ describe('actionHandler', function () {
   
       expect(result).toBe(true);
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You hug yourself.' });
-      // TODO: Needs to test output calls to other sockets
+      expect(mockGlobalIO.to(otherMockSocket.id).emit).toHaveBeenCalledWith('output', { message: 'TestUser hugs himself.' });
     });
 
     it('should output message when action is performed on other user', function () {
-      mockTargetSocket = new mocks.SocketMock();
-      usersInRoom.push('aDifferentUser');
-      mockTargetSocket.user.username = 'aDifferentUser';
-      mockTargetSocket.user.roomId = mockRoom.id;
-      sockets[mockTargetSocket.id] = mockTargetSocket;
-
       var result = sut.actionDispatcher(socket, 'hug', 'aDifferentUser');
   
       expect(result).toBe(true);
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You hug aDifferentUser close!' });
-      // TODO: Needs to test output calls to other sockets
+      expect(mockGlobalIO.to(otherMockSocket.id).emit).toHaveBeenCalledWith('output', { message: 'TestUser hugs aDifferentUser close!' });
+      expect(mockTargetSocket.emit).toHaveBeenCalledWith('output', { message: 'TestUser hugs you close!' });
+    });
+
+    it('should return false when action is not found', function () {
+      var result = sut.actionDispatcher(socket, 'notAnAction', 'aDifferentUser');
+  
+      expect(result).toBe(false);
     });
   });
 });

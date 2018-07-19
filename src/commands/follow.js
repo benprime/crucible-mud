@@ -1,6 +1,7 @@
 'use strict';
 
 const socketUtil = require('../core/socketUtil');
+const utils = require('../core/utilities');
 
 module.exports = {
   name: 'follow',
@@ -26,7 +27,7 @@ module.exports = {
     }
 
     socket.leader = invitingSocket.id;
-    socket.partyInvites.remove(invitingSocket.user.id);
+    utils.removeItem(socket.partyInvites, invitingSocket.user.id);
 
     socket.emit('output', { message: `You are now following ${username}.` });
     invitingSocket.emit('output', { message: `${socket.user.username} has started following you.` });

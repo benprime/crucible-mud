@@ -17,6 +17,7 @@
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jasmine": "^2.8.5",
     "http-server": "^0.10.0",
+    "istanbul": "^0.4.5",
     "jasmine": "^2.99.0",
     "nodemon": "^1.17.2",
     "rewire": "^2.5.2",
@@ -25,6 +26,7 @@
   "scripts": {
     "test": "jasmine",
     "test:watch": "nodemon node_modules/jasmine/bin/jasmine.js",
+    "coverage": "istanbul cover node_modules/jasmine/bin/jasmine.js && google-chrome ./coverage/lcov-report/index.html",
     "start": "nodemon src/server.js",
     "db": "mongod --dbpath c:/dev/mongo/data",
     "open": "concurrently \"mongod --dbpath c:/dev/mongo/data\" \"nodemon server.js\""

@@ -2,19 +2,18 @@
 
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
+const ObjectId = require('mongodb').ObjectId;
 
 let mockGlobalIO = new mocks.IOMock();
 const sut = SandboxedModule.require('./socketUtil', {
-  //requires: {'mysql': {fake: 'mysql module'}},
-  globals: {io:mockGlobalIO},
-  //locals: {myLocal: 'other variable'},
+  globals: { io: mockGlobalIO },
 });
 
 
 describe('socketUtil', function () {
 
   describe('socketInRoom', function () {
-    beforeEach(function() {
+    beforeEach(function () {
       mockGlobalIO.sockets.adapter.rooms = {};
     });
 
@@ -63,7 +62,7 @@ describe('socketUtil', function () {
     let room;
     let socket;
 
-    beforeAll(function() {
+    beforeAll(function () {
       mockGlobalIO.reset();
       room = mocks.getMockRoom();
       socket = new mocks.SocketMock();
@@ -153,7 +152,7 @@ describe('socketUtil', function () {
   describe('getSocketByUsername', function () {
     let socket;
 
-    beforeEach(function() {
+    beforeEach(function () {
       mockGlobalIO.reset();
     });
 
@@ -234,6 +233,130 @@ describe('socketUtil', function () {
 
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBe(2);
+    });
+  });
+
+  describe('getFollowingSockets', function () {
+    beforeEach(function () {
+      mockGlobalIO.reset();
+    });
+
+    it('should return all sockets where leader matches', function () {
+      // arrange
+      const leaderId = new ObjectId().valueOf();
+
+      const follower1 = new mocks.SocketMock('follower1');
+      const follower2 = new mocks.SocketMock('follower2');
+      const follower3 = new mocks.SocketMock('follower3');
+
+      follower1.leader = leaderId;
+      follower2.leader = leaderId;
+      follower3.leader = leaderId;
+
+      const nonFollower1 = new mocks.SocketMock('nonFollower1');
+      const nonFollower2 = new mocks.SocketMock('nonFollower2');
+      const nonFollower3 = new mocks.SocketMock('nonFollower3');
+
+      mockGlobalIO.sockets.connected[follower1.id] = follower1;
+      mockGlobalIO.sockets.connected[follower2.id] = follower2;
+      mockGlobalIO.sockets.connected[follower3.id] = follower3;
+      mockGlobalIO.sockets.connected[nonFollower1.id] = nonFollower1;
+      mockGlobalIO.sockets.connected[nonFollower2.id] = nonFollower2;
+      mockGlobalIO.sockets.connected[nonFollower3.id] = nonFollower3;
+
+      // act
+      const result = sut.getFollowingSockets(leaderId);
+
+      // assert
+      expect(result.length).toBe(3);
+      expect(result[0]).toBe(follower1);
+      expect(result[1]).toBe(follower2);
+      expect(result[2]).toBe(follower3);
+    });
+  });
+
+  describe('validUserInRoom', function () {
+    let socket;
+
+    beforeEach(function () {
+      mockGlobalIO.reset();
+    });
+
+    it('should return false if user is not logged in', function () {
+      // arrange
+      var roomId = new ObjectId().valueOf();
+
+      // acting user
+      socket = new mocks.SocketMock();
+      socket.roomId = roomId;
+
+      // target user
+      let targetSocket = new mocks.SocketMock();
+      targetSocket.user.username = 'TargetUser';
+      targetSocket.roomId = roomId;
+
+      // act
+      let result = sut.validUserInRoom(socket, targetSocket.user.username);
+
+      // assert
+      expect(result).toBe(false);
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown user' });
+    });
+
+    it('should return false if user is not in the room', function () {
+      // arrange
+      var roomId = new ObjectId().valueOf();
+
+      // acting user
+      socket = new mocks.SocketMock();
+      socket.roomId = roomId;
+
+      // target user
+      let targetSocket = new mocks.SocketMock();
+      targetSocket.user.username = 'TargetUser';
+      targetSocket.roomId = roomId;
+
+      // log the user in
+      mockGlobalIO.sockets.connected[targetSocket.id] = targetSocket;
+
+      // act
+      let result = sut.validUserInRoom(socket, targetSocket.user.username);
+
+      // assert
+      expect(result).toBe(false);
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: `You don't see ${targetSocket.user.username} here.` });
+    });
+
+    it('should return socket when user is in the room', function () {
+      // arrange
+      var roomId = new ObjectId().valueOf();
+
+      // acting user
+      socket = new mocks.SocketMock();
+      socket.roomId = roomId;
+
+      // target user
+      let targetSocket = new mocks.SocketMock();
+      targetSocket.user.username = 'TargetUser';
+      targetSocket.roomId = roomId;
+
+      // log the user in
+      mockGlobalIO.sockets.connected[targetSocket.id] = targetSocket;
+
+      // place the user in the room
+      let sockets = {};
+      sockets[targetSocket.id] = {};
+      mockGlobalIO.sockets.adapter.rooms = {};
+      mockGlobalIO.sockets.adapter.rooms[roomId] = {
+        sockets: sockets,
+      };
+
+      // act
+      let result = sut.validUserInRoom(socket, targetSocket.user.username);
+
+      // assert
+      expect(result.user.username).toBe(targetSocket.user.username);
+      expect(result.user.id).toBe(targetSocket.user.id);
     });
   });
 

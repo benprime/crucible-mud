@@ -73,12 +73,16 @@ const RoomSchema = new mongoose.Schema({
   z: {
     type: Number,
   },
+
+  // TODO: This may make more sense to be an object instead of a list
+  // with the direction as the key.
   exits: [{
     dir: {
       type: String,
       enum: dirEnum,
     },
     roomId: {
+      // TODO: this type may need to be a string.
       type: mongoose.Schema.Types.ObjectId,
     },
     closed: {
@@ -137,6 +141,7 @@ RoomSchema.statics.validDirectionInput = function (dir) {
 // Instance methods
 //============================================================================
 RoomSchema.methods.usersInRoom = function () {
+
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
   if (!ioRoom) {
     return [];

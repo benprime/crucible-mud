@@ -21,7 +21,8 @@ describe('stats', function () {
       sut.execute(socket);
 
       //some really long output to check
-      //expect(socket.emit.calls.mostRecent().args[0]).toBe('output');
+      expect(socket.emit.calls.mostRecent().args[0]).toBe('output');
+      //expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
     });
 
   });

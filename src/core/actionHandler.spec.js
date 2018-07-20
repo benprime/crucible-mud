@@ -63,7 +63,7 @@ describe('actionHandler', () => {
 
       mockGlobalIO.sockets.adapter.rooms = {};
       mockGlobalIO.sockets.adapter.rooms[mockRoom.id] = {
-        sockets: sockets,
+        sockets,
       };
       mockRoom.usersInRoom = jasmine.createSpy('usersInRoomSpy').and.callFake(() => usersInRoom);
     });

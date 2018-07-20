@@ -16,7 +16,7 @@ module.exports = {
       if (Array.isArray(exclude) && exclude.includes(socketId)) continue;
       const socket = global.io.sockets.connected[socketId];
       if (!socket) continue;
-      socket.emit('output', { message: message });
+      socket.emit('output', { message });
     }
   },
 

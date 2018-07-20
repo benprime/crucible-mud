@@ -88,7 +88,7 @@ describe('drop', () => {
       it('should remove item from user inventory and add to room inventory', () => {
         autocompleteResult = {
           type: 'item',
-          item: item,
+          item,
         };
         sut.execute(socket, 'dropItem');
 

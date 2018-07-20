@@ -32,7 +32,7 @@ describe('socketUtil', () => {
       sockets[socket.id] = socket;
       mockGlobalIO.sockets.adapter.rooms = {};
       mockGlobalIO.sockets.adapter.rooms['testroom'] = {
-        sockets: sockets,
+        sockets,
       };
 
       // act
@@ -77,7 +77,7 @@ describe('socketUtil', () => {
       mockGlobalIO.sockets.connected[socket.id] = socket;
       mockGlobalIO.sockets.adapter.rooms = {};
       mockGlobalIO.sockets.adapter.rooms[room.id] = {
-        sockets: sockets,
+        sockets,
       };
 
       // act
@@ -105,7 +105,7 @@ describe('socketUtil', () => {
 
       mockGlobalIO.sockets.adapter.rooms = {};
       mockGlobalIO.sockets.adapter.rooms[room.id] = {
-        sockets: sockets,
+        sockets,
       };
 
       // act
@@ -135,7 +135,7 @@ describe('socketUtil', () => {
 
       mockGlobalIO.sockets.adapter.rooms = {};
       mockGlobalIO.sockets.adapter.rooms[room.id] = {
-        sockets: sockets,
+        sockets,
       };
 
       // act
@@ -348,7 +348,7 @@ describe('socketUtil', () => {
       sockets[targetSocket.id] = {};
       mockGlobalIO.sockets.adapter.rooms = {};
       mockGlobalIO.sockets.adapter.rooms[roomId] = {
-        sockets: sockets,
+        sockets,
       };
 
       // act

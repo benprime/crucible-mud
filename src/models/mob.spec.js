@@ -195,7 +195,7 @@ describe('mob model', () => {
         const sockets = {};
         sockets[socket.id] = socket;
         mockGlobalIO.sockets.adapter.rooms[mockRoom.id] = {
-          sockets: sockets,
+          sockets,
         };
         mockGlobalIO.sockets.connected[socket.id] = socket;
       });

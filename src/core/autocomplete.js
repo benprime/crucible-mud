@@ -67,7 +67,7 @@ function autocompleteTypes(socket, types, fragment) {
       // This can be anything... a mob, a key, a player, etc.
       if (result.length > 0) {
         return {
-          type: type,
+          type,
           item: result[0],
         };
       }

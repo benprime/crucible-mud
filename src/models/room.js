@@ -298,7 +298,7 @@ RoomSchema.methods.addExit = function (dir, roomId) {
   }
   this.exits.push({
     dir: ldir,
-    roomId: roomId,
+    roomId,
   });
   return true;
 };

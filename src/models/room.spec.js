@@ -196,7 +196,7 @@ describe('room model', () => {
         sockets['socket2'].user.username = 'TestUser2';
 
         global.io.sockets.adapter.rooms[room.id] = {
-          sockets: sockets,
+          sockets,
         };
         global.io.sockets.connected = sockets;
 
@@ -306,7 +306,7 @@ describe('room model', () => {
         sockets['socket2'].user.username = 'TestUser2';
 
         global.io.sockets.adapter.rooms[room.id] = {
-          sockets: sockets,
+          sockets,
         };
         global.io.sockets.connected = sockets;
 

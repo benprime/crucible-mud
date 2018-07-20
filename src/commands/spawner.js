@@ -11,7 +11,7 @@ setInterval(() => {
   const now = Date.now();
 
   // loop through rooms that contain spawners...
-  const roomsWithSpawners = Object.values(Room.roomCache).filter(r => r.spawner && r.spawner.timeout);
+  const roomsWithSpawners = Object.values(Room.roomCache).filter(({spawner}) => spawner && spawner.timeout);
   roomsWithSpawners.forEach(room => {
     let max = room.spawner.max ? room.spawner.max : config.DEFAULT_ROOM_MOB_MAX;
     let timeout = room.spawner.timeout ? room.spawner.timeout : config.ROUND_DURATION;
@@ -25,7 +25,7 @@ setInterval(() => {
     if (room.mobs.length < max && now - room.spawnTimer >= timeout && room.spawner.mobTypes.length > 0) {
       let mobTypeIndex = dice.getRandomNumber(0, room.spawner.mobTypes.length);
       let mobTypeName = room.spawner.mobTypes[mobTypeIndex];
-      let mobType = mobData.catalog.find(mob => mob.name.toLowerCase() === mobTypeName.toLowerCase());
+      let mobType = mobData.catalog.find(({name}) => name.toLowerCase() === mobTypeName.toLowerCase());
       let mob = new Mob(mobType, room.id);
 
       // update time whenever we spawn a mob
@@ -73,7 +73,7 @@ module.exports = {
 
     switch (action) {
       case 'add':
-        addMobType = mobData.catalog.find(mob => mob.name.toLowerCase() === param.toLowerCase());
+        addMobType = mobData.catalog.find(({name}) => name.toLowerCase() === param.toLowerCase());
         if(!addMobType) {
           socket.emit('output', { message: 'Invalid mobType.' });
           break;
@@ -83,7 +83,7 @@ module.exports = {
         socket.emit('output', { message: 'Creature added to spawner.' });
         break;
       case 'remove':
-        removeMobType = mobData.catalog.find(mob => mob.name.toLowerCase() === param.toLowerCase());
+        removeMobType = mobData.catalog.find(({name}) => name.toLowerCase() === param.toLowerCase());
         if(!removeMobType) {
           socket.emit('output', { message: 'Invalid mobType.' });
           break;

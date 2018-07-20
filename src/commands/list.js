@@ -47,7 +47,7 @@ module.exports = {
 
     let output = '<table><tr><th>Name</th><th>Display Name</th></tr>';
 
-    const listTable = catalog.map(item => `<tr><td>${item.name}</td><td>${item.displayName}</td></tr>`).join('\n');
+    const listTable = catalog.map(({name, displayName}) => `<tr><td>${name}</td><td>${displayName}</td></tr>`).join('\n');
     output += listTable;
 
     output += '</table>';

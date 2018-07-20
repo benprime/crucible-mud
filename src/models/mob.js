@@ -64,8 +64,8 @@ class Mob {
 
   // todo: cleaning up for current room. This may need some rework when the mobs
   // can move from room to room.
-  awardExperience(socket) {
-    const room = Room.getById(socket.user.roomId);
+  awardExperience({user}) {
+    const room = Room.getById(user.roomId);
     let sockets = socketUtil.getRoomSockets(room.id);
     sockets.forEach((s) => {
       if (s.user.attackTarget === this.id) {

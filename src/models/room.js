@@ -222,8 +222,8 @@ RoomSchema.methods.look = function (socket, short) {
   let notHiddenItems = '';
   let hiddenItems = '';
   if(this.inventory) {
-    notHiddenItems = this.inventory.filter(item => !item.hidden).map(item => item.displayName).join(', ');
-    hiddenItems = this.inventory.filter(item => item.hidden).map(item => item.displayName).join(', ');
+    notHiddenItems = this.inventory.filter(({hidden}) => !hidden).map(({displayName}) => displayName).join(', ');
+    hiddenItems = this.inventory.filter(({hidden}) => hidden).map(({displayName}) => displayName).join(', ');
   }
   if (notHiddenItems != '') {
     output += `<span class="darkcyan">You notice: ${notHiddenItems}.</span>\n`;
@@ -234,7 +234,7 @@ RoomSchema.methods.look = function (socket, short) {
 
   let names = this.usersInRoom(this.id).filter(name => name !== socket.user.username);
 
-  const mobNames = this.mobs.map(mob => `${mob.displayName} ${mob.hp}`);
+  const mobNames = this.mobs.map(({displayName, hp}) => `${displayName} ${hp}`);
   if (mobNames) { names = names.concat(mobNames); }
   const displayNames = names.join('<span class="mediumOrchid">, </span>');
 
@@ -245,8 +245,8 @@ RoomSchema.methods.look = function (socket, short) {
   let notHiddenExits = '';
   let hiddenExits = '';
   if(this.exits) {
-    notHiddenExits = this.exits.filter(exit => !exit.hidden).map(exit => Room.shortToLong(exit.dir)).join(', ');
-    hiddenExits = this.exits.filter(exit => exit.hidden).map(exit => Room.shortToLong(exit.dir)).join(', ');
+    notHiddenExits = this.exits.filter(({hidden}) => !hidden).map(({dir}) => Room.shortToLong(dir)).join(', ');
+    hiddenExits = this.exits.filter(({hidden}) => hidden).map(({dir}) => Room.shortToLong(dir)).join(', ');
   }
   if (notHiddenExits != '') {
     output += `<span class="green">Exits: ${notHiddenExits}</span>\n`;
@@ -265,7 +265,7 @@ RoomSchema.methods.look = function (socket, short) {
 
 RoomSchema.methods.getMobById = function (mobId) {
   if (!this.mobs) return;
-  return this.mobs.find(m => m.id === mobId);
+  return this.mobs.find(({id}) => id === mobId);
 };
 
 RoomSchema.methods.dirToCoords = function (dir) {

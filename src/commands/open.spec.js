@@ -46,7 +46,7 @@ describe('open', () => {
 
     it('should output message when direction has no door', () => {
       sut.execute(socket, 'sw');
-      const exit = mockRoom.exits.find(e => e.dir === 'sw');
+      const exit = mockRoom.exits.find(({dir}) => dir === 'sw');
 
       expect(exit.hasOwnProperty('closed')).toBe(false);
       expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
@@ -56,7 +56,7 @@ describe('open', () => {
     describe('when key is associated', () => {
       it('should fail and output message when door is locked and closed', () => {
         sut.execute(socket, 'e');
-        const exit = mockRoom.exits.find(e => e.dir === 'e');
+        const exit = mockRoom.exits.find(({dir}) => dir === 'e');
 
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(true);
@@ -67,7 +67,7 @@ describe('open', () => {
 
       it('should succeed and output message when door is unlocked and closed', () => {
         sut.execute(socket, 'se');
-        const exit = mockRoom.exits.find(e => e.dir === 'se');
+        const exit = mockRoom.exits.find(({dir}) => dir === 'se');
 
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(false);
@@ -78,7 +78,7 @@ describe('open', () => {
 
       it('should send messages when door and is unlocked and open', () => {
         sut.execute(socket, 'w');
-        const exit = mockRoom.exits.find(e => e.dir === 'w');
+        const exit = mockRoom.exits.find(({dir}) => dir === 'w');
 
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(false);
@@ -91,7 +91,7 @@ describe('open', () => {
     describe('when no key is associated', () => {
       it('should output message when door is closed', () => {
         sut.execute(socket, 'n');
-        const exit = mockRoom.exits.find(e => e.dir === 'n');
+        const exit = mockRoom.exits.find(({dir}) => dir === 'n');
 
         expect(exit.closed).toBe(false);
         expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser opens the door to the north.' });
@@ -100,7 +100,7 @@ describe('open', () => {
 
       it('should output message when door and is open', () => {
         sut.execute(socket, 's');
-        const exit = mockRoom.exits.find(e => e.dir === 's');
+        const exit = mockRoom.exits.find(({dir}) => dir === 's');
 
         expect(exit.closed).toBe(false);
         expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();

@@ -17,17 +17,17 @@ module.exports = {
     const room = Room.getById(socket.user.roomId);
 
     // send message to all adjacent exits
-    room.exits.forEach((exit) => {
+    room.exits.forEach(({dir, roomId}) => {
       let preMsg = '';
-      if (exit.dir === 'u') {
+      if (dir === 'u') {
         preMsg = 'Someone yells from below ';
-      } else if (exit.dir === 'd') {
+      } else if (dir === 'd') {
         preMsg = 'Someone yells from above ';
       } else {
-        preMsg = `Someone yells from the ${Room.shortToLong(Room.oppositeDirection(exit.dir))} `;
+        preMsg = `Someone yells from the ${Room.shortToLong(Room.oppositeDirection(dir))} `;
       }
       const surroundMsg = `${preMsg} '${message}'`;
-      socket.broadcast.to(exit.roomId).emit('output', { message: surroundMsg });
+      socket.broadcast.to(roomId).emit('output', { message: surroundMsg });
     });
 
     // send message to current room

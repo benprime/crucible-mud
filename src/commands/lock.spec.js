@@ -60,7 +60,7 @@ describe('lock', () => {
 
     // act
     sut.execute(socket, 'n', 'some key');
-    const exit = mockRoom.exits.find(e => e.dir === 'n');
+    const exit = mockRoom.exits.find(({dir}) => dir === 'n');
 
     // assert
     expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Door locked.' });

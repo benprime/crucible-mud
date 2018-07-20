@@ -9,24 +9,24 @@ const propertyNames = ['displayName', 'name'];
 // ------------------------------------------
 const TypeConfig = Object.freeze({
   mob: {
-    source(socket) {
-      const room = Room.getById(socket.user.roomId);
+    source({user}) {
+      const room = Room.getById(user.roomId);
       return room.mobs;
     },
   },
   inventory: {
-    source(socket) {
-      return socket.user.inventory;
+    source({user}) {
+      return user.inventory;
     },
   },
   key: {
-    source(socket) {
-      return socket.user.keys;
+    source({user}) {
+      return user.keys;
     },
   },
   room: {
-    source(socket) {
-      const room = Room.getById(socket.user.roomId);
+    source({user}) {
+      const room = Room.getById(user.roomId);
       return room.inventory;
     },
   },

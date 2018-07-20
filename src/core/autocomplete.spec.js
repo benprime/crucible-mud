@@ -57,8 +57,8 @@ describe('autocomplete', () => {
 
       // assert
       expect(result.length).toBe(1);
-      expect(result.find(i => i.matchedValue === userInventoryItem.displayName
-        && i.target === 'inventory')).not.toBeNull();
+      expect(result.find(({matchedValue, target}) => matchedValue === userInventoryItem.displayName
+        && target === 'inventory')).not.toBeNull();
     });
   });
 

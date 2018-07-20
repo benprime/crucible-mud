@@ -55,11 +55,11 @@ commandModules.forEach(file => {
   helpHandler.registerCommand(commandHandler);
 });
 
-defaultCommand = commands.find(h => h.name === 'say');
+defaultCommand = commands.find(({name}) => name === 'say');
 
-function matches(commandHandler, input) {
-  for (let p = 0; p < commandHandler.patterns.length; p++) {
-    let match = input.match(commandHandler.patterns[p]);
+function matches({patterns}, input) {
+  for (let p = 0; p < patterns.length; p++) {
+    let match = input.match(patterns[p]);
     if (match) {
       return match;
     }

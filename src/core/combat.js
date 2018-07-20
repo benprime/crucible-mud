@@ -17,7 +17,7 @@ module.exports = {
   // loop through rooms that contain mobs...
   processMobCombatActions(now) {
     const roomsWithMobs = Object.values(Room.roomCache)
-      .filter(r => Array.isArray(r.mobs) && r.mobs.length > 0);
+      .filter(({mobs}) => Array.isArray(mobs) && mobs.length > 0);
 
     roomsWithMobs.forEach(room => {
       room.processMobCombatActions(now);

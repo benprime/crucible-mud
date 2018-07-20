@@ -71,7 +71,7 @@ describe('move', () => {
 
     it('should output message when direction is up and there is no exit', () => {
       shortDir = 'u';
-      const exitIndex = mockRoom.exits.findIndex(e => e.dir === 'u');
+      const exitIndex = mockRoom.exits.findIndex(({dir}) => dir === 'u');
       mockRoom.exits.splice(exitIndex, 1);
 
       sut.execute(socket, shortDir);
@@ -82,7 +82,7 @@ describe('move', () => {
 
     it('should output message when direction is down and there is no exit', () => {
       shortDir = 'd';
-      const exitIndex = mockRoom.exits.findIndex(e => e.dir === 'd');
+      const exitIndex = mockRoom.exits.findIndex(({dir}) => dir === 'd');
       mockRoom.exits.splice(exitIndex, 1);
 
       sut.execute(socket, shortDir);
@@ -101,7 +101,7 @@ describe('move', () => {
 
     it('should output message when direction is up and there is a closed exit', () => {
       shortDir = 'u';
-      let exitIndex = mockRoom.exits.findIndex(e => e.dir === 'u');
+      let exitIndex = mockRoom.exits.findIndex(({dir}) => dir === 'u');
       mockRoom.exits[exitIndex].closed = true;
       sut.execute(socket, shortDir);
 
@@ -111,7 +111,7 @@ describe('move', () => {
 
     it('should output message when direction is down and there is a closed exit', () => {
       shortDir = 'd';
-      let exitIndex = mockRoom.exits.findIndex(e => e.dir === 'd');
+      let exitIndex = mockRoom.exits.findIndex(({dir}) => dir === 'd');
       mockRoom.exits[exitIndex].closed = true;
       sut.execute(socket, shortDir);
 
@@ -121,7 +121,7 @@ describe('move', () => {
 
     it('should output message when direction is not up or down and there is a closed exit', () => {
       shortDir = 'w';
-      let exitIndex = mockRoom.exits.findIndex(e => e.dir === 'w');
+      let exitIndex = mockRoom.exits.findIndex(({dir}) => dir === 'w');
       mockRoom.exits[exitIndex].closed = true;
       sut.execute(socket, shortDir);
 
@@ -140,7 +140,7 @@ describe('move', () => {
 
     it('should process movement when direction is up', () => {
       shortDir = 'u';
-      const exit = mockRoom.exits.find(e => e.dir === shortDir);
+      const exit = mockRoom.exits.find(({dir}) => dir === shortDir);
       exit.closed = false;
 
       sut.execute(socket, shortDir);
@@ -158,7 +158,7 @@ describe('move', () => {
 
     it('should process movement when direction is down', () => {
       shortDir = 'd';
-      const exit = mockRoom.exits.find(e => e.dir === shortDir);
+      const exit = mockRoom.exits.find(({dir}) => dir === shortDir);
       exit.closed = false;
 
       sut.execute(socket, shortDir);
@@ -176,7 +176,7 @@ describe('move', () => {
 
     it('should process movement when direction is not up or down', () => {
       shortDir = 'w';
-      const exit = mockRoom.exits.find(e => e.dir === shortDir);
+      const exit = mockRoom.exits.find(({dir}) => dir === shortDir);
       exit.closed = false;
 
       sut.execute(socket, shortDir);

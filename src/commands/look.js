@@ -1,9 +1,9 @@
 const Room = require('../models/room');
 const autocomplete = require('../core/autocomplete');
 
-function lookDir(socket, room, dir) {
+function lookDir(socket, {exits}, dir) {
   dir = Room.validDirectionInput(dir);
-  const exit = room.exits.find(e => e.dir === dir);
+  const exit = exits.find(e => e.dir === dir);
   if (!exit || exit.hidden) {
     return;
   }

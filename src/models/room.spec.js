@@ -244,11 +244,11 @@ describe('room model', () => {
           cb(null);
         });
 
-        room.createRoom('s', (result) => {
-          const exit = room.exits.find(e => e.dir === 's');
+        room.createRoom('s', ({id}) => {
+          const exit = room.exits.find(({dir}) => dir === 's');
 
           expect(exit).not.toBeUndefined();
-          expect(result.id in sutModel.roomCache).toBe(true);
+          expect(id in sutModel.roomCache).toBe(true);
           expect(sutModel.prototype.save).toHaveBeenCalledTimes(2);
         });
       });
@@ -259,11 +259,11 @@ describe('room model', () => {
           cb(new sutModel());
         });
 
-        room.createRoom('s', (result) => {
-          const exit = room.exits.find(e => e.dir === 's');
+        room.createRoom('s', ({id}) => {
+          const exit = room.exits.find(({dir}) => dir === 's');
 
           expect(exit).not.toBeUndefined();
-          expect(result.id in sutModel.roomCache).toBe(false);
+          expect(id in sutModel.roomCache).toBe(false);
           expect(sutModel.prototype.save).toHaveBeenCalledTimes(2);
         });
       });
@@ -402,7 +402,7 @@ describe('room model', () => {
       it('should return true when exit successfully added to object', () => {
         let result = room.addExit('e');
 
-        let exit = room.exits.find(e => e.dir === 'e');
+        let exit = room.exits.find(({dir}) => dir === 'e');
 
         expect(result).toBeTruthy();
         expect(exit).toBeDefined();

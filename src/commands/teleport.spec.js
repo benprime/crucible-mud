@@ -18,8 +18,10 @@ const sut = SandboxedModule.require('./teleport', {
 });
 
 describe('teleport', () => {
-  let socket, otherSocket;
-  let currentRoom, otherRoom;
+  let socket;
+  let otherSocket;
+  let currentRoom;
+  let otherRoom;
 
   beforeAll(() => {
     currentRoom = mocks.getMockRoom();
@@ -96,5 +98,4 @@ describe('teleport', () => {
     });
 
   });
-
 });

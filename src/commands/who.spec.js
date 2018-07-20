@@ -8,7 +8,8 @@ const sut = SandboxedModule.require('./who', {
 
 describe('who', () => {
   let socket;
-  let t1, t2;
+  let t1;
+  let t2;
 
   beforeAll(() => {
     socket = new mocks.SocketMock();
@@ -31,5 +32,4 @@ describe('who', () => {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1<br />Test2</div>' });
     });
   });
-
 });

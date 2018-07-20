@@ -4,7 +4,8 @@ const SandboxedModule = require('sandboxed-module');
 const sut = SandboxedModule.require('./say', {});
 
 describe('say', () => {
-  let socket, otherSocket;
+  let socket;
+  let otherSocket;
 
   beforeAll(() => {
     socket = new mocks.SocketMock();

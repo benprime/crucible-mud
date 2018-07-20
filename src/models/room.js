@@ -219,7 +219,8 @@ RoomSchema.methods.look = function (socket, short) {
     output += `<span class="silver">${this.desc}</span>\n`;
   }
 
-  var notHiddenItems = '', hiddenItems = '';
+  var notHiddenItems = '';
+  var hiddenItems = '';
   if(this.inventory) {
     notHiddenItems = this.inventory.filter(item => !item.hidden).map(item => item.displayName).join(', ');
     hiddenItems = this.inventory.filter(item => item.hidden).map(item => item.displayName).join(', ');
@@ -241,7 +242,8 @@ RoomSchema.methods.look = function (socket, short) {
     output += `<span class="purple">Also here: <span class="teal">${displayNames}</span>.</span>\n`;
   }
 
-  var notHiddenExits = '', hiddenExits = '';
+  var notHiddenExits = '';
+  var hiddenExits = '';
   if(this.exits) {
     notHiddenExits = this.exits.filter(exit => !exit.hidden).map(exit => Room.shortToLong(exit.dir)).join(', ');
     hiddenExits = this.exits.filter(exit => exit.hidden).map(exit => Room.shortToLong(exit.dir)).join(', ');

@@ -11,23 +11,23 @@ const propertyNames = ['displayName', 'name'];
 // ------------------------------------------
 const TypeConfig = Object.freeze({
   mob: {
-    source: function (socket) {
+    source(socket) {
       const room = Room.getById(socket.user.roomId);
       return room.mobs;
     },
   },
   inventory: {
-    source: function (socket) {
+    source(socket) {
       return socket.user.inventory;
     },
   },
   key: {
-    source: function (socket) {
+    source(socket) {
       return socket.user.keys;
     },
   },
   room: {
-    source: function (socket) {
+    source(socket) {
       const room = Room.getById(socket.user.roomId);
       return room.inventory;
     },

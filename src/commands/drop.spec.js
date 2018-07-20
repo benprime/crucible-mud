@@ -28,9 +28,9 @@ describe('drop', () => {
     // just a matcher that works like toEqual, but does not do a type check.
     // This just compares the json representation of the objects being compared.
     jasmine.addMatchers({
-      toBeJsonEqual: function () {
+      toBeJsonEqual() {
         return {
-          compare: function (actual, expected) {
+          compare(actual, expected) {
             let result = {};
             let jsonActual = JSON.orderedStringify(actual);
             let jsonExpected = JSON.orderedStringify(expected);

@@ -153,7 +153,7 @@ RoomSchema.methods.usersInRoom = function () {
 RoomSchema.methods.userInRoom = function (username) {
   let usernames = this.usersInRoom(this.RoomId);
   usernames = usernames.map(u => u.toLowerCase());
-  return usernames.indexOf(username.toLowerCase()) > -1;
+  return usernames.includes(username.toLowerCase());
 };
 
 RoomSchema.methods.createRoom = function (dir, cb) {

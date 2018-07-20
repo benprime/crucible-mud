@@ -34,7 +34,7 @@ module.exports = {
     //todo: break these out into seperate helper methods?
     if (type === 'room') {
       const roomPropertyWhiteList = ['name', 'desc', 'alias'];
-      if (roomPropertyWhiteList.indexOf(prop) === -1) {
+      if (!roomPropertyWhiteList.includes(prop)) {
         socket.emit('output', { message: 'Invalid property.' });
         return;
       }

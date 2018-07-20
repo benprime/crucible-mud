@@ -71,7 +71,7 @@ describe('move', () => {
 
     it('should output message when direction is up and there is no exit', () => {
       shortDir = 'u';
-      var exitIndex = mockRoom.exits.findIndex(e => e.dir === 'u');
+      const exitIndex = mockRoom.exits.findIndex(e => e.dir === 'u');
       mockRoom.exits.splice(exitIndex, 1);
 
       sut.execute(socket, shortDir);
@@ -82,7 +82,7 @@ describe('move', () => {
 
     it('should output message when direction is down and there is no exit', () => {
       shortDir = 'd';
-      var exitIndex = mockRoom.exits.findIndex(e => e.dir === 'd');
+      const exitIndex = mockRoom.exits.findIndex(e => e.dir === 'd');
       mockRoom.exits.splice(exitIndex, 1);
 
       sut.execute(socket, shortDir);
@@ -140,7 +140,7 @@ describe('move', () => {
 
     it('should process movement when direction is up', () => {
       shortDir = 'u';
-      var exit = mockRoom.exits.find(e => e.dir === shortDir);
+      const exit = mockRoom.exits.find(e => e.dir === shortDir);
       exit.closed = false;
 
       sut.execute(socket, shortDir);
@@ -158,7 +158,7 @@ describe('move', () => {
 
     it('should process movement when direction is down', () => {
       shortDir = 'd';
-      var exit = mockRoom.exits.find(e => e.dir === shortDir);
+      const exit = mockRoom.exits.find(e => e.dir === shortDir);
       exit.closed = false;
 
       sut.execute(socket, shortDir);
@@ -176,7 +176,7 @@ describe('move', () => {
 
     it('should process movement when direction is not up or down', () => {
       shortDir = 'w';
-      var exit = mockRoom.exits.find(e => e.dir === shortDir);
+      const exit = mockRoom.exits.find(e => e.dir === shortDir);
       exit.closed = false;
 
       sut.execute(socket, shortDir);

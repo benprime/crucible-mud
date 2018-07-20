@@ -28,7 +28,7 @@ describe('autocomplete', () => {
       socket.user.inventory = [testObj];
 
       // act
-      var result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'tes');
+      const result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'tes');
 
       // assert
       expect(result.length).toBe(1);
@@ -41,7 +41,7 @@ describe('autocomplete', () => {
       room.inventory.push({ displayName: 'bbb' });
 
       // act
-      var result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'a');
+      const result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'a');
 
       // assert
       expect(result.length).toBe(0);
@@ -53,7 +53,7 @@ describe('autocomplete', () => {
       socket.user.inventory.push(userInventoryItem);
 
       // act
-      var result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'a');
+      const result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'a');
 
       // assert
       expect(result.length).toBe(1);
@@ -77,13 +77,13 @@ describe('autocomplete', () => {
 
     it('should return object if only displayName has a matching object', () => {
       // arrange
-      var inventoryItem = { name: 'aaa', displayName: 'bbb' };
+      const inventoryItem = { name: 'aaa', displayName: 'bbb' };
       socket.user.inventory = [inventoryItem];
       const roomItem = { name: 'ccc', displayName: 'ddd' };
       room.inventory = [roomItem];
 
       // act
-      var result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'd');
+      const result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'd');
 
       // assert
       expect(result.type).toBe('room');
@@ -93,13 +93,13 @@ describe('autocomplete', () => {
 
     it('should return object if only name has a matching object', () => {
       // arrange
-      var inventoryItem = { name: 'aaa', displayName: 'bbb' };
+      const inventoryItem = { name: 'aaa', displayName: 'bbb' };
       socket.user.inventory = [inventoryItem];
       const roomItem = { name: 'ccc', displayName: 'ddd' };
       room.inventory = [roomItem];
 
       // act
-      var result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'a');
+      const result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'a');
 
       // assert
       expect(result.item).toBe(inventoryItem);
@@ -107,13 +107,13 @@ describe('autocomplete', () => {
 
     it('should return null if neither name or displayName have matching object', () => {
       // arrange
-      var inventoryItem = { name: 'aaa', displayName: 'aaa' };
+      const inventoryItem = { name: 'aaa', displayName: 'aaa' };
       socket.user.inventory = [inventoryItem];
       const roomItem = { name: 'aaa', displayName: 'aaa' };
       room.inventory = [roomItem];
 
       // act
-      var result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'b');
+      const result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'b');
 
       // assert
       expect(result).toBeNull();

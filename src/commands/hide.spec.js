@@ -51,7 +51,7 @@ describe('hide', () => {
 
   it('should succeed on valid direction', () => {
     sut.execute(socket, 'd');
-    var exit = mockRoom.exits.find(e => e.dir === 'd');
+    const exit = mockRoom.exits.find(e => e.dir === 'd');
 
     expect(socket.emit).toHaveBeenCalledWith('output', { message: 'The exit has been concealed.' });
     expect(mockRoom.save).toHaveBeenCalledTimes(1);

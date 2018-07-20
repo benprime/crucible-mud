@@ -36,7 +36,7 @@ describe('unequip', () => {
     });
 
     it('should output message to specify which hand for hand related slots', () => {
-      var ring = new Item();
+      const ring = new Item();
       ring.equip = 'finger';
       ring.name = 'diamond';
       autocompleteResult = ring;

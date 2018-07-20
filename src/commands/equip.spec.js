@@ -37,7 +37,7 @@ describe('equip', () => {
     });
 
     it('should output message when item is not equipable', () => {
-      var sword = new Item();
+      const sword = new Item();
       sword.equip = null;
       sword.name = 'sword';
       autocompleteResult = sword;
@@ -47,7 +47,7 @@ describe('equip', () => {
     });
 
     it('should output message when item has invalid slot listing', () => {
-      var finger = new Item();
+      const finger = new Item();
       finger.equip = 'nose';
       finger.name = 'finger';
       autocompleteResult = finger;
@@ -57,7 +57,7 @@ describe('equip', () => {
     });
 
     it('should output message to specify which hand for hand related slots', () => {
-      var ring = new Item();
+      const ring = new Item();
       ring.equip = 'finger';
       ring.name = 'mood';
       autocompleteResult = ring;

@@ -31,7 +31,7 @@ describe('spawner', () => {
     describe('when action is add', () => {
       it('should successfully add valid mob type', () => {
         // arrange
-        var beforeLength = currentRoom.spawner.mobTypes.length;
+        const beforeLength = currentRoom.spawner.mobTypes.length;
         mockRoom = currentRoom;
 
         // act
@@ -50,7 +50,7 @@ describe('spawner', () => {
     describe('when action is remove', () => {
       it('should remove existing mob type', () => {
         // arrange
-        var beforeLength = currentRoom.spawner.mobTypes.length;
+        const beforeLength = currentRoom.spawner.mobTypes.length;
         mockRoom = currentRoom;
 
         // act

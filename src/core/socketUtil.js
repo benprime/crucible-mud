@@ -57,7 +57,7 @@ module.exports = {
 
   // method for validating a valid username and that the user is in the current room
   validUserInRoom(socket, username) {
-    var userSocket = this.getSocketByUsername(username);
+    const userSocket = this.getSocketByUsername(username);
     if (!userSocket) {
       socket.emit('output', { message: 'Unknown user' });
       return false;

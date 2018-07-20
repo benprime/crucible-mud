@@ -14,7 +14,7 @@ describe('user model', () => {
     });
 
     it('returns correct value at level 1', () => {
-      var result = user.nextExp();
+      const result = user.nextExp();
 
       expect(user.level).toBe(1);
       expect(result).toBe(300);
@@ -22,7 +22,7 @@ describe('user model', () => {
 
     it('returns correct value at level 10', () => {
       user.level = 10;
-      var result = user.nextExp();
+      const result = user.nextExp();
 
       expect(result).toBe(153600);
     });

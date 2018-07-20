@@ -75,7 +75,7 @@ describe('unlock', () => {
   });
 
   it('should output message when key is the wrong key for the door', () => {
-    var key = new Item();
+    const key = new Item();
     key.itemTypeEnum = 'key';
     key.name = 'Blue';
     mockAutocompleteResult = key;
@@ -87,7 +87,7 @@ describe('unlock', () => {
   });
 
   it('should unlock door with output message when command successful', () => {
-    var key = new Item();
+    const key = new Item();
     key.itemTypeEnum = 'key';
     key.name = 'Gold';
     mockAutocompleteResult = key;
@@ -99,11 +99,11 @@ describe('unlock', () => {
   });
 
   describe('asyncTest', () => {
-    var worked = false;
+    let worked = false;
     beforeEach(done => {
       mockGlobalIO.reset();
       mockConfig.DOOR_CLOSE_TIMER = 100;
-      var key = new Item();
+      const key = new Item();
       key.itemTypeEnum = 'key';
       key.name = 'Silver';
       mockAutocompleteResult = key;

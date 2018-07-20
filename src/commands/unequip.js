@@ -13,8 +13,8 @@ module.exports = {
 
   execute(socket, itemName, hand) {
 
-    var item;
-    for (var i in socket.user.equipSlots) {
+    let item;
+    for (const i in socket.user.equipSlots) {
       if (!socket.user.equipSlots[i]) continue;
       if (socket.user.equipSlots[i].displayName == itemName || socket.user.equipSlots[i].name == itemName)
         item = socket.user.equipSlots[i];

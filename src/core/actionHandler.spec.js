@@ -69,7 +69,7 @@ describe('actionHandler', () => {
     it('should output message when no socket is returned for the user', () => {
       mockTargetSocket = undefined;
 
-      var result = sut.actionDispatcher(socket, 'hug', 'aUser');
+      const result = sut.actionDispatcher(socket, 'hug', 'aUser');
 
       expect(result).toBe(true);
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown user: aUser' });
@@ -78,7 +78,7 @@ describe('actionHandler', () => {
     it('should output message when action is performed on self', () => {
       mockTargetSocket = socket;
   
-      var result = sut.actionDispatcher(socket, 'hug', 'aUser');
+      const result = sut.actionDispatcher(socket, 'hug', 'aUser');
   
       expect(result).toBe(true);
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You hug yourself.' });
@@ -86,7 +86,7 @@ describe('actionHandler', () => {
     });
 
     it('should output message when action is performed on other user', () => {
-      var result = sut.actionDispatcher(socket, 'hug', 'aDifferentUser');
+      const result = sut.actionDispatcher(socket, 'hug', 'aDifferentUser');
   
       expect(result).toBe(true);
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You hug aDifferentUser close!' });
@@ -95,7 +95,7 @@ describe('actionHandler', () => {
     });
 
     it('should return false when action is not found', () => {
-      var result = sut.actionDispatcher(socket, 'notAnAction', 'aDifferentUser');
+      const result = sut.actionDispatcher(socket, 'notAnAction', 'aDifferentUser');
   
       expect(result).toBe(false);
     });

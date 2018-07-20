@@ -146,7 +146,7 @@ module.exports = {
 
     // SUCCESSFUL MOVE
     let message = '';
-    var username = socket.user.username;
+    const username = socket.user.username;
     // send message to everyone in old room that player is leaving
     if (validDir === 'u') {
       message = `${username} has gone above.`;

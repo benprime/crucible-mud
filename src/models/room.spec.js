@@ -245,7 +245,7 @@ describe('room model', () => {
         });
 
         room.createRoom('s', (result) => {
-          var exit = room.exits.find(e => e.dir === 's');
+          const exit = room.exits.find(e => e.dir === 's');
 
           expect(exit).not.toBeUndefined();
           expect(result.id in sutModel.roomCache).toBe(true);
@@ -260,7 +260,7 @@ describe('room model', () => {
         });
 
         room.createRoom('s', (result) => {
-          var exit = room.exits.find(e => e.dir === 's');
+          const exit = room.exits.find(e => e.dir === 's');
 
           expect(exit).not.toBeUndefined();
           expect(result.id in sutModel.roomCache).toBe(false);

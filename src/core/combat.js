@@ -4,7 +4,7 @@ const config = require('../../config');
 module.exports = {
   processPlayerCombatActions(now) {
     // note: this only includes rooms a player is currently subscribed to
-    var roomIds = Object.keys(global.io.sockets.adapter.rooms);
+    const roomIds = Object.keys(global.io.sockets.adapter.rooms);
 
     for (const roomId of roomIds) {
       let room = Room.getById(roomId);

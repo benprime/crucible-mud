@@ -86,7 +86,7 @@ function processDispatch(socket, input) {
   if (match) {
     let action = match[1];
     let username = match[2];
-    var actionFound = actionHandler.actionDispatcher(socket, action, username);
+    const actionFound = actionHandler.actionDispatcher(socket, action, username);
     if (actionFound) {
       return;
     }

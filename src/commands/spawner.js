@@ -98,7 +98,7 @@ module.exports = {
         }
         break;
       case 'max':
-        var maxVal = parseInt(param);
+        const maxVal = parseInt(param);
         if(isNaN(maxVal)) {
           socket.emit('output', { message: 'Invalid max value - must be an integer.' });
           break;
@@ -108,7 +108,7 @@ module.exports = {
         socket.emit('output', { message: `Max creatures updated to ${maxVal}.` });
         break;
       case 'timeout':
-        var timeoutVal = parseInt(param);
+        const timeoutVal = parseInt(param);
         if(isNaN(timeoutVal)) {
           socket.emit('output', { message: 'Invalid max value - must be an integer.' });
           break;

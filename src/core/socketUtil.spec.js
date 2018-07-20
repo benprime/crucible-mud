@@ -282,7 +282,7 @@ describe('socketUtil', () => {
 
     it('should return false if user is not logged in', () => {
       // arrange
-      var roomId = new ObjectId().valueOf();
+      const roomId = new ObjectId().valueOf();
 
       // acting user
       socket = new mocks.SocketMock();
@@ -303,7 +303,7 @@ describe('socketUtil', () => {
 
     it('should return false if user is not in the room', () => {
       // arrange
-      var roomId = new ObjectId().valueOf();
+      const roomId = new ObjectId().valueOf();
 
       // acting user
       socket = new mocks.SocketMock();
@@ -327,7 +327,7 @@ describe('socketUtil', () => {
 
     it('should return socket when user is in the room', () => {
       // arrange
-      var roomId = new ObjectId().valueOf();
+      const roomId = new ObjectId().valueOf();
 
       // acting user
       socket = new mocks.SocketMock();

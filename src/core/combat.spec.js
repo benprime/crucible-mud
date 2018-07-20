@@ -20,7 +20,7 @@ describe('combat command', () => {
 
     it('should call room.processPlayerCombatActions for all room Ids', () => {
       global.io.sockets.adapter.rooms = [1, 2];
-      var now = Date.now();
+      const now = Date.now();
       sut.processPlayerCombatActions(now);
 
       expect(mockRoom.processPlayerCombatActions).toHaveBeenCalledWith(now);
@@ -30,7 +30,7 @@ describe('combat command', () => {
     it('should not call room.processPlayerCombatActions with no room ids', () => {
       global.io.sockets.adapter.rooms = [];
 
-      var now = Date.now();
+      const now = Date.now();
       sut.processPlayerCombatActions(now);
 
       expect(mockRoom.processPlayerCombatActions).not.toHaveBeenCalled();
@@ -49,7 +49,7 @@ describe('combat command', () => {
       Room.roomCache[roomWithMobs.id] = roomWithMobs;
       Room.roomCache[roomWithoutMobs.id] = roomWithoutMobs;
 
-      var now = Date.now();
+      const now = Date.now();
       sut.processMobCombatActions(now);
 
       expect(roomWithMobs.processMobCombatActions).toHaveBeenCalledWith(now);

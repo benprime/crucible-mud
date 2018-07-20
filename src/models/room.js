@@ -106,7 +106,7 @@ const RoomSchema = new mongoose.Schema({
 RoomSchema.statics.roomCache = roomCache;
 
 RoomSchema.statics.getById = roomId => {
-  var room = roomCache[roomId];
+  const room = roomCache[roomId];
   return room;
 };
 
@@ -170,7 +170,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
   }
 
   // see if room exists at the coords
-  var targetCoords = self.dirToCoords(dir);
+  const targetCoords = self.dirToCoords(dir);
 
   Room.byCoords(targetCoords, targetRoom => {
     const oppDir = Room.oppositeDirection(dir);
@@ -219,8 +219,8 @@ RoomSchema.methods.look = function (socket, short) {
     output += `<span class="silver">${this.desc}</span>\n`;
   }
 
-  var notHiddenItems = '';
-  var hiddenItems = '';
+  let notHiddenItems = '';
+  let hiddenItems = '';
   if(this.inventory) {
     notHiddenItems = this.inventory.filter(item => !item.hidden).map(item => item.displayName).join(', ');
     hiddenItems = this.inventory.filter(item => item.hidden).map(item => item.displayName).join(', ');
@@ -242,8 +242,8 @@ RoomSchema.methods.look = function (socket, short) {
     output += `<span class="purple">Also here: <span class="teal">${displayNames}</span>.</span>\n`;
   }
 
-  var notHiddenExits = '';
-  var hiddenExits = '';
+  let notHiddenExits = '';
+  let hiddenExits = '';
   if(this.exits) {
     notHiddenExits = this.exits.filter(exit => !exit.hidden).map(exit => Room.shortToLong(exit.dir)).join(', ');
     hiddenExits = this.exits.filter(exit => exit.hidden).map(exit => Room.shortToLong(exit.dir)).join(', ');

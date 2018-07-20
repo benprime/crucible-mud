@@ -33,7 +33,7 @@ const TypeConfig = Object.freeze({
 });
 
 function distinctByProperty(arr, property) {
-  var alreadyAdded = {};
+  const alreadyAdded = {};
   return arr.filter(obj => {
     if (alreadyAdded[obj[property]]) return false;
     alreadyAdded[obj[property]] = true;
@@ -48,7 +48,7 @@ function autocompleteByProperty(source, property, fragment) {
 }
 
 function autocompleteTypes(socket, types, fragment) {
-  for (var typeKey in types) {
+  for (const typeKey in types) {
     if (!types.hasOwnProperty(typeKey)) continue;
 
     let type = types[typeKey];
@@ -58,7 +58,7 @@ function autocompleteTypes(socket, types, fragment) {
     }
     let source = typeConfig.source(socket);
 
-    for (var prop of propertyNames) {
+    for (const prop of propertyNames) {
       let result = autocompleteByProperty(source, prop, fragment);
 
       // TODO: Is 'item' the best name for this?

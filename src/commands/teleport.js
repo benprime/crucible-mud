@@ -1,5 +1,3 @@
-'use strict';
-
 const socketUtil = require('../core/socketUtil');
 const breakCmd = require('./break');
 const lookCmd = require('./look');

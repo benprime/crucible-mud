@@ -1,5 +1,3 @@
-'use strict';
-
 const Room = require('../models/room');
 const mobData = require('../../data/mobData');
 const Mob = require('../models/mob');

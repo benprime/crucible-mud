@@ -1,5 +1,3 @@
-'use strict';
-
 const actionData = require('../../data/actionData');
 
 let commandHandlers = {};

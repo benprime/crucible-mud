@@ -1,5 +1,3 @@
-'use strict';
-
 const autocomplete = require('../core/autocomplete');
 const Item = require('../models/item');
 const Room = require('../models/room');

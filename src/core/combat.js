@@ -1,5 +1,3 @@
-'use strict';
-
 const Room = require('../models/room');
 const config = require('../../config');
 

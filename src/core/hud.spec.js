@@ -1,5 +1,3 @@
-'use strict';
-
 const hud = require('./hud');
 const mocks = require('../../spec/mocks');
 

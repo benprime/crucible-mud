@@ -1,5 +1,3 @@
-'use strict';
-
 const actionHandler = require('../core/actionHandler');
 const helpHandler = require('./help');
 

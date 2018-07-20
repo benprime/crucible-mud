@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = {
   // used by mob prototype
   socketInRoom(roomId, socketId) {

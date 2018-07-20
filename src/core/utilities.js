@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = {
   formatMessage () {
     var args = Array.prototype.slice.call(arguments);

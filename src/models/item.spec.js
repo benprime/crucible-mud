@@ -1,5 +1,3 @@
-'use strict';
-
 const mocks = require('../../spec/mocks');
 const Item = require('../models/item');
 

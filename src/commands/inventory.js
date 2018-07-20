@@ -1,5 +1,3 @@
-'use strict';
-
 function CurrencyChangeToString(totalCurr) {
   if (totalCurr < 0) return 'You are in debt';
   if (totalCurr == 0) return '0 Copper';

@@ -1,5 +1,3 @@
-'use strict';
-
 // dice regex that matches format of "2d6+4"
 const diceRegex = /^(\d+)d(\d+)(?:([+-])(\d*))?$/i;
 

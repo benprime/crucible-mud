@@ -1,5 +1,3 @@
-'use strict';
-
 const socketUtil = require('./socketUtil');
 const config = require('../../config');
 const hud = require('./hud');

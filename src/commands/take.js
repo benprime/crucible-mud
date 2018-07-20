@@ -1,5 +1,3 @@
-'use strict';
-
 const Room = require('../models/room');
 const socketUtil = require('../core/socketUtil');
 const autocomplete = require('../core/autocomplete');

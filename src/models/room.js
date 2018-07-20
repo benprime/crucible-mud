@@ -1,5 +1,3 @@
-'use strict';
-
 const mongoose = require('mongoose');
 const ItemSchema = require('./itemSchema');
 const SpawnerSchema = require('./spawnerSchema');

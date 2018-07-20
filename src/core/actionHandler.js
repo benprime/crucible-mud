@@ -1,5 +1,3 @@
-'use strict';
-
 const actionsData = require('../../data/actionData');
 const socketUtil = require('../core/socketUtil');
 const Room = require('../models/room');

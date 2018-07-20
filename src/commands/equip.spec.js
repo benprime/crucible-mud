@@ -1,5 +1,3 @@
-'use strict';
-
 const Item = require('../models/item');
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');

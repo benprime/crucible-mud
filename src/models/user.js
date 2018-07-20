@@ -1,7 +1,5 @@
 /* todo: rename this model to character or something */
 
-'use strict';
-
 const mongoose = require('mongoose');
 const config = require('../../config');
 const ItemSchema = require('./itemSchema');

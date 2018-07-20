@@ -1,5 +1,3 @@
-'use strict';
-
 const mobData = require('../../data/mobData');
 const itemData = require('../../data/itemData');
 

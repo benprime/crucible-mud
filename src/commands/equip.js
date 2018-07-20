@@ -1,5 +1,3 @@
-'use strict';
-
 const autocomplete = require('../core/autocomplete');
 const utils = require('../core/utilities');
 

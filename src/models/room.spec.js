@@ -1,5 +1,3 @@
-'use strict';
-
 const socketUtil = require('../core/socketUtil');
 const mocks = require('../../spec/mocks');
 

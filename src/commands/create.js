@@ -25,7 +25,7 @@ module.exports = {
         socket.emit('output', { message: 'Invalid direction!' });
         return;
       }
-      room.createRoom(dir, function () {
+      room.createRoom(dir, () => {
         socket.emit('output', { message: 'Room created.' });
         socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!` });
       });

@@ -14,11 +14,11 @@ const sut = SandboxedModule.require('./spawner', {
 });
 const SpawnerModel = require('../models/spawner');
 
-describe('spawner', function () {
+describe('spawner', () => {
   let socket;
   let currentRoom;
 
-  beforeEach(function () {
+  beforeEach(() => {
     currentRoom = mocks.getMockRoom();
     currentRoom.name = 'Dance Floor';
     currentRoom.spawner = new SpawnerModel();
@@ -28,10 +28,10 @@ describe('spawner', function () {
     socket.user.username = 'Disco Jim';
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    describe('when action is add', function () {
-      it('should successfully add valid mob type', function () {
+    describe('when action is add', () => {
+      it('should successfully add valid mob type', () => {
         // arrange
         var beforeLength = currentRoom.spawner.mobTypes.length;
         mockRoom = currentRoom;
@@ -45,12 +45,12 @@ describe('spawner', function () {
         expect(currentRoom.spawner.mobTypes.length).toBeGreaterThan(beforeLength);
       });
 
-      xit('should output error message when mob type is invalid', function () {
+      xit('should output error message when mob type is invalid', () => {
       });
     });
 
-    describe('when action is remove', function () {
-      it('should remove existing mob type', function () {
+    describe('when action is remove', () => {
+      it('should remove existing mob type', () => {
         // arrange
         var beforeLength = currentRoom.spawner.mobTypes.length;
         mockRoom = currentRoom;
@@ -64,10 +64,10 @@ describe('spawner', function () {
         expect(currentRoom.spawner.mobTypes.length).toBeLessThan(beforeLength);
       });
 
-      xit('should output error message when mob type is invalid', function () {
+      xit('should output error message when mob type is invalid', () => {
       });
 
-      it('should output error when mob type does not exist on spawner', function () {
+      it('should output error when mob type does not exist on spawner', () => {
         // arrange
         mockRoom = currentRoom;
 
@@ -81,11 +81,11 @@ describe('spawner', function () {
     });
 
 
-    describe('when action is max', function () {
-      xit('should output error message when param value is not an integer', function () {
+    describe('when action is max', () => {
+      xit('should output error message when param value is not an integer', () => {
       });
 
-      it('should set max when value is valid', function () {
+      it('should set max when value is valid', () => {
         // arrange
         currentRoom.spawner.max = 2;
         mockRoom = currentRoom;
@@ -100,8 +100,8 @@ describe('spawner', function () {
       });
     });
 
-    describe('when action is timeout', function () {
-      it('when set timeout when value is valid', function () {
+    describe('when action is timeout', () => {
+      it('when set timeout when value is valid', () => {
         // arrange
         currentRoom.spawner.timeout = 1;
         mockRoom = currentRoom;
@@ -115,12 +115,12 @@ describe('spawner', function () {
         expect(currentRoom.spawner.timeout).toEqual(5);
       });
 
-      xit('should output error message when param value is not an integer', function () {
+      xit('should output error message when param value is not an integer', () => {
       });
     });
 
-    describe('when action is clear', function () {
-      it('when action is clear', function () {
+    describe('when action is clear', () => {
+      it('when action is clear', () => {
         // arrange
         mockRoom = currentRoom;
 
@@ -134,8 +134,8 @@ describe('spawner', function () {
       });
     });
 
-    describe('when action is copy', function () {
-      it('when action is copy', function () {
+    describe('when action is copy', () => {
+      it('when action is copy', () => {
         // arrange
         mockRoom = currentRoom;
 
@@ -148,8 +148,8 @@ describe('spawner', function () {
       });
     });
 
-    describe('when action is paste', function () {
-      it('when action is paste', function () {
+    describe('when action is paste', () => {
+      it('when action is paste', () => {
         // arrange
         socket.user.spawnerClipboard = null;
         mockRoom = currentRoom;
@@ -163,7 +163,7 @@ describe('spawner', function () {
       });
     });
 
-    it('when action is not valid', function () {
+    it('when action is not valid', () => {
       // arrange
       mockRoom = currentRoom;
 

@@ -49,7 +49,7 @@ function validateCommand(commandHandler, file) {
   if (!commandHandler.help) throw `command ${file} missing help!`;
 }
 
-commandModules.forEach(function (file) {
+commandModules.forEach(file => {
   // eslint-disable-next-line
   let commandHandler = require('./' + file);
   validateCommand(commandHandler, file);

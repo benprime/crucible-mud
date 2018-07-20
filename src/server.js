@@ -34,7 +34,7 @@ require('./core/combat');
 mongoose.connect(`mongodb://localhost:${MONGO_PORT}/${MONGO_DB}`);
 db.on('error', console.error.bind(console, 'connection error:'));
 
-db.once('open', function () {
+db.once('open', () => {
 
   io.on('connection', (socket) => {
 

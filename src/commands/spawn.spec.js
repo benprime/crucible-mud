@@ -18,22 +18,22 @@ const sut = SandboxedModule.require('./spawn', {
   },
 });
 
-describe('spawn', function () {
+describe('spawn', () => {
   let socket;
 
-  beforeEach(function () {
+  beforeEach(() => {
     socket = new mocks.SocketMock();
   });
 
-  describe('execute', function () {
-    describe('when type is mob', function () {
-      it('should output message when type name is invalid', function () {
+  describe('execute', () => {
+    describe('when type is mob', () => {
+      it('should output message when type name is invalid', () => {
         sut.execute(socket, 'mob', 'name');
 
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown mob type.' });
       });
 
-      it('should create instance of mob in room mobs list', function () {
+      it('should create instance of mob in room mobs list', () => {
         sut.execute(socket, 'mob', 'kobold');
 
         expect(mockRoom.mobs.length).toBe(1);
@@ -43,14 +43,14 @@ describe('spawn', function () {
       });
     });
 
-    describe('when type is item', function () {
-      it('should output message when type name is invalid', function () {
+    describe('when type is item', () => {
+      it('should output message when type name is invalid', () => {
         sut.execute(socket, 'item', 'name');
 
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown item type.' });
       });
 
-      it('should create instance of item in user inventory', function () {
+      it('should create instance of item in user inventory', () => {
         sut.execute(socket, 'item', 'shortsword');
 
         expect(socket.user.inventory.length).toBe(1);
@@ -60,14 +60,14 @@ describe('spawn', function () {
       });
     });
 
-    describe('when type is key', function () {
-      it('should output message when type name is invalid', function () {
+    describe('when type is key', () => {
+      it('should output message when type name is invalid', () => {
         sut.execute(socket, 'key', 'name');
 
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown key type.' });
       });
 
-      it('should create instance of key in user keys', function () {
+      it('should create instance of key in user keys', () => {
         sut.execute(socket, 'key', 'jadekey');
 
         expect(socket.user.keys.length).toBe(1);
@@ -77,7 +77,7 @@ describe('spawn', function () {
       });
     });
 
-    it('should output message when object type is invalid', function () {
+    it('should output message when object type is invalid', () => {
       sut.execute(socket, 'unknownType', 'name');
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown object type.' });

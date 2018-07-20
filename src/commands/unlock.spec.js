@@ -40,10 +40,10 @@ const sut = SandboxedModule.require('./unlock', {
   globals: { io: mockGlobalIO },
 });
 
-describe('unlock', function () {
+describe('unlock', () => {
   let socket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     mockGlobalIO.reset();
     socket = new mocks.SocketMock();
 
@@ -51,32 +51,32 @@ describe('unlock', function () {
     spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => mockAutocompleteResult);
   });
 
-  beforeEach(function () {
+  beforeEach(() => {
     socket.emit.calls.reset();
     mockRoom.save.calls.reset();
     autocomplete.autocompleteTypes.calls.reset();
   });
 
-  it('should output message when direction is invalid', function () {
+  it('should output message when direction is invalid', () => {
     sut.execute(socket, 'e', 'some key');
 
     expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No door in that direction.' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should output message when a door exists but is not locked', function () {
+  it('should output message when a door exists but is not locked', () => {
     sut.execute(socket, 'n', 'some key');
 
     expect(socket.emit).toHaveBeenCalledWith('output', { message: 'That door is not locked.' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should output no messages when user is not carrying the key', function () {
+  it('should output no messages when user is not carrying the key', () => {
     expect(socket.emit).not.toHaveBeenCalled();
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should output message when key is the wrong key for the door', function () {
+  it('should output message when key is the wrong key for the door', () => {
     var key = new Item();
     key.itemTypeEnum = 'key';
     key.name = 'Blue';
@@ -88,7 +88,7 @@ describe('unlock', function () {
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should unlock door with output message when command successful', function () {
+  it('should unlock door with output message when command successful', () => {
     var key = new Item();
     key.itemTypeEnum = 'key';
     key.name = 'Gold';
@@ -100,9 +100,9 @@ describe('unlock', function () {
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  describe('asyncTest', function () {
+  describe('asyncTest', () => {
     var worked = false;
-    beforeEach(function (done) {
+    beforeEach(done => {
       mockGlobalIO.reset();
       mockConfig.DOOR_CLOSE_TIMER = 100;
       var key = new Item();
@@ -110,13 +110,13 @@ describe('unlock', function () {
       key.name = 'Silver';
       mockAutocompleteResult = key;
 
-      sut.execute(socket, 'nw', 'Silver', function () {
+      sut.execute(socket, 'nw', 'Silver', () => {
         worked = true;
         done();
       });
     });
 
-    it('should automatically relock door after timeout', function () {
+    it('should automatically relock door after timeout', () => {
       expect(mockGlobalIO.to('bogus').emit).toHaveBeenCalledWith('output', { message: 'The door to the northwest clicks locked!' });
       expect(mockRoom.save).not.toHaveBeenCalled();
       expect(worked).toBe(true);

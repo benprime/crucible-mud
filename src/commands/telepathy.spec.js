@@ -19,20 +19,20 @@ const sut = SandboxedModule.require('./telepathy', {
   globals: { io: mockGlobalIO },
 });
 
-describe('telepathy', function () {
+describe('telepathy', () => {
   let socket;
   let otherSocket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
     socket.user = { roomId: 123, username: 'TestUser' };
     otherSocket = new mocks.SocketMock();
     otherSocket.user = { roomId: 321, username: 'OtherUser' };
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    it('should output messages when user is invalid', function () {
+    it('should output messages when user is invalid', () => {
       // arrange
       const msg = 'This is a telepath message!';
       mockReturnSocket = null;
@@ -44,7 +44,7 @@ describe('telepathy', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Invalid username.' });
     });
 
-    it('should output messages when command is successful', function () {
+    it('should output messages when command is successful', () => {
       // arrange
       const msg = 'This is a telepath message!';
       mockReturnSocket = otherSocket;

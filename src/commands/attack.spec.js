@@ -16,26 +16,26 @@ const sut = SandboxedModule.require('./attack', {
   },
 });
 
-describe('attack', function () {
+describe('attack', () => {
   let socket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
     mockRoom = mocks.getMockRoom();
   });
 
-  beforeEach(function () {
+  beforeEach(() => {
     socket.reset();
   });
 
-  describe('dispatch triggers execute', function () {
+  describe('dispatch triggers execute', () => {
     let executeSpy;
 
-    beforeAll(function () {
+    beforeAll(() => {
       executeSpy = spyOn(sut, 'execute');
     });
 
-    it('on short pattern', function () {
+    it('on short pattern', () => {
       autocompleteResult = 'thing';
       sut.dispatch(socket, ['a th', 'thing']);
 
@@ -43,14 +43,14 @@ describe('attack', function () {
     });
   });
 
-  describe('execute', function () {
-    beforeAll(function () {
+  describe('execute', () => {
+    beforeAll(() => {
       socket = new mocks.SocketMock();
       socket.user.username = 'aName';
       socket.user.roomId = mockRoom.id;
     });
 
-    it('should set state and emit output when valid target found', function () {
+    it('should set state and emit output when valid target found', () => {
       autocompleteResult = {
         item: {
           id: 123,
@@ -65,7 +65,7 @@ describe('attack', function () {
       expect(socket.user.attackTarget).toBe(autocompleteResult.item.id);
     });
 
-    it('should set state and emit output when no target found', function () {
+    it('should set state and emit output when no target found', () => {
       autocompleteResult = null;
       sut.execute(socket, 'thing');
 

@@ -16,23 +16,23 @@ const sut = SandboxedModule.require('./destroy', {
   },
 });
 
-describe('destroy', function () {
+describe('destroy', () => {
   let socket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
   });
 
-  beforeEach(function () {
+  beforeEach(() => {
     socket.reset();
     mockRoom.reset();
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    describe('when type is mob', function () {
+    describe('when type is mob', () => {
 
-      it('should do nothing when mob is not found', function () {
+      it('should do nothing when mob is not found', () => {
         // arrange
         autocompleteResult = null;
 
@@ -45,7 +45,7 @@ describe('destroy', function () {
         expect(mockRoom.mobs.remove).not.toHaveBeenCalled();
       });
 
-      it('should remove mob from room and output messages when successful', function () {
+      it('should remove mob from room and output messages when successful', () => {
         // arrange
         autocompleteResult = {};
 
@@ -59,13 +59,13 @@ describe('destroy', function () {
       });
     });
 
-    describe('when type is item', function () {
-      beforeEach(function() {
+    describe('when type is item', () => {
+      beforeEach(() => {
         socket.reset();
         mockRoom.reset();
       });
 
-      it('should do nothing when inventory does not contain item', function () {
+      it('should do nothing when inventory does not contain item', () => {
         // arrange
         autocompleteResult = null;
 
@@ -78,7 +78,7 @@ describe('destroy', function () {
         expect(socket.user.save).not.toHaveBeenCalled();
       });
 
-      it('should remove item from inventory when successful', function () {
+      it('should remove item from inventory when successful', () => {
         // arrange
         let item = {};
         autocompleteResult = {};
@@ -94,7 +94,7 @@ describe('destroy', function () {
       });
     });
 
-    it('should output error when create type is invalid', function () {
+    it('should output error when create type is invalid', () => {
       // act
       sut.execute(socket, 'invalid type', 'name of thing to destroy');
 
@@ -105,7 +105,7 @@ describe('destroy', function () {
       expect(socket.user.save).not.toHaveBeenCalled();
     });
 
-    it('should be an admin command', function () {
+    it('should be an admin command', () => {
       expect(sut.admin).toBe(true);
     });
 

@@ -14,7 +14,7 @@ setInterval(() => {
 
   // loop through rooms that contain spawners...
   const roomsWithSpawners = Object.values(Room.roomCache).filter(r => r.spawner && r.spawner.timeout);
-  roomsWithSpawners.forEach(function (room) {
+  roomsWithSpawners.forEach(room => {
     let max = room.spawner.max ? room.spawner.max : config.DEFAULT_ROOM_MOB_MAX;
     let timeout = room.spawner.timeout ? room.spawner.timeout : config.ROUND_DURATION;
 

@@ -3,8 +3,8 @@
 const hud = require('./hud');
 const mocks = require('../../spec/mocks');
 
-describe('updateHUD', function () {
-  it('emits message with hud type and appropriate parameters', function () {
+describe('updateHUD', () => {
+  it('emits message with hud type and appropriate parameters', () => {
     // arrange
     const socket = new mocks.SocketMock();
 

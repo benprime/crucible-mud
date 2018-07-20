@@ -107,9 +107,7 @@ Mob.prototype.selectTarget = function (roomid) {
   }
 };
 
-Mob.prototype.attackroll = function () {
-  return dice.roll('1d2');
-};
+Mob.prototype.attackroll = () => dice.roll('1d2');
 
 Mob.prototype.attack = function (now) {
 

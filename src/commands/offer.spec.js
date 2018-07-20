@@ -24,36 +24,36 @@ const sut = SandboxedModule.require('./offer', {
   },
 });
 
-describe('offer', function () {
+describe('offer', () => {
   let socket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
   });
 
-  describe('dispatch', function () {
-    beforeEach(function () {
+  describe('dispatch', () => {
+    beforeEach(() => {
       spyOn(sut, 'execute');
     });
 
-    it('should call execute with match', function () {
+    it('should call execute with match', () => {
       sut.dispatch(socket, ['offer', 'aUser', 'aItem']);
 
       expect(sut.execute).toHaveBeenCalledWith(socket, 'aUser', 'aItem');
     });
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
     usersInRoomResult = ['TestUser', 'aUser'];
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockTargetSocket = new mocks.SocketMock();
       socket.user.inventory = [{ id: 'aItemId', name: 'aItem' }];
       socket.user.username = 'TestUser';
       socket.emit.calls.reset();
     });
 
-    it('should return when item is not in inventory', function () {
+    it('should return when item is not in inventory', () => {
       autocompleteResult = null;
 
       sut.execute(socket, 'aUser', 'aItem');
@@ -61,7 +61,7 @@ describe('offer', function () {
       expect(socket.emit).not.toHaveBeenCalled();
     });
 
-    it('should output message when user is not in room', function () {
+    it('should output message when user is not in room', () => {
       autocompleteResult = [{ id: 'aItemId', name: 'aItem' }];
       usersInRoomResult = ['TestUser'];
 
@@ -70,7 +70,7 @@ describe('offer', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'aUser is not here!' });
     });
 
-    it('should output message when multiple users match', function () {
+    it('should output message when multiple users match', () => {
       autocompleteResult = [{ id: 'aItemId', name: 'aItem' }];
       usersInRoomResult = ['TestUser', 'aUser', 'aUser'];
 
@@ -79,7 +79,7 @@ describe('offer', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '\'aUser\' is a common name here. Be more specific.' });
     });
 
-    it('should output message if user socket is not found', function () {
+    it('should output message if user socket is not found', () => {
       autocompleteResult = [{ id: 'aItemId', name: 'aItem' }];
       usersInRoomResult = ['TestUser', 'aUser'];
 
@@ -90,7 +90,7 @@ describe('offer', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'aUser is not here!' });
     });
 
-    it('should add offer to other user socket offers collection if offers collection is undefined', function () {
+    it('should add offer to other user socket offers collection if offers collection is undefined', () => {
       autocompleteResult = { id: 'aItemId', name: 'aItem' };
       usersInRoomResult = ['TestUser', 'aUser'];
 
@@ -112,7 +112,7 @@ describe('offer', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You offered a aItem to aUser.' });
     });
 
-    it('should add offer to other user socket offers collection if offers collection is empty', function () {
+    it('should add offer to other user socket offers collection if offers collection is empty', () => {
       autocompleteResult = { id: 'aItemId', name: 'aItem' };
       usersInRoomResult = ['TestUser', 'aUser'];
 
@@ -134,7 +134,7 @@ describe('offer', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You offered a aItem to aUser.' });
     });
 
-    it('should overwrite offer to other user socket offers collection if same offer item exists', function () {
+    it('should overwrite offer to other user socket offers collection if same offer item exists', () => {
       autocompleteResult = { id: 'aItemId', name: 'aItem' };
       usersInRoomResult = ['TestUser', 'aUser'];
 
@@ -164,7 +164,7 @@ describe('offer', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You offered a aItem to aUser.' });
     });
 
-    it('should add offer to other user socket offers collection if existing offers exist', function () {
+    it('should add offer to other user socket offers collection if existing offers exist', () => {
       autocompleteResult = { id: 'aItemId', name: 'aItem' };
       usersInRoomResult = ['TestUser', 'aUser'];
 
@@ -195,7 +195,7 @@ describe('offer', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You offered a aItem to aUser.' });
     });
 
-    it('should remove offer if it is not taken before the timeout', function () {
+    it('should remove offer if it is not taken before the timeout', () => {
 
       autocompleteResult = { id: 'aItemId', name: 'aItem' };
       usersInRoomResult = ['TestUser', 'aUser'];
@@ -205,14 +205,14 @@ describe('offer', function () {
         inventory: [{ id: 'aItemId', name: 'aItem' }],
       };
 
-      sut.execute(socket, 'aUser', 'aItem', function () {
+      sut.execute(socket, 'aUser', 'aItem', () => {
         expect(mockTargetSocket.offers.length).toEqual(0);
       });
     });
   });
 
-  describe('help', function () {
-    it('should output message', function () {
+  describe('help', () => {
+    it('should output message', () => {
       sut.help(socket);
 
       const output = '<span class="mediumOrchid">offer &lt;item&gt; &lt;player&gt; </span><span class="purple">-</span> Offer an item to a player.<br />';

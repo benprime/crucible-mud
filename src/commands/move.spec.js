@@ -29,31 +29,31 @@ const sut = SandboxedModule.require('./move', {
   globals: {io:mockGlobalIO},
 });
 
-describe('move', function () {
+describe('move', () => {
   let socket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
   });
 
-  describe('dispatch', function () {
-    beforeEach(function () {
+  describe('dispatch', () => {
+    beforeEach(() => {
       spyOn(sut, 'execute');
     });
 
-    it('should call execute with direction match', function () {
+    it('should call execute with direction match', () => {
       sut.dispatch(socket, ['aMatch']);
 
       expect(sut.execute).toHaveBeenCalledWith(socket, 'aMatch');
     });
 
-    it('should call execute with command match', function () {
+    it('should call execute with command match', () => {
       sut.dispatch(socket, ['go aMatch', 'aMatch']);
 
       expect(sut.execute).toHaveBeenCalledWith(socket, 'aMatch');
     });
 
-    it('should clear leader tracking when user moves', function () {
+    it('should clear leader tracking when user moves', () => {
       socket.leader = 'test';
 
       sut.dispatch(socket, ['aMatch']);
@@ -62,16 +62,16 @@ describe('move', function () {
     });
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
     let shortDir;
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockRoom = mocks.getMockRoom();
       shortDir = 'n';
       socket.reset();
     });
 
-    it('should output message when direction is up and there is no exit', function () {
+    it('should output message when direction is up and there is no exit', () => {
       shortDir = 'u';
       var exitIndex = mockRoom.exits.findIndex(e => e.dir === 'u');
       mockRoom.exits.splice(exitIndex, 1);
@@ -82,7 +82,7 @@ describe('move', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
     });
 
-    it('should output message when direction is down and there is no exit', function () {
+    it('should output message when direction is down and there is no exit', () => {
       shortDir = 'd';
       var exitIndex = mockRoom.exits.findIndex(e => e.dir === 'd');
       mockRoom.exits.splice(exitIndex, 1);
@@ -93,7 +93,7 @@ describe('move', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
     });
 
-    it('should output message when direction is invalid', function () {
+    it('should output message when direction is invalid', () => {
       shortDir = 'zzz';
       sut.execute(socket, shortDir);
 
@@ -101,7 +101,7 @@ describe('move', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">That is not a valid direction!</span>' });
     });
 
-    it('should output message when direction is up and there is a closed exit', function () {
+    it('should output message when direction is up and there is a closed exit', () => {
       shortDir = 'u';
       let exitIndex = mockRoom.exits.findIndex(e => e.dir === 'u');
       mockRoom.exits[exitIndex].closed = true;
@@ -111,7 +111,7 @@ describe('move', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
     });
 
-    it('should output message when direction is down and there is a closed exit', function () {
+    it('should output message when direction is down and there is a closed exit', () => {
       shortDir = 'd';
       let exitIndex = mockRoom.exits.findIndex(e => e.dir === 'd');
       mockRoom.exits[exitIndex].closed = true;
@@ -121,7 +121,7 @@ describe('move', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
     });
 
-    it('should output message when direction is not up or down and there is a closed exit', function () {
+    it('should output message when direction is not up or down and there is a closed exit', () => {
       shortDir = 'w';
       let exitIndex = mockRoom.exits.findIndex(e => e.dir === 'w');
       mockRoom.exits[exitIndex].closed = true;
@@ -131,7 +131,7 @@ describe('move', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
     });
 
-    it('should output message when room is not found', function () {
+    it('should output message when room is not found', () => {
       mockRoom = undefined;
       shortDir = 'u';
       sut.execute(socket, shortDir);
@@ -140,7 +140,7 @@ describe('move', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
     });
 
-    it('should process movement when direction is up', function () {
+    it('should process movement when direction is up', () => {
       shortDir = 'u';
       var exit = mockRoom.exits.find(e => e.dir === shortDir);
       exit.closed = false;
@@ -158,7 +158,7 @@ describe('move', function () {
       expect(mockLookCommand.execute).toHaveBeenCalledWith(socket);
     });
 
-    it('should process movement when direction is down', function () {
+    it('should process movement when direction is down', () => {
       shortDir = 'd';
       var exit = mockRoom.exits.find(e => e.dir === shortDir);
       exit.closed = false;
@@ -176,7 +176,7 @@ describe('move', function () {
       expect(mockLookCommand.execute).toHaveBeenCalledWith(socket);
     });
 
-    it('should process movement when direction is not up or down', function () {
+    it('should process movement when direction is not up or down', () => {
       shortDir = 'w';
       var exit = mockRoom.exits.find(e => e.dir === shortDir);
       exit.closed = false;
@@ -195,8 +195,8 @@ describe('move', function () {
     });
   });
 
-  describe('help', function () {
-    it('should print help message', function () {
+  describe('help', () => {
+    it('should print help message', () => {
       sut.help(socket);
 
       let output = '';

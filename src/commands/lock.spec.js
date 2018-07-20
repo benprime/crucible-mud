@@ -19,10 +19,10 @@ const sut = SandboxedModule.require('./lock', {
   },
 });
 
-describe('lock', function () {
+describe('lock', () => {
   let socket;
 
-  beforeEach(function () {
+  beforeEach(() => {
     socket = new mocks.SocketMock();
     mockRoom = {
       exits: [
@@ -34,21 +34,21 @@ describe('lock', function () {
     };
   });
 
-  it('should output message when direction is invalid', function () {
+  it('should output message when direction is invalid', () => {
     sut.execute(socket, 'e', 'some key');
 
     expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No door in that direction.' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should output message when direction is not a door', function () {
+  it('should output message when direction is not a door', () => {
     sut.execute(socket, 's', 'some key');
 
     expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No door in that direction.' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should do nothing when key name is invalid', function () {
+  it('should do nothing when key name is invalid', () => {
     autocompleteResult = null;
 
     sut.execute(socket, 'n', 'invalid key name');
@@ -56,7 +56,7 @@ describe('lock', function () {
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should succeed on valid direction with door', function () {
+  it('should succeed on valid direction with door', () => {
     // arrange
     autocompleteResult = {name: 'key', displayName: 'some key'};
 
@@ -71,7 +71,7 @@ describe('lock', function () {
     expect(exit.locked).toBe(true);
   });
 
-  it('should be an admin command', function () {
+  it('should be an admin command', () => {
     expect(sut.admin).toBe(true);
   });
 

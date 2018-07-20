@@ -9,7 +9,7 @@ const User = require('../models/user');
 module.exports = {
   LoginUsername(socket, username) {
     if (socket.state == config.STATES.LOGIN_USERNAME) {
-      User.findByName(username.value, function (err, user) {
+      User.findByName(username.value, (err, user) => {
         if (!user) {
           socket.emit('output', { message: 'Unknown user, please try again.' });
         } else {
@@ -28,7 +28,7 @@ module.exports = {
       User.findOne({ username: socket.tempUsername, password: password.value })
         //.lean()
         //.populate('room')
-        .exec(function (err, user) {
+        .exec((err, user) => {
           if (err) return console.error(err);
 
           if (!user) {
@@ -69,7 +69,7 @@ module.exports = {
 
           const currentRoom = Room.getById(user.roomId);
           if (!currentRoom) {
-            Room.byCoords({ x: 0, y: 0, z: 0 }, function (err, room) {
+            Room.byCoords({ x: 0, y: 0, z: 0 }, (err, room) => {
               socket.user.roomId = room.id;
               socket.join(room.id);
               if (callback) callback();

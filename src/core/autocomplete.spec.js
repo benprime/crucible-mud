@@ -7,13 +7,13 @@ const rewire = require('rewire');
 const sut = rewire('./autocomplete');
 sut.autocompleteByProperty = sut.__get__('autocompleteByProperty');
 
-describe('autocomplete', function () {
+describe('autocomplete', () => {
   let socket;
   let room;
 
-  describe('autocompleteByProperty', function () {
+  describe('autocompleteByProperty', () => {
 
-    beforeEach(function () {
+    beforeEach(() => {
       socket = new mocks.SocketMock();
       socket.user = {
         name: 'a user',
@@ -24,7 +24,7 @@ describe('autocomplete', function () {
       spyOn(Room, 'getById').and.callFake(() => room);
     });
 
-    it('returns object when only one target type has a match', function () {
+    it('returns object when only one target type has a match', () => {
       // arrange
       const testObj = { name: 'test name', displayName: 'test displayName' };
       socket.user.inventory = [testObj];
@@ -37,7 +37,7 @@ describe('autocomplete', function () {
       expect(result[0].displayName).toBe('test displayName');
     });
 
-    it('returns empty array when no object matches', function () {
+    it('returns empty array when no object matches', () => {
       // arrange
       socket.user.inventory.push({ displayName: 'bbb' });
       room.inventory.push({ displayName: 'bbb' });
@@ -49,7 +49,7 @@ describe('autocomplete', function () {
       expect(result.length).toBe(0);
     });
 
-    it('returns array containing all matching objects when more than one target type matches', function () {
+    it('returns array containing all matching objects when more than one target type matches', () => {
       // arrange
       const userInventoryItem = { displayName: 'aaa' };
       socket.user.inventory.push(userInventoryItem);
@@ -64,9 +64,9 @@ describe('autocomplete', function () {
     });
   });
 
-  describe('autocomplete method', function () {
+  describe('autocomplete method', () => {
 
-    beforeEach(function () {
+    beforeEach(() => {
       socket = new mocks.SocketMock();
       socket.user = {
         name: 'a user',
@@ -77,7 +77,7 @@ describe('autocomplete', function () {
       spyOn(Room, 'getById').and.callFake(() => room);
     });
 
-    it('should return object if only displayName has a matching object', function () {
+    it('should return object if only displayName has a matching object', () => {
       // arrange
       var inventoryItem = { name: 'aaa', displayName: 'bbb' };
       socket.user.inventory = [inventoryItem];
@@ -93,7 +93,7 @@ describe('autocomplete', function () {
       expect(result.item.displayName).toBe(roomItem.displayName);
     });
 
-    it('should return object if only name has a matching object', function () {
+    it('should return object if only name has a matching object', () => {
       // arrange
       var inventoryItem = { name: 'aaa', displayName: 'bbb' };
       socket.user.inventory = [inventoryItem];
@@ -107,7 +107,7 @@ describe('autocomplete', function () {
       expect(result.item).toBe(inventoryItem);
     });
 
-    it('should return null if neither name or displayName have matching object', function () {
+    it('should return null if neither name or displayName have matching object', () => {
       // arrange
       var inventoryItem = { name: 'aaa', displayName: 'aaa' };
       socket.user.inventory = [inventoryItem];

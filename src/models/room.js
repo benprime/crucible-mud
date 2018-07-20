@@ -107,12 +107,12 @@ const RoomSchema = new mongoose.Schema({
 //============================================================================
 RoomSchema.statics.roomCache = roomCache;
 
-RoomSchema.statics.getById = function (roomId) {
+RoomSchema.statics.getById = roomId => {
   var room = roomCache[roomId];
   return room;
 };
 
-RoomSchema.statics.oppositeDirection = function (dir) {
+RoomSchema.statics.oppositeDirection = dir => {
   if (dir in oppositeDir) return oppositeDir[dir];
   return null;
 };
@@ -121,12 +121,12 @@ RoomSchema.statics.byCoords = function (coords, cb) {
   return this.findOne(coords, cb);
 };
 
-RoomSchema.statics.shortToLong = function (dir) {
+RoomSchema.statics.shortToLong = dir => {
   if (dir in shortToLong) return shortToLong[dir];
   return dir;
 };
 
-RoomSchema.statics.longToShort = function (dir) {
+RoomSchema.statics.longToShort = dir => {
   if (dir in longToShort) return longToShort[dir];
   return dir;
 };
@@ -174,7 +174,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
   // see if room exists at the coords
   var targetCoords = self.dirToCoords(dir);
 
-  Room.byCoords(targetCoords, function (targetRoom) {
+  Room.byCoords(targetCoords, targetRoom => {
     const oppDir = Room.oppositeDirection(dir);
     if (targetRoom) {
       self.addExit(dir, targetRoom.id);
@@ -201,7 +201,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
       targetRoom.mobs = [];
 
       // update this room with exit to new room
-      targetRoom.save(function (err, updatedRoom) {
+      targetRoom.save((err, updatedRoom) => {
 
         // add new room to room cache
         roomCache[updatedRoom.id] = updatedRoom;
@@ -319,7 +319,7 @@ RoomSchema.methods.processPlayerCombatActions = function (now) {
 RoomSchema.methods.processMobCombatActions = function (now) {
   if (Array.isArray(this.mobs) && this.mobs.length > 0) {
     const room = this;
-    this.mobs.forEach(function (mob) {
+    this.mobs.forEach(mob => {
       if (!mob.attack(now)) {
         mob.selectTarget(room.id, mob);
       }
@@ -331,15 +331,15 @@ RoomSchema.methods.processMobCombatActions = function (now) {
 const Room = mongoose.model('Room', RoomSchema);
 
 // populate cache
-(function () {
-  Room.find({}, function (err, result) {
-    result.forEach(function (room) {
+((() => {
+  Room.find({}, (err, result) => {
+    result.forEach(room => {
       room.mobs = [];
       roomCache[room.id] = room;
       if (room.alias)
         roomCache[room.alias] = room;
     });
   });
-})();
+}))();
 
 module.exports = Room;

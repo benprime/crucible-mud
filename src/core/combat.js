@@ -21,7 +21,7 @@ module.exports = {
     const roomsWithMobs = Object.values(Room.roomCache)
       .filter(r => Array.isArray(r.mobs) && r.mobs.length > 0);
 
-    roomsWithMobs.forEach(function (room) {
+    roomsWithMobs.forEach(room => {
       room.processMobCombatActions(now);
     });
   },

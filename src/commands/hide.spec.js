@@ -19,10 +19,10 @@ const sut = SandboxedModule.require('./hide', {
   },
 });
 
-describe('hide', function () {
+describe('hide', () => {
   let socket;
 
-  beforeEach(function () {
+  beforeEach(() => {
     socket = new mocks.SocketMock();
     mockRoom = {
       exits: [
@@ -36,14 +36,14 @@ describe('hide', function () {
     };
   });
 
-  it('should output message when direction is invalid', function () {
+  it('should output message when direction is invalid', () => {
     sut.execute(socket, 'e');
 
     expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No exit in that direction.' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should output message when item is invalid', function () {
+  it('should output message when item is invalid', () => {
     autocompleteResult = null;
     sut.execute(socket, 'emu');
 
@@ -51,7 +51,7 @@ describe('hide', function () {
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should succeed on valid direction', function () {
+  it('should succeed on valid direction', () => {
     sut.execute(socket, 'd');
     var exit = mockRoom.exits.find(e => e.dir === 'd');
 
@@ -60,7 +60,7 @@ describe('hide', function () {
     expect(exit.hidden).toBe(true);
   });
 
-  it('should succeed on valid item', function () {
+  it('should succeed on valid item', () => {
     autocompleteResult = [{ id: 'clownId', name: 'clown', hidden: false }];
 
     sut.execute(socket, 'clown');

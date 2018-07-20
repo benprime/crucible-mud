@@ -5,18 +5,18 @@ const SandboxedModule = require('sandboxed-module');
 
 const sut = SandboxedModule.require('./say', {});
 
-describe('say', function () {
+describe('say', () => {
   let socket, otherSocket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
     socket.user = { roomId: 123, username: 'TestUser' };
     otherSocket = new mocks.SocketMock();
     otherSocket.user = { roomId: 321, username: 'OtherUser' };
   });
 
-  describe('execute', function () {
-    it('should output messages to room', function () {
+  describe('execute', () => {
+    it('should output messages to room', () => {
 
       // arrange
       const msg = 'This is a message.';
@@ -31,7 +31,7 @@ describe('say', function () {
 
     });
 
-    it('should escape tags for display', function () {
+    it('should escape tags for display', () => {
 
       // arrange
       const msg = '<Safety_First.com>';

@@ -24,36 +24,36 @@ const sut = SandboxedModule.require('./take', {
   globals: { io: mockGlobalIO },
 });
 
-describe('take', function () {
+describe('take', () => {
 
-  describe('dispatch', function () {
-    beforeEach(function () {
+  describe('dispatch', () => {
+    beforeEach(() => {
       mockReturnSocket = new mocks.SocketMock();
       spyOn(sut, 'execute');
       mockReturnSocket.emit.calls.reset();
     });
 
-    it('should call execute with match', function () {
+    it('should call execute with match', () => {
       sut.dispatch(mockReturnSocket, ['take', 'aItem']);
 
       expect(sut.execute).toHaveBeenCalledWith(mockReturnSocket, 'aItem');
     });
 
-    it('should output message if multiple matches', function () {
+    it('should output message if multiple matches', () => {
       sut.dispatch(mockReturnSocket, 'take', 'aItem', 'anotherItem');
 
       expect(mockReturnSocket.emit).toHaveBeenCalledWith('output', { message: 'What do you want to take?' });
     });
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    afterEach(function () {
+    afterEach(() => {
       mockReturnSocket.emit.calls.reset();
       mockReturnSocket.user.save.calls.reset();
     });
 
-    it('should update from/to inventory on successful offer/take', function () {
+    it('should update from/to inventory on successful offer/take', () => {
       let socket = new mocks.SocketMock();
 
       let offeredItem = new Item();
@@ -82,7 +82,7 @@ describe('take', function () {
       expect(mockReturnSocket.user.save).toHaveBeenCalled();
     });
 
-    it('should output message when item is not found', function () {
+    it('should output message when item is not found', () => {
       mockRoom.save.calls.reset();
       autocompleteResult = null;
 
@@ -93,7 +93,7 @@ describe('take', function () {
       expect(mockReturnSocket.user.save).not.toHaveBeenCalled();
     });
 
-    it('should output message when item is fixed', function () {
+    it('should output message when item is fixed', () => {
       mockRoom.save.calls.reset();
       mockReturnSocket.user.inventory.length = 0;
 
@@ -112,7 +112,7 @@ describe('take', function () {
       expect(mockReturnSocket.user.save).not.toHaveBeenCalled();
     });
 
-    it('should update the room/user and save room/user to database', function () {
+    it('should update the room/user and save room/user to database', () => {
       autocompleteResult = {
         id: 'aItemId',
         name: 'aItem',
@@ -130,8 +130,8 @@ describe('take', function () {
     });
   });
 
-  describe('help', function () {
-    it('outputs message', function () {
+  describe('help', () => {
+    it('outputs message', () => {
       sut.help(mockReturnSocket);
 
       expect(mockReturnSocket.emit).toHaveBeenCalledWith('output', { message: '<span class="mediumOrchid">take &lt;item name&gt </span><span class="purple">-</span> Move &lt;item&gt; into inventory. <br />' });

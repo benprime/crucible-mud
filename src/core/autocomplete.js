@@ -36,7 +36,7 @@ const TypeConfig = Object.freeze({
 
 function distinctByProperty(arr, property) {
   var alreadyAdded = {};
-  return arr.filter(function (obj) {
+  return arr.filter(obj => {
     if (alreadyAdded[obj[property]]) return false;
     alreadyAdded[obj[property]] = true;
     return true;

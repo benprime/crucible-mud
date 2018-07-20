@@ -10,14 +10,14 @@ const sut = SandboxedModule.require('./socketUtil', {
 });
 
 
-describe('socketUtil', function () {
+describe('socketUtil', () => {
 
-  describe('socketInRoom', function () {
-    beforeEach(function () {
+  describe('socketInRoom', () => {
+    beforeEach(() => {
       mockGlobalIO.sockets.adapter.rooms = {};
     });
 
-    it('returns false for invalid roomId', function () {
+    it('returns false for invalid roomId', () => {
       // act
       const result = sut.socketInRoom('invalidRoomId', 'socketId');
 
@@ -25,7 +25,7 @@ describe('socketUtil', function () {
       expect(result).toBe(false);
     });
 
-    it('returns true when socket exists in the room', function () {
+    it('returns true when socket exists in the room', () => {
       // arrange
       let socket = new mocks.SocketMock();
       let sockets = {};
@@ -42,7 +42,7 @@ describe('socketUtil', function () {
       expect(result).toBe(true);
     });
 
-    it('returns false when socket does not exist in the room', function () {
+    it('returns false when socket does not exist in the room', () => {
       // arrange
       mockGlobalIO.sockets.adapter.rooms = {};
       mockGlobalIO.sockets.adapter.rooms['testroom'] = {
@@ -58,17 +58,17 @@ describe('socketUtil', function () {
 
   });
 
-  describe('roomMessage', function () {
+  describe('roomMessage', () => {
     let room;
     let socket;
 
-    beforeAll(function () {
+    beforeAll(() => {
       mockGlobalIO.reset();
       room = mocks.getMockRoom();
       socket = new mocks.SocketMock();
     });
 
-    it('does not send messages when roomid is invalid', function () {
+    it('does not send messages when roomid is invalid', () => {
       // arrange
       const message = 'test message';
       const exclude = null;
@@ -87,7 +87,7 @@ describe('socketUtil', function () {
       expect(socket.emit).not.toHaveBeenCalled();
     });
 
-    it('should send message to every socket in the room', function () {
+    it('should send message to every socket in the room', () => {
       // arrange
       const socketA = new mocks.SocketMock();
       const socketB = new mocks.SocketMock();
@@ -117,7 +117,7 @@ describe('socketUtil', function () {
       expect(socketC.emit).toHaveBeenCalled();
     });
 
-    it('should exclude sockets passed in the exclude array', function () {
+    it('should exclude sockets passed in the exclude array', () => {
       // arrange
       const socketA = new mocks.SocketMock();
       const socketB = new mocks.SocketMock();
@@ -149,14 +149,14 @@ describe('socketUtil', function () {
 
   });
 
-  describe('getSocketByUsername', function () {
+  describe('getSocketByUsername', () => {
     let socket;
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockGlobalIO.reset();
     });
 
-    it('returns socket when username found in connected sockets', function () {
+    it('returns socket when username found in connected sockets', () => {
       // arrange
       socket = new mocks.SocketMock();
       mockGlobalIO.sockets.connected[socket.id] = socket;
@@ -168,7 +168,7 @@ describe('socketUtil', function () {
       expect(result).toBe(socket);
     });
 
-    it('returns null when username not found in connected sockets', function () {
+    it('returns null when username not found in connected sockets', () => {
       // act
       const result = sut.getSocketByUsername('unknown username');
 
@@ -178,10 +178,10 @@ describe('socketUtil', function () {
 
   });
 
-  describe('getSocketByUserId', function () {
+  describe('getSocketByUserId', () => {
     let socket;
 
-    it('returns socket when userId found in connected sockets', function () {
+    it('returns socket when userId found in connected sockets', () => {
       // arrange
       mockGlobalIO.reset();
       socket = new mocks.SocketMock();
@@ -194,7 +194,7 @@ describe('socketUtil', function () {
       expect(result).toBe(socket);
     });
 
-    it('returns null when userId not found in connected sockets', function () {
+    it('returns null when userId not found in connected sockets', () => {
       // arrange
       socket = new mocks.SocketMock();
 
@@ -206,22 +206,22 @@ describe('socketUtil', function () {
     });
   });
 
-  describe('getRoomSockets', function () {
+  describe('getRoomSockets', () => {
     let room;
 
-    beforeAll(function () {
+    beforeAll(() => {
       mockGlobalIO.reset();
       room = mocks.getMockRoom();
     });
 
-    it('should return an empty array when no sockets exist in the room', function () {
+    it('should return an empty array when no sockets exist in the room', () => {
       let result = sut.getRoomSockets('room with no sockets');
 
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBe(0);
     });
 
-    it('should return an array of sockets when the room is populated with users', function () {
+    it('should return an array of sockets when the room is populated with users', () => {
       mockGlobalIO.sockets.adapter.rooms[room.id] = {
         sockets: [
           {},
@@ -236,12 +236,12 @@ describe('socketUtil', function () {
     });
   });
 
-  describe('getFollowingSockets', function () {
-    beforeEach(function () {
+  describe('getFollowingSockets', () => {
+    beforeEach(() => {
       mockGlobalIO.reset();
     });
 
-    it('should return all sockets where leader matches', function () {
+    it('should return all sockets where leader matches', () => {
       // arrange
       const leaderId = new ObjectId().valueOf();
 
@@ -275,14 +275,14 @@ describe('socketUtil', function () {
     });
   });
 
-  describe('validUserInRoom', function () {
+  describe('validUserInRoom', () => {
     let socket;
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockGlobalIO.reset();
     });
 
-    it('should return false if user is not logged in', function () {
+    it('should return false if user is not logged in', () => {
       // arrange
       var roomId = new ObjectId().valueOf();
 
@@ -303,7 +303,7 @@ describe('socketUtil', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown user' });
     });
 
-    it('should return false if user is not in the room', function () {
+    it('should return false if user is not in the room', () => {
       // arrange
       var roomId = new ObjectId().valueOf();
 
@@ -327,7 +327,7 @@ describe('socketUtil', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: `You don't see ${targetSocket.user.username} here.` });
     });
 
-    it('should return socket when user is in the room', function () {
+    it('should return socket when user is in the room', () => {
       // arrange
       var roomId = new ObjectId().valueOf();
 

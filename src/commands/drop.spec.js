@@ -34,9 +34,9 @@ describe('drop', () => {
             let jsonExpected = JSON.orderedStringify(expected);
             result.pass = jsonActual === jsonExpected;
             if (result.pass) {
-              result.message = 'Expected ' + jsonActual + ' to equal ' + jsonExpected;
+              result.message = `Expected ${jsonActual} to equal ${jsonExpected}`;
             } else {
-              result.message = 'Expected ' + jsonActual + ' to equal ' + jsonExpected;
+              result.message = `Expected ${jsonActual} to equal ${jsonExpected}`;
             }
             return result;
           },

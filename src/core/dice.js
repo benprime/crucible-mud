@@ -34,6 +34,6 @@ module.exports = {
 
       return sum;
     }
-    throw 'Invalid roll format: ' + s;
+    throw `Invalid roll format: ${s}`;
   },
 };

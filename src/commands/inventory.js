@@ -107,7 +107,7 @@ module.exports = {
     }
 
     output += '<span class="cyan">Currency: </span>';
-    output += '<span class="silver">' + CurrencyChangeToString(socket.user.currency) + '</span>\n';
+    output += `<span class="silver">${CurrencyChangeToString(socket.user.currency)}</span>\n`;
     socket.emit('output', { message: output });
   },
 

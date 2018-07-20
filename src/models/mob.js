@@ -35,7 +35,7 @@ class Mob {
 
     instance.roomId = roomId;
 
-    instance.displayName = adjective.name + ' ' + instance.displayName;
+    instance.displayName = `${adjective.name} ${instance.displayName}`;
 
     return instance;
   }

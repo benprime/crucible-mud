@@ -23,7 +23,7 @@ describe('item model', () => {
       socket.user.admin = true;
       item.look(socket);
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Item Description\nItem ID: ' + item.id });
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: `Item Description\nItem ID: ${item.id}` });
     });
   });
 });

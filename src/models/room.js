@@ -234,7 +234,7 @@ RoomSchema.methods.look = function (socket, short) {
 
   let names = this.usersInRoom(this.id).filter(name => name !== socket.user.username);
 
-  const mobNames = this.mobs.map(mob => mob.displayName + ' ' + mob.hp);
+  const mobNames = this.mobs.map(mob => `${mob.displayName} ${mob.hp}`);
   if (mobNames) { names = names.concat(mobNames); }
   const displayNames = names.join('<span class="mediumOrchid">, </span>');
 

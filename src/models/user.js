@@ -151,7 +151,7 @@ UserSchema.statics.findByName = function (name, cb) {
 UserSchema.methods.nextExp = function () {
   const BASE_XP = 300;
   const BASE_RATE = 1;
-  return BASE_XP * Math.pow(1 + BASE_RATE, this.level - 1);
+  return BASE_XP * ((1 + BASE_RATE) ** (this.level - 1));
 };
 
 UserSchema.methods.addExp = function (amount) {

@@ -1,5 +1,3 @@
-'use strict';
-
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
 
@@ -15,27 +13,27 @@ const sut = SandboxedModule.require('./set', {
   },
 });
 
-describe('set', function () {
+describe('set', () => {
   let socket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
   });
 
-  beforeEach(function() {
+  beforeEach(() => {
     socket.reset();
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    describe('when type is room', function() {
-      it('should return error when property not in allowed properties list', function() {
+    describe('when type is room', () => {
+      it('should return error when property not in allowed properties list', () => {
         sut.execute(socket, 'room', 'bad property', 'new value');
 
         expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Invalid property.' });
       });
 
-      it('should update room in room cache and room database object on success', function() {
+      it('should update room in room cache and room database object on success', () => {
         sut.execute(socket, 'room', 'name', 'new name value');
 
         expect(mockRoom.name).toBe('new name value');
@@ -44,7 +42,7 @@ describe('set', function () {
       });
     });
 
-    it('should return error when type is not room', function() {
+    it('should return error when type is not room', () => {
       sut.execute(socket, 'bad type', 'some property', 'new value');
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Invalid type.' });

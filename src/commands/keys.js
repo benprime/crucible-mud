@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = {
   name: 'keys',
 
@@ -13,7 +11,7 @@ module.exports = {
 
   execute(socket) {
     const keys = socket.user.keys || [];
-    let keyOutput = keys.map(item => item.displayName).join(', ');
+    let keyOutput = keys.map(({displayName}) => displayName).join(', ');
     if (!keyOutput) {
       keyOutput = 'None.';
     }

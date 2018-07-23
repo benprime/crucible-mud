@@ -1,16 +1,14 @@
-'use strict';
-
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
 
 const sut = SandboxedModule.require('./list', {});
 
-describe('list', function () {
+describe('list', () => {
   let socket;
   let itemCatalog;
   let mobCatalog;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
     itemCatalog = {
       catalog: [
@@ -47,8 +45,8 @@ describe('list', function () {
     };
   });
 
-  describe('execute', function () {
-    it('should lists mob catalog', function () {
+  describe('execute', () => {
+    it('should lists mob catalog', () => {
       // arrange
       const expectedString = '<table><tr><th>Name</th><th>Display Name</th></tr><tr><td>mob 1</td><td>mob 1 display name</td></tr></table>';
 
@@ -60,7 +58,7 @@ describe('list', function () {
       expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
     });
 
-    it('should lists item catalog', function () {
+    it('should lists item catalog', () => {
       // arrange
       const expectedString = '<table><tr><th>Name</th><th>Display Name</th></tr><tr><td>item 1</td><td>item 1 display name</td></tr>\n<tr><td>item 2</td><td>item 2 display name</td></tr></table>';
 
@@ -72,7 +70,7 @@ describe('list', function () {
       expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
     });
 
-    it('should list key catalog', function () {
+    it('should list key catalog', () => {
       // arrange
       const expectedString = '<table><tr><th>Name</th><th>Display Name</th></tr><tr><td>key 1</td><td>key 1 display name</td></tr>\n<tr><td>key 2</td><td>key 2 display name</td></tr></table>';
 
@@ -86,7 +84,7 @@ describe('list', function () {
 
   });
 
-  it('should be an admin command', function () {
+  it('should be an admin command', () => {
     expect(sut.admin).toBe(true);
   });
 });

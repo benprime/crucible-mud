@@ -1,5 +1,3 @@
-'use strict';
-
 const actionHandler = require('../core/actionHandler');
 const helpHandler = require('./help');
 
@@ -49,19 +47,19 @@ function validateCommand(commandHandler, file) {
   if (!commandHandler.help) throw `command ${file} missing help!`;
 }
 
-commandModules.forEach(function (file) {
+commandModules.forEach(file => {
   // eslint-disable-next-line
-  let commandHandler = require('./' + file);
+  let commandHandler = require(`./${file}`);
   validateCommand(commandHandler, file);
   commands.push(commandHandler);
   helpHandler.registerCommand(commandHandler);
 });
 
-defaultCommand = commands.find(h => h.name === 'say');
+defaultCommand = commands.find(({name}) => name === 'say');
 
-function matches(commandHandler, input) {
-  for (let p = 0; p < commandHandler.patterns.length; p++) {
-    let match = input.match(commandHandler.patterns[p]);
+function matches({patterns}, input) {
+  for (let p = 0; p < patterns.length; p++) {
+    let match = input.match(patterns[p]);
     if (match) {
       return match;
     }
@@ -88,7 +86,7 @@ function processDispatch(socket, input) {
   if (match) {
     let action = match[1];
     let username = match[2];
-    var actionFound = actionHandler.actionDispatcher(socket, action, username);
+    const actionFound = actionHandler.actionDispatcher(socket, action, username);
     if (actionFound) {
       return;
     }

@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = {
   // used by mob prototype
   socketInRoom(roomId, socketId) {
@@ -16,7 +14,7 @@ module.exports = {
       if (Array.isArray(exclude) && exclude.includes(socketId)) continue;
       const socket = global.io.sockets.connected[socketId];
       if (!socket) continue;
-      socket.emit('output', { message: message });
+      socket.emit('output', { message });
     }
   },
 
@@ -59,7 +57,7 @@ module.exports = {
 
   // method for validating a valid username and that the user is in the current room
   validUserInRoom(socket, username) {
-    var userSocket = this.getSocketByUsername(username);
+    const userSocket = this.getSocketByUsername(username);
     if (!userSocket) {
       socket.emit('output', { message: 'Unknown user' });
       return false;

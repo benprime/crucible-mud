@@ -1,5 +1,3 @@
-'use strict';
-
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
 
@@ -8,17 +6,17 @@ const sut = SandboxedModule.require('./gossip', {
   globals: {io:mockGlobalIO},
 });
 
-describe('gossip', function () {
+describe('gossip', () => {
   let socket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
     mockGlobalIO.reset();
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    it('should call emit to correct gossip channel', function () {
+    it('should call emit to correct gossip channel', () => {
       // arrange
       const msg = 'This is a gossiped message!';
 

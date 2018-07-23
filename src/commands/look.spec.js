@@ -1,5 +1,3 @@
-'use strict';
-
 const mocks = require('../../spec/mocks');
 const Room = require('../models/room');
 const SandboxedModule = require('sandboxed-module');
@@ -24,27 +22,27 @@ const sut = SandboxedModule.require('./look', {
   },
 });
 
-describe('look', function () {
+describe('look', () => {
   let socket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
   });
 
-  describe('dispatch triggers execute', function () {
+  describe('dispatch triggers execute', () => {
     let executeSpy;
 
-    beforeAll(function () {
+    beforeAll(() => {
       executeSpy = spyOn(sut, 'execute');
     });
 
-    it('on short pattern', function () {
+    it('on short pattern', () => {
       sut.dispatch(socket, ['']);
 
       expect(executeSpy).toHaveBeenCalledWith(socket, true, null);
     });
 
-    it('on long pattern', function () {
+    it('on long pattern', () => {
       let lookTarget = 'look_target';
       sut.dispatch(socket, ['l', lookTarget]);
 
@@ -52,10 +50,10 @@ describe('look', function () {
     });
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
     let shortDir;
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockRoom = mocks.getMockRoom();
       mockRooms = {};
       mockRooms[socket.user.roomId] = mockRoom;
@@ -72,19 +70,19 @@ describe('look', function () {
       mockRoom.exits = [];
     });
 
-    it('should output short room look when short param is true', function () {
+    it('should output short room look when short param is true', () => {
       sut.execute(socket, true);
 
       expect(mockRoom.look).toHaveBeenCalledWith(socket, true);
     });
 
-    it('should output room look when lookTarget is not passed', function () {
+    it('should output room look when lookTarget is not passed', () => {
       sut.execute(socket, false);
 
       expect(mockRoom.look).toHaveBeenCalledWith(socket, false);
     });
 
-    it('should output room look when lookTarget is a direction', function () {
+    it('should output room look when lookTarget is a direction', () => {
       // arrange
       const targetRoom = mocks.getMockRoom();
       mockRoom.exits.push({
@@ -103,7 +101,7 @@ describe('look', function () {
       expect(targetRoom.look).toHaveBeenCalledWith(socket, false);
     });
 
-    it('should output a message when lookTarget is a direction with a closed door', function () {
+    it('should output a message when lookTarget is a direction with a closed door', () => {
       // arrange
       mockRoom.exits.push({
         closed: true,
@@ -117,7 +115,7 @@ describe('look', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'The door in that direction is closed!' });
     });
 
-    it('should do nothing when lookTarget is an invalid inventory item', function () {
+    it('should do nothing when lookTarget is an invalid inventory item', () => {
       Room.validDirectionInput.and.callFake(() => null);
       socket.user.inventory = [{ displayName: 'boot', desc: 'an old boot' }];
       autocompleteResult = undefined;
@@ -129,7 +127,7 @@ describe('look', function () {
 
   });
 
-  it('help should output message', function () {
+  it('help should output message', () => {
     sut.help(socket);
 
     let output = '';

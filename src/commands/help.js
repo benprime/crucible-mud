@@ -1,5 +1,3 @@
-'use strict';
-
 const actionData = require('../../data/actionData');
 
 let commandHandlers = {};
@@ -57,7 +55,7 @@ function generalHelp(socket) {
 
 function topicHelp(socket, topic) {
   topic = topic.toLowerCase();
-  if (Object.keys(commandHandlers).indexOf(topic) !== -1) {
+  if (Object.keys(commandHandlers).includes(topic)) {
     commandHandlers[topic].help(socket);
   }
   else {

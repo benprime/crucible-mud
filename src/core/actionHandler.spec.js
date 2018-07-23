@@ -1,5 +1,3 @@
-'use strict';
-
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
 
@@ -37,12 +35,12 @@ const sut = SandboxedModule.require('./actionHandler', {
   globals: { io: mockGlobalIO },
 });
 
-describe('actionHandler', function () {
+describe('actionHandler', () => {
   let socket;
   let sockets = {};
 
-  describe('actionDispatcher', function () {
-    beforeEach(function() {
+  describe('actionDispatcher', () => {
+    beforeEach(() => {
       mockRoom = mocks.getMockRoom();
 
       socket = new mocks.SocketMock();
@@ -63,32 +61,32 @@ describe('actionHandler', function () {
 
       mockGlobalIO.sockets.adapter.rooms = {};
       mockGlobalIO.sockets.adapter.rooms[mockRoom.id] = {
-        sockets: sockets,
+        sockets,
       };
       mockRoom.usersInRoom = jasmine.createSpy('usersInRoomSpy').and.callFake(() => usersInRoom);
     });
 
-    it('should output message when no socket is returned for the user', function () {
+    it('should output message when no socket is returned for the user', () => {
       mockTargetSocket = undefined;
 
-      var result = sut.actionDispatcher(socket, 'hug', 'aUser');
+      const result = sut.actionDispatcher(socket, 'hug', 'aUser');
 
       expect(result).toBe(true);
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown user: aUser' });
     });
 
-    it('should output message when action is performed on self', function () {
+    it('should output message when action is performed on self', () => {
       mockTargetSocket = socket;
   
-      var result = sut.actionDispatcher(socket, 'hug', 'aUser');
+      const result = sut.actionDispatcher(socket, 'hug', 'aUser');
   
       expect(result).toBe(true);
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You hug yourself.' });
       expect(mockGlobalIO.to(otherMockSocket.id).emit).toHaveBeenCalledWith('output', { message: 'TestUser hugs himself.' });
     });
 
-    it('should output message when action is performed on other user', function () {
-      var result = sut.actionDispatcher(socket, 'hug', 'aDifferentUser');
+    it('should output message when action is performed on other user', () => {
+      const result = sut.actionDispatcher(socket, 'hug', 'aDifferentUser');
   
       expect(result).toBe(true);
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You hug aDifferentUser close!' });
@@ -96,8 +94,8 @@ describe('actionHandler', function () {
       expect(mockTargetSocket.emit).toHaveBeenCalledWith('output', { message: 'TestUser hugs you close!' });
     });
 
-    it('should return false when action is not found', function () {
-      var result = sut.actionDispatcher(socket, 'notAnAction', 'aDifferentUser');
+    it('should return false when action is not found', () => {
+      const result = sut.actionDispatcher(socket, 'notAnAction', 'aDifferentUser');
   
       expect(result).toBe(false);
     });

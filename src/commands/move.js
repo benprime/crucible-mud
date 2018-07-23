@@ -1,5 +1,3 @@
-'use strict';
-
 const Room = require('../models/room');
 const socketUtil = require('../core/socketUtil');
 
@@ -47,12 +45,12 @@ function HitDoor(socket, dir) {
 }
 
 // emits "You hear movement to the <dir>" to all adjacent rooms
-function MovementSounds(socket, room, excludeDir) {
+function MovementSounds({broadcast}, {exits}, excludeDir) {
 
   // TODO: do not send movement sounds to anyone in your own party
 
   // fromRoomId is your current room (before move)
-  for(let exit of room.exits) {
+  for(let exit of exits) {
     if (excludeDir && exit.dir === excludeDir) {
       continue;
     }
@@ -66,7 +64,7 @@ function MovementSounds(socket, room, excludeDir) {
       message = `You hear movement to the ${Room.shortToLong(Room.oppositeDirection(exit.dir))}.`;
     }
 
-    socket.broadcast.to(exit.roomId).emit('output', { message });
+    broadcast.to(exit.roomId).emit('output', { message });
   }
 }
 
@@ -148,7 +146,7 @@ module.exports = {
 
     // SUCCESSFUL MOVE
     let message = '';
-    var username = socket.user.username;
+    const username = socket.user.username;
     // send message to everyone in old room that player is leaving
     if (validDir === 'u') {
       message = `${username} has gone above.`;

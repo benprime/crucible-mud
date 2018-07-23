@@ -1,5 +1,3 @@
-'use strict';
-
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
 
@@ -8,11 +6,12 @@ const sut = SandboxedModule.require('./who', {
   globals: {io:mockGlobalIO},
 });
 
-describe('who', function () {
+describe('who', () => {
   let socket;
-  let t1, t2;
+  let t1;
+  let t2;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
     t1 = new mocks.SocketMock();
     t2 = new mocks.SocketMock();
@@ -26,12 +25,11 @@ describe('who', function () {
     mockGlobalIO.sockets.connected[t2.id] = t2;
   });
 
-  describe('execute', function () {
-    it('should display online users', function () {
+  describe('execute', () => {
+    it('should display online users', () => {
       sut.execute(socket);
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1<br />Test2</div>' });
     });
   });
-
 });

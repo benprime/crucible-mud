@@ -1,5 +1,3 @@
-'use strict';
-
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
 
@@ -20,11 +18,11 @@ const sut = SandboxedModule.require('./summon', {
   globals: { io: mockGlobalIO },
 });
 
-describe('summon', function () {
+describe('summon', () => {
   let socket;
   let otherRoom;
 
-  beforeEach(function () {
+  beforeEach(() => {
     mockRoom.name = 'OLD';
     otherRoom = mocks.getMockRoom();
     otherRoom.name = 'NEW';
@@ -41,15 +39,15 @@ describe('summon', function () {
 
   });
 
-  describe('execute', function () {
-    it('should output message when user is not found', function () {
+  describe('execute', () => {
+    it('should output message when user is not found', () => {
       mockTargetSocket = null;
       sut.execute(socket, 'Wrong');
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Player not found.' });
     });
 
-    it('should join target user to admin room and leave current room', function () {
+    it('should join target user to admin room and leave current room', () => {
       // arrange
       mockTargetSocket.user.roomId = otherRoom.id;
 
@@ -61,7 +59,7 @@ describe('summon', function () {
       expect(mockTargetSocket.join).toHaveBeenCalledWith(mockRoom._id);
     });
 
-    it('should update target user room id and save user to database', function () {
+    it('should update target user room id and save user to database', () => {
       // arrange
       mockTargetSocket.user.roomId = otherRoom.id;
 
@@ -73,7 +71,7 @@ describe('summon', function () {
       expect(mockTargetSocket.user.save).toHaveBeenCalled();
     });
 
-    it('should output messages when command successful', function () {
+    it('should output messages when command successful', () => {
       // act
       sut.execute(socket, 'OtherUser');
 
@@ -82,7 +80,7 @@ describe('summon', function () {
       expect(mockTargetSocket.broadcast.to(mockTargetSocket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'OtherUser appears out of thin air!' });
     });
 
-    it('should be an admin command', function () {
+    it('should be an admin command', () => {
       expect(sut.admin).toBe(true);
     });
   });

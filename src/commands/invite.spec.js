@@ -1,5 +1,3 @@
-'use strict';
-
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
 
@@ -21,19 +19,19 @@ const sut = SandboxedModule.require('./invite', {
   globals: { io: mockGlobalIO },
 });
 
-describe('invite', function () {
+describe('invite', () => {
   let socket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
 
     // add mock room to io rooms
     mockGlobalIO.sockets.adapter.rooms[mockRoom.id] = mockRoom;
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockTargetSocket.user.username = 'TargetUser';
 
       mockGlobalIO.addUserToIORoom(mockRoom.id, mockTargetSocket);
@@ -43,7 +41,7 @@ describe('invite', function () {
       socket.emit.calls.reset();
     });
 
-    it('adds invite to socket tracking variable of recipient socket', function () {
+    it('adds invite to socket tracking variable of recipient socket', () => {
       let username = 'TargetUser';
 
       sut.execute(socket, username);

@@ -39,7 +39,7 @@ describe('hide', function () {
   it('should output message when direction is invalid', function () {
     sut.execute(socket, 'e');
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No exit in that direction.' });
+    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No exit in that direction.<br />' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
@@ -47,7 +47,7 @@ describe('hide', function () {
     autocompleteResult = null;
     sut.execute(socket, 'emu');
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Item does not exist in inventory or in room.' });
+    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Item does not exist in inventory or in room.<br />' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
@@ -55,7 +55,7 @@ describe('hide', function () {
     sut.execute(socket, 'd');
     var exit = mockRoom.exits.find(e => e.dir === 'd');
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'The exit has been concealed.' });
+    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'The exit has been concealed.<br />' });
     expect(mockRoom.save).toHaveBeenCalledTimes(1);
     expect(exit.hidden).toBe(true);
   });
@@ -65,7 +65,7 @@ describe('hide', function () {
 
     sut.execute(socket, 'clown');
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'clown has been concealed.' });
+    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'clown has been concealed.<br />' });
     expect(mockRoom.save).toHaveBeenCalledTimes(1);
     expect(autocompleteResult.hidden).toBe(true);
   });

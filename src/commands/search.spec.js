@@ -27,6 +27,7 @@ describe('search', function () {
         { dir: 'u', roomId: 'nRoomId', hidden: true },
         { dir: 'd', roomId: 'nRoomId', hidden: false },
       ],
+      //filter: jasmine.createSpy('filter').and.callFake(e => mockRoom.exits.find(e => e.dir == dir)),
       save: jasmine.createSpy('roomSave'),
     };
   });
@@ -34,7 +35,7 @@ describe('search', function () {
   it('should output message when no hidden items exist in room', function () {
     sut.execute(socket);
 
-    //expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You find nothing special.' });
+    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You find nothing special.<br />' });
     //expect(mockRoom.save).not.toHaveBeenCalled();
   });
 

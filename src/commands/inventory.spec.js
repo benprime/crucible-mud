@@ -1,25 +1,23 @@
-'use strict';
-
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
 
 const sut = SandboxedModule.require('./inventory', {});
 
-describe('inventory', function () {
+describe('inventory', () => {
 
   let socket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
   });
 
   beforeEach(() => socket.emit.calls.reset());
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    const equipSlotTest = function (testName, equipSlot, equippedItem, expectedString) {
-      describe('should display equipped items', function () {
-        beforeEach(function () {
+    const equipSlotTest = (testName, equipSlot, equippedItem, expectedString) => {
+      describe('should display equipped items', () => {
+        beforeEach(() => {
           socket.user.equipSlots.weaponMain = null;
           socket.user.equipSlots.weaponOff = null;
           socket.user.equipSlots.body = null;
@@ -33,7 +31,7 @@ describe('inventory', function () {
           socket.user.equipSlots.fingerOff = null;
         });
 
-        it(testName, function () {
+        it(testName, () => {
 
           // arrange
           socket.inventory = [];
@@ -64,7 +62,7 @@ describe('inventory', function () {
   });
 
 
-  it('should display backpack items', function () {
+  it('should display backpack items', () => {
     // arrange
     socket.user.inventory = [
       { displayName: 'ItemOne' },
@@ -81,7 +79,7 @@ describe('inventory', function () {
     expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
   });
 
-  it('should display key items', function () {
+  it('should display key items', () => {
     // arrange
     socket.user.keys = [
       { displayName: 'KeyOne' },
@@ -98,10 +96,10 @@ describe('inventory', function () {
     expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
   });
 
-  const currencyTest = function (testName, currency, expectedString) {
-    describe('should display currency', function () {
+  const currencyTest = (testName, currency, expectedString) => {
+    describe('should display currency', () => {
 
-      it(testName, function () {
+      it(testName, () => {
         // arrange
         socket.user.currency = currency;
 

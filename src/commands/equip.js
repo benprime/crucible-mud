@@ -1,6 +1,5 @@
-'use strict';
-
 const autocomplete = require('../core/autocomplete');
+const utils = require('../core/utilities');
 
 module.exports = {
   name: 'equip',
@@ -98,7 +97,7 @@ module.exports = {
     }
 
     // remove item from backpack
-    socket.user.inventory.remove(item);
+    utils.removeItem(socket.user.inventory, item);
     socket.user.save();
 
     socket.emit('output', { message: 'Item equipped.\n' });

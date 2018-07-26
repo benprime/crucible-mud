@@ -1,5 +1,3 @@
-'use strict';
-
 const Room = require('../models/room');
 const Item = require('../models/item');
 const mocks = require('../../spec/mocks');
@@ -13,32 +11,32 @@ const sut = SandboxedModule.require('./unequip', {
 });
 const autocomplete = require('../core/autocomplete');
 
-describe('unequip', function () {
+describe('unequip', () => {
   let socket;
   let room;
   let autocompleteResult;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
     room = mocks.getMockRoom();
     spyOn(Room, 'getById').and.callFake(() => room);
     spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
   });
 
-  beforeEach(function () {
+  beforeEach(() => {
     autocomplete.autocompleteTypes.calls.reset();
   });
 
-  describe('execute', function () {
-    it('should output message when item is not equipped', function () {
+  describe('execute', () => {
+    it('should output message when item is not equipped', () => {
       autocompleteResult = null;
       sut.execute(socket, 'monocle');
 
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t have that equipped.\n' });
     });
 
-    it('should output message to specify which hand for hand related slots', function () {
-      var ring = new Item();
+    it('should output message to specify which hand for hand related slots', () => {
+      const ring = new Item();
       ring.equip = 'finger';
       ring.name = 'diamond';
       autocompleteResult = ring;
@@ -49,7 +47,7 @@ describe('unequip', function () {
     });
 
     // good candidate for that test case custom runner
-    it('should unequip item put it into backpack', function () {
+    it('should unequip item put it into backpack', () => {
       // test case for each type
     });
 

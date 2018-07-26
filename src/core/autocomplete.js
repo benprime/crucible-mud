@@ -1,6 +1,3 @@
-'use strict';
-
-require('./extensionMethods');
 const Room = require('../models/room');
 
 // properties in order of search use
@@ -12,32 +9,32 @@ const propertyNames = ['displayName', 'name'];
 // ------------------------------------------
 const TypeConfig = Object.freeze({
   mob: {
-    source: function (socket) {
-      const room = Room.getById(socket.user.roomId);
+    source({user}) {
+      const room = Room.getById(user.roomId);
       return room.mobs;
     },
   },
   inventory: {
-    source: function (socket) {
-      return socket.user.inventory;
+    source({user}) {
+      return user.inventory;
     },
   },
   key: {
-    source: function (socket) {
-      return socket.user.keys;
+    source({user}) {
+      return user.keys;
     },
   },
   room: {
-    source: function (socket) {
-      const room = Room.getById(socket.user.roomId);
+    source({user}) {
+      const room = Room.getById(user.roomId);
       return room.inventory;
     },
   },
 });
 
 function distinctByProperty(arr, property) {
-  var alreadyAdded = {};
-  return arr.filter(function (obj) {
+  const alreadyAdded = {};
+  return arr.filter(obj => {
     if (alreadyAdded[obj[property]]) return false;
     alreadyAdded[obj[property]] = true;
     return true;
@@ -51,7 +48,7 @@ function autocompleteByProperty(source, property, fragment) {
 }
 
 function autocompleteTypes(socket, types, fragment) {
-  for (var typeKey in types) {
+  for (const typeKey in types) {
     if (!types.hasOwnProperty(typeKey)) continue;
 
     let type = types[typeKey];
@@ -61,14 +58,14 @@ function autocompleteTypes(socket, types, fragment) {
     }
     let source = typeConfig.source(socket);
 
-    for (var prop of propertyNames) {
+    for (const prop of propertyNames) {
       let result = autocompleteByProperty(source, prop, fragment);
 
       // TODO: Is 'item' the best name for this?
       // This can be anything... a mob, a key, a player, etc.
       if (result.length > 0) {
         return {
-          type: type,
+          type,
           item: result[0],
         };
       }

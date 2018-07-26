@@ -1,5 +1,3 @@
-'use strict';
-
 const Room = require('../models/room');
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
@@ -18,12 +16,12 @@ const sut = SandboxedModule.require('./close', {
   globals: {io:mockGlobalIO},
 });
 
-describe('close', function () {
+describe('close', () => {
   let socket;
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    beforeEach(function () {
+    beforeEach(() => {
       socket = new mocks.SocketMock();
       mockRoom = {
         id: socket.user.roomId,
@@ -38,7 +36,7 @@ describe('close', function () {
       };
     });
 
-    it('should print message on invalid direction', function () {
+    it('should print message on invalid direction', () => {
       sut.execute(socket, 'ne');
 
       expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
@@ -46,27 +44,27 @@ describe('close', function () {
 
     });
 
-    it('should print message when no door exists in valid direction', function () {
+    it('should print message when no door exists in valid direction', () => {
       sut.execute(socket, 'e');
-      const exit = mockRoom.exits.find(e => e.dir === 'e');
+      const exit = mockRoom.exits.find(({dir}) => dir === 'e');
 
       expect(exit.hasOwnProperty('closed')).toBe(false);
       expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'There is no door in that direction!' });
     });
 
-    it('should be succesful when door is open', function () {
+    it('should be succesful when door is open', () => {
       sut.execute(socket, 's');
-      const exit = mockRoom.exits.find(e => e.dir === 's');
+      const exit = mockRoom.exits.find(({dir}) => dir === 's');
 
       expect(exit.closed).toBe(true);
       expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser closes the door to the south.' });
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Door closed.' });
     });
 
-    it('should be succesful when door is already closed', function () {
+    it('should be succesful when door is already closed', () => {
       sut.execute(socket, 'n');
-      const exit = mockRoom.exits.find(e => e.dir === 'n');
+      const exit = mockRoom.exits.find(({dir}) => dir === 'n');
 
       expect(exit.closed).toBe(true);
       expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser closes the door to the north.' });

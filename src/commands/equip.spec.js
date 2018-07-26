@@ -1,5 +1,3 @@
-'use strict';
-
 const Item = require('../models/item');
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
@@ -18,28 +16,28 @@ const sut = SandboxedModule.require('./equip', {
   },
 });
 
-describe('equip', function () {
+describe('equip', () => {
   let socket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
     mockRoom = mocks.getMockRoom();
   });
 
-  describe('execute', function () {
-    beforeEach(function () {
+  describe('execute', () => {
+    beforeEach(() => {
       socket.emit.calls.reset();
     });
 
-    it('should do nothing when item is not in inventory', function () {
+    it('should do nothing when item is not in inventory', () => {
       autocompleteResult = null;
       sut.execute(socket, 'boot');
 
       expect(socket.emit).not.toHaveBeenCalled();
     });
 
-    it('should output message when item is not equipable', function () {
-      var sword = new Item();
+    it('should output message when item is not equipable', () => {
+      const sword = new Item();
       sword.equip = null;
       sword.name = 'sword';
       autocompleteResult = sword;
@@ -48,8 +46,8 @@ describe('equip', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You cannot equip that!\n' });
     });
 
-    it('should output message when item has invalid slot listing', function () {
-      var finger = new Item();
+    it('should output message when item has invalid slot listing', () => {
+      const finger = new Item();
       finger.equip = 'nose';
       finger.name = 'finger';
       autocompleteResult = finger;
@@ -58,8 +56,8 @@ describe('equip', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Um, you want to put that where?!?!\n' });
     });
 
-    it('should output message to specify which hand for hand related slots', function () {
-      var ring = new Item();
+    it('should output message to specify which hand for hand related slots', () => {
+      const ring = new Item();
       ring.equip = 'finger';
       ring.name = 'mood';
       autocompleteResult = ring;
@@ -69,7 +67,7 @@ describe('equip', function () {
     });
 
     // good candidate for that test case custom runner
-    it('should equip item of equip type and remove from backpack', function () {
+    it('should equip item of equip type and remove from backpack', () => {
       // test case for each type
     });
 

@@ -1,5 +1,3 @@
-'use strict';
-
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
 
@@ -19,11 +17,13 @@ const sut = SandboxedModule.require('./teleport', {
   },
 });
 
-describe('teleport', function () {
-  let socket, otherSocket;
-  let currentRoom, otherRoom;
+describe('teleport', () => {
+  let socket;
+  let otherSocket;
+  let currentRoom;
+  let otherRoom;
 
-  beforeAll(function () {
+  beforeAll(() => {
     currentRoom = mocks.getMockRoom();
     currentRoom.name = 'OLD';
     otherRoom = mocks.getMockRoom();
@@ -36,9 +36,9 @@ describe('teleport', function () {
     otherSocket.user.roomId = otherRoom.id;
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    it('should teleport to another user\'s room if parameter is a username', function () {
+    it('should teleport to another user\'s room if parameter is a username', () => {
       mockReturnSocket = otherSocket;
       mockRoom = otherRoom;
 
@@ -53,7 +53,7 @@ describe('teleport', function () {
       expect(socket.user.save).toHaveBeenCalled();
     });
 
-    it('should teleport to room if parameter is a room', function () {
+    it('should teleport to room if parameter is a room', () => {
       mockRoom = otherRoom;
       mockReturnSocket = socket;
 
@@ -70,7 +70,7 @@ describe('teleport', function () {
 
     });
 
-    it('should output messages when room cannot be found', function () {
+    it('should output messages when room cannot be found', () => {
 
       mockRoom = null;
 
@@ -82,7 +82,7 @@ describe('teleport', function () {
 
     });
 
-    it('should output messages when target is invalid user', function () {
+    it('should output messages when target is invalid user', () => {
       // arrange
       mockReturnSocket = null;
 
@@ -93,10 +93,9 @@ describe('teleport', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Target not found.' });
     });
 
-    it('should be an admin command', function () {
+    it('should be an admin command', () => {
       expect(sut.admin).toBe(true);
     });
 
   });
-
 });

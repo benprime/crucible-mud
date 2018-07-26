@@ -1,5 +1,3 @@
-'use strict';
-
 function CurrencyChangeToString(totalCurr) {
   if (totalCurr < 0) return 'You are in debt';
   if (totalCurr == 0) return '0 Copper';
@@ -95,21 +93,21 @@ module.exports = {
     if (socket.user.equipSlots.fingerMain) output += `<span class="cyan">Main Hand Finger: </span><span class="silver">${socket.user.equipSlots.fingerMain.displayName}</span>\n`;
     if (socket.user.equipSlots.fingerOff) output += `<span class="cyan">Off Hand Finger: </span><span class="silver">${socket.user.equipSlots.fingerOff.displayName}</span>\n`;
 
-    let invOutput = socket.user.inventory.map(item => item.displayName).join(', ');
+    let invOutput = socket.user.inventory.map(({displayName}) => displayName).join(', ');
     if (!invOutput) {
       invOutput = 'Empty';
     }
     output += '<span class="cyan">Backpack: </span>';
     output += `<span class="silver">${invOutput}</span>\n`;
 
-    let keyOutput = socket.user.keys.map(item => item.displayName).join(', ');
+    let keyOutput = socket.user.keys.map(({displayName}) => displayName).join(', ');
     if (keyOutput) {
       output += '<span class="cyan">Keys: </span>';
       output += `<span class="silver">${keyOutput}</span>\n`;
     }
 
     output += '<span class="cyan">Currency: </span>';
-    output += '<span class="silver">' + CurrencyChangeToString(socket.user.currency) + '</span>\n';
+    output += `<span class="silver">${CurrencyChangeToString(socket.user.currency)}</span>\n`;
     socket.emit('output', { message: output });
   },
 

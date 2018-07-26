@@ -1,5 +1,3 @@
-'use strict';
-
 const Room = require('../models/room');
 const Item = require('../models/item');
 const mocks = require('../../spec/mocks');
@@ -18,27 +16,27 @@ const sut = SandboxedModule.require('./drop', {
   },
 });
 
-describe('drop', function () {
+describe('drop', () => {
   let socket;
   let item;
   let key;
   let invalidItem;
 
-  beforeAll(function () {
+  beforeAll(() => {
     // just a matcher that works like toEqual, but does not do a type check.
     // This just compares the json representation of the objects being compared.
     jasmine.addMatchers({
-      toBeJsonEqual: function () {
+      toBeJsonEqual() {
         return {
-          compare: function (actual, expected) {
+          compare(actual, expected) {
             let result = {};
             let jsonActual = JSON.orderedStringify(actual);
             let jsonExpected = JSON.orderedStringify(expected);
             result.pass = jsonActual === jsonExpected;
             if (result.pass) {
-              result.message = 'Expected ' + jsonActual + ' to equal ' + jsonExpected;
+              result.message = `Expected ${jsonActual} to equal ${jsonExpected}`;
             } else {
-              result.message = 'Expected ' + jsonActual + ' to equal ' + jsonExpected;
+              result.message = `Expected ${jsonActual} to equal ${jsonExpected}`;
             }
             return result;
           },
@@ -47,7 +45,7 @@ describe('drop', function () {
     });
   });
 
-  beforeEach(function () {
+  beforeEach(() => {
     mockRoom.reset();
     spyOn(Room, 'getById').and.callFake(() => mockRoom);
     socket = new mocks.SocketMock();
@@ -72,11 +70,11 @@ describe('drop', function () {
     mockRoom.inventory = [];
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    describe('when item.type is item', function () {
+    describe('when item.type is item', () => {
 
-      it('should output error message when item is not found in user inventory', function () {
+      it('should output error message when item is not found in user inventory', () => {
         autocompleteResult = null;
         sut.execute(socket, 'non-existent item');
 
@@ -85,10 +83,10 @@ describe('drop', function () {
         expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
       });
 
-      it('should remove item from user inventory and add to room inventory', function () {
+      it('should remove item from user inventory and add to room inventory', () => {
         autocompleteResult = {
           type: 'item',
-          item: item,
+          item,
         };
         sut.execute(socket, 'dropItem');
 
@@ -101,8 +99,8 @@ describe('drop', function () {
       });
     });
 
-    describe('when item.type is key', function () {
-      it('should remove key from user keys and add to room inventory', function () {
+    describe('when item.type is key', () => {
+      it('should remove key from user keys and add to room inventory', () => {
         autocompleteResult = {
           type: 'key',
           item: key,

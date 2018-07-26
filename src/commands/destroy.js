@@ -1,5 +1,3 @@
-'use strict';
-
 const Room = require('../models/room');
 const autocomplete = require('../core/autocomplete');
 
@@ -40,7 +38,7 @@ module.exports = {
       socket.broadcast.to(room.id).emit('output', { message: 'Mob erased from existence!' });
     }
     else if (type === 'item') {
-      var item = autocomplete.autocompleteTypes(socket, ['inventory'], name);
+      const item = autocomplete.autocompleteTypes(socket, ['inventory'], name);
       if (!item) {
         return;
       }

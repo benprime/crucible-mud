@@ -1,5 +1,3 @@
-'use strict';
-
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
 
@@ -41,11 +39,11 @@ const sutModel = SandboxedModule.require('../models/mob', {
 
 
 
-describe('mob model', function () {
+describe('mob model', () => {
   let mobType;
   let mob;
 
-  beforeEach(function () {
+  beforeEach(() => {
     socket.reset();
     mockRoom._id = socket.user.roomId;
     mockRoom.reset();
@@ -57,9 +55,9 @@ describe('mob model', function () {
     mob.die = jasmine.createSpy('mobDie').and.callThrough();
   });
 
-  describe('constructor', function () {
+  describe('constructor', () => {
 
-    it('should initialize properties', function () {
+    it('should initialize properties', () => {
       expect(mob.hp).not.toBeNull();
       expect(mob.xp).not.toBeNull();
       expect(mob.minDamage).not.toBeNull();
@@ -71,9 +69,9 @@ describe('mob model', function () {
     });
   });
 
-  describe('look', function () {
+  describe('look', () => {
 
-    it('should output mob description', function () {
+    it('should output mob description', () => {
       // arrange
       socket.user.admin = false;
 
@@ -85,7 +83,7 @@ describe('mob model', function () {
       expect(socket.emit).not.toHaveBeenCalledWith('output', { message: `Mob ID: ${mob.id}` });
     });
 
-    it('should output mob id if logged in user is admin', function () {
+    it('should output mob id if logged in user is admin', () => {
       // arrange
       socket.user.admin = true;
 
@@ -98,9 +96,9 @@ describe('mob model', function () {
     });
   });
 
-  describe('takeDamage', function () {
+  describe('takeDamage', () => {
 
-    it('should reduce the hp by the damage amount', function () {
+    it('should reduce the hp by the damage amount', () => {
       // arrange
       mob.hp = 10;
 
@@ -112,7 +110,7 @@ describe('mob model', function () {
       expect(mob.die).not.toHaveBeenCalled();
     });
 
-    it('should call the die method if hp is reduced to zero', function () {
+    it('should call the die method if hp is reduced to zero', () => {
       // arrange
       mockGetRoomSocketsResult = [];
       mob.hp = 2;
@@ -126,15 +124,15 @@ describe('mob model', function () {
     });
   });
 
-  describe('die', function () {
+  describe('die', () => {
 
-    beforeEach(function () {
+    beforeEach(() => {
       mob = new sutModel(mobType, mockRoom.roomId, 0);
       mockRoom.mobs = [mob];
       mockGetRoomSocketsResult = [socket];
     });
 
-    it('should update room.spawnTimer', function () {
+    it('should update room.spawnTimer', () => {
       // arrange
       mockRoom.spawnTimer = null;
 
@@ -145,7 +143,7 @@ describe('mob model', function () {
       expect(mockRoom.spawnTimer).not.toBeNull();
     });
 
-    it('should output mob death message', function () {
+    it('should output mob death message', () => {
       // act
       mob.die(socket);
 
@@ -153,7 +151,7 @@ describe('mob model', function () {
       expect(mockGlobalIO.to(mockRoom.id).emit).toHaveBeenCalledWith('output', { message: `The ${mob.displayName} collapses.` });
     });
 
-    it('should remove mob from room', function () {
+    it('should remove mob from room', () => {
       // act
       mob.die(socket);
 
@@ -162,14 +160,14 @@ describe('mob model', function () {
     });
   });
 
-  describe('awardExperience', function () {
+  describe('awardExperience', () => {
 
-    beforeEach(function () {
+    beforeEach(() => {
       mob = new sutModel(mobType, mockRoom.roomId, 0);
       socket.user.attackTarget = mob.id;
     });
 
-    it('should award experience to each player currently attacking mob', function () {
+    it('should award experience to each player currently attacking mob', () => {
       // arrange
       socket.attackTarget = mob.id;
       mockGetRoomSocketsResult = [socket];
@@ -184,23 +182,23 @@ describe('mob model', function () {
     });
   });
 
-  describe('selectTarget', function () {
+  describe('selectTarget', () => {
 
-    describe('when player is in room', function () {
+    describe('when player is in room', () => {
 
-      beforeEach(function () {
+      beforeEach(() => {
         socket = new mocks.SocketMock();
         diceGetRandomNumberMock.and.callFake(() => 0);
         //socket.reset();
         const sockets = {};
         sockets[socket.id] = socket;
         mockGlobalIO.sockets.adapter.rooms[mockRoom.id] = {
-          sockets: sockets,
+          sockets,
         };
         mockGlobalIO.sockets.connected[socket.id] = socket;
       });
 
-      it('and mob attack target is null, mob should move to attack', function () {
+      it('and mob attack target is null, mob should move to attack', () => {
         mob.attackTarget = null;
         mob.selectTarget(mockRoom.id);
 
@@ -208,7 +206,7 @@ describe('mob model', function () {
         expect(socket.emit).toHaveBeenCalledWith('output', { message: `The ${mob.displayName} moves to attack you!` });
       });
 
-      it('and mob attack target is populated, select target should do nothing', function () {
+      it('and mob attack target is populated, select target should do nothing', () => {
         mob.attackTarget = {};
         mob.selectTarget(mockRoom.id);
 
@@ -217,15 +215,15 @@ describe('mob model', function () {
       });
     });
 
-    describe('when no players are in room', function () {
+    describe('when no players are in room', () => {
 
-      beforeEach(function () {
+      beforeEach(() => {
         mockGlobalIO.sockets.adapter.rooms[mockRoom.id] = {
           sockets: {},
         };
       });
 
-      it('if no player is in room, mob should do nothing', function () {
+      it('if no player is in room, mob should do nothing', () => {
         mob.attackTarget = null;
         mob.selectTarget(mockRoom.id);
 
@@ -236,19 +234,19 @@ describe('mob model', function () {
 
   });
 
-  describe('attackroll', function () {
+  describe('attackroll', () => {
     // TODO: Fill this in when logic is added
   });
 
-  describe('attack', function () {
+  describe('attack', () => {
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockGlobalIO.sockets.connected[socket.id] = socket;
       mockSocketInRoomResult = true;
       roomMessageSpy.calls.reset();
     });
 
-    it('should return false when mob has no attack target', function () {
+    it('should return false when mob has no attack target', () => {
       // arrange
       mob.attackTarget = null;
 
@@ -260,7 +258,7 @@ describe('mob model', function () {
       expect(roomMessageSpy).not.toHaveBeenCalled();
     });
 
-    it('should set attackTarget to null if target socket is not in room', function () {
+    it('should set attackTarget to null if target socket is not in room', () => {
       // arrange
       mob.attackTarget = 'non existant socket';
       mockSocketInRoomResult = false;
@@ -275,7 +273,7 @@ describe('mob model', function () {
       expect(result).toBe(false);
     });
 
-    it('should update lastAttack and return true on every successful attack', function () {
+    it('should update lastAttack and return true on every successful attack', () => {
       // arrange
       mockSocketInRoomResult = true;
       mob.attackTarget = socket.id;
@@ -291,7 +289,7 @@ describe('mob model', function () {
       expect(result).toBe(true);
     });
 
-    it('should output hit messages if attack roll successful', function () {
+    it('should output hit messages if attack roll successful', () => {
       // arrange
       mockSocketInRoomResult = true;
       diceRollMock.and.callFake(() => 1);
@@ -307,7 +305,7 @@ describe('mob model', function () {
       expect(roomMessageSpy).toHaveBeenCalledWith(mockRoom._id, roomMessage, [socket.id]);
     });
 
-    it('should output miss messages if attack roll fails', function () {
+    it('should output miss messages if attack roll fails', () => {
       // arrange
       mockSocketInRoomResult = true;
 
@@ -325,9 +323,9 @@ describe('mob model', function () {
     });
   });
 
-  describe('taunt', function () {
+  describe('taunt', () => {
 
-    it('should return if no attack target', function () {
+    it('should return if no attack target', () => {
       // arrange
       mob.attackTarget = null;
 
@@ -339,7 +337,7 @@ describe('mob model', function () {
       expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
     });
 
-    it('should return if user has left room', function () {
+    it('should return if user has left room', () => {
       // arrange
       mob.attackTarget = 'ANOTHER SOCKET ID';
 
@@ -352,7 +350,7 @@ describe('mob model', function () {
     });
 
     // taunt.format is not a function
-    xit('should send an individual message and a room message', function () {
+    xit('should send an individual message and a room message', () => {
       // arrange
       mockSocketInRoomResult = true;
       diceGetRandomNumberMock.and.callFake(() => 0);
@@ -369,9 +367,9 @@ describe('mob model', function () {
     });
   });
 
-  describe('readyToAttack', function () {
+  describe('readyToAttack', () => {
 
-    it('should return false if no attackInterval is set', function () {
+    it('should return false if no attackInterval is set', () => {
       // arrange
       mob.attackInterval = null;
 
@@ -382,7 +380,7 @@ describe('mob model', function () {
       expect(result).toBe(false);
     });
 
-    it('should return true when no last attack', function () {
+    it('should return true when no last attack', () => {
       // arrange
       mob.attackInterval = 2000;
       mob.lastAttack = null;
@@ -394,7 +392,7 @@ describe('mob model', function () {
       expect(result).toBe(true);
     });
 
-    it('should return false when last attack + attack inteval is less than now', function () {
+    it('should return false when last attack + attack inteval is less than now', () => {
       // arrange
       mob.lastAttack = Date.now();
       mob.attackInterval = 3000;
@@ -406,7 +404,7 @@ describe('mob model', function () {
       expect(result).toBe(false);
     });
 
-    it('should return true when last attack + attack inteval is less than or equal to now', function () {
+    it('should return true when last attack + attack inteval is less than or equal to now', () => {
       // arrange
       mob.lastAttack = Date.now();
       mob.attackInterval = -3000;
@@ -419,9 +417,9 @@ describe('mob model', function () {
     });
   });
 
-  describe('readyToTaunt', function () {
+  describe('readyToTaunt', () => {
 
-    it('should return false if no tauntInterval is set', function () {
+    it('should return false if no tauntInterval is set', () => {
       // arrange
       mob.tauntInterval = null;
 
@@ -432,7 +430,7 @@ describe('mob model', function () {
       expect(result).toBe(false);
     });
 
-    it('should return true when no last taunt', function () {
+    it('should return true when no last taunt', () => {
       // arrange
       mob.attackTarget = {};
       mob.lastTaunt = null;
@@ -444,7 +442,7 @@ describe('mob model', function () {
       expect(result).toBe(true);
     });
 
-    it('should return false when last taunt + taunt inteval is less than now', function () {
+    it('should return false when last taunt + taunt inteval is less than now', () => {
       // arrange
       mob.attackTarget = {};
       mob.lastTaunt = Date.now();
@@ -457,7 +455,7 @@ describe('mob model', function () {
       expect(result).toBe(true);
     });
 
-    it('should return true when last taunt + taunt inteval less than or equal to now', function () {
+    it('should return true when last taunt + taunt inteval less than or equal to now', () => {
       // arrange
       mob.attackTarget = {};
       mob.lastTaunt = Date.now();
@@ -471,9 +469,9 @@ describe('mob model', function () {
     });
   });
 
-  describe('readyToIdle', function () {
+  describe('readyToIdle', () => {
 
-    it('should return false when no idleInterval is set', function () {
+    it('should return false when no idleInterval is set', () => {
       // arrange
       mob.idleInterval = null;
 
@@ -484,7 +482,7 @@ describe('mob model', function () {
       expect(result).toBe(false);
     });
 
-    it('should return true when no last idle', function () {
+    it('should return true when no last idle', () => {
       // arrange
       mob.idleInterval = 2000;
       mob.lastIdle = null;
@@ -496,7 +494,7 @@ describe('mob model', function () {
       expect(result).toBe(true);
     });
 
-    it('should return true when last idle + idle inteval is less than now', function () {
+    it('should return true when last idle + idle inteval is less than now', () => {
       // arrange
       mob.idleInterval = -2000;
       mob.lastIdle = Date.now();
@@ -508,7 +506,7 @@ describe('mob model', function () {
       expect(result).toBe(true);
     });
 
-    it('should return false when last idle + idle inteval is greater than now', function () {
+    it('should return false when last idle + idle inteval is greater than now', () => {
       // arrange
       mob.idleInterval = 2000;
       mob.lastIdle = Date.now();

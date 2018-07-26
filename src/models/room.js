@@ -1,6 +1,3 @@
-'use strict';
-
-require('../core/extensionMethods');
 const mongoose = require('mongoose');
 const ItemSchema = require('./itemSchema');
 const SpawnerSchema = require('./spawnerSchema');
@@ -108,12 +105,12 @@ const RoomSchema = new mongoose.Schema({
 //============================================================================
 RoomSchema.statics.roomCache = roomCache;
 
-RoomSchema.statics.getById = function (roomId) {
-  var room = roomCache[roomId];
+RoomSchema.statics.getById = roomId => {
+  const room = roomCache[roomId];
   return room;
 };
 
-RoomSchema.statics.oppositeDirection = function (dir) {
+RoomSchema.statics.oppositeDirection = dir => {
   if (dir in oppositeDir) return oppositeDir[dir];
   return null;
 };
@@ -122,12 +119,12 @@ RoomSchema.statics.byCoords = function (coords, cb) {
   return this.findOne(coords, cb);
 };
 
-RoomSchema.statics.shortToLong = function (dir) {
+RoomSchema.statics.shortToLong = dir => {
   if (dir in shortToLong) return shortToLong[dir];
   return dir;
 };
 
-RoomSchema.statics.longToShort = function (dir) {
+RoomSchema.statics.longToShort = dir => {
   if (dir in longToShort) return longToShort[dir];
   return dir;
 };
@@ -156,7 +153,7 @@ RoomSchema.methods.usersInRoom = function () {
 RoomSchema.methods.userInRoom = function (username) {
   let usernames = this.usersInRoom(this.RoomId);
   usernames = usernames.map(u => u.toLowerCase());
-  return usernames.indexOf(username.toLowerCase()) > -1;
+  return usernames.includes(username.toLowerCase());
 };
 
 RoomSchema.methods.createRoom = function (dir, cb) {
@@ -173,9 +170,9 @@ RoomSchema.methods.createRoom = function (dir, cb) {
   }
 
   // see if room exists at the coords
-  var targetCoords = self.dirToCoords(dir);
+  const targetCoords = self.dirToCoords(dir);
 
-  Room.byCoords(targetCoords, function (targetRoom) {
+  Room.byCoords(targetCoords, targetRoom => {
     const oppDir = Room.oppositeDirection(dir);
     if (targetRoom) {
       self.addExit(dir, targetRoom.id);
@@ -202,7 +199,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
       targetRoom.mobs = [];
 
       // update this room with exit to new room
-      targetRoom.save(function (err, updatedRoom) {
+      targetRoom.save((err, updatedRoom) => {
 
         // add new room to room cache
         roomCache[updatedRoom.id] = updatedRoom;
@@ -222,10 +219,11 @@ RoomSchema.methods.look = function (socket, short) {
     output += `<span class="silver">${this.desc}</span>\n`;
   }
 
-  var notHiddenItems = '', hiddenItems = '';
+  let notHiddenItems = '';
+  let hiddenItems = '';
   if(this.inventory) {
-    notHiddenItems = this.inventory.filter(item => !item.hidden).map(item => item.displayName).join(', ');
-    hiddenItems = this.inventory.filter(item => item.hidden).map(item => item.displayName).join(', ');
+    notHiddenItems = this.inventory.filter(({hidden}) => !hidden).map(({displayName}) => displayName).join(', ');
+    hiddenItems = this.inventory.filter(({hidden}) => hidden).map(({displayName}) => displayName).join(', ');
   }
   if (notHiddenItems != '') {
     output += `<span class="darkcyan">You notice: ${notHiddenItems}.</span>\n`;
@@ -236,7 +234,7 @@ RoomSchema.methods.look = function (socket, short) {
 
   let names = this.usersInRoom(this.id).filter(name => name !== socket.user.username);
 
-  const mobNames = this.mobs.map(mob => mob.displayName + ' ' + mob.hp);
+  const mobNames = this.mobs.map(({displayName, hp}) => `${displayName} ${hp}`);
   if (mobNames) { names = names.concat(mobNames); }
   const displayNames = names.join('<span class="mediumOrchid">, </span>');
 
@@ -244,10 +242,11 @@ RoomSchema.methods.look = function (socket, short) {
     output += `<span class="purple">Also here: <span class="teal">${displayNames}</span>.</span>\n`;
   }
 
-  var notHiddenExits = '', hiddenExits = '';
+  let notHiddenExits = '';
+  let hiddenExits = '';
   if(this.exits) {
-    notHiddenExits = this.exits.filter(exit => !exit.hidden).map(exit => Room.shortToLong(exit.dir)).join(', ');
-    hiddenExits = this.exits.filter(exit => exit.hidden).map(exit => Room.shortToLong(exit.dir)).join(', ');
+    notHiddenExits = this.exits.filter(({hidden}) => !hidden).map(({dir}) => Room.shortToLong(dir)).join(', ');
+    hiddenExits = this.exits.filter(({hidden}) => hidden).map(({dir}) => Room.shortToLong(dir)).join(', ');
   }
   if (notHiddenExits != '') {
     output += `<span class="green">Exits: ${notHiddenExits}</span>\n`;
@@ -266,7 +265,7 @@ RoomSchema.methods.look = function (socket, short) {
 
 RoomSchema.methods.getMobById = function (mobId) {
   if (!this.mobs) return;
-  return this.mobs.find(m => m.id === mobId);
+  return this.mobs.find(({id}) => id === mobId);
 };
 
 RoomSchema.methods.dirToCoords = function (dir) {
@@ -299,7 +298,7 @@ RoomSchema.methods.addExit = function (dir, roomId) {
   }
   this.exits.push({
     dir: ldir,
-    roomId: roomId,
+    roomId,
   });
   return true;
 };
@@ -320,7 +319,7 @@ RoomSchema.methods.processPlayerCombatActions = function (now) {
 RoomSchema.methods.processMobCombatActions = function (now) {
   if (Array.isArray(this.mobs) && this.mobs.length > 0) {
     const room = this;
-    this.mobs.forEach(function (mob) {
+    this.mobs.forEach(mob => {
       if (!mob.attack(now)) {
         mob.selectTarget(room.id, mob);
       }
@@ -332,15 +331,15 @@ RoomSchema.methods.processMobCombatActions = function (now) {
 const Room = mongoose.model('Room', RoomSchema);
 
 // populate cache
-(function () {
-  Room.find({}, function (err, result) {
-    result.forEach(function (room) {
+((() => {
+  Room.find({}, (err, result) => {
+    result.forEach(room => {
       room.mobs = [];
       roomCache[room.id] = room;
       if (room.alias)
         roomCache[room.alias] = room;
     });
   });
-})();
+}))();
 
 module.exports = Room;

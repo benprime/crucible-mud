@@ -1,8 +1,7 @@
-'use strict';
-
 const Room = require('../models/room');
 const socketUtil = require('../core/socketUtil');
 const autocomplete = require('../core/autocomplete');
+const utils = require('../core/utilities');
 
 module.exports = {
   name: 'take',
@@ -38,12 +37,12 @@ module.exports = {
     // get any items offered to the user
     let offers;
     if(Array.isArray(socket.offers) && socket.offers.length > 0){
-      offers = socket.offers.filter(o => o.toUserName.toLowerCase() === socket.user.username.toLowerCase());
+      offers = socket.offers.filter(({toUserName}) => toUserName.toLowerCase() === socket.user.username.toLowerCase());
     }
 
     // handle an item offered from another user
     if (Array.isArray(offers) && offers.length > 0) {
-      let offerIndex = socket.offers.findIndex(o => o.item.name === itemName);
+      let offerIndex = socket.offers.findIndex(({item}) => item.name === itemName);
       if(offerIndex !== -1) {
         let offer = socket.offers[offerIndex];
         let offeringUserSocket = socketUtil.getSocketByUsername(offer.fromUserName);
@@ -58,7 +57,7 @@ module.exports = {
         socket.offers.splice(offerIndex, 1);
 
         // remove the item from the other users' inventory
-        const otherUserItemIndex = offeringUserSocket.user.inventory.findIndex(item => item.id === offer.item.id);
+        const otherUserItemIndex = offeringUserSocket.user.inventory.findIndex(({id}) => id === offer.item.id);
         if(otherUserItemIndex === -1){
           throw 'User took offered item, but was unable to remove item from source inventory.';
         }
@@ -84,7 +83,7 @@ module.exports = {
       }
       // take the item from the room
       const room = Room.getById(socket.user.roomId);
-      room.inventory.remove(roomItem);
+      utils.removeItem(room.inventory, roomItem);
 
       saveItem(roomItem);
       room.save();

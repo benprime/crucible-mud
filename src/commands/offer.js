@@ -1,5 +1,3 @@
-'use strict';
-
 const Room = require('../models/room');
 const socketUtil = require('../core/socketUtil');
 const autocomplete = require('../core/autocomplete');
@@ -36,7 +34,7 @@ module.exports = {
       userName = userNames[0];
     }
 
-    const userItemIndex = socket.user.inventory.findIndex(i => i.id === item.id);
+    const userItemIndex = socket.user.inventory.findIndex(({id}) => id === item.id);
     const offer = {
       fromUserName: socket.user.username,
       toUserName: userName,

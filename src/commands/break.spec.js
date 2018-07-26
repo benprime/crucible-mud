@@ -1,16 +1,14 @@
-'use strict';
-
 const mocks = require('../../spec/mocks');
 const SandboxedModule = require('sandboxed-module');
 
 const sut = SandboxedModule.require('./break', {});
 
-describe('break', function () {
+describe('break', () => {
   let socket;
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    it('should set appropriate socket state variables when combat underway', function () {
+    it('should set appropriate socket state variables when combat underway', () => {
       // arrange
       socket = new mocks.SocketMock();
       socket.user = {
@@ -33,7 +31,7 @@ describe('break', function () {
       expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
     });
 
-    it('should not emit messages if combat is not underway', function () {
+    it('should not emit messages if combat is not underway', () => {
       // arrange
       socket = new mocks.SocketMock();
       socket.user = {

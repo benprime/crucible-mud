@@ -70,7 +70,7 @@ function getMockRoom() {
     room.save.calls.reset();
     room.look.calls.reset();
     room.usersInRoom.calls.reset();
-    if(room.mobs.remove.calls) {
+    if(room.mobs.remove && room.mobs.remove.calls) {
       room.mobs.remove.calls.reset();
     }
   };

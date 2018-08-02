@@ -16,6 +16,8 @@ describe('roll', () => {
 
   beforeEach(() => {
     socket = new mocks.SocketMock();
+    socket.emit.calls.reset();
+    diceRoll.calls.reset();
   });
 
   describe('execute', () => {

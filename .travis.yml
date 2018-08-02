@@ -7,10 +7,11 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_6609cbccfb5a_key -iv $encrypted_6609cbccfb5a_iv
   -in deploy_rsa.enc -out deploy_rsa -d
 before_script:
+- npm install --production # This may be the default, check this
 cache:
   directories:
   - node_modules
-script: node_modules/jasmine/bin/jasmine.js
+script: node_modules/jest/bin/jest.js
 before_deploy:
 - openssl aes-256-cbc -K $encrypted_6609cbccfb5a_key -iv $encrypted_6609cbccfb5a_iv
   -in deploy_rsa.enc -out /tmp/deploy_rsa -d

@@ -1,5 +1,5 @@
-const actionHandler = require('../core/actionHandler');
-const helpHandler = require('./help');
+import actionHandler from '../core/actionHandler';
+import helpHandler from './help';
 
 let commandModules = [
   'attack.js',
@@ -51,7 +51,8 @@ function validateCommand(commandHandler, file) {
 
 commandModules.forEach(file => {
   // eslint-disable-next-line
-  let commandHandler = require(`./${file}`);
+  let commandHandler = require(`./${file}`).default;
+  //console.log(commandHandler)
   validateCommand(commandHandler, file);
   commands.push(commandHandler);
   helpHandler.registerCommand(commandHandler);
@@ -97,7 +98,7 @@ function processDispatch(socket, input) {
   defaultCommand.execute(socket, input);
 }
 
-module.exports = {
+export default {
   Dispatch(socket, input) {
     try {
       processDispatch(socket, input);

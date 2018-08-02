@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 
   // NEED MODES: Attack when attacked
   // need flags for "currently in combat" for both parties

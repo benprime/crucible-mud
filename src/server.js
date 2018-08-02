@@ -1,18 +1,19 @@
-const express = require('express');
+import express from 'express';
 
 const app = express();
-const http = require('http');
+import http from 'http';
 
 const serve = http.createServer(app);
-const io = require('socket.io')(serve);
+import ioFactory from 'socket.io';
+const io = ioFactory(serve);
 
 // parses command files and prepares them
-const commands = require('./commands/');
-const config = require('../config');
+import commands from './commands/';
 
-const welcome = require('./core/welcome');
-const loginUtil = require('./core/login');
-const look = require('./commands/look');
+import config from './config';
+import welcome from './core/welcome';
+import loginUtil from './core/login';
+import look from './commands/look';
 
 // environment variables
 const NODE_PORT = process.env.NODE_PORT || 3000;
@@ -20,14 +21,14 @@ const MONGO_DB = process.env.MONGO_DB || 'mud';
 const MONGO_PORT = process.env.MONGO_PORT || 27017;
 
 app.set('port', NODE_PORT);
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const db = mongoose.connection;
 
 global.db = db;
 global.io = io;
 
-require('./core/combat');
+import './core/combat';
 
 mongoose.connect(`mongodb://localhost:${MONGO_PORT}/${MONGO_DB}`);
 db.on('error', console.error.bind(console, 'connection error:'));

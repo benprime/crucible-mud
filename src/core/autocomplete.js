@@ -1,4 +1,4 @@
-const Room = require('../models/room');
+import Room from '../models/room';
 
 // properties in order of search use
 const propertyNames = ['displayName', 'name'];
@@ -58,15 +58,18 @@ function autocompleteTypes(socket, types, fragment) {
     }
     let source = typeConfig.source(socket);
 
+    // todo: we're just returning the first object that isn't null
+    // review this and see if returning multiple objects might be
+    // a better strategy.
     for (const prop of propertyNames) {
-      let result = autocompleteByProperty(source, prop, fragment);
+      let results = autocompleteByProperty(source, prop, fragment);
 
       // TODO: Is 'item' the best name for this?
       // This can be anything... a mob, a key, a player, etc.
-      if (result.length > 0) {
+      if (results.length > 0) {
         return {
           type,
-          item: result[0],
+          item: results[0],
         };
       }
     }
@@ -76,7 +79,7 @@ function autocompleteTypes(socket, types, fragment) {
   return null;
 }
 
-module.exports = {
+export default {
   autocompleteTypes,
   autocompleteByProperty,
 };

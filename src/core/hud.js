@@ -1,5 +1,5 @@
 
-module.exports = {
+export default {
   updateHUD(socket) {
     socket.emit('hud', {
       currentHP: socket.user.currentHP,

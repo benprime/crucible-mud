@@ -1,21 +1,19 @@
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
-const ObjectId = require('mongodb').ObjectId;
+import mocks from '../../spec/mocks';
+import sut from './socketUtil';
+import { Types } from 'mongoose';
+const { ObjectId } = Types;
 
-let mockGlobalIO = new mocks.IOMock();
-const sut = SandboxedModule.require('./socketUtil', {
-  globals: { io: mockGlobalIO },
-});
+global.io = new mocks.IOMock();
 
 
 describe('socketUtil', () => {
 
   describe('socketInRoom', () => {
     beforeEach(() => {
-      mockGlobalIO.sockets.adapter.rooms = {};
+      global.io.sockets.adapter.rooms = {};
     });
 
-    it('returns false for invalid roomId', () => {
+    test('returns false for invalid roomId', () => {
       // act
       const result = sut.socketInRoom('invalidRoomId', 'socketId');
 
@@ -23,13 +21,13 @@ describe('socketUtil', () => {
       expect(result).toBe(false);
     });
 
-    it('returns true when socket exists in the room', () => {
+    test('returns true when socket exists in the room', () => {
       // arrange
       let socket = new mocks.SocketMock();
       let sockets = {};
       sockets[socket.id] = socket;
-      mockGlobalIO.sockets.adapter.rooms = {};
-      mockGlobalIO.sockets.adapter.rooms['testroom'] = {
+      global.io.sockets.adapter.rooms = {};
+      global.io.sockets.adapter.rooms['testroom'] = {
         sockets,
       };
 
@@ -40,10 +38,10 @@ describe('socketUtil', () => {
       expect(result).toBe(true);
     });
 
-    it('returns false when socket does not exist in the room', () => {
+    test('returns false when socket does not exist in the room', () => {
       // arrange
-      mockGlobalIO.sockets.adapter.rooms = {};
-      mockGlobalIO.sockets.adapter.rooms['testroom'] = {
+      global.io.sockets.adapter.rooms = {};
+      global.io.sockets.adapter.rooms['testroom'] = {
         sockets: {},
       };
 
@@ -61,20 +59,20 @@ describe('socketUtil', () => {
     let socket;
 
     beforeAll(() => {
-      mockGlobalIO.reset();
+      global.io.reset();
       room = mocks.getMockRoom();
       socket = new mocks.SocketMock();
     });
 
-    it('does not send messages when roomid is invalid', () => {
+    test('does not send messages when roomid is invalid', () => {
       // arrange
       const message = 'test message';
       const exclude = null;
       let sockets = {};
       sockets[socket.id] = socket;
-      mockGlobalIO.sockets.connected[socket.id] = socket;
-      mockGlobalIO.sockets.adapter.rooms = {};
-      mockGlobalIO.sockets.adapter.rooms[room.id] = {
+      global.io.sockets.connected[socket.id] = socket;
+      global.io.sockets.adapter.rooms = {};
+      global.io.sockets.adapter.rooms[room.id] = {
         sockets,
       };
 
@@ -85,7 +83,7 @@ describe('socketUtil', () => {
       expect(socket.emit).not.toHaveBeenCalled();
     });
 
-    it('should send message to every socket in the room', () => {
+    test('should send message to every socket in the room', () => {
       // arrange
       const socketA = new mocks.SocketMock();
       const socketB = new mocks.SocketMock();
@@ -97,12 +95,12 @@ describe('socketUtil', () => {
       sockets[socketB.id] = socketB;
       sockets[socketC.id] = socketC;
 
-      mockGlobalIO.sockets.connected[socketA.id] = socketA;
-      mockGlobalIO.sockets.connected[socketB.id] = socketB;
-      mockGlobalIO.sockets.connected[socketC.id] = socketC;
+      global.io.sockets.connected[socketA.id] = socketA;
+      global.io.sockets.connected[socketB.id] = socketB;
+      global.io.sockets.connected[socketC.id] = socketC;
 
-      mockGlobalIO.sockets.adapter.rooms = {};
-      mockGlobalIO.sockets.adapter.rooms[room.id] = {
+      global.io.sockets.adapter.rooms = {};
+      global.io.sockets.adapter.rooms[room.id] = {
         sockets,
       };
 
@@ -115,7 +113,7 @@ describe('socketUtil', () => {
       expect(socketC.emit).toHaveBeenCalled();
     });
 
-    it('should exclude sockets passed in the exclude array', () => {
+    test('should exclude sockets passed in the exclude array', () => {
       // arrange
       const socketA = new mocks.SocketMock();
       const socketB = new mocks.SocketMock();
@@ -127,12 +125,12 @@ describe('socketUtil', () => {
       sockets[socketB.id] = socketB;
       sockets[socketC.id] = socketC;
 
-      mockGlobalIO.sockets.connected[socketA.id] = socketA;
-      mockGlobalIO.sockets.connected[socketB.id] = socketB;
-      mockGlobalIO.sockets.connected[socketC.id] = socketC;
+      global.io.sockets.connected[socketA.id] = socketA;
+      global.io.sockets.connected[socketB.id] = socketB;
+      global.io.sockets.connected[socketC.id] = socketC;
 
-      mockGlobalIO.sockets.adapter.rooms = {};
-      mockGlobalIO.sockets.adapter.rooms[room.id] = {
+      global.io.sockets.adapter.rooms = {};
+      global.io.sockets.adapter.rooms[room.id] = {
         sockets,
       };
 
@@ -151,13 +149,13 @@ describe('socketUtil', () => {
     let socket;
 
     beforeEach(() => {
-      mockGlobalIO.reset();
+      global.io.reset();
     });
 
-    it('returns socket when username found in connected sockets', () => {
+    test('returns socket when username found in connected sockets', () => {
       // arrange
       socket = new mocks.SocketMock();
-      mockGlobalIO.sockets.connected[socket.id] = socket;
+      global.io.sockets.connected[socket.id] = socket;
 
       // act
       const result = sut.getSocketByUsername(socket.user.username);
@@ -166,7 +164,7 @@ describe('socketUtil', () => {
       expect(result).toBe(socket);
     });
 
-    it('returns null when username not found in connected sockets', () => {
+    test('returns null when username not found in connected sockets', () => {
       // act
       const result = sut.getSocketByUsername('unknown username');
 
@@ -179,11 +177,11 @@ describe('socketUtil', () => {
   describe('getSocketByUserId', () => {
     let socket;
 
-    it('returns socket when userId found in connected sockets', () => {
+    test('returns socket when userId found in connected sockets', () => {
       // arrange
-      mockGlobalIO.reset();
+      global.io.reset();
       socket = new mocks.SocketMock();
-      mockGlobalIO.sockets.connected[socket.id] = socket;
+      global.io.sockets.connected[socket.id] = socket;
 
       // act
       const result = sut.getSocketByUserId(socket.user.id);
@@ -192,7 +190,7 @@ describe('socketUtil', () => {
       expect(result).toBe(socket);
     });
 
-    it('returns null when userId not found in connected sockets', () => {
+    test('returns null when userId not found in connected sockets', () => {
       // arrange
       socket = new mocks.SocketMock();
 
@@ -208,19 +206,19 @@ describe('socketUtil', () => {
     let room;
 
     beforeAll(() => {
-      mockGlobalIO.reset();
+      global.io.reset();
       room = mocks.getMockRoom();
     });
 
-    it('should return an empty array when no sockets exist in the room', () => {
+    test('should return an empty array when no sockets exist in the room', () => {
       let result = sut.getRoomSockets('room with no sockets');
 
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBe(0);
     });
 
-    it('should return an array of sockets when the room is populated with users', () => {
-      mockGlobalIO.sockets.adapter.rooms[room.id] = {
+    test('should return an array of sockets when the room is populated with users', () => {
+      global.io.sockets.adapter.rooms[room.id] = {
         sockets: [
           {},
           {},
@@ -236,10 +234,10 @@ describe('socketUtil', () => {
 
   describe('getFollowingSockets', () => {
     beforeEach(() => {
-      mockGlobalIO.reset();
+      global.io.reset();
     });
 
-    it('should return all sockets where leader matches', () => {
+    test('should return all sockets where leader matches', () => {
       // arrange
       const leaderId = new ObjectId().valueOf();
 
@@ -255,12 +253,12 @@ describe('socketUtil', () => {
       const nonFollower2 = new mocks.SocketMock('nonFollower2');
       const nonFollower3 = new mocks.SocketMock('nonFollower3');
 
-      mockGlobalIO.sockets.connected[follower1.id] = follower1;
-      mockGlobalIO.sockets.connected[follower2.id] = follower2;
-      mockGlobalIO.sockets.connected[follower3.id] = follower3;
-      mockGlobalIO.sockets.connected[nonFollower1.id] = nonFollower1;
-      mockGlobalIO.sockets.connected[nonFollower2.id] = nonFollower2;
-      mockGlobalIO.sockets.connected[nonFollower3.id] = nonFollower3;
+      global.io.sockets.connected[follower1.id] = follower1;
+      global.io.sockets.connected[follower2.id] = follower2;
+      global.io.sockets.connected[follower3.id] = follower3;
+      global.io.sockets.connected[nonFollower1.id] = nonFollower1;
+      global.io.sockets.connected[nonFollower2.id] = nonFollower2;
+      global.io.sockets.connected[nonFollower3.id] = nonFollower3;
 
       // act
       const result = sut.getFollowingSockets(leaderId);
@@ -277,10 +275,10 @@ describe('socketUtil', () => {
     let socket;
 
     beforeEach(() => {
-      mockGlobalIO.reset();
+      global.io.reset();
     });
 
-    it('should return false if user is not logged in', () => {
+    test('should return false if user is not logged in', () => {
       // arrange
       const roomId = new ObjectId().valueOf();
 
@@ -298,10 +296,10 @@ describe('socketUtil', () => {
 
       // assert
       expect(result).toBe(false);
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown user' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'Unknown user' });
     });
 
-    it('should return false if user is not in the room', () => {
+    test('should return false if user is not in the room', () => {
       // arrange
       const roomId = new ObjectId().valueOf();
 
@@ -315,17 +313,17 @@ describe('socketUtil', () => {
       targetSocket.roomId = roomId;
 
       // log the user in
-      mockGlobalIO.sockets.connected[targetSocket.id] = targetSocket;
+      global.io.sockets.connected[targetSocket.id] = targetSocket;
 
       // act
       let result = sut.validUserInRoom(socket, targetSocket.user.username);
 
       // assert
       expect(result).toBe(false);
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: `You don't see ${targetSocket.user.username} here.` });
+      expect(socket.emit).toBeCalledWith('output', { message: `You don't see ${targetSocket.user.username} here.` });
     });
 
-    it('should return socket when user is in the room', () => {
+    test('should return socket when user is in the room', () => {
       // arrange
       const roomId = new ObjectId().valueOf();
 
@@ -339,13 +337,13 @@ describe('socketUtil', () => {
       targetSocket.roomId = roomId;
 
       // log the user in
-      mockGlobalIO.sockets.connected[targetSocket.id] = targetSocket;
+      global.io.sockets.connected[targetSocket.id] = targetSocket;
 
       // place the user in the room
       let sockets = {};
       sockets[targetSocket.id] = {};
-      mockGlobalIO.sockets.adapter.rooms = {};
-      mockGlobalIO.sockets.adapter.rooms[roomId] = {
+      global.io.sockets.adapter.rooms = {};
+      global.io.sockets.adapter.rooms[roomId] = {
         sockets,
       };
 

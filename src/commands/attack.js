@@ -1,7 +1,7 @@
-const Room = require('../models/room');
-const autocomplete = require('../core/autocomplete');
+import Room from '../models/room';
+import autocomplete from '../core/autocomplete';
 
-module.exports = {
+export default {
   name: 'attack',
 
   patterns: [
@@ -10,7 +10,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1]);
+    this.execute(socket, match[1]);
   },
 
   execute(socket, targetName) {

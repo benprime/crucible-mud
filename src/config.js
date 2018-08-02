@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = {
+export default {
   MSG_COLOR: 'darkcyan',
   DMG_COLOR: 'firebrick',
   NOTICE_COLOR: 'yellow',

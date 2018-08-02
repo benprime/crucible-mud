@@ -1,10 +1,7 @@
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+import mocks from '../../spec/mocks';
+import sut from './who';
 
-let mockGlobalIO = new mocks.IOMock();
-const sut = SandboxedModule.require('./who', {
-  globals: {io:mockGlobalIO},
-});
+global.io = new mocks.IOMock();
 
 describe('who', () => {
   let socket;
@@ -19,17 +16,17 @@ describe('who', () => {
     t2.id = '2';
     t1.user.username = 'Test1';
     t2.user.username = 'Test2';
-    mockGlobalIO.reset();
-    mockGlobalIO.sockets.connected = {};
-    mockGlobalIO.sockets.connected[t1.id] = t1;
-    mockGlobalIO.sockets.connected[t2.id] = t2;
+    global.io.reset();
+    global.io.sockets.connected = {};
+    global.io.sockets.connected[t1.id] = t1;
+    global.io.sockets.connected[t2.id] = t2;
   });
 
   describe('execute', () => {
-    it('should display online users', () => {
+    test('should display online users', () => {
       sut.execute(socket);
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1<br />Test2</div>' });
+      expect(socket.emit).toBeCalledWith('output', { message: '<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1<br />Test2</div>' });
     });
   });
 });

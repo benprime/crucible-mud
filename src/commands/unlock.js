@@ -1,8 +1,8 @@
-const config = require('../../config');
-const autocomplete = require('../core/autocomplete');
-const Room = require('../models/room');
+import config from '../config';
+import autocomplete from '../core/autocomplete';
+import Room from '../models/room';
 
-module.exports = {
+export default {
   name: 'unlock',
 
   patterns: [
@@ -13,12 +13,12 @@ module.exports = {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      module.exports.help(socket);
+      help(socket);
       return;
     }
     const dir = match[1].toLowerCase();
     const keyName = match[2];
-    module.exports.execute(socket, dir, keyName);
+    this.execute(socket, dir, keyName);
   },
 
   execute(socket, dir, keyName, cb) {
@@ -36,7 +36,10 @@ module.exports = {
     }
 
     const key = autocomplete.autocompleteTypes(socket, ['key'], keyName);
-    if(!key) return;
+    if(!key) {
+      socket.emit('output', { message: 'You don\'t seem to be carrying that key.' });
+      return;
+    }
 
     if (key.name != exit.keyName) {
       socket.emit('output', { message: 'That key does not unlock that door.' });
@@ -69,7 +72,7 @@ module.exports = {
 
   help(socket) {
     let output = '';
-    output += '<span class="mediumOrchid">unlock &lt;dir&gt; with &lt;key name&gt; </span><span class="purple">-</span> Unock a door with the key type you are carrying.<br />';
+    output += '<span class="mediumOrchid">unlock &lt;dir&gt; with &lt;key name&gt; </span><span class="purple">-</span> Unlock a door with the key type you are carrying.<br />';
     socket.emit('output', { message: output });
   },
 

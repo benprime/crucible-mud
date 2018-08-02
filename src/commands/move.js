@@ -1,14 +1,13 @@
-const Room = require('../models/room');
-const socketUtil = require('../core/socketUtil');
-
-const breakCommand = require('./break');
-const lookCommand = require('./look');
+import Room from '../models/room';
+import socketUtil from '../core/socketUtil';
+import breakCommand from './break';
+import lookCommand from './look';
 
 function Feedback(dir) {
   const d = Room.validDirectionInput(dir);
   if(!d) {
     // should never happen, but just in case
-    throw 'invalid input directions passed to feedback method';
+    throw `invalid input directions passed to feedback method: ${dir}`;
   }
   const displayDir = Room.shortToLong(d);
   return `You move ${displayDir}...`;
@@ -61,7 +60,8 @@ function MovementSounds({broadcast}, {exits}, excludeDir) {
     } else if (exit.dir === 'd') {
       message = 'You hear movement from above.';
     } else {
-      message = `You hear movement to the ${Room.shortToLong(Room.oppositeDirection(exit.dir))}.`;
+      const oppDir = Room.shortToLong(Room.oppositeDirection(exit.dir));
+      message = `You hear movement to the ${oppDir}.`;
     }
 
     broadcast.to(exit.roomId).emit('output', { message });
@@ -97,7 +97,7 @@ const directions = [
   /^down$/i,
 ];
 
-module.exports = {
+export default {
   name: 'move',
 
   patterns: commands.concat(directions),
@@ -108,21 +108,19 @@ module.exports = {
 
     // Multiple in the array means this matched to a command and not a direction
     let direction = match.length > 1 ? match[1] : match[0];
-    module.exports.execute(socket, direction);
+    this.execute(socket, direction);
   },
 
   execute(socket, dir) {
     const validDir = Room.validDirectionInput(dir.toLowerCase());
     const sourceRoom = Room.getById(socket.user.roomId);
+    if(!sourceRoom) {
+      throw "Could not fetch room that user is currently in";
+    }
 
     if(!validDir) {
       socket.emit('output', { message: '<span class="yellow">That is not a valid direction!</span>' });
-      return;
-    }
-
-    if (!sourceRoom) {
-      // hrmm if the exit was just validated, this should never happen.
-      HitWall(socket, validDir);
+      HitWall(socket, dir);
       return;
     }
 
@@ -147,6 +145,9 @@ module.exports = {
     // SUCCESSFUL MOVE
     let message = '';
     const username = socket.user.username;
+
+    breakCommand.execute(socket);
+
     // send message to everyone in old room that player is leaving
     if (validDir === 'u') {
       message = `${username} has gone above.`;
@@ -155,9 +156,6 @@ module.exports = {
     } else {
       message = `${username} has left to the ${Room.shortToLong(validDir)}.`;
     }
-
-    breakCommand.execute(socket);
-
     socket.broadcast.to(sourceRoom.id).emit('output', { message });
     MovementSounds(socket, sourceRoom, validDir);
     socket.leave(sourceRoom.id);
@@ -168,7 +166,8 @@ module.exports = {
     socket.join(exit.roomId);
 
     const targetRoom = Room.getById(socket.user.roomId);
-    MovementSounds(socket, targetRoom, Room.oppositeDirection(validDir));
+    const oppDir = Room.oppositeDirection(validDir);
+    MovementSounds(socket, targetRoom, oppDir);
 
     // send message to everyone is new room that player has arrived
     if (validDir === 'u') {
@@ -176,7 +175,7 @@ module.exports = {
     } else if (validDir === 'd') {
       message = `${username} has entered from above.`;
     } else {
-      message = `${username} has entered from the ${Room.shortToLong(Room.oppositeDirection(validDir))}.`;
+      message = `${username} has entered from the ${Room.shortToLong(oppDir)}.`;
     }
     socket.broadcast.to(exit.roomId).emit('output', { message });
 
@@ -185,7 +184,7 @@ module.exports = {
 
     let followingSockets = socketUtil.getFollowingSockets(socket.id);
     followingSockets.forEach(s => {
-      module.exports.execute(s, dir);
+      this.execute(s, dir);
     });
 
     lookCommand.execute(socket);

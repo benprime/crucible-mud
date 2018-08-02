@@ -1,4 +1,4 @@
-module.exports = Object.freeze({
+export default Object.freeze({
   name: 'gossip',
 
   patterns: [
@@ -7,7 +7,7 @@ module.exports = Object.freeze({
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1]);
+    this.execute(socket, match[1]);
   },
 
   execute({user}, message) {

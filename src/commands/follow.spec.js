@@ -1,47 +1,42 @@
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
+import mocks from '../../spec/mocks';
+import sut from './follow';
 
-let mockInvitingSocket = new mocks.SocketMock();
-mockInvitingSocket.user.username = 'InvitingUser';
-let mockRoom = mocks.getMockRoom();
-let validUserInRoomResult = mockInvitingSocket;
-const sut = SandboxedModule.require('./follow', {
-  requires: {
-    '../models/room': {
-      getById: () => mockRoom,
+jest.mock('../models/room');
 
-    },
-    '../core/socketUtil': {
-      'getSocketByUsername': () => mockInvitingSocket,
-      'validUserInRoom': () => validUserInRoomResult,
-    },
-  },
-});
+
+import { mockSocketInRoom, mockRoomMessage, mockGetSocketByUsername, mockGetSocketByUserId, mockGetFollowingSockets, mockGetRoomSockets, mockValidUserInRoom } from '../core/socketUtil';
+jest.mock('../core/socketUtil');
+
 
 describe('follow', () => {
   let socket;
+  let mockInvitingSocket;
 
   beforeAll(() => {
+    mockInvitingSocket = new mocks.SocketMock();
+    mockInvitingSocket.user.username = 'InvitingUser';
     socket = new mocks.SocketMock();
+    mockValidUserInRoom.mockReturnValue(mockInvitingSocket);
   });
 
   describe('execute', () => {
 
     beforeEach(() => {
 
-      socket.emit.calls.reset();
+      socket.emit.mockClear();
 
       socket.partyInvites = [mockInvitingSocket.user.id];
     });
 
-    it('sets socket leader tracking variable and clears follow invite when user follows user', () => {
+    test('sets socket leader tracking variable and clears follow invite when user follows user', () => {
       sut.execute(socket, mockInvitingSocket.user.username);
 
       expect(socket.partyInvites.length).toBe(0);
     });
 
     // this feature is not yet implemented
-    xit('transfers any current followers to the new leader\'s party', () => {
+    xtest('transfers any current followers to the new leader\'s party', () => {
       fail('not completed');
     });
 

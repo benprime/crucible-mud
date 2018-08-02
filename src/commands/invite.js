@@ -1,6 +1,6 @@
-const socketUtil = require('../core/socketUtil');
+import socketUtil from '../core/socketUtil';
 
-module.exports = {
+export default {
   name: 'invite',
 
   patterns: [
@@ -10,10 +10,10 @@ module.exports = {
 
   dispatch(socket, match) {
     if (match.length < 2) {
-      module.exports.help(socket);
+      help(socket);
       return;
     }
-    module.exports.execute(socket, match[1]);
+    this.execute(socket, match[1]);
   },
 
   execute(socket, username) {

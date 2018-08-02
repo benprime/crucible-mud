@@ -1,139 +1,117 @@
-const mocks = require('../../spec/mocks');
-const Room = require('../models/room');
-const SandboxedModule = require('sandboxed-module');
+import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort, mockOppositeDirection } from '../models/room';
+import { mockAutocompleteTypes } from '../core/autocomplete';
+import { when } from 'jest-when';
+import mocks from '../../spec/mocks';
+import sut from './look';
 
-let autocompleteResult;
-let mockRoom;
-let mockRooms = {};
-const sut = SandboxedModule.require('./look', {
-  requires: {
-    '../core/autocomplete': {
-      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
-    },
-    '../models/room': {
-      getById: (key) => {
-        return mockRooms[key];
-      },
-      shortToLong: Room.shortToLong,
-      validDirectionInput: Room.validDirectionInput,
-      longToShort: Room.longToShort,
-      oppositeDirection: Room.oppositeDirection,
-    },
-  },
-});
+//jest.mock('../models/user');
+jest.mock('../models/room');
+jest.mock('../core/autocomplete');
 
 describe('look', () => {
   let socket;
+  let currentRoom;
+  let targetRoomNorth;
+  let targetRoomSouth;
 
   beforeAll(() => {
     socket = new mocks.SocketMock();
+    // socket.user.roomId = 'currentRoomId0000000000';
+    targetRoomNorth = mocks.getMockRoom();
+    currentRoom = mocks.getMockRoom(socket.user.roomId);
+    const nExit = currentRoom.exits.find(e => e.dir === 'n');
+    nExit.roomId = targetRoomNorth.id;
+    nExit.closed = true;
+
+    targetRoomSouth = mocks.getMockRoom();
+    const sExit = currentRoom.exits.find(e => e.dir === 's');
+    sExit.roomId = targetRoomSouth.id;
+    sExit.closed = false;
+
+    when(mockGetById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
+    when(mockGetById).calledWith(targetRoomNorth.id).mockReturnValue(targetRoomNorth);
+    when(mockGetById).calledWith(targetRoomSouth.id).mockReturnValue(targetRoomSouth);
   });
 
   describe('dispatch triggers execute', () => {
     let executeSpy;
 
     beforeAll(() => {
-      executeSpy = spyOn(sut, 'execute');
+      executeSpy = jest.spyOn(sut, 'execute');
     });
 
-    it('on short pattern', () => {
+    test('on short pattern', () => {
       sut.dispatch(socket, ['']);
 
-      expect(executeSpy).toHaveBeenCalledWith(socket, true, null);
+      expect(executeSpy).toBeCalledWith(socket, true, null);
     });
 
-    it('on long pattern', () => {
+    test('on long pattern', () => {
       let lookTarget = 'look_target';
       sut.dispatch(socket, ['l', lookTarget]);
 
-      expect(executeSpy).toHaveBeenCalledWith(socket, false, lookTarget);
+      expect(executeSpy).toBeCalledWith(socket, false, lookTarget);
     });
   });
 
   describe('execute', () => {
-    let shortDir;
-
-    beforeEach(() => {
-      mockRoom = mocks.getMockRoom();
-      mockRooms = {};
-      mockRooms[socket.user.roomId] = mockRoom;
-
-      shortDir = 'n';
-      spyOn(Room, 'oppositeDirection').and.callFake(() => 'opposite');
-      spyOn(Room, 'shortToLong').and.callFake(() => 'exit name');
-      spyOn(Room, 'validDirectionInput').and.callFake(() => shortDir);
-
-      Room.oppositeDirection.calls.reset();
-      Room.shortToLong.calls.reset();
-      Room.validDirectionInput.calls.reset();
-      socket.emit.calls.reset();
-      mockRoom.exits = [];
-    });
-
-    it('should output short room look when short param is true', () => {
+    test('should output short room look when short param is true', () => {
       sut.execute(socket, true);
 
-      expect(mockRoom.look).toHaveBeenCalledWith(socket, true);
+      expect(currentRoom.look).toBeCalledWith(socket, true);
     });
 
-    it('should output room look when lookTarget is not passed', () => {
+    test('should output room look when lookTarget is not passed', () => {
       sut.execute(socket, false);
 
-      expect(mockRoom.look).toHaveBeenCalledWith(socket, false);
+      expect(currentRoom.look).toBeCalledWith(socket, false);
     });
 
-    it('should output room look when lookTarget is a direction', () => {
+    test('should output room look when lookTarget is a direction', () => {
       // arrange
-      const targetRoom = mocks.getMockRoom();
-      mockRoom.exits.push({
-        closed: false,
-        dir: shortDir,
-        roomId: targetRoom.id,
-      });
-      mockRooms[targetRoom.id] = targetRoom;
+      mockValidDirectionInput.mockReturnValue('s');
+      mockShortToLong.mockReturnValueOnce('south').mockReturnValueOnce('north');
 
       // act
-      sut.execute(socket, false, shortDir);
+      sut.execute(socket, false, 's');
 
       // assert
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You look to the north...' });
-      expect(socket.broadcast.to(targetRoom.id).emit).toHaveBeenCalledWith('output', { message: `<span class="yellow">${socket.user.username} peaks in from the south.</span>` });
-      expect(targetRoom.look).toHaveBeenCalledWith(socket, false);
+      expect(socket.emit).toBeCalledWith('output', { message: 'You look to the south...' });
+      expect(socket.broadcast.to(targetRoomSouth.id).emit).toBeCalledWith('output', { message: `<span class="yellow">${socket.user.username} peaks in from the north.</span>` });
+      expect(targetRoomSouth.look).toBeCalledWith(socket, false);
     });
 
-    it('should output a message when lookTarget is a direction with a closed door', () => {
+    test('should output a message when lookTarget is a direction with a closed door', () => {
       // arrange
-      mockRoom.exits.push({
-        closed: true,
-        dir: 'n',
-      });
+      mockValidDirectionInput.mockReturnValue('n');
+      mockOppositeDirection.mockReturnValue('s');
+      mockShortToLong.mockReturnValue('south');
 
       // act
       sut.execute(socket, false, 'n');
 
       // assert
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'The door in that direction is closed!' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'The door in that direction is closed!' });
     });
 
-    it('should do nothing when lookTarget is an invalid inventory item', () => {
-      Room.validDirectionInput.and.callFake(() => null);
-      socket.user.inventory = [{ displayName: 'boot', desc: 'an old boot' }];
-      autocompleteResult = undefined;
+    test('should do nothing when lookTarget is an invalid inventory item', () => {
+      mockValidDirectionInput.mockReturnValue(null);
+      mockAutocompleteTypes.mockReturnValue(undefined);
 
       sut.execute(socket, false, 'boot');
 
-      expect(socket.emit).not.toHaveBeenCalled();
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown item!' });
     });
 
   });
 
-  it('help should output message', () => {
+  test('help should output message', () => {
     sut.help(socket);
 
     let output = '';
     output += '<span class="mediumOrchid">l <span class="purple">|</span> look </span><span class="purple">-</span> Display info about current room.<br />';
     output += '<span class="mediumOrchid">look &lt;item/mob name&gt; </span><span class="purple">-</span> Display detailed info about &lt;item/mob&gt;.<br />';
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: output });
+    expect(socket.emit).toBeCalledWith('output', { message: output });
   });
 });

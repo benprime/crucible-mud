@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 
   WelcomeMessage(socket) {
     // made with http://patorjk.com/software/taag/#p=display&f=Delta%20Corps%20Priest%201&t=Crucible%0A%20%20%20%20%20MUD

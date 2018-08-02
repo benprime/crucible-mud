@@ -1,7 +1,7 @@
-const autocomplete = require('../core/autocomplete');
-const utils = require('../core/utilities');
+import autocomplete from '../core/autocomplete';
+import utils from '../core/utilities';
 
-module.exports = {
+export default {
   name: 'equip',
 
   patterns: [
@@ -11,7 +11,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1], match[2]);
+    this.execute(socket, match[1], match[2]);
   },
 
   execute(socket, itemName, hand) {

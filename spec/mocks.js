@@ -1,9 +1,8 @@
-'use strict';
-
-const Room = require('../src/models/room');
-const User = require('../src/models/user');
-const Mob = require('../src/models/mob');
-const ObjectID = require('mongodb').ObjectID;
+import { Types } from 'mongoose';
+const { ObjectId } = Types;
+import Room from '../src/models/room';
+import User from '../src/models/user';
+import Mob from '../src/models/mob';
 
 // this method provides a serialization of an
 // object with the keys in order
@@ -26,23 +25,25 @@ if (!JSON.orderedStringify) {
   };
 }
 
-function getMockRoom() {
+function getMockRoom(roomId) {
   var room = new Room();
-  room._id = new ObjectID();
+  room._id = ObjectId(roomId);
+  room.id = room._id.toString();
   room.mobs = [];
-  room.mobs.remove = jasmine.createSpy('removeMob').and.callThrough();
+  room.mobs.remove = jest.fn();
+  room.inventory = [];
 
   room.roomIds = {
-    u: new ObjectID(),
-    d: new ObjectID(),
-    n: new ObjectID(),
-    s: new ObjectID(),
-    e: new ObjectID(),
-    w: new ObjectID(),
-    ne: new ObjectID(),
-    nw: new ObjectID(),
-    se: new ObjectID(),
-    sw: new ObjectID(),
+    u: ObjectId(),
+    d: ObjectId(),
+    n: ObjectId(),
+    s: ObjectId(),
+    e: ObjectId(),
+    w: ObjectId(),
+    ne: ObjectId(),
+    nw: ObjectId(),
+    se: ObjectId(),
+    sw: ObjectId(),
   };
 
   room.exits = [
@@ -58,118 +59,117 @@ function getMockRoom() {
     { dir: 'sw', roomId: room.roomIds.sw },
   ];
 
-  room.getExit = jasmine.createSpy('getExit').and.callFake(function () { return room.exits[0]; });
-  room.save = jasmine.createSpy('save').and.callFake(() => { });
-  room.look = jasmine.createSpy('look').and.callFake(() => { });
-  room.usersInRoom = jasmine.createSpy('usersInRoom');
-  room.processPlayerCombatActions = jasmine.createSpy('processPlayerCombatActions').and.callFake(() => { });
-  room.processMobCombatActions = jasmine.createSpy('processMobCombatActions').and.callFake(() => { });
+  room.createRoom = jest.fn((dir, cb) => cb());
+  room.getExit = jest.fn().mockName('getExit').mockImplementation((dir) => room.exits.find(r => r.dir === dir));
+  room.save = jest.fn().mockName('save');
+  room.look = jest.fn().mockName('look');
+  room.usersInRoom = jest.fn().mockName('usersInRoom');
+  room.userInRoom = jest.fn().mockName('userInRoom');
+  room.processPlayerCombatActions = jest.fn().mockName('processPlayerCombatActions');
+  room.processMobCombatActions = jest.fn().mockName('processMobCombatActions');
 
   room.reset = function () {
-    room.getExit.calls.reset();
-    room.save.calls.reset();
-    room.look.calls.reset();
-    room.usersInRoom.calls.reset();
-    if(room.mobs.remove && room.mobs.remove.calls) {
-      room.mobs.remove.calls.reset();
+    room.getExit.mockReset();
+    room.save.mockReset();
+    room.look.mockReset();
+    room.usersInRoom.mockReset();
+    if (room.mobs.remove && room.mobs.remove.calls) {
+      room.mobs.remove.mockReset();
     }
   };
 
   return room;
 }
 
-function IOMock() {
-  // todo: restructure this to bind the roomCalls and emit spies together
-  const ioMock = this;
-  this.roomSpies = {};
-  this.ioEmitSpy = jasmine.createSpy('globalEmitSpy');
-
-  this.to = jasmine.createSpy().and.callFake(function (roomKey) {
-    if (!ioMock.roomSpies[roomKey]) {
-      ioMock.roomSpies[roomKey] = jasmine.createSpy('globalToEmitSpy-' + roomKey);
-    }
-    return {
-      emit: ioMock.roomSpies[roomKey],
-    };
-  });
-
-  this.sockets = {
-    adapter: {
-      rooms: {},
-    },
-    connected: {
-    },
-  };
-
-  this.addUserToIORoom = function(roomId, socket) {
-
-    this.sockets.adapter.rooms[roomId] = {
-      sockets: {},
-    };
-    this.sockets.adapter.rooms[roomId].sockets[socket.id] = socket;
-  };
-
-  this.reset = function () {
-    this.ioEmitSpy.calls.reset();
-    this.to.calls.reset();
-    Object.keys(this.roomSpies).forEach(rs => this.roomSpies[rs].calls.reset());
+class IOMock {
+  constructor() {
+    // todo: restructure this to bind the roomCalls and emit spies together
+    const ioMock = this;
+    this.roomSpies = {};
+    this.ioEmitSpy = jest.fn().mockName('globalEmitSpy');
+    this.to = jest.fn().mockName().mockImplementation(function (roomKey) {
+      if (!ioMock.roomSpies[roomKey]) {
+        ioMock.roomSpies[roomKey] = jest.fn().mockName('globalToEmitSpy-' + roomKey);
+      }
+      return {
+        emit: ioMock.roomSpies[roomKey],
+      };
+    });
     this.sockets = {
-      connected: {},
       adapter: {
         rooms: {},
       },
+      connected: {},
     };
-  };
+    this.addUserToIORoom = function (roomId, socket) {
+      this.sockets.adapter.rooms[roomId] = {
+        sockets: {},
+      };
+      this.sockets.adapter.rooms[roomId].sockets[socket.id] = socket;
+    };
+    this.reset = function () {
+      this.ioEmitSpy.mockClear();
+      this.to.mockClear();
+      Object.keys(this.roomSpies).forEach(rs => this.roomSpies[rs].mockClear());
+      this.sockets = {
+        connected: {},
+        adapter: {
+          rooms: {},
+        },
+      };
+    };
+  }
 }
 
-function SocketMock(username) {
-  let sm = this;
-  // this is mocking the SocketIO socket, and is not a mongoose object.
-  // we're using ObjectId here for convenience, so it does not have to be set
-  // to the _id property like it does on the mongoose objects.
-  this.id = new ObjectID().toString();
-  this.roomSpies = {};
-  let broadcastEmitSpy = jasmine.createSpy('userSocketBroadcastEmit');
-  this.emit = jasmine.createSpy('userSocketEmit');
-  this.on = jasmine.createSpy('userSocketOn');
-  this.leave = jasmine.createSpy('userSocketLeave');
-  this.join = jasmine.createSpy('userSocketJoin');
-  this.to = jasmine.createSpy('userSocketTo').and.callFake(function (roomKey) {
-    if (!sm.roomSpies[roomKey]) {
-      sm.roomSpies[roomKey] = jasmine.createSpy('socketRoomEmit-' + roomKey);
-    }
-
-    return {
-      emit: sm.roomSpies[roomKey],
+class SocketMock {
+  constructor(username) {
+    let sm = this;
+    // this is mocking the SocketIO socket, and is not a mongoose object.()
+    // we're using ObjectId here for convenience, so it does not have to be set
+    // to the _id property like it does on the mongoose objects.
+    this.id = ObjectId().toString();
+    this.roomSpies = {};
+    
+    let broadcastEmitSpy = jest.fn().mockName('userSocketBroadcastEmit');
+    
+    this.emit = jest.fn().mockName('userSocketEmit');
+    this.on = jest.fn().mockName('userSocketOn');
+    this.leave = jest.fn().mockName('userSocketLeave');
+    this.join = jest.fn().mockName('userSocketJoin');
+    this.to = jest.fn().mockName('userSocketTo').mockImplementation(function (roomKey) {
+      if (!sm.roomSpies[roomKey]) {
+        sm.roomSpies[roomKey] = jest.fn().mockName('socketRoomEmit-' + roomKey);
+      }
+      return {
+        emit: sm.roomSpies[roomKey],
+      };
+    });
+    this.broadcast = {
+      to: this.to,
     };
-  });
-
-  this.broadcast = {
-    to: this.to,
-  };
-
-  const user = new User();
-  user.username = username ? username : 'TestUser';
-  user.userId = new ObjectID();
-  user.roomId = new ObjectID();
-  user.save = jasmine.createSpy('userSave');
-  user.addExp = jasmine.createSpy('addExp');
-  user.attackTarget = null;
-  user.attack = jasmine.createSpy('userAttack');
-  user.inventory = [];
-  user.inventory.remove = jasmine.createSpy('inventoryRemove').and.callThrough();
-  this.user = user;
-
-  this.offers = [];
-
-  this.reset = function () {
-    broadcastEmitSpy.calls.reset();
-    this.emit.calls.reset();
-    this.on.calls.reset();
-    this.user.save.calls.reset();
-    this.user.inventory.remove.calls.reset();
-    Object.keys(this.roomSpies).forEach(rs => this.roomSpies[rs].calls.reset());
-  };
+    const user = new User();
+    user.username = username ? username : 'TestUser';
+    user.userId = ObjectId().toString();
+    user.roomId = ObjectId().toString();
+    user.save = jest.fn().mockName('userSave');
+    user.addExp = jest.fn().mockName('addExp');
+    user.attackTarget = null;
+    user.attack = jest.fn().mockName('userAttack');
+    user.inventory = [];
+    user.inventory.remove = jest.spyOn(user.inventory, 'remove').mockName('inventoryRemove');
+    user.actionDie = '1d20';
+    this.user = user;
+    this.offers = [];
+    this.partyInvites = [];
+    this.reset = function () {
+      broadcastEmitSpy.mockClear();
+      this.emit.mockClear();
+      this.on.mockClear();
+      this.user.save.mockClear();
+      this.user.inventory.remove.mockClear();
+      Object.keys(this.roomSpies).forEach(rs => this.roomSpies[rs].mockClear());
+    };
+  }
 }
 
 const mobType = {
@@ -206,11 +206,11 @@ const mobType = {
 
 function getMockMob(roomId) {
   let mob = new Mob(mobType, roomId, 0);
-  mob.die = jasmine.createSpy('mobDie');
+  mob.die = jest.fn().mockName('mobDie');
   return mob;
 }
 
-module.exports = {
+export default {
   getMockRoom,
   getMockMob,
   IOMock,

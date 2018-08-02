@@ -1,8 +1,8 @@
-const Room = require('../models/room');
-const Mob = require('../models/mob');
-const config = require('../../config');
-const mobData = require('../../data/mobData');
-const dice = require('../core/dice');
+import Room from '../models/room';
+import Mob from '../models/mob';
+import config from '../config';
+import mobData from '../data/mobData';
+import dice from '../core/dice';
 
 // Not sure if the global server code should really be living with
 // the command, but it's okay here for now.
@@ -38,7 +38,7 @@ setInterval(() => {
   });
 }, config.SPAWNER_INTERVAL);
 
-module.exports = {
+export default {
   name: 'spawner',
   admin: true,
 
@@ -55,7 +55,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1], match[2]);
+    this.execute(socket, match[1], match[2]);
   },
 
   execute(socket, action, param) {

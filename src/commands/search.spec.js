@@ -1,23 +1,12 @@
-'use strict';
+import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
+import { mockRoll } from '../core/dice';
+import mocks from '../../spec/mocks';
+import sut from './search';
 
-const Room = require('../models/room');
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+jest.mock('../models/room');
+jest.mock('../core/dice');
 
 let mockRoom;
-let diceRoll = jasmine.createSpy();
-const sut = SandboxedModule.require('./search', {
-  requires: {
-    '../core/dice': {
-      roll: diceRoll,
-    },
-    '../models/room': {
-      getById: () => mockRoom,
-      validDirectionInput: Room.validDirectionInput,
-      longToShort: Room.longToShort,
-    },
-  },
-});
 
 describe('search', function () {
   let socket;
@@ -34,53 +23,54 @@ describe('search', function () {
       ],
       save: jasmine.createSpy('roomSave'),
     };
+    mockGetById.mockReturnValueOnce(mockRoom);
   });
 
-  it('should reveal all when user is admin', function () {
+  test('should reveal all when user is admin', function () {
     socket.user.admin = true;
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
 
     sut.execute(socket);
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Search Roll: admin<br />' });
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You have spotted something!<br />' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'Search Roll: admin<br />' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'You have spotted something!<br />' });
     expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(false);
     expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(false);
     expect(mockRoom.save).toHaveBeenCalled();
   });
 
-  it('should output message when no hidden items exist in room', function () {
+  test('should output message when no hidden items exist in room', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = false;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = false;
 
-    diceRoll.and.returnValue(1);
+    mockRoll.mockReturnValueOnce(1);
 
     sut.execute(socket);
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Search Roll: 1<br />' });
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You find nothing special.<br />' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'Search Roll: 1<br />' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'You find nothing special.<br />' });
     expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(false);
     expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(false);
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should output message if skill check fails to find anything', function () {
+  test('should output message if skill check fails to find anything', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
 
-    diceRoll.and.returnValue(3);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
+    mockRoll.mockReturnValueOnce(3);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
 
     sut.execute(socket);
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Search Roll: 3<br />' });
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You find nothing special.<br />' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'Search Roll: 3<br />' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'You find nothing special.<br />' });
     expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(true);
     expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(true);
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 /*
-  it('should only reveal some items/exits if skill check doesn't fully succed', function () {
+  test('should only reveal some items/exits if skill check doesn't fully succed', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
 
@@ -88,23 +78,23 @@ describe('search', function () {
 
     sut.execute(socket);
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Search Roll: 3<br />' });
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You find nothing special.<br />' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'Search Roll: 3<br />' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'You find nothing special.<br />' });
     expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(true);
     expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(true);
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 */
-  it('should reveal hidden targets and output message when skill fully succeeds seach test', function () {
+  test('should reveal hidden targets and output message when skill fully succeeds seach test', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
 
-    diceRoll.and.returnValue(6);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
+    mockRoll.mockReturnValueOnce(6);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
 
     sut.execute(socket);
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Search Roll: 6<br />' });
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You have spotted something!<br />' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'Search Roll: 6<br />' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'You have spotted something!<br />' });
     expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(false);
     expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(false);
     expect(mockRoom.save).toHaveBeenCalled();

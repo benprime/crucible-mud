@@ -1,4 +1,4 @@
-const User = require('../models/user');
+import User from '../models/user';
 
 describe('user model', () => {
   let user;
@@ -13,14 +13,14 @@ describe('user model', () => {
       });
     });
 
-    it('returns correct value at level 1', () => {
+    test('returns correct value at level 1', () => {
       const result = user.nextExp();
 
       expect(user.level).toBe(1);
       expect(result).toBe(300);
     });
 
-    it('returns correct value at level 10', () => {
+    test('returns correct value at level 10', () => {
       user.level = 10;
       const result = user.nextExp();
 
@@ -41,7 +41,7 @@ describe('user model', () => {
         });
       });
 
-      it('saves correct value when experience is added', () => {
+      test('saves correct value when experience is added', () => {
         user.addExp(10);
 
         expect(user.xp).toBe(10);
@@ -49,7 +49,7 @@ describe('user model', () => {
         expect(saveCalled).toBe(true);
       });
 
-      it('changes level when user has enough experience for level 2', () => {
+      test('changes level when user has enough experience for level 2', () => {
         user.addExp(310);
 
         expect(user.xp).toBe(310);

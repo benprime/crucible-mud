@@ -1,7 +1,5 @@
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
-
-const sut = SandboxedModule.require('./inventory', {});
+import mocks from '../../spec/mocks';
+import sut from './inventory';
 
 describe('inventory', () => {
 
@@ -11,7 +9,7 @@ describe('inventory', () => {
     socket = new mocks.SocketMock();
   });
 
-  beforeEach(() => socket.emit.calls.reset());
+  beforeEach(() => socket.emit.mockReset());
 
   describe('execute', () => {
 
@@ -31,7 +29,7 @@ describe('inventory', () => {
           socket.user.equipSlots.fingerOff = null;
         });
 
-        it(testName, () => {
+        test(testName, () => {
 
           // arrange
           socket.inventory = [];
@@ -41,8 +39,8 @@ describe('inventory', () => {
           sut.execute(socket);
 
           // assert
-          expect(socket.emit.calls.mostRecent().args[0]).toBe('output');
-          expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
+          expect(socket.emit.mock.calls[0][0]).toBe('output');
+          expect(socket.emit.mock.calls[0][1].message).toContain(expectedString);
         });
       });
     };
@@ -62,7 +60,7 @@ describe('inventory', () => {
   });
 
 
-  it('should display backpack items', () => {
+  test('should display backpack items', () => {
     // arrange
     socket.user.inventory = [
       { displayName: 'ItemOne' },
@@ -75,11 +73,11 @@ describe('inventory', () => {
     sut.execute(socket);
 
     // assert
-    expect(socket.emit.calls.mostRecent().args[0]).toBe('output');
-    expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
+    expect(socket.emit.mock.calls[0][0]).toBe('output');
+    expect(socket.emit.mock.calls[0][1].message).toContain(expectedString);
   });
 
-  it('should display key items', () => {
+  test('should display key items', () => {
     // arrange
     socket.user.keys = [
       { displayName: 'KeyOne' },
@@ -92,14 +90,14 @@ describe('inventory', () => {
     sut.execute(socket);
 
     // assert
-    expect(socket.emit.calls.mostRecent().args[0]).toBe('output');
-    expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
+    expect(socket.emit.mock.calls[0][0]).toBe('output');
+    expect(socket.emit.mock.calls[0][1].message).toContain(expectedString);
   });
 
   const currencyTest = (testName, currency, expectedString) => {
     describe('should display currency', () => {
 
-      it(testName, () => {
+      test(testName, () => {
         // arrange
         socket.user.currency = currency;
 
@@ -107,8 +105,8 @@ describe('inventory', () => {
         sut.execute(socket);
 
         // assert
-        expect(socket.emit.calls.mostRecent().args[0]).toBe('output');
-        expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
+        expect(socket.emit.mock.calls[0][0]).toBe('output');
+        expect(socket.emit.mock.calls[0][1].message).toContain(expectedString);
       });
     });
   };

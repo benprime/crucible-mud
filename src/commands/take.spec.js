@@ -1,138 +1,144 @@
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
-const Item = require('../models/item');
-const ObjectId = require('mongodb').ObjectId;
+import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
+import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockGetSocketByUsername } from '../core/socketUtil';
+import mocks from '../../spec/mocks';
+import sut from './take';
+import Item from '../models/item';
+import { Types } from 'mongoose';
+const { ObjectId } = Types;
 
-let mockGlobalIO = new mocks.IOMock();
-let mockReturnSocket = new mocks.SocketMock();
+
+jest.mock('../models/room');
+jest.mock('../core/autocomplete');
+jest.mock('../core/socketUtil');
+
+global.io = new mocks.IOMock();
+let socket = new mocks.SocketMock();
 let mockRoom = mocks.getMockRoom();
-let autocompleteResult = {};
-const sut = SandboxedModule.require('./take', {
-  requires: {
-    '../core/autocomplete': {
-      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
-    },
-    '../models/room': {
-      getById: jasmine.createSpy('getByIdSpy').and.callFake(() => mockRoom),
-    },
-    '../core/socketUtil': {
-      'getSocketByUsername': () => mockReturnSocket,
-    },
-  },
-  globals: { io: mockGlobalIO },
-});
+mockGetById.mockReturnValue(mockRoom);
+
 
 describe('take', () => {
 
   describe('dispatch', () => {
     beforeEach(() => {
-      mockReturnSocket = new mocks.SocketMock();
       spyOn(sut, 'execute');
-      mockReturnSocket.emit.calls.reset();
+      socket.emit.mockClear();
     });
 
-    it('should call execute with match', () => {
-      sut.dispatch(mockReturnSocket, ['take', 'aItem']);
+    test('should call execute with match', () => {
+      sut.dispatch(socket, ['take', 'aItem']);
 
-      expect(sut.execute).toHaveBeenCalledWith(mockReturnSocket, 'aItem');
+      expect(sut.execute).toBeCalledWith(socket, 'aItem');
     });
 
-    it('should output message if multiple matches', () => {
-      sut.dispatch(mockReturnSocket, 'take', 'aItem', 'anotherItem');
+    test('should output message if multiple matches', () => {
+      sut.dispatch(socket, 'take', 'aItem', 'anotherItem');
 
-      expect(mockReturnSocket.emit).toHaveBeenCalledWith('output', { message: 'What do you want to take?' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'What do you want to take?' });
     });
   });
 
   describe('execute', () => {
 
-    afterEach(() => {
-      mockReturnSocket.emit.calls.reset();
-      mockReturnSocket.user.save.calls.reset();
+    beforeEach(() => {
+      socket.emit.mockReset();
+      socket.user.save.mockReset();
+      mockAutocompleteTypes.mockReset();
     });
 
-    it('should update from/to inventory on successful offer/take', () => {
-      let socket = new mocks.SocketMock();
+    test('should update from/to inventory on successful offer/take', () => {
+      let offeringSocket = new mocks.SocketMock();
 
       let offeredItem = new Item();
       offeredItem._id = new ObjectId();
       offeredItem.name = 'aItem';
       offeredItem.displayName = 'aItem display name';
 
-      mockReturnSocket.user.username = 'aUser';
-      mockReturnSocket.user.inventory = [offeredItem];
+      mockAutocompleteTypes.mockReturnValueOnce(offeredItem);
+      mockGetSocketByUsername.mockReturnValueOnce(offeringSocket);
+
+      offeringSocket.user.username = 'aUser';
+      offeringSocket.user.inventory = [offeredItem];
 
       socket.offers = [{
-        fromUserName: 'aUser',
-        toUserName: 'TestUser',
+        fromUserName: offeringSocket.user.username,
+        toUserName: socket.user.username,
         item: offeredItem,
       }];
 
       sut.execute(socket, 'aItem');
 
       expect(socket.offers.length).toEqual(0);
+      expect(socket.emit).toBeCalledWith('output', { message: `${offeredItem.displayName} was added to your inventory.` });
+      expect(socket.user.save).toHaveBeenCalled();
       expect(socket.user.inventory.length).toEqual(1);
       expect(socket.user.inventory[0].name).toEqual('aItem');
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: `${offeredItem.displayName} was added to your inventory.` });
-      expect(socket.user.save).toHaveBeenCalled();
-      expect(mockReturnSocket.user.inventory.length).toEqual(0);
-      expect(mockReturnSocket.emit).toHaveBeenCalledWith('output', { message: `${offeredItem.displayName} was removed from your inventory.` });
-      expect(mockReturnSocket.user.save).toHaveBeenCalled();
+
+      expect(offeringSocket.emit).toBeCalledWith('output', { message: `${offeredItem.displayName} was removed from your inventory.` });
+      expect(offeringSocket.user.save).toHaveBeenCalled();
+      expect(offeringSocket.user.inventory.length).toEqual(0);
     });
 
-    it('should output message when item is not found', () => {
-      mockRoom.save.calls.reset();
-      autocompleteResult = null;
+    test('should output message when item is not found', () => {
+      mockRoom.save.mockClear();
+      mockAutocompleteTypes.mockReturnValueOnce(null);
 
-      sut.execute(mockReturnSocket, 'itemNotThere');
+      sut.execute(socket, 'itemNotThere');
 
-      expect(mockReturnSocket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t see that here!' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'You don\'t see that here!' });
       expect(mockRoom.save).not.toHaveBeenCalled();
-      expect(mockReturnSocket.user.save).not.toHaveBeenCalled();
+      expect(socket.user.save).not.toHaveBeenCalled();
     });
 
-    it('should output message when item is fixed', () => {
-      mockRoom.save.calls.reset();
-      mockReturnSocket.user.inventory.length = 0;
+    test('should output message when item is fixed', () => {
+      mockRoom.save.mockClear();
+      socket.user.inventory.length = 0;
 
-      autocompleteResult = {
+      const fixedItem = {
         id: 'aItemId',
         name: 'aItem',
         displayName: 'aItem display name',
         fixed: true,
       };
+      mockAutocompleteTypes.mockReturnValueOnce(fixedItem);
 
-      sut.execute(mockReturnSocket, 'aItem');
 
-      expect(mockReturnSocket.user.inventory.length).toEqual(0);
-      expect(mockReturnSocket.emit).toHaveBeenCalledWith('output', { message: 'You cannot take that!' });
+      sut.execute(socket, 'aItem');
+
+      expect(socket.user.inventory.length).toEqual(0);
+      expect(socket.emit).toBeCalledWith('output', { message: 'You cannot take that!' });
       expect(mockRoom.save).not.toHaveBeenCalled();
-      expect(mockReturnSocket.user.save).not.toHaveBeenCalled();
+      expect(socket.user.save).not.toHaveBeenCalled();
     });
 
-    it('should update the room/user and save room/user to database', () => {
-      autocompleteResult = {
+    test('should update the room/user and save room/user to database', () => {
+      const item = {
         id: 'aItemId',
         name: 'aItem',
         displayName: 'aItem display name',
       };
+      mockRoom.inventory = [item];
+      mockAutocompleteTypes.mockReturnValueOnce(item);
 
-      sut.execute(mockReturnSocket, 'aItem');
+      sut.execute(socket, 'aItem');
 
-      expect(mockRoom.inventory.includes(autocompleteResult)).toBeFalsy();
-      expect(mockReturnSocket.user.inventory[0].name).toEqual('aItem');
-      expect(mockReturnSocket.emit).toHaveBeenCalledWith('output', { message: `${autocompleteResult.displayName} was added to your inventory.` });
-      expect(mockReturnSocket.user.save).toHaveBeenCalled();
-      expect(mockReturnSocket.emit).toHaveBeenCalledWith('output', { message: `${autocompleteResult.displayName} taken.` });
-      expect(mockReturnSocket.broadcast.to(mockReturnSocket.user.roomId).emit).toHaveBeenCalledWith('output', { message: `${mockReturnSocket.user.username} takes ${autocompleteResult.displayName}.` });
+      expect(mockRoom.inventory).not.toContain(item);
+      // THIS IS RAD
+      expect(socket.user.inventory).toContainEqual(expect.objectContaining({ name: 'aItem' }));
+
+      expect(socket.emit).toBeCalledWith('output', { message: `${item.displayName} was added to your inventory.` });
+      expect(socket.user.save).toHaveBeenCalled();
+      expect(socket.emit).toBeCalledWith('output', { message: `${item.displayName} taken.` });
+      expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: `${socket.user.username} takes ${item.displayName}.` });
     });
   });
 
   describe('help', () => {
-    it('outputs message', () => {
-      sut.help(mockReturnSocket);
+    test('outputs message', () => {
+      sut.help(socket);
 
-      expect(mockReturnSocket.emit).toHaveBeenCalledWith('output', { message: '<span class="mediumOrchid">take &lt;item name&gt </span><span class="purple">-</span> Move &lt;item&gt; into inventory. <br />' });
+      expect(socket.emit).toBeCalledWith('output', { message: '<span class="mediumOrchid">take &lt;item name&gt </span><span class="purple">-</span> Move &lt;item&gt; into inventory. <br />' });
     });
   });
 });

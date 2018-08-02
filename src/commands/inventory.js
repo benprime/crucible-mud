@@ -26,7 +26,7 @@ function CurrencyChangeToString(totalCurr) {
 function CurrencyChangeToInt(currStr) {
   if (!currStr) return 'No currency text';
 
-  let parts = currStr.split(' ');
+  let parts = currStr.spltest(' ');
   let totalCurr = 0;
 
   if (parts.length == 1 && Number.isInteger(parts[x])) return parts[x];
@@ -64,7 +64,7 @@ function CurrencyChangeToInt(currStr) {
 }
 */
 
-module.exports = {
+export default {
   name: 'inventory',
 
   patterns: [
@@ -74,7 +74,7 @@ module.exports = {
   ],
 
   dispatch(socket) {
-    module.exports.execute(socket);
+    this.execute(socket);
   },
 
   execute(socket) {

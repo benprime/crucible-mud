@@ -1,6 +1,6 @@
-const Room = require('../models/room');
+import Room from '../models/room';
 
-module.exports = {
+export default {
   name: 'create',
   admin: true,
 
@@ -12,7 +12,7 @@ module.exports = {
   dispatch(socket, match) {
     const type = match[1].toLowerCase();
     const param = match[2];
-    module.exports.execute(socket, type, param);
+    this.execute(socket, type, param);
   },
 
   execute(socket, type, param) {
@@ -28,7 +28,7 @@ module.exports = {
         socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!` });
       });
     }
-    else if (type == 'door') {
+    else if (type === 'door') {
       const dir = Room.validDirectionInput(param);
       const exit = room.getExit(dir);
 

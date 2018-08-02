@@ -7,29 +7,39 @@
     "express": "^4.16.1",
     "mongodb": "^2.2.19",
     "mongoose": "^4.12.0",
+    "mongoose-data-seed": "^1.0.6",
     "npm": "^5.10.0",
     "socket.io": "^1.7.2"
   },
   "devDependencies": {
+    "@types/jest": "^23.3.1",
+    "babel-core": "^6.26.3",
+    "babel-jest": "^23.4.2",
+    "babel-preset-env": "^1.7.0",
+    "cjson": "^0.5.0",
     "editorconfig": "^0.15.0",
     "eslint": "^4.8.0",
     "eslint-config-airbnb-base": "^11.3.2",
     "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-jasmine": "^2.8.5",
+    "eslint-plugin-jest": "^21.18.0",
     "http-server": "^0.10.0",
-    "istanbul": "^0.4.5",
-    "jasmine": "^2.99.0",
+    "jest": "^23.4.2",
+    "jest-cli": "^23.4.2",
+    "jest-when": "^1.1.0",
     "nodemon": "^1.17.2",
-    "rewire": "^2.5.2",
-    "sandboxed-module": "^2.0.3"
+    "regenerator-runtime": "^0.12.0",
+    "rewire": "^2.5.2"
   },
   "scripts": {
-    "test": "jasmine",
-    "test:watch": "nodemon node_modules/jasmine/bin/jasmine.js",
-    "coverage": "istanbul cover node_modules/jasmine/bin/jasmine.js && google-chrome ./coverage/lcov-report/index.html",
-    "start": "nodemon src/server.js",
+    "test": "node_modules/jest/bin/jest.js",
+    "test:watch": "node_modules/jest/bin/jest.js --watch",
+    "coverage": "jest --coverage && google-chrome ./coverage/lcov-report/index.html",
+    "start": "nodemon src/server.js --exec babel-node",
     "db": "mongod --dbpath c:/dev/mongo/data",
-    "open": "concurrently \"mongod --dbpath c:/dev/mongo/data\" \"nodemon server.js\""
+    "open": "concurrently \"mongod --dbpath c:/dev/mongo/data\" \"nodemon server.js\"",
+    "clean": "rm -rf dist && mkdir dist",
+    "build": "babel src -d dist",
+    "serve": "node dist/server.js"
   },
   "repository": {
     "type": "git",
@@ -37,5 +47,11 @@
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/slashben/mud#readme"
+  "homepage": "https://bitbucket.org/slashben/mud#readme",
+  "jest": {
+    "transform": {
+      ".*": "<rootDir>/node_modules/babel-jest"
+    },
+    "testURL": "http://localhost"
+  }
 }

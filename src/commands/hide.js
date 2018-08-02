@@ -1,8 +1,7 @@
-const Room = require('../models/room');
-const autocomplete = require('../core/autocomplete');
+import Room from '../models/room';
+import autocomplete from '../core/autocomplete';
 
 function hideDir(socket, room, dir) {
-  dir = Room.validDirectionInput(dir);
   let exit = room.getExit(dir);
   if (!exit) {
     socket.emit('output', { message: 'No exit in that direction.<br />' });
@@ -16,7 +15,15 @@ function hideDir(socket, room, dir) {
 
 // for items
 function hideItem(socket, room, itemName) {
-  const hideTargetObj = autocomplete.autocompleteTypes(socket, ['inventory', 'room'], itemName);
+
+  const acResult = autocomplete.autocompleteTypes(socket, ['inventory', 'room'], itemName);
+  if (!acResult) {
+    socket.emit('output', { message: 'Item does not exist in inventory or in room.<br />' });
+    return;
+  }
+
+  const hideTargetObj = acResult.item
+
   if (!hideTargetObj) {
     socket.emit('output', { message: 'Item does not exist in inventory or in room.<br />' });
     return;
@@ -28,7 +35,7 @@ function hideItem(socket, room, itemName) {
 }
 
 
-module.exports = {
+export default {
   name: 'hide',
 
   patterns: [
@@ -42,10 +49,10 @@ module.exports = {
       hideTarget = match[1];
     }
     else {
-      module.exports.help(socket);
+      help(socket);
       return;
     }
-    module.exports.execute(socket, hideTarget);
+    this.execute(socket, hideTarget);
   },
 
   execute(socket, hideTarget) {

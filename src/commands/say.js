@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'say',
 
   patterns: [
@@ -7,7 +7,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1]);
+    this.execute(socket, match[1]);
   },
 
   execute(socket, message) {

@@ -1,8 +1,8 @@
-const Room = require('../models/room');
-const socketUtil = require('../core/socketUtil');
-const autocomplete = require('../core/autocomplete');
+import Room from '../models/room';
+import socketUtil from '../core/socketUtil';
+import autocomplete from '../core/autocomplete';
 
-module.exports = {
+export default {
   name: 'offer',
 
   patterns: [
@@ -10,7 +10,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1], match[2]);
+    this.execute(socket, match[1], match[2]);
   },
 
   execute(socket, userName, itemName, cb) {

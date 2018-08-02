@@ -1,6 +1,6 @@
-const Room = require('../models/room');
+import Room from '../models/room';
 
-module.exports = {
+export default {
   name: 'yell',
 
   patterns: [
@@ -9,7 +9,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1]);
+    this.execute(socket, match[1]);
   },
 
   execute(socket, message) {

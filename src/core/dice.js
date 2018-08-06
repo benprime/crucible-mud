@@ -1,5 +1,3 @@
-'use strict';
-
 // dice regex that matches format of "2d6+4"
 const diceRegex = /^(\d+)d(\d+)(?:([+-])(\d*))?$/i;
 
@@ -10,7 +8,7 @@ function rollDie(sides) {
   return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min))) + min;
 }
 
-module.exports = {
+export default {
   getRandomNumber(min, max) {
     return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min))) + min;
   },
@@ -36,6 +34,6 @@ module.exports = {
 
       return sum;
     }
-    throw 'Invalid roll format: ' + s;
+    throw `Invalid roll format: ${s}`;
   },
 };

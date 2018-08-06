@@ -1,8 +1,6 @@
-'use strict';
+import mongoose from 'mongoose';
 
-const mongoose = require('mongoose');
-
-module.exports = new mongoose.Schema({
+export default new mongoose.Schema({
   mobTypes: [String],
   timeout: {
     type: Number,

@@ -1,8 +1,7 @@
-'use strict';
+import autocomplete from '../core/autocomplete';
+import utils from '../core/utilities';
 
-const autocomplete = require('../core/autocomplete');
-
-module.exports = {
+export default {
   name: 'equip',
 
   patterns: [
@@ -12,7 +11,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1], match[2]);
+    this.execute(socket, match[1], match[2]);
   },
 
   execute(socket, itemName, hand) {
@@ -98,7 +97,7 @@ module.exports = {
     }
 
     // remove item from backpack
-    socket.user.inventory.remove(item);
+    utils.removeItem(socket.user.inventory, item);
     socket.user.save();
 
     socket.emit('output', { message: 'Item equipped.\n' });

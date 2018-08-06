@@ -1,32 +1,41 @@
-'use strict';
-
-const Room = require('../models/room');
-const autocomplete = require('../core/autocomplete');
+import Room from '../models/room';
+import autocomplete from '../core/autocomplete';
 
 function hideDir(socket, room, dir) {
-  dir = Room.validDirectionInput(dir);
   let exit = room.getExit(dir);
   if (!exit) {
-    socket.emit('output', { message: 'No exit in that direction.' });
+    socket.emit('output', { message: 'No exit in that direction.<br />' });
     return;
   }
 
   exit.hidden = true;
   room.save();
-  socket.emit('output', { message: 'The exit has been concealed.' });
+  socket.emit('output', { message: 'The exit has been concealed.<br />' });
 }
 
-// for items and mobs
+// for items
 function hideItem(socket, room, itemName) {
-  const hideTargetObj = autocomplete.autocompleteTypes(socket, ['inventory', 'mob', 'room'], itemName);
-  if (!hideTargetObj) {
+
+  const acResult = autocomplete.autocompleteTypes(socket, ['inventory', 'room'], itemName);
+  if (!acResult) {
+    socket.emit('output', { message: 'Item does not exist in inventory or in room.<br />' });
     return;
   }
+
+  const hideTargetObj = acResult.item;
+
+  if (!hideTargetObj) {
+    socket.emit('output', { message: 'Item does not exist in inventory or in room.<br />' });
+    return;
+  }
+
   hideTargetObj.hidden = true;
+  room.save();
+  socket.emit('output', { message: `${itemName} has been concealed.<br />` });
 }
 
 
-module.exports = {
+export default {
   name: 'hide',
 
   patterns: [
@@ -40,10 +49,10 @@ module.exports = {
       hideTarget = match[1];
     }
     else {
-      module.exports.help(socket);
+      this.help(socket);
       return;
     }
-    module.exports.execute(socket, hideTarget);
+    this.execute(socket, hideTarget);
   },
 
   execute(socket, hideTarget) {

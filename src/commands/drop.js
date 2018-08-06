@@ -1,9 +1,7 @@
-'use strict';
+import Room from '../models/room';
+import autocomplete from '../core/autocomplete';
 
-const Room = require('../models/room');
-const autocomplete = require('../core/autocomplete');
-
-module.exports = {
+export default {
   name: 'drop',
 
   patterns: [
@@ -17,7 +15,7 @@ module.exports = {
       socket.emit('output', { message: 'What do you want to drop?' });
       return;
     }
-    module.exports.execute(socket, match[1]);
+    this.execute(socket, match[1]);
   },
 
   execute(socket, itemName) {

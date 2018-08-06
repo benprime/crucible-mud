@@ -1,18 +1,25 @@
 {
   "extends": [
-    "airbnb-base",
     "eslint:recommended",
-    "plugin:jasmine/recommended"
+    "plugin:jest/recommended"
   ],
   "parserOptions": {
+    "ecmaVersion": 6,
     "sourceType": "module"
   },
   "plugins": [
     "import",
-    "jasmine"
+    "jest"
   ],
   "env": {
-    "jasmine": true
+    "jest": true
+  },
+  "globals": {
+    "global": true,
+    "process": true,
+    "console": true,
+    "setInterval": true,
+    "setTimeout": true
   },
   "rules": {
     "indent": [
@@ -34,12 +41,6 @@
       "error",
       "always-multiline"
     ],
-    "no-console": "off",
-    "jasmine/no-focused-tests":  "off",
-    "jasmine/no-spec-dupes":
-    [
-      1,
-      "branch"
-    ]
+    "no-console": "off"
   }
 }

@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = {
+export default {
   // used by mob prototype
   socketInRoom(roomId, socketId) {
     const ioRoom = global.io.sockets.adapter.rooms[roomId];
@@ -16,11 +14,11 @@ module.exports = {
       if (Array.isArray(exclude) && exclude.includes(socketId)) continue;
       const socket = global.io.sockets.connected[socketId];
       if (!socket) continue;
-      socket.emit('output', { message: message });
+      socket.emit('output', { message });
     }
   },
 
-  getSocketByUsername: (username) => {
+  getSocketByUsername(username) {
     for (let socketId in global.io.sockets.connected) {
       let socket = global.io.sockets.connected[socketId];
       if (socket.user && socket.user.username.toLowerCase() == username.toLowerCase()) {
@@ -30,7 +28,7 @@ module.exports = {
     return null;
   },
 
-  getSocketByUserId: (userId) => {
+  getSocketByUserId(userId) {
     for (let socketId in global.io.sockets.connected) {
       let socket = global.io.sockets.connected[socketId];
       if (socket.user && socket.user.id == userId) {
@@ -40,10 +38,37 @@ module.exports = {
     return null;
   },
 
-  getRoomSockets: (roomId) => {
+  getFollowingSockets(leaderSocketId) {
+    const followingSockets = [];
+    for (let socketId in global.io.sockets.connected) {
+      let socket = global.io.sockets.connected[socketId];
+      if (socket.user && socket.leader === leaderSocketId) {
+        followingSockets.push(socket);
+      }
+    }
+    return followingSockets;
+  },
+
+  getRoomSockets(roomId) {
     const ioRoom = global.io.sockets.adapter.rooms[roomId];
     if (!ioRoom) return [];
     return Object.keys(ioRoom.sockets).map((socketId) => global.io.sockets.connected[socketId]);
+  },
+
+  // method for validating a valid username and that the user is in the current room
+  validUserInRoom(socket, username) {
+    const userSocket = this.getSocketByUsername(username);
+    if (!userSocket) {
+      socket.emit('output', { message: 'Unknown user' });
+      return false;
+    }
+
+    if (!this.socketInRoom(socket.roomId, userSocket.id)) {
+      socket.emit('output', { message: `You don't see ${username} here.` });
+      return false;
+    }
+
+    return userSocket;
   },
 };
 

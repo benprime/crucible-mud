@@ -1,20 +1,19 @@
-'use strict';
-
-const express = require('express');
+import express from 'express';
+import http from 'http';
+import commands from './commands/';
+import config from './config';
+import welcome from './core/welcome';
+import loginUtil from './core/login';
+import look from './commands/look';
+import ioFactory from 'socket.io';
+import mongoose from 'mongoose';
+import './core/combat';
 
 const app = express();
-const http = require('http');
-
 const serve = http.createServer(app);
-const io = require('socket.io')(serve);
+const io = ioFactory(serve);
 
 // parses command files and prepares them
-const commands = require('./commands/');
-const config = require('../config');
-
-const welcome = require('./core/welcome');
-const loginUtil = require('./core/login');
-const look = require('./commands/look');
 
 // environment variables
 const NODE_PORT = process.env.NODE_PORT || 3000;
@@ -22,19 +21,18 @@ const MONGO_DB = process.env.MONGO_DB || 'mud';
 const MONGO_PORT = process.env.MONGO_PORT || 27017;
 
 app.set('port', NODE_PORT);
-const mongoose = require('mongoose');
+
 
 const db = mongoose.connection;
 
 global.db = db;
 global.io = io;
 
-require('./core/combat');
 
 mongoose.connect(`mongodb://localhost:${MONGO_PORT}/${MONGO_DB}`);
 db.on('error', console.error.bind(console, 'connection error:'));
 
-db.once('open', function () {
+db.once('open', () => {
 
   io.on('connection', (socket) => {
 

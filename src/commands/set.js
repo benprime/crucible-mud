@@ -1,9 +1,7 @@
-'use strict';
+import Room from '../models/room';
+import lookCmd from './look';
 
-const Room = require('../models/room');
-const lookCmd = require('./look');
-
-module.exports = {
+export default {
   name: 'set',
   admin: true,
 
@@ -28,7 +26,7 @@ module.exports = {
     const prop = match[2];
     const value = match[3];
 
-    module.exports.execute(socket, type, prop, value);
+    this.execute(socket, type, prop, value);
   },
 
   execute(socket, type, prop, value) {
@@ -36,7 +34,7 @@ module.exports = {
     //todo: break these out into seperate helper methods?
     if (type === 'room') {
       const roomPropertyWhiteList = ['name', 'desc', 'alias'];
-      if (roomPropertyWhiteList.indexOf(prop) === -1) {
+      if (!roomPropertyWhiteList.includes(prop)) {
         socket.emit('output', { message: 'Invalid property.' });
         return;
       }

@@ -1,10 +1,8 @@
-'use strict';
+import breakCmd from './break';
+import socketUtil from '../core/socketUtil';
+import lookCmd from './look';
 
-const breakCmd = require('./break');
-const socketUtil = require('../core/socketUtil');
-const lookCmd = require('./look');
-
-module.exports = {
+export default {
   name: 'summon',
   admin: true,
 
@@ -14,7 +12,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1]);
+    this.execute(socket, match[1]);
   },
 
   execute(socket, username) {

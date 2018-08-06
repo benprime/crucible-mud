@@ -1,8 +1,6 @@
-'use strict';
+import Room from '../models/room';
 
-const Room = require('../models/room');
-
-module.exports = {
+export default {
   name: 'close',
 
   patterns: [
@@ -10,7 +8,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1]);
+    this.execute(socket, match[1]);
   },
 
   execute(socket, dir) {

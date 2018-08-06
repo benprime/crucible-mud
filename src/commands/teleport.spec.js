@@ -1,102 +1,102 @@
-'use strict';
+import Room, { mockGetById, mockRoomCache } from '../models/room';
+import { mockGetSocketByUsername } from '../core/socketUtil';
+import { when } from 'jest-when';
+import mocks from '../../spec/mocks';
+import sut from './teleport';
 
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
 
-let mockRoom = {};
-let mockRoomCache = {};
-let mockReturnSocket = {};
-const sut = SandboxedModule.require('./teleport', {
-  requires: {
-    '../core/autocomplete': {},
-    '../models/room': {
-      roomCache: mockRoomCache,
-      getById: jasmine.createSpy('getByIdSpy').and.callFake(() => mockRoom),
-    },
-    '../core/socketUtil': {
-      'getSocketByUsername' : () => mockReturnSocket,
-    },
-  },
-});
+jest.mock('../models/room');
+jest.mock('../core/autocomplete');
+jest.mock('../core/socketUtil');
 
-describe('teleport', function () {
-  let socket, otherSocket;
-  let currentRoom, otherRoom;
 
-  beforeAll(function () {
-    currentRoom = mocks.getMockRoom();
-    currentRoom.name = 'OLD';
-    otherRoom = mocks.getMockRoom();
-    otherRoom.name = 'NEW';
+describe('teleport', () => {
+  let socket;
+  let otherSocket;
+  let currentRoom;
+  let otherRoom;
+
+  beforeAll(() => {
     socket = new mocks.SocketMock();
     socket.user.username = 'TestUser';
-    socket.user.roomId = currentRoom.id;
+
     otherSocket = new mocks.SocketMock();
     otherSocket.user.username = 'OtherUser';
-    otherSocket.user.roomId = otherRoom.id;
+
+    currentRoom = mocks.getMockRoom(socket.user.roomId);
+    currentRoom.name = 'OLD';
+
+    otherRoom = mocks.getMockRoom(otherSocket.user.roomId);
+    otherRoom.name = 'NEW';
+
+    mockRoomCache[currentRoom.id] = currentRoom;
+    mockRoomCache[otherRoom.id] = otherRoom;
+
+    when(mockGetById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
+    when(mockGetById).calledWith(otherRoom.id).mockReturnValue(otherRoom);
+
+    global.io = new mocks.IOMock();
   });
 
-  describe('execute', function () {
+  beforeEach(() => {
+    mockGetSocketByUsername.mockReset();
+  });
 
-    it('should teleport to another user\'s room if parameter is a username', function () {
-      mockReturnSocket = otherSocket;
-      mockRoom = otherRoom;
+  describe('execute', () => {
 
-      // set current room
-      socket.user.roomId = currentRoom.id;
+    test('should teleport to another user\'s room if parameter is a username', () => {
+      mockGetSocketByUsername.mockReturnValueOnce(otherSocket);
 
       // teleport to user
       sut.execute(socket, 'OtherUser');
 
       // check current room
-      expect(socket.user.roomId).toEqual(otherRoom._id);
+      expect(socket.user.roomId).toEqual(otherRoom.id);
       expect(socket.user.save).toHaveBeenCalled();
     });
 
-    it('should teleport to room if parameter is a room', function () {
-      mockRoom = otherRoom;
-      mockReturnSocket = socket;
+    test('should teleport to room if parameter is a room', () => {
+      mockGetSocketByUsername.mockReturnValueOnce(otherSocket);
 
       // set current room
-      socket.user.roomId = currentRoom.id;
+
+      //console.log(Room.roomCache)
 
       // teleport to room
-      let toRoom = otherRoom.id;
-      sut.execute(socket, toRoom);
+      sut.execute(socket, otherRoom.id);
 
       // check current room
-      expect(socket.user.roomId).toEqual(otherRoom._id);
+      expect(socket.user.roomId).toEqual(otherRoom.id);
       expect(socket.user.save).toHaveBeenCalled();
 
     });
 
-    it('should output messages when room cannot be found', function () {
-
-      mockRoom = null;
+    // This is not currently possible (but may be soon)
+    xtest('should output messages when room cannot be found', () => {
 
       let toRoom = otherRoom.id;
-      mockRoomCache[toRoom] = {};
+      Room.roomCache[toRoom] = {};
+
       sut.execute(socket, toRoom);
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Room not found.' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'Room not found.' });
 
     });
 
-    it('should output messages when target is invalid user', function () {
+    test('should output messages when target is invalid user', () => {
       // arrange
-      mockReturnSocket = null;
+      mockGetSocketByUsername.mockReturnValueOnce(null);
 
       // act
       sut.execute(socket, 'Bobby');
 
       // assert
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Target not found.' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'Target not found.' });
     });
 
-    it('should be an admin command', function () {
+    test('should be an admin command', () => {
       expect(sut.admin).toBe(true);
     });
 
   });
-
 });

@@ -1,55 +1,46 @@
-'use strict';
+import { mockAutocompleteTypes } from '../core/autocomplete';
+import Item from '../models/item';
+import mocks from '../../spec/mocks';
+import sut from './unequip';
 
-const Room = require('../models/room');
-const Item = require('../models/item');
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+jest.mock('../models/room');
+jest.mock('../core/autocomplete');
 
-const sut = SandboxedModule.require('./unequip', {
-  requires: {
-    '../core/autocomplete': {},
-    '../models/room': {},
-  },
-});
-const autocomplete = require('../core/autocomplete');
-
-describe('unequip', function () {
+describe('unequip', () => {
   let socket;
-  let room;
-  let autocompleteResult;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
-    room = mocks.getMockRoom();
-    spyOn(Room, 'getById').and.callFake(() => room);
-    spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => autocompleteResult);
   });
 
-  beforeEach(function () {
-    autocomplete.autocompleteTypes.calls.reset();
+  beforeEach(() => {
+    mockAutocompleteTypes.mockClear();
   });
 
-  describe('execute', function () {
-    it('should output message when item is not equipped', function () {
-      autocompleteResult = null;
+  describe('execute', () => {
+    test('should output message when item is not equipped', () => {
+      mockAutocompleteTypes.mockReturnValueOnce(null);
+
       sut.execute(socket, 'monocle');
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You don\'t have that equipped.\n' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'You don\'t have that equipped.\n' });
     });
 
-    it('should output message to specify which hand for hand related slots', function () {
-      var ring = new Item();
+    test('should output message to specify which hand for hand related slots', () => {
+      const ring = new Item();
       ring.equip = 'finger';
       ring.name = 'diamond';
-      autocompleteResult = ring;
+      mockAutocompleteTypes.mockReturnValueOnce(ring);
+
       socket.user.equipSlots.fingerMain = ring;
+      
       sut.execute(socket, 'diamond');
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Please specify which hand to unequip the item from\n' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'Please specify which hand to unequip the item from\n' });
     });
 
     // good candidate for that test case custom runner
-    it('should unequip item put it into backpack', function () {
+    test('should unequip item put it into backpack', () => {
       // test case for each type
     });
 

@@ -1,19 +1,15 @@
-'use strict';
+import mocks from '../../spec/mocks';
+import sut from './keys';
 
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
-
-const sut = SandboxedModule.require('./keys', {});
-
-describe('keys', function () {
+describe('keys', () => {
   let socket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
   });
 
-  describe('execute', function () {
-    it('should display output when user has no keys', function () {
+  describe('execute', () => {
+    test('should display output when user has no keys', () => {
       // arrange
       socket.user.keys = [];
       const expectedString = '<span class=\'cyan\'>Key ring: </span><span class=\'silver\'>None.</span>';
@@ -22,11 +18,10 @@ describe('keys', function () {
       sut.execute(socket);
 
       // assert
-      expect(socket.emit.calls.mostRecent().args[0]).toBe('output');
-      expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
+      expect(socket.emit).toHaveBeenCalledWith('output', {message: expectedString});
     });
 
-    it('should display user keys when user has keys', function () {
+    test('should display user keys when user has keys', () => {
       // arrange
       socket.user.keys = [
         { displayName: 'KeyOne' },
@@ -39,8 +34,7 @@ describe('keys', function () {
       sut.execute(socket);
 
       // assert
-      expect(socket.emit.calls.mostRecent().args[0]).toBe('output');
-      expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
+      expect(socket.emit).toHaveBeenCalledWith('output', {message: expectedString});
     });
   });
 

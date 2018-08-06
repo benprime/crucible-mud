@@ -1,10 +1,8 @@
-'use strict';
+import hud from './hud';
+import mocks from '../../spec/mocks';
 
-const hud = require('./hud');
-const mocks = require('../../spec/mocks');
-
-describe('updateHUD', function () {
-  it('emits message with hud type and appropriate parameters', function () {
+describe('updateHUD', () => {
+  test('emits message with hud type and appropriate parameters', () => {
     // arrange
     const socket = new mocks.SocketMock();
 
@@ -12,7 +10,7 @@ describe('updateHUD', function () {
     hud.updateHUD(socket);
 
     // assert
-    expect(socket.emit).toHaveBeenCalledWith('hud', {
+    expect(socket.emit).toBeCalledWith('hud', {
       currentHP: socket.user.currentHP,
       maxHP: socket.user.maxHP,
     });

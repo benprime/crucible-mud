@@ -1,11 +1,10 @@
 /* todo: rename this model to character or something */
 
-'use strict';
+import mongoose from 'mongoose';
 
-const mongoose = require('mongoose');
-const config = require('../../config');
-const ItemSchema = require('./itemSchema');
-const dice = require('../core/dice');
+import config from '../config';
+import ItemSchema from './itemSchema';
+import dice from '../core/dice';
 
 const UserSchema = new mongoose.Schema({
   // User info
@@ -26,7 +25,7 @@ const UserSchema = new mongoose.Schema({
   },
   // Character info
   roomId: {
-    type: mongoose.Schema.ObjectId,
+    type: String,
   },
   inventory: [ItemSchema],
   keys: [ItemSchema],
@@ -153,7 +152,7 @@ UserSchema.statics.findByName = function (name, cb) {
 UserSchema.methods.nextExp = function () {
   const BASE_XP = 300;
   const BASE_RATE = 1;
-  return BASE_XP * Math.pow(1 + BASE_RATE, this.level - 1);
+  return BASE_XP * ((1 + BASE_RATE) ** (this.level - 1));
 };
 
 UserSchema.methods.addExp = function (amount) {
@@ -168,23 +167,21 @@ UserSchema.methods.readyToAttack = function (now) {
   return this.attackTarget && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
 };
 
-UserSchema.methods.attackroll = function (weapon) {
-  /*
-  var wdParts = weapon.damage.split(" ");
+UserSchema.methods.attackroll = weapon => /*
+var wdParts = weapon.damage.spltest(" ");
 
-  if(!weapon) {
-    return this.strengh + (dice.roll(this.actionDie) - 2);  --bare fist
-  }
-  if(weapon.range = 'melee') {
-    return this.strengh + dice.roll(wdParts[0]) + wdParts[1];
-  }
-  console.log('attackroll weapon resolution error');
-  return 0;
-  */
+if(!weapon) {
+  return this.strengh + (dice.roll(this.actionDie) - 2);  --bare fist
+}
+if(weapon.range = 'melee') {
+  return this.strengh + dice.roll(wdParts[0]) + wdParts[1];
+}
+console.log('attackroll weapon resolution error');
+return 0;
+*/
 
-  // just return 0 or 1 for now
-  return dice.roll('1d2');
-};
+// just return 0 or 1 for now
+dice.roll('1d2');
 
 UserSchema.methods.attack = function (socket, mob, now) {
   if (!mob) return;
@@ -214,4 +211,4 @@ UserSchema.methods.attack = function (socket, mob, now) {
 
 const User = mongoose.model('User', UserSchema);
 
-module.exports = User;
+export default User;

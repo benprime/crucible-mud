@@ -1,7 +1,6 @@
-'use strict';
-const mongoose = require('mongoose');
-const ItemSchema = require('./itemSchema');
+import mongoose from 'mongoose';
+import ItemSchema from './itemSchema';
 
 const Item = mongoose.model('Item', ItemSchema);
 
-module.exports = Item;
+export default Item;

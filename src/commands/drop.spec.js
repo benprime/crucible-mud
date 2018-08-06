@@ -1,44 +1,36 @@
-'use strict';
+import { mockGetById } from '../models/room';
+import { mockAutocompleteTypes } from '../core/autocomplete';
+import Item from '../models/item';
+import mocks from '../../spec/mocks';
+import sut from './drop';
 
-const Room = require('../models/room');
-const Item = require('../models/item');
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+jest.mock('../models/room');
+jest.mock('../core/autocomplete');
 
 let mockRoom = mocks.getMockRoom();
-let autocompleteResult;
-const sut = SandboxedModule.require('./drop', {
-  requires: {
-    '../core/autocomplete': {
-      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
-    },
-    '../models/room': {
-      getById: () => mockRoom,
-    },
-  },
-});
 
-describe('drop', function () {
+
+describe('drop', () => {
   let socket;
   let item;
   let key;
   let invalidItem;
 
-  beforeAll(function () {
+  beforeAll(() => {
     // just a matcher that works like toEqual, but does not do a type check.
     // This just compares the json representation of the objects being compared.
     jasmine.addMatchers({
-      toBeJsonEqual: function () {
+      toBeJsonEqual() {
         return {
-          compare: function (actual, expected) {
+          compare(actual, expected) {
             let result = {};
             let jsonActual = JSON.orderedStringify(actual);
             let jsonExpected = JSON.orderedStringify(expected);
             result.pass = jsonActual === jsonExpected;
             if (result.pass) {
-              result.message = 'Expected ' + jsonActual + ' to equal ' + jsonExpected;
+              result.message = `Expected ${jsonActual} to equal ${jsonExpected}`;
             } else {
-              result.message = 'Expected ' + jsonActual + ' to equal ' + jsonExpected;
+              result.message = `Expected ${jsonActual} to equal ${jsonExpected}`;
             }
             return result;
           },
@@ -47,9 +39,9 @@ describe('drop', function () {
     });
   });
 
-  beforeEach(function () {
+  beforeEach(() => {
     mockRoom.reset();
-    spyOn(Room, 'getById').and.callFake(() => mockRoom);
+    mockGetById.mockReturnValueOnce(mockRoom);
     socket = new mocks.SocketMock();
 
     item = new Item();
@@ -72,12 +64,12 @@ describe('drop', function () {
     mockRoom.inventory = [];
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    describe('when item.type is item', function () {
+    describe('when item.type is item', () => {
 
-      it('should output error message when item is not found in user inventory', function () {
-        autocompleteResult = null;
+      test('should output error message when item is not found in user inventory', () => {
+        mockAutocompleteTypes.mockReturnValueOnce(null);
         sut.execute(socket, 'non-existent item');
 
         expect(socket.user.save).not.toHaveBeenCalled();
@@ -85,36 +77,40 @@ describe('drop', function () {
         expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
       });
 
-      it('should remove item from user inventory and add to room inventory', function () {
-        autocompleteResult = {
+      test('should remove item from user inventory and add to room inventory', () => {
+        let autocompleteResult = {
           type: 'item',
-          item: item,
+          item,
         };
+        mockAutocompleteTypes.mockReturnValueOnce(autocompleteResult);
+
         sut.execute(socket, 'dropItem');
 
         expect(socket.user.save).toHaveBeenCalled();
         expect(mockRoom.save).toHaveBeenCalled();
-        expect(socket.user.inventory.length).toBe(0);
+        expect(socket.user.inventory).toHaveLength(0);
         expect(mockRoom.inventory[0].name).toEqual(item.name);
-        expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser drops dropItem.' });
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Dropped.' });
+        expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser drops dropItem.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Dropped.' });
       });
     });
 
-    describe('when item.type is key', function () {
-      it('should remove key from user keys and add to room inventory', function () {
-        autocompleteResult = {
+    describe('when item.type is key', () => {
+      test('should remove key from user keys and add to room inventory', () => {
+        let autocompleteResult = {
           type: 'key',
           item: key,
         };
+        mockAutocompleteTypes.mockReturnValueOnce(autocompleteResult);
+
         sut.execute(socket, 'dropKey');
 
         expect(socket.user.save).toHaveBeenCalled();
         expect(mockRoom.save).toHaveBeenCalled();
-        expect(socket.user.keys.length).toBe(0);
+        expect(socket.user.keys).toHaveLength(0);
         expect(mockRoom.inventory[0].name).toEqual(key.name);
-        expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser drops dropKey.' });
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Dropped.' });
+        expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser drops dropKey.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Dropped.' });
       });
     });
   });

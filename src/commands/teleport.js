@@ -1,11 +1,9 @@
-'use strict';
+import socketUtil from '../core/socketUtil';
+import breakCmd from './break';
+import lookCmd from './look';
+import Room from '../models/room';
 
-const socketUtil = require('../core/socketUtil');
-const breakCmd = require('./break');
-const lookCmd = require('./look');
-const Room = require('../models/room');
-
-module.exports = {
+export default {
   name: 'teleport',
   admin: true,
 
@@ -15,12 +13,15 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1]);
+    this.execute(socket, match[1]);
   },
 
   execute(socket, teleportTo) {
     if(!teleportTo) return;
     // if the parameter is an object id or alias, we are definitely teleporting to a room.
+    
+    
+    
     let toRoomId = '';
     if (Room.roomCache[teleportTo]) {
       toRoomId = teleportTo;
@@ -36,6 +37,8 @@ module.exports = {
 
     const room = Room.getById(toRoomId);
     if (!room) {
+      // this should not currently be possible. The room cache has
+      // already been checkedin this method.
       socket.emit('output', { message: 'Room not found.' });
       return;
     }

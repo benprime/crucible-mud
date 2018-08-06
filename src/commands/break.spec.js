@@ -1,16 +1,12 @@
-'use strict';
+import mocks from '../../spec/mocks';
+import sut from './break';
 
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
-
-const sut = SandboxedModule.require('./break', {});
-
-describe('break', function () {
+describe('break', () => {
   let socket;
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    it('should set appropriate socket state variables when combat underway', function () {
+    test('should set appropriate socket state variables when combat underway', () => {
       // arrange
       socket = new mocks.SocketMock();
       socket.user = {
@@ -28,12 +24,12 @@ describe('break', function () {
       expect(socket.user.attackInterval).toBeUndefined();
       expect(socket.user.lastAttack).toBeUndefined();
       expect(socket.user.attackTarget).toBeUndefined();
-      expect(socket.broadcast.to).toHaveBeenCalledWith(socket.user.roomId);
-      expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser breaks off his attack.' });
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
+      expect(socket.broadcast.to).toBeCalledWith(socket.user.roomId);
+      expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser breaks off his attack.' });
+      expect(socket.emit).toBeCalledWith('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
     });
 
-    it('should not emit messages if combat is not underway', function () {
+    test('should not emit messages if combat is not underway', () => {
       // arrange
       socket = new mocks.SocketMock();
       socket.user = {
@@ -53,7 +49,7 @@ describe('break', function () {
       expect(socket.user.attackTarget).toBeUndefined();
       expect(socket.broadcast.to).not.toHaveBeenCalled();
       expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
-      expect(socket.emit).not.toHaveBeenCalledWith();
+      expect(socket.emit).not.toBeCalledWith();
     });
   });
 

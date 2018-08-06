@@ -1,16 +1,13 @@
-'use strict';
+import mocks from '../../spec/mocks';
+import sut from './list';
 
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
 
-const sut = SandboxedModule.require('./list', {});
-
-describe('list', function () {
+describe('list', () => {
   let socket;
   let itemCatalog;
   let mobCatalog;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
     itemCatalog = {
       catalog: [
@@ -47,8 +44,12 @@ describe('list', function () {
     };
   });
 
-  describe('execute', function () {
-    it('should lists mob catalog', function () {
+  beforeEach(() => {
+    socket.emit.mockReset();
+  });
+
+  describe('execute', () => {
+    test('should lists mob catalog', () => {
       // arrange
       const expectedString = '<table><tr><th>Name</th><th>Display Name</th></tr><tr><td>mob 1</td><td>mob 1 display name</td></tr></table>';
 
@@ -56,11 +57,11 @@ describe('list', function () {
       sut.execute(socket, mobCatalog, 'mob');
 
       // assert
-      expect(socket.emit.calls.mostRecent().args[0]).toBe('output');
-      expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
+      expect(socket.emit.mock.calls[0][0]).toBe('output');
+      expect(socket.emit.mock.calls[0][1].message).toContain(expectedString, `message did not contain: ${expectedString}`);
     });
 
-    it('should lists item catalog', function () {
+    test('should lists item catalog', () => {
       // arrange
       const expectedString = '<table><tr><th>Name</th><th>Display Name</th></tr><tr><td>item 1</td><td>item 1 display name</td></tr>\n<tr><td>item 2</td><td>item 2 display name</td></tr></table>';
 
@@ -68,11 +69,11 @@ describe('list', function () {
       sut.execute(socket, itemCatalog, 'item');
 
       // assert
-      expect(socket.emit.calls.mostRecent().args[0]).toBe('output');
-      expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
+      expect(socket.emit.mock.calls[0][0]).toBe('output');
+      expect(socket.emit.mock.calls[0][1].message).toContain(expectedString, `message did not contain: ${expectedString}`);
     });
 
-    it('should list key catalog', function () {
+    test('should list key catalog', () => {
       // arrange
       const expectedString = '<table><tr><th>Name</th><th>Display Name</th></tr><tr><td>key 1</td><td>key 1 display name</td></tr>\n<tr><td>key 2</td><td>key 2 display name</td></tr></table>';
 
@@ -80,13 +81,13 @@ describe('list', function () {
       sut.execute(socket, itemCatalog, 'key');
 
       // assert
-      expect(socket.emit.calls.mostRecent().args[0]).toBe('output');
-      expect(socket.emit.calls.mostRecent().args[1].message.includes(expectedString)).toBeTruthy(`message: ${socket.emit.calls.mostRecent().args[1].message} did not contain: ${expectedString}`);
+      expect(socket.emit.mock.calls[0][0]).toBe('output');
+      expect(socket.emit.mock.calls[0][1].message).toContain(expectedString, `message did not contain: ${expectedString}`);
     });
 
   });
 
-  it('should be an admin command', function () {
+  test('should be an admin command', () => {
     expect(sut.admin).toBe(true);
   });
 });

@@ -1,27 +1,30 @@
-'use strict';
+import { mockGetRoomSockets } from '../core/socketUtil';
+import Mob from '../models/mob';
+import mobData from '../data/mobData';
+import sutModel from '../models/room';
+import mocks from '../../spec/mocks';
+import { Types } from 'mongoose';
+const { ObjectId } = Types;
 
-const socketUtil = require('../core/socketUtil');
-const mocks = require('../../spec/mocks');
+jest.mock('../core/socketUtil');
+
+// mocking mongoose provided model methods
+sutModel.save = jest.fn();
+
 
 global.io = new mocks.IOMock();
 
-const Mob = require('../models/mob');
-const ObjectId = require('mongodb').ObjectId;
-const mobData = require('../../data/mobData');
+describe('room model', () => {
 
-const sutModel = require('../models/room');
-
-describe('room model', function () {
-
-  beforeEach(function () {
+  beforeEach(() => {
     //socket = new mocks.SocketMock();
     global.io.reset();
   });
 
-  describe('static method', function () {
+  describe('static method', () => {
 
-    describe('getById', function () {
-      it('should return correct room', function () {
+    describe('getById', () => {
+      test('should return correct room', () => {
         sutModel.roomCache['123'] = {
           name: 'a room',
         };
@@ -31,7 +34,7 @@ describe('room model', function () {
         expect(result.name).toEqual('a room');
       });
 
-      it('should return undefined when room not found', function () {
+      test('should return undefined when room not found', () => {
         sutModel.roomCache['123'] = {
           name: 'a room',
         };
@@ -42,9 +45,9 @@ describe('room model', function () {
       });
     });
 
-    describe('oppositeDirection', function () {
-      const oppositeDirectionParamTest = function (inputDir, expectedOutput) {
-        it('should return correct direction', function () {
+    describe('oppositeDirection', () => {
+      const oppositeDirectionParamTest = (inputDir, expectedOutput) => {
+        test('should return correct direction', () => {
           const result = sutModel.oppositeDirection(inputDir);
 
           expect(result).toBe(expectedOutput);
@@ -64,27 +67,26 @@ describe('room model', function () {
     });
 
 
-    describe('byCoords', function () {
-      beforeEach(function () {
-        spyOn(sutModel, 'findOne');
-      });
+    describe('byCoords', () => {
 
-      it('should call findOne with coordinates', function () {
+      test('should call findOne with coordinates', () => {
         const coords = {
           x: 1,
           y: 2,
           z: 3,
         };
 
+        sutModel.findOne = jest.fn().mockReturnValueOnce(null);
+
         sutModel.byCoords(coords);
 
-        expect(sutModel.findOne).toHaveBeenCalledWith(coords, undefined);
+        expect(sutModel.findOne).toBeCalledWith(coords, undefined);
       });
     });
 
-    describe('shortToLong', function () {
-      const shortToLongParamTest = function (inputDir, expectedOutput) {
-        it('should return correct long direction name', function () {
+    describe('shortToLong', () => {
+      const shortToLongParamTest = (inputDir, expectedOutput) => {
+        test('should return correct long direction name', () => {
           const result = sutModel.shortToLong(inputDir);
 
           expect(result).toBe(expectedOutput);
@@ -103,9 +105,9 @@ describe('room model', function () {
       shortToLongParamTest('?', '?');
     });
 
-    describe('longToShort', function () {
-      const longToShortParamTest = function (inputDir, expectedOutput) {
-        it('should return correct short direction name', function () {
+    describe('longToShort', () => {
+      const longToShortParamTest = (inputDir, expectedOutput) => {
+        test('should return correct short direction name', () => {
           const result = sutModel.longToShort(inputDir);
 
           expect(result).toBe(expectedOutput);
@@ -124,9 +126,9 @@ describe('room model', function () {
       longToShortParamTest('?', '?');
     });
 
-    describe('validDirectionInput', function () {
-      const validDirParamTest = function (inputDir, expectedOutput) {
-        it('should return correct response', function () {
+    describe('validDirectionInput', () => {
+      const validDirParamTest = (inputDir, expectedOutput) => {
+        test('should return correct response', () => {
           const result = sutModel.validDirectionInput(inputDir);
 
           expect(result).toBe(expectedOutput);
@@ -156,39 +158,40 @@ describe('room model', function () {
     });
   });
 
-  describe('instance method', function () {
+  describe('instance method', () => {
     let room;
-    beforeEach(function () {
+
+    beforeEach(() => {
       room = new sutModel({
         name: 'Test sutModel',
         desc: 'Test sutModel Description',
       });
       room.mobs = [];
-      sutModel.prototype.save = jasmine.createSpy('room save spy').and.callFake((cb) => {
-        if (cb) {
-          cb(null, new sutModel({ id: '12345' }));
-        }
-      });
+      // sutModel.prototype.save = jest.fn().mockName('room save spy').and.callFake((cb) => {
+      //   if (cb) {
+      //     cb(null, new sutModel({ id: '12345' }));
+      //   }
+      // });
     });
 
-    describe('usersInRoom', function () {
+    describe('usersInRoom', () => {
       let socket;
-      beforeEach(function () {
+      beforeEach(() => {
         socket = new mocks.SocketMock();
         //global.io.reset();
       });
 
-      it('should return empty array when no users in room', function () {
+      test('should return empty array when no users in room', () => {
         global.io.sockets.adapter.rooms[room.id] = {};
         global.io.sockets.adapter.rooms[room.id].sockets = {};
 
         const result = room.usersInRoom(socket.id);
 
         expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBe(0);
+        expect(result).toHaveLength(0);
       });
 
-      it('should return array of names when users in room', function () {
+      test('should return array of names when users in room', () => {
         const sockets = {};
         sockets[socket.id] = new mocks.SocketMock();
         sockets[socket.id].user.username = 'TestUser1';
@@ -196,109 +199,104 @@ describe('room model', function () {
         sockets['socket2'].user.username = 'TestUser2';
 
         global.io.sockets.adapter.rooms[room.id] = {
-          sockets: sockets,
+          sockets,
         };
         global.io.sockets.connected = sockets;
 
         const result = room.usersInRoom(socket.id);
 
         expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBe(2);
+        expect(result).toHaveLength(2);
         expect(result).toEqual(['TestUser1', 'TestUser2']);
       });
     });
 
-    describe('createRoom', function () {
+    describe('createRoom', () => {
       let socket;
       let room;
 
-      beforeAll(function () {
+      beforeAll(() => {
         socket = new mocks.SocketMock();
         global.io.reset();
       });
 
-      beforeEach(function () {
+      beforeEach(() => {
         socket.reset();
         global.io.reset();
         room = new sutModel();
       });
 
-      it('should return false if direction is invalid', function () {
+      test('should return false if direction is invalid', () => {
         room.createRoom('invalid direction', (result) => {
           expect(result).toBe(false);
           expect(socket.emit).not.toHaveBeenCalled();
-          expect(sutModel.prototype.save).not.toHaveBeenCalled();
+          expect(sutModel.save).not.toHaveBeenCalled();
         });
       });
 
-      it('should return false if there is already an exit in a valid input direction', function () {
+      test('should return false if there is already an exit in a valid input direction', () => {
         room.exits.push({ dir: 'n', roomId: 'some-id' });
         room.createRoom('n', (result) => {
           expect(result).toBe(false);
           expect(socket.emit).not.toHaveBeenCalled();
-          expect(sutModel.prototype.save).not.toHaveBeenCalled();
+          expect(sutModel.save).not.toHaveBeenCalled();
         });
       });
 
-      it('should create a new room if room does not already exist in target direction', function () {
-        // mock "findByCoords"
-        spyOn(sutModel, 'findOne').and.callFake(function (coords, cb) {
-          cb(null);
-        });
+      test('should create a new room if room does not already exist in target direction', () => {
 
-        room.createRoom('s', (result) => {
-          var exit = room.exits.find(e => e.dir === 's');
+        room.createRoom('s', ({ id }) => {
+          const exit = room.exits.find(({ dir }) => dir === 's');
 
           expect(exit).not.toBeUndefined();
-          expect(result.id in sutModel.roomCache).toBe(true);
+          expect(id in sutModel.roomCache).toBe(true);
           expect(sutModel.prototype.save).toHaveBeenCalledTimes(2);
         });
       });
 
-      it('should not load new room to cache when creating a door in a direction where room exists', function () {
-        // mock "findByCoords"
-        spyOn(sutModel, 'findOne').and.callFake(function (coords, cb) {
+      test('should not load new room to cache when creating a door in a direction where room exists', () => {
+        sutModel.mockByCoords = jest.fn((cb) => {
           cb(new sutModel());
         });
 
-        room.createRoom('s', (result) => {
-          var exit = room.exits.find(e => e.dir === 's');
+        room.createRoom('s', ({ id }) => {
+          const exit = room.exits.find(({ dir }) => dir === 's');
 
           expect(exit).not.toBeUndefined();
-          expect(result.id in sutModel.roomCache).toBe(false);
+          expect(id in sutModel.roomCache).toBe(false);
           expect(sutModel.prototype.save).toHaveBeenCalledTimes(2);
         });
       });
     });
 
-    describe('look', function () {
+    describe('look', () => {
 
       let socket;
 
-      beforeEach(function () {
+      beforeEach(() => {
         socket = new mocks.SocketMock();
       });
 
-      it('should build output string with just title and exits when short parameter is passed', function () {
+      test('should build output string with just title and exits when short parameter is passed', () => {
         room.look(socket, true);
 
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n' });
+        expect(socket.emit).toBeCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n' });
       });
 
-      it('should build output string with description when short parameter is false', function () {
+      test('should build output string with description when short parameter is false', () => {
         room.look(socket, false);
 
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n' });
+        expect(socket.emit).toBeCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n' });
       });
 
-      it('should include inventory in output when inventory length is not zero', function () {
+      test('should include inventory in output when inventory length is not zero', () => {
         room.inventory = [{ displayName: 'An Item' }];
         room.look(socket);
 
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="darkcyan">You notice: An Item.</span>\n' });
+        expect(socket.emit).toBeCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="darkcyan">You notice: An Item.</span>\n' });
       });
 
-      it('should include users in room when the user is not the only user in room', function () {
+      test('should include users in room when the user is not the only user in room', () => {
         const sockets = {};
         sockets[socket.id] = new mocks.SocketMock();
         sockets[socket.id].user.username = 'TestUser1';
@@ -306,32 +304,32 @@ describe('room model', function () {
         sockets['socket2'].user.username = 'TestUser2';
 
         global.io.sockets.adapter.rooms[room.id] = {
-          sockets: sockets,
+          sockets,
         };
         global.io.sockets.connected = sockets;
 
         room.look(socket);
 
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="purple">Also here: <span class="teal">TestUser1<span class="mediumOrchid">, </span>TestUser2</span>.</span>\n' });
+        expect(socket.emit).toBeCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="purple">Also here: <span class="teal">TestUser1<span class="mediumOrchid">, </span>TestUser2</span>.</span>\n' });
       });
 
-      it('should include exits when there is at least one exit in the room', function () {
+      test('should include exits when there is at least one exit in the room', () => {
         room.exits = [{ dir: 'n' }];
         room.look(socket);
 
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="green">Exits: north</span>\n' });
+        expect(socket.emit).toBeCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="green">Exits: north</span>\n' });
       });
 
-      it('should display room id when user is an admin', function () {
+      test('should display room id when user is an admin', () => {
         socket.user.admin = true;
         room.look(socket);
 
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="gray">Room ID: ' + room.id + '</span>\n' });
+        expect(socket.emit).toBeCalledWith('output', { message: `<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="gray">Room ID: ${room.id}</span>\n` });
       });
     });
 
-    describe('getMobById', function () {
-      it('should return mob by in the room', function () {
+    describe('getMobById', () => {
+      test('should return mob by in the room', () => {
         let mob = Object.create(Mob.prototype);
         mob.displayName = 'Test Mob';
         room.mobs = [mob];
@@ -341,7 +339,7 @@ describe('room model', function () {
         expect(result).toBe(mob);
       });
 
-      it('should return falsy when mob not found', function () {
+      test('should return falsy when mob not found', () => {
         let mob = Object.create(Mob.prototype);
         mob.displayName = 'Test Mob';
 
@@ -351,9 +349,9 @@ describe('room model', function () {
       });
     });
 
-    describe('dirToCoords', function () {
-      const dirToCoordsParamTest = function (inputDir, expectedOutput) {
-        it('should return correct direction', function () {
+    describe('dirToCoords', () => {
+      const dirToCoordsParamTest = (inputDir, expectedOutput) => {
+        test('should return correct direction', () => {
           const result = sutModel.oppositeDirection(inputDir);
 
           expect(result).toBe(expectedOutput);
@@ -372,14 +370,14 @@ describe('room model', function () {
       dirToCoordsParamTest('?', null);
     });
 
-    describe('getExit', function () {
-      it('should return undefined if exit does not exists', function () {
+    describe('getExit', () => {
+      test('should return undefined if exit does not exists', () => {
         let result = room.getExit('s');
 
         expect(result).toBeUndefined();
       });
 
-      it('should return exit object when exit exists', function () {
+      test('should return exit object when exit exists', () => {
         let exit = { _id: new ObjectId(), dir: 'n', roomId: new ObjectId() };
         room.exits.push(exit);
 
@@ -391,8 +389,8 @@ describe('room model', function () {
 
     });
 
-    describe('addExit', function () {
-      it('should return false if exit already exists', function () {
+    describe('addExit', () => {
+      test('should return false if exit already exists', () => {
         let exit = { _id: new ObjectId(), dir: 's', roomId: new ObjectId() };
         room.exits.push(exit);
 
@@ -401,27 +399,38 @@ describe('room model', function () {
         expect(result).toBeFalsy();
       });
 
-      it('should return true when exit successfully added to object', function () {
+      test('should return true when exit successfully added to object', () => {
         let result = room.addExit('e');
 
-        let exit = room.exits.find(e => e.dir === 'e');
+        let exit = room.exits.find(({ dir }) => dir === 'e');
 
         expect(result).toBeTruthy();
         expect(exit).toBeDefined();
       });
     });
 
-    describe('processPlayerCombatActions', function () {
-      it('should iterate over players in room with attackTarget', function () {
+    describe('processPlayerCombatActions', () => {
+      test('should iterate over players in room with attackTarget', () => {
         // arrange
+
+        // add three mobs to the room
+        const mob1 = mocks.getMockMob();
+        mob1.id = 'mob1';
+        const mob2 = mocks.getMockMob();
+        mob1.id = 'mob2';
+        const mob3 = mocks.getMockMob();
+        mob1.id = 'mob3';
+        room.mobs = [mob1, mob2, mob3];
+
+        // set attack targets for three players
         const socketA = new mocks.SocketMock();
-        socketA.user.attackTarget = {};
+        socketA.user.attackTarget = mob1.id;
         const socketB = new mocks.SocketMock();
-        socketB.user.attackTarget = {};
+        socketB.user.attackTarget = mob2.id;
         const socketC = new mocks.SocketMock();
-        socketC.user.attackTarget = {};
-        spyOn(socketUtil, 'getRoomSockets').and.callFake(() => [socketA, socketB, socketC]);
-        spyOn(room, 'getMobById').and.returnValue({});
+        socketC.user.attackTarget = mob3.id;
+
+        mockGetRoomSockets.mockReturnValueOnce([socketA, socketB, socketC]);
 
         // act
         room.processPlayerCombatActions(new Date());
@@ -432,16 +441,26 @@ describe('room model', function () {
         expect(socketC.user.attack).toHaveBeenCalled();
       });
 
-      it('should not call attack when player attack target is null', function () {
+      test('should not call attack when player attack target is null', () => {
         // arrange
+        
+        // add three mobs to the room
+        const mob1 = mocks.getMockMob();
+        mob1.id = 'mob1';
+        const mob2 = mocks.getMockMob();
+        mob1.id = 'mob2';
+        const mob3 = mocks.getMockMob();
+        mob1.id = 'mob3';
+        room.mobs = [mob1, mob2, mob3];
+
+        // set attack targets for two of three players
         const socketA = new mocks.SocketMock();
-        socketA.user.attackTarget = {};
+        socketA.user.attackTarget = mob1.id;
         const socketB = new mocks.SocketMock();
         socketB.user.attackTarget = null;
         const socketC = new mocks.SocketMock();
-        socketC.user.attackTarget = {};
-        spyOn(socketUtil, 'getRoomSockets').and.callFake(() => [socketA, socketB, socketC]);
-        spyOn(room, 'getMobById').and.returnValue({});
+        socketC.user.attackTarget = mob3.id;
+        mockGetRoomSockets.mockReturnValueOnce([socketA, socketB, socketC]);
 
         // act
         room.processPlayerCombatActions(new Date());
@@ -453,29 +472,29 @@ describe('room model', function () {
       });
     });
 
-    describe('processMobCombatActions', function () {
-      beforeEach(function () {
+    describe('processMobCombatActions', () => {
+      beforeEach(() => {
         global.io.reset();
       });
 
-      it('should call attack and taunt on all mobs', function () {
+      test('should call attack and taunt on all mobs', () => {
         // arrange
         const mobType = mobData.catalog[0];
         room.mobs = [];
 
         const mobA = new Mob(mobType, room.id);
-        mobA.attack = jasmine.createSpy('mobAattack');
-        mobA.taunt = jasmine.createSpy('mobAtaunt');
+        mobA.attack = jest.fn().mockName('mobAattack');
+        mobA.taunt = jest.fn().mockName('mobAtaunt');
         room.mobs.push(mobA);
 
         const mobB = new Mob(mobType, room.id);
-        mobB.attack = jasmine.createSpy('mobBattack');
-        mobB.taunt = jasmine.createSpy('mobBtaunt');
+        mobB.attack = jest.fn().mockName('mobBattack');
+        mobB.taunt = jest.fn().mockName('mobBtaunt');
         room.mobs.push(mobB);
 
         const mobC = new Mob(mobType, room.id);
-        mobC.attack = jasmine.createSpy('mobCattack');
-        mobC.taunt = jasmine.createSpy('mobCtaunt');
+        mobC.attack = jest.fn().mockName('mobCattack');
+        mobC.taunt = jest.fn().mockName('mobCtaunt');
         room.mobs.push(mobC);
 
         // act

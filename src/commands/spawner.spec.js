@@ -1,177 +1,155 @@
-'use strict';
+import { mockGetById } from '../models/room';
+import mocks from '../../spec/mocks';
+import sut from './spawner';
 
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
 
-let mockRoom = mocks.getMockRoom();
-const sut = SandboxedModule.require('./spawner', {
-  requires: {
-    '../models/room': {
-      roomCache: {},
-      getById: jasmine.createSpy('getByIdSpy').and.callFake(() => mockRoom),
-    },
-  },
-});
-const SpawnerModel = require('../models/spawner');
+jest.mock('../models/room');
 
-describe('spawner', function () {
+import SpawnerModel from '../models/spawner';
+
+describe('spawner', () => {
   let socket;
   let currentRoom;
 
-  beforeEach(function () {
+  beforeEach(() => {
     currentRoom = mocks.getMockRoom();
     currentRoom.name = 'Dance Floor';
     currentRoom.spawner = new SpawnerModel();
     currentRoom.spawner.mobTypes.push(mocks.mobType.name);
+    mockGetById.mockReturnValue(currentRoom);
+
     socket = new mocks.SocketMock();
     socket.user.roomId = currentRoom.id;
     socket.user.username = 'Disco Jim';
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    describe('when action is add', function () {
-      it('should successfully add valid mob type', function () {
+    describe('when action is add', () => {
+      test('should successfully add valid mob type', () => {
         // arrange
-        var beforeLength = currentRoom.spawner.mobTypes.length;
-        mockRoom = currentRoom;
+        const beforeLength = currentRoom.spawner.mobTypes.length;
 
         // act
         sut.execute(socket, 'add', 'kobold');
 
         // assert
         expect(currentRoom.save).toHaveBeenCalled();
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Creature added to spawner.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Creature added to spawner.' });
         expect(currentRoom.spawner.mobTypes.length).toBeGreaterThan(beforeLength);
       });
 
-      xit('should output error message when mob type is invalid', function () {
+      xtest('should output error message when mob type is invalid', () => {
       });
     });
 
-    describe('when action is remove', function () {
-      it('should remove existing mob type', function () {
+    describe('when action is remove', () => {
+      test('should remove existing mob type', () => {
         // arrange
-        var beforeLength = currentRoom.spawner.mobTypes.length;
-        mockRoom = currentRoom;
+        const beforeLength = currentRoom.spawner.mobTypes.length;
 
         // act
         sut.execute(socket, 'remove', 'kobold');
 
         // assert
         expect(currentRoom.save).toHaveBeenCalled();
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Creature removed from spawner.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Creature removed from spawner.' });
         expect(currentRoom.spawner.mobTypes.length).toBeLessThan(beforeLength);
       });
 
-      xit('should output error message when mob type is invalid', function () {
+      xtest('should output error message when mob type is invalid', () => {
       });
 
-      it('should output error when mob type does not exist on spawner', function () {
-        // arrange
-        mockRoom = currentRoom;
-
+      test('should output error when mob type does not exist on spawner', () => {
         // act
         sut.execute(socket, 'remove', 'dummy');
 
         // assert
         expect(currentRoom.save).not.toHaveBeenCalled();
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Creature not found on spawner.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Creature not found on spawner.' });
       });
     });
 
 
-    describe('when action is max', function () {
-      xit('should output error message when param value is not an integer', function () {
+    describe('when action is max', () => {
+      xtest('should output error message when param value is not an integer', () => {
       });
 
-      it('should set max when value is valid', function () {
+      test('should set max when value is valid', () => {
         // arrange
         currentRoom.spawner.max = 2;
-        mockRoom = currentRoom;
 
         // act
         sut.execute(socket, 'max', 7);
 
         // assert
         expect(currentRoom.save).toHaveBeenCalled();
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Max creatures updated to 7.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Max creatures updated to 7.' });
         expect(currentRoom.spawner.max).toEqual(7);
       });
     });
 
-    describe('when action is timeout', function () {
-      it('when set timeout when value is valid', function () {
+    describe('when action is timeout', () => {
+      test('when set timeout when value is valid', () => {
         // arrange
         currentRoom.spawner.timeout = 1;
-        mockRoom = currentRoom;
 
         // act
         sut.execute(socket, 'timeout', 5);
 
         // assert
         expect(currentRoom.save).toHaveBeenCalled();
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Timeout updated to 5.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Timeout updated to 5.' });
         expect(currentRoom.spawner.timeout).toEqual(5);
       });
 
-      xit('should output error message when param value is not an integer', function () {
+      xtest('should output error message when param value is not an integer', () => {
       });
     });
 
-    describe('when action is clear', function () {
-      it('when action is clear', function () {
-        // arrange
-        mockRoom = currentRoom;
-
+    describe('when action is clear', () => {
+      test('when action is clear', () => {
         // act
         sut.execute(socket, 'clear');
 
         // arrange
         expect(currentRoom.save).toHaveBeenCalled();
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Spawner cleared.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Spawner cleared.' });
         expect(currentRoom.spawner).toBeNull();
       });
     });
 
-    describe('when action is copy', function () {
-      it('when action is copy', function () {
-        // arrange
-        mockRoom = currentRoom;
-
+    describe('when action is copy', () => {
+      test('when action is copy', () => {
         // act
         sut.execute(socket, 'copy');
 
         // assert
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Spawner copied.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Spawner copied.' });
         expect(socket.user.spawnerClipboard).toEqual(currentRoom.spawner);
       });
     });
 
-    describe('when action is paste', function () {
-      it('when action is paste', function () {
+    describe('when action is paste', () => {
+      test('when action is paste', () => {
         // arrange
         socket.user.spawnerClipboard = null;
-        mockRoom = currentRoom;
 
         // act
         sut.execute(socket, 'paste');
 
         // assert
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Spawner pasted.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Spawner pasted.' });
         expect(currentRoom.spawner).toBeNull();
       });
     });
 
-    it('when action is not valid', function () {
-      // arrange
-      mockRoom = currentRoom;
-
+    test('when action is not valid', () => {
       // act
       sut.execute(socket, 'multiply');
 
       // assert
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: (currentRoom.spawner ? currentRoom.spawner.toString() : 'None.') });
+      expect(socket.emit).toBeCalledWith('output', { message: (currentRoom.spawner ? currentRoom.spawner.toString() : 'None.') });
     });
   });
 });

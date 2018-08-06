@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = Object.freeze({
+export default Object.freeze({
   name: 'gossip',
 
   patterns: [
@@ -9,15 +7,15 @@ module.exports = Object.freeze({
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1]);
+    this.execute(socket, match[1]);
   },
 
-  execute(socket, message) {
+  execute({user}, message) {
 
     let safeMessage = message.replace(/</g, '&lt;');
     safeMessage = safeMessage.replace(/>/g, '&gt;');
 
-    const output = `<span class="silver">${socket.user.username} gossips: </span><span class="mediumOrchid">${safeMessage}</span>`;
+    const output = `<span class="silver">${user.username} gossips: </span><span class="mediumOrchid">${safeMessage}</span>`;
     global.io.to('gossip').emit('output', { message: output });
   },
 

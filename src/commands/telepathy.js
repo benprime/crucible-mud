@@ -1,8 +1,6 @@
-'use strict';
+import socketUtil from '../core/socketUtil';
 
-const socketUtil = require('../core/socketUtil');
-
-module.exports = {
+export default {
   name: 'telepathy',
 
   patterns: [
@@ -12,10 +10,10 @@ module.exports = {
 
   dispatch(socket, match) {
     if(match.length != 3) {
-      module.exports.help(socket);
+      this.help(socket);
       return;
     }
-    module.exports.execute(socket, match[1], match[2]);
+    this.execute(socket, match[1], match[2]);
   },
 
   execute(socket, username, message) {

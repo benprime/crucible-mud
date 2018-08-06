@@ -1,31 +1,29 @@
-'use strict';
+import mocks from '../../spec/mocks';
+import Item from '../models/item';
 
-const mocks = require('../../spec/mocks');
-const Item = require('../models/item');
-
-describe('item model', function () {
+describe('item model', () => {
   let item;
   let socket;
 
-  describe('look', function () {
-    beforeEach(function () {
+  describe('look', () => {
+    beforeEach(() => {
       socket = new mocks.SocketMock();
       item = new Item({
         desc: 'Item Description',
       });
     });
 
-    it('should display item description', function () {
+    test('should display item description', () => {
       item.look(socket);
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Item Description' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'Item Description' });
     });
 
-    it('should display item id if user is admin', function () {
+    test('should display item id if user is admin', () => {
       socket.user.admin = true;
       item.look(socket);
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Item Description\nItem ID: ' + item.id });
+      expect(socket.emit).toBeCalledWith('output', { message: `Item Description\nItem ID: ${item.id}` });
     });
   });
 });

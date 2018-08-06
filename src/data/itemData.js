@@ -1,5 +1,5 @@
 
-module.exports = {
+export default {
   catalog: [
     {
       name: 'shortsword',

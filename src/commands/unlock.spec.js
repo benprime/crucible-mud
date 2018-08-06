@@ -1,10 +1,12 @@
-'use strict';
+import { mockGetById, mockValidDirectionInput, mockShortToLong } from '../models/room';
+import { mockAutocompleteTypes } from '../core/autocomplete';
+import Item from '../models/item';
+import mocks from '../../spec/mocks';
+import sut from './unlock';
 
-const autocomplete = require('../core/autocomplete');
-const Item = require('../models/item');
-const Room = require('../models/room');
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+jest.mock('../config');
+jest.mock('../models/room');
+jest.mock('../core/autocomplete');
 
 const mockRoom = {
   id: 'bogus',
@@ -15,109 +17,101 @@ const mockRoom = {
     { dir: 'ne', roomId: 'eRoomId', closed: true, keyName: 'Bronze', locked: true },
     { dir: 's', roomId: 'sRoomId' },
   ],
-  getExit: jasmine.createSpy('getExit').and.callFake(dir => mockRoom.exits.find(e => e.dir == dir)),
-  save: jasmine.createSpy('roomSave'),
+  getExit: jest.fn(dir => mockRoom.exits.find(e => e.dir == dir)).mockName('getExit'),
+  save: jest.fn().mockName('roomSave'),
 };
 
-let mockGlobalIO = new mocks.IOMock();
-let mockAutocompleteResult;
-let mockConfig = {};
+global.io = new mocks.IOMock();
 
-const sut = SandboxedModule.require('./unlock', {
-  requires: {
-    '../core/autocomplete': {
-      autocompleteTypes: jasmine.createSpy('autocompletedTypesSpy').and.callFake(() => mockAutocompleteResult),
-    },
-    '../models/room': {
-      getById: () => mockRoom,
-      oppositeDirection: Room.oppositeDirection,
-      shortToLong: Room.shortToLong,
-      validDirectionInput: Room.validDirectionInput,
-      longToShort: Room.longToShort,
-    },
-    '../../config': mockConfig,
-  },
-  globals: { io: mockGlobalIO },
-});
-
-describe('unlock', function () {
+describe('unlock', () => {
   let socket;
 
-  beforeAll(function () {
-    mockGlobalIO.reset();
+  beforeAll(() => {
+    //global.io.reset();
     socket = new mocks.SocketMock();
 
-    spyOn(Room, 'getById').and.callFake(() => mockRoom);
-    spyOn(autocomplete, 'autocompleteTypes').and.callFake(() => mockAutocompleteResult);
+    mockGetById.mockReturnValue(mockRoom);
   });
 
-  beforeEach(function () {
-    socket.emit.calls.reset();
-    mockRoom.save.calls.reset();
-    autocomplete.autocompleteTypes.calls.reset();
+  beforeEach(() => {
+    // socket.emit.mockReset();
+    // mockRoom.save.mockReset();
+    // autocomplete.autocompleteTypes.mockReset();
   });
 
-  it('should output message when direction is invalid', function () {
+  test('should output message when direction is invalid', () => {
     sut.execute(socket, 'e', 'some key');
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No door in that direction.' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'No door in that direction.' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should output message when a door exists but is not locked', function () {
+  test('should output message when a door exists but is not locked', () => {
+
+    mockValidDirectionInput.mockReturnValueOnce('n');
+
     sut.execute(socket, 'n', 'some key');
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'That door is not locked.' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'That door is not locked.' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should output no messages when user is not carrying the key', function () {
-    expect(socket.emit).not.toHaveBeenCalled();
+  test('should output no messages when user is not carrying the key', () => {
+    mockValidDirectionInput.mockReturnValueOnce('nw');
+    mockAutocompleteTypes.mockReturnValueOnce(null);
+
+    sut.execute(socket, 'nw', 'some key');
+
+    expect(socket.emit).toHaveBeenCalledWith('output', {'message': 'You don\'t seem to be carrying that key.'});
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should output message when key is the wrong key for the door', function () {
-    var key = new Item();
+  test('should output message when key is the wrong key for the door', () => {
+    const key = new Item();
     key.itemTypeEnum = 'key';
     key.name = 'Blue';
-    mockAutocompleteResult = key;
+    mockValidDirectionInput.mockReturnValueOnce('ne');
+    mockAutocompleteTypes.mockReturnValueOnce(key);
 
     sut.execute(socket, 'ne', 'Blue');
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'That key does not unlock that door.' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'That key does not unlock that door.' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should unlock door with output message when command successful', function () {
-    var key = new Item();
+  test('should unlock door with output message when command successful', () => {
+    const key = new Item();
     key.itemTypeEnum = 'key';
     key.name = 'Gold';
-    mockAutocompleteResult = key;
+    mockValidDirectionInput.mockReturnValueOnce('w');
+    mockAutocompleteTypes.mockReturnValueOnce(key);
 
     sut.execute(socket, 'w', 'Gold');
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Door unlocked.' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'Door unlocked.' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  describe('asyncTest', function () {
-    var worked = false;
-    beforeEach(function (done) {
-      mockGlobalIO.reset();
-      mockConfig.DOOR_CLOSE_TIMER = 100;
-      var key = new Item();
+  describe('asyncTest', () => {
+    let worked = false;
+    
+    beforeEach(done => {
+      global.io.reset();
+      const key = new Item();
       key.itemTypeEnum = 'key';
       key.name = 'Silver';
-      mockAutocompleteResult = key;
+      mockValidDirectionInput.mockReturnValueOnce('nw');
+      mockShortToLong.mockReturnValueOnce('northwest');
+      mockAutocompleteTypes.mockReturnValueOnce(key);
 
-      sut.execute(socket, 'nw', 'Silver', function () {
+      sut.execute(socket, 'nw', 'Silver', () => {
         worked = true;
         done();
       });
     });
 
-    it('should automatically relock door after timeout', function () {
-      expect(mockGlobalIO.to('bogus').emit).toHaveBeenCalledWith('output', { message: 'The door to the northwest clicks locked!' });
+    test('should automatically relock door after timeout', () => {
+      expect(global.io.to('bogus').emit).toHaveBeenCalledWith('output', { message: 'The door to the northwest clicks locked!' });
       expect(mockRoom.save).not.toHaveBeenCalled();
       expect(worked).toBe(true);
     });

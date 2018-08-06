@@ -1,0 +1,11 @@
+{
+	"presets": [
+		["env", {
+			"targets": {
+				"node": "current"
+			}
+		}]
+	],
+	"sourceMaps": "inline",
+	"retainLines": true // prevent debug breakpoints from moving in vscode
+}

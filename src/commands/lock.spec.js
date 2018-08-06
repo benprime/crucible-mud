@@ -1,77 +1,68 @@
-'use strict';
+import { mockGetById, mockValidDirectionInput } from '../models/room';
+import { mockAutocompleteTypes } from '../core/autocomplete';
+import mocks from '../../spec/mocks';
+import sut from './lock';
 
-const Room = require('../models/room');
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+
+jest.mock('../models/room');
+jest.mock('../core/autocomplete');
 
 let mockRoom;
-let autocompleteResult;
-const sut = SandboxedModule.require('./lock', {
-  requires: {
-    '../core/autocomplete': {
-      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
-    },
-    '../models/room': {
-      getById: () => mockRoom,
-      validDirectionInput: Room.validDirectionInput,
-      longToShort: Room.longToShort,
-    },
-  },
-});
 
-describe('lock', function () {
+
+describe('lock', () => {
   let socket;
 
-  beforeEach(function () {
+  beforeEach(() => {
     socket = new mocks.SocketMock();
     mockRoom = {
       exits: [
         { dir: 'n', roomId: 'uRoomId', closed: true },
         { dir: 's', roomId: 'nRoomId' },
       ],
-      getExit: jasmine.createSpy('getExit').and.callFake(dir => mockRoom.exits.find(e => e.dir == dir)),
-      save: jasmine.createSpy('roomSave'),
+      getExit: jest.fn(dir => mockRoom.exits.find(e => e.dir == dir)).mockName('getExit'),
+      save: jest.fn().mockName('roomSave'),
     };
+    mockGetById.mockReturnValue(mockRoom);
   });
 
-  it('should output message when direction is invalid', function () {
+  test('should output message when direction is invalid', () => {
     sut.execute(socket, 'e', 'some key');
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No door in that direction.' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'No door in that direction.' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should output message when direction is not a door', function () {
+  test('should output message when direction is not a door', () => {
     sut.execute(socket, 's', 'some key');
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No door in that direction.' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'No door in that direction.' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should do nothing when key name is invalid', function () {
-    autocompleteResult = null;
-
+  test('should do nothing when key name is invalid', () => {
     sut.execute(socket, 'n', 'invalid key name');
 
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  it('should succeed on valid direction with door', function () {
+  test('should succeed on valid direction with door', () => {
     // arrange
-    autocompleteResult = {name: 'key', displayName: 'some key'};
+    mockValidDirectionInput.mockReturnValueOnce('n');
+    mockAutocompleteTypes.mockReturnValueOnce({item: {name: 'key', displayName: 'some key'}});
 
     // act
     sut.execute(socket, 'n', 'some key');
-    var exit = mockRoom.exits.find(e => e.dir === 'n');
+    const exit = mockRoom.exits.find(({dir}) => dir === 'n');
 
     // assert
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Door locked.' });
+    expect(socket.emit).toBeCalledWith('output', { message: 'Door locked.' });
     expect(mockRoom.save).toHaveBeenCalledTimes(1);
     expect(exit.closed).toBe(true);
     expect(exit.locked).toBe(true);
   });
 
-  it('should be an admin command', function () {
+  test('should be an admin command', () => {
     expect(sut.admin).toBe(true);
   });
 

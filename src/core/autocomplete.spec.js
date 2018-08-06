@@ -1,21 +1,17 @@
-'use strict';
+import { mockGetById } from '../models/room';
+import sut from './autocomplete';
+import mocks from '../../spec/mocks';
 
-const Room = require('../models/room');
-const mocks = require('../../spec/mocks');
-const rewire = require('rewire');
 
-const sut = rewire('./autocomplete');
-sut.autocompleteByProperty = sut.__get__('autocompleteByProperty');
+jest.mock('../models/room');
 
-describe('autocomplete', function () {
+describe('autocomplete', () => {
   let socket;
   let room;
 
+  describe('autocompleteByProperty', () => {
 
-
-  describe('autocompleteByProperty', function () {
-
-    beforeEach(function () {
+    beforeEach(() => {
       socket = new mocks.SocketMock();
       socket.user = {
         name: 'a user',
@@ -23,52 +19,52 @@ describe('autocomplete', function () {
         keys: [],
       };
       room = mocks.getMockRoom();
-      spyOn(Room, 'getById').and.callFake(() => room);
+      mockGetById.mockReturnValue(room);
     });
 
-    it('returns object when only one target type has a match', function () {
+    test('returns object when only one target type has a match', () => {
       // arrange
       const testObj = { name: 'test name', displayName: 'test displayName' };
       socket.user.inventory = [testObj];
 
       // act
-      var result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'tes');
+      const result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'tes');
 
       // assert
-      expect(result.length).toBe(1);
+      expect(result).toHaveLength(1);
       expect(result[0].displayName).toBe('test displayName');
     });
 
-    it('returns empty array when no object matches', function () {
+    test('returns empty array when no object matches', () => {
       // arrange
       socket.user.inventory.push({ displayName: 'bbb' });
       room.inventory.push({ displayName: 'bbb' });
 
       // act
-      var result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'a');
+      const result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'a');
 
       // assert
-      expect(result.length).toBe(0);
+      expect(result).toHaveLength(0);
     });
 
-    it('returns array containing all matching objects when more than one target type matches', function () {
+    test('returns array containing all matching objects when more than one target type matches', () => {
       // arrange
       const userInventoryItem = { displayName: 'aaa' };
       socket.user.inventory.push(userInventoryItem);
 
       // act
-      var result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'a');
+      const result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'a');
 
       // assert
-      expect(result.length).toBe(1);
-      expect(result.find(i => i.matchedValue === userInventoryItem.displayName
-        && i.target === 'inventory')).not.toBeNull();
+      expect(result).toHaveLength(1);
+      expect(result.find(({matchedValue, target}) => matchedValue === userInventoryItem.displayName
+        && target === 'inventory')).not.toBeNull();
     });
   });
 
-  describe('autocomplete method', function () {
+  describe('autocomplete method', () => {
 
-    beforeEach(function () {
+    beforeEach(() => {
       socket = new mocks.SocketMock();
       socket.user = {
         name: 'a user',
@@ -76,18 +72,18 @@ describe('autocomplete', function () {
         keys: [],
       };
       room = mocks.getMockRoom();
-      spyOn(Room, 'getById').and.callFake(() => room);
+      mockGetById.mockReturnValue(room);
     });
 
-    it('should return object if only displayName has a matching object', function () {
+    test('should return object if only displayName has a matching object', () => {
       // arrange
-      var inventoryItem = { name: 'aaa', displayName: 'bbb' };
+      const inventoryItem = { name: 'aaa', displayName: 'bbb' };
       socket.user.inventory = [inventoryItem];
       const roomItem = { name: 'ccc', displayName: 'ddd' };
       room.inventory = [roomItem];
 
       // act
-      var result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'd');
+      const result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'd');
 
       // assert
       expect(result.type).toBe('room');
@@ -95,29 +91,29 @@ describe('autocomplete', function () {
       expect(result.item.displayName).toBe(roomItem.displayName);
     });
 
-    it('should return object if only name has a matching object', function () {
+    test('should return object if only name has a matching object', () => {
       // arrange
-      var inventoryItem = { name: 'aaa', displayName: 'bbb' };
+      const inventoryItem = { name: 'aaa', displayName: 'bbb' };
       socket.user.inventory = [inventoryItem];
       const roomItem = { name: 'ccc', displayName: 'ddd' };
       room.inventory = [roomItem];
 
       // act
-      var result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'a');
+      const result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'a');
 
       // assert
       expect(result.item).toBe(inventoryItem);
     });
 
-    it('should return null if neither name or displayName have matching object', function () {
+    test('should return null if neither name or displayName have matching object', () => {
       // arrange
-      var inventoryItem = { name: 'aaa', displayName: 'aaa' };
+      const inventoryItem = { name: 'aaa', displayName: 'aaa' };
       socket.user.inventory = [inventoryItem];
       const roomItem = { name: 'aaa', displayName: 'aaa' };
       room.inventory = [roomItem];
 
       // act
-      var result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'b');
+      const result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'b');
 
       // assert
       expect(result).toBeNull();

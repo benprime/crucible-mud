@@ -1,15 +1,11 @@
-'use strict';
+import mocks from '../../spec/mocks';
+import sut from './help';
 
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
-
-const sut = SandboxedModule.require('./help', {});
-
-describe('help', function () {
+describe('help', () => {
   let socket;
   let command;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
 
     command = {
@@ -20,27 +16,27 @@ describe('help', function () {
     sut.registerCommand(command);
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    it('should display general help with no parameters', function () {
+    test('should display general help with no parameters', () => {
       sut.execute(socket);
 
       //TODO: Preload entire help message into a variable or whatnot to check for accuracy
       expect(socket.emit).toHaveBeenCalled();
     });
 
-    it('should display topic help with a parameter', function () {
+    test('should display topic help with a parameter', () => {
       sut.execute(socket, 'gossip');
 
       //check accuracy of output for gossip
       expect(command.help).toHaveBeenCalled();
     });
 
-    it('should display error message when topic is invalid', function () {
+    test('should display error message when topic is invalid', () => {
       sut.execute(socket, 'yourface');
 
       //check output for bad command
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No help for that topic.' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'No help for that topic.' });
     });
   });
 

@@ -1,10 +1,8 @@
-'use strict';
+import Room from '../models/room';
+import socketUtil from '../core/socketUtil';
+import autocomplete from '../core/autocomplete';
 
-const Room = require('../models/room');
-const socketUtil = require('../core/socketUtil');
-const autocomplete = require('../core/autocomplete');
-
-module.exports = {
+export default {
   name: 'offer',
 
   patterns: [
@@ -12,7 +10,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1], match[2]);
+    this.execute(socket, match[1], match[2]);
   },
 
   execute(socket, userName, itemName, cb) {
@@ -36,7 +34,7 @@ module.exports = {
       userName = userNames[0];
     }
 
-    const userItemIndex = socket.user.inventory.findIndex(i => i.id === item.id);
+    const userItemIndex = socket.user.inventory.findIndex(({id}) => id === item.id);
     const offer = {
       fromUserName: socket.user.username,
       toUserName: userName,

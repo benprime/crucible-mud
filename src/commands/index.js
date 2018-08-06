@@ -1,7 +1,5 @@
-'use strict';
-
-const actionHandler = require('../core/actionHandler');
-const helpHandler = require('./help');
+import actionHandler from '../core/actionHandler';
+import helpHandler from './help';
 
 let commandModules = [
   'attack.js',
@@ -12,9 +10,12 @@ let commandModules = [
   'drop.js',
   'equip.js',
   'exp.js',
+  'follow.js',
   'gossip.js',
+  'hide.js',
   'help.js',
   'inventory.js',
+  'invite.js',
   'keys.js',
   'list.js',
   'lock.js',
@@ -22,10 +23,13 @@ let commandModules = [
   'move.js',
   'offer.js',
   'open.js',
+  'roll.js',
   'say.js',
+  'search.js',
   'set.js',
   'spawner.js',
   'spawn.js',
+  'stats.js',
   'summon.js',
   'take.js',
   'telepathy.js',
@@ -39,6 +43,7 @@ const commands = [];
 let defaultCommand;
 
 function validateCommand(commandHandler, file) {
+  if(!commandHandler) throw `could not load ${file} when initializing commands`;
   if (!commandHandler.name) throw `command ${file} missing name!`;
   if (!commandHandler.dispatch) throw `command ${file} missing dispatch!`;
   if (!commandHandler.execute) throw `command ${file} missing execute!`;
@@ -46,19 +51,20 @@ function validateCommand(commandHandler, file) {
   if (!commandHandler.help) throw `command ${file} missing help!`;
 }
 
-commandModules.forEach(function (file) {
+commandModules.forEach(file => {
   // eslint-disable-next-line
-  let commandHandler = require('./' + file);
+  let commandHandler = require(`./${file}`).default;
+  //console.log(commandHandler)
   validateCommand(commandHandler, file);
   commands.push(commandHandler);
   helpHandler.registerCommand(commandHandler);
 });
 
-defaultCommand = commands.find(h => h.name === 'say');
+defaultCommand = commands.find(({name}) => name === 'say');
 
-function matches(commandHandler, input) {
-  for (let p = 0; p < commandHandler.patterns.length; p++) {
-    let match = input.match(commandHandler.patterns[p]);
+function matches({patterns}, input) {
+  for (let p = 0; p < patterns.length; p++) {
+    let match = input.match(patterns[p]);
     if (match) {
       return match;
     }
@@ -85,7 +91,7 @@ function processDispatch(socket, input) {
   if (match) {
     let action = match[1];
     let username = match[2];
-    var actionFound = actionHandler.actionDispatcher(socket, action, username);
+    const actionFound = actionHandler.actionDispatcher(socket, action, username);
     if (actionFound) {
       return;
     }
@@ -94,7 +100,7 @@ function processDispatch(socket, input) {
   defaultCommand.execute(socket, input);
 }
 
-module.exports = {
+export default {
   Dispatch(socket, input) {
     try {
       processDispatch(socket, input);

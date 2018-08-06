@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = {
+export default {
   name: 'unequip',
 
   patterns: [
@@ -10,14 +8,15 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1], match[2]);
+    this.execute(socket, match[1], match[2]);
   },
 
   execute(socket, itemName, hand) {
 
-    var item;
-    for (var i in socket.user.equipSlots) {
+    let item;
+    for (const i in socket.user.equipSlots) {
       if (!socket.user.equipSlots[i]) continue;
+      // TODO: The comments and tests seem to think this is using autocomplete, should it be?
       if (socket.user.equipSlots[i].displayName == itemName || socket.user.equipSlots[i].name == itemName)
         item = socket.user.equipSlots[i];
     }

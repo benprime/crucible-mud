@@ -1,7 +1,7 @@
-const dice = require('./dice');
+import dice from './dice';
 
-describe('getRandomNumber', function () {
-  it('number in range when min and max are same number', function () {
+describe('getRandomNumber', () => {
+  test('number in range when min and max are same number', () => {
     // act
     const result = dice.getRandomNumber(5, 5);
 
@@ -9,7 +9,7 @@ describe('getRandomNumber', function () {
     expect(result).toBe(5);
   });
 
-  it('number in range', function () {
+  test('number in range', () => {
     // act
     const result = dice.getRandomNumber(10, 15);
 

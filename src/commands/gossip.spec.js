@@ -1,24 +1,19 @@
-'use strict';
+import mocks from '../../spec/mocks';
+import sut from './gossip';
 
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+global.io = new mocks.IOMock();
 
-let mockGlobalIO = new mocks.IOMock();
-const sut = SandboxedModule.require('./gossip', {
-  globals: {io:mockGlobalIO},
-});
-
-describe('gossip', function () {
+describe('gossip', () => {
   let socket;
 
-  beforeAll(function () {
+  beforeAll(() => {
     socket = new mocks.SocketMock();
-    mockGlobalIO.reset();
+    global.io.reset();
   });
 
-  describe('execute', function () {
+  describe('execute', () => {
 
-    it('should call emit to correct gossip channel', function () {
+    test('should call emit to correct gossip channel', () => {
       // arrange
       const msg = 'This is a gossiped message!';
 
@@ -26,8 +21,8 @@ describe('gossip', function () {
       sut.execute(socket, msg);
 
       // assert
-      expect(mockGlobalIO.to).toHaveBeenCalledWith('gossip');
-      expect(mockGlobalIO.to('gossip').emit).toHaveBeenCalledWith('output', { message: '<span class="silver">TestUser gossips: </span><span class="mediumOrchid">This is a gossiped message!</span>' });
+      expect(global.io.to).toBeCalledWith('gossip');
+      expect(global.io.to('gossip').emit).toBeCalledWith('output', { message: '<span class="silver">TestUser gossips: </span><span class="mediumOrchid">This is a gossiped message!</span>' });
     });
 
   });

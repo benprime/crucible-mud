@@ -1,4 +1,4 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
+import { mockGetById } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import Item from '../models/item';
 import mocks from '../../spec/mocks';
@@ -88,7 +88,7 @@ describe('drop', () => {
 
         expect(socket.user.save).toHaveBeenCalled();
         expect(mockRoom.save).toHaveBeenCalled();
-        expect(socket.user.inventory.length).toBe(0);
+        expect(socket.user.inventory).toHaveLength(0);
         expect(mockRoom.inventory[0].name).toEqual(item.name);
         expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser drops dropItem.' });
         expect(socket.emit).toBeCalledWith('output', { message: 'Dropped.' });
@@ -107,7 +107,7 @@ describe('drop', () => {
 
         expect(socket.user.save).toHaveBeenCalled();
         expect(mockRoom.save).toHaveBeenCalled();
-        expect(socket.user.keys.length).toBe(0);
+        expect(socket.user.keys).toHaveLength(0);
         expect(mockRoom.inventory[0].name).toEqual(key.name);
         expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser drops dropKey.' });
         expect(socket.emit).toBeCalledWith('output', { message: 'Dropped.' });

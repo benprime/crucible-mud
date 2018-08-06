@@ -1,4 +1,4 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort, mockUsersInRoom } from '../models/room';
+import { mockGetById } from '../models/room';
 import { mockGetSocketByUsername } from '../core/socketUtil';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
@@ -30,7 +30,7 @@ describe('offer', () => {
 
   describe('dispatch', () => {
     beforeEach(() => {
-      spyOn(sut, 'execute');
+      jest.spyOn(sut, 'execute');
     });
 
     test('should call execute with match', () => {
@@ -204,7 +204,7 @@ describe('offer', () => {
       };
 
       sut.execute(socket, 'aUser', 'aItem', () => {
-        expect(mockTargetSocket.offers.length).toEqual(0);
+        expect(mockTargetSocket.offers).toHaveLength(0);
       });
     });
   });

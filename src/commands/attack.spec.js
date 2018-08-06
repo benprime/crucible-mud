@@ -1,4 +1,4 @@
-import { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
+import { mockGetById } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './attack';

@@ -214,7 +214,7 @@ describe('socketUtil', () => {
       let result = sut.getRoomSockets('room with no sockets');
 
       expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBe(0);
+      expect(result).toHaveLength(0);
     });
 
     test('should return an array of sockets when the room is populated with users', () => {
@@ -228,7 +228,7 @@ describe('socketUtil', () => {
       let result = sut.getRoomSockets(room.id);
 
       expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBe(2);
+      expect(result).toHaveLength(2);
     });
   });
 
@@ -264,7 +264,7 @@ describe('socketUtil', () => {
       const result = sut.getFollowingSockets(leaderId);
 
       // assert
-      expect(result.length).toBe(3);
+      expect(result).toHaveLength(3);
       expect(result[0]).toBe(follower1);
       expect(result[1]).toBe(follower2);
       expect(result[2]).toBe(follower3);

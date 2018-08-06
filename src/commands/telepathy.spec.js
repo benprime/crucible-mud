@@ -1,6 +1,4 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
-import { mockSocketInRoom, mockRoomMessage, mockGetSocketByUsername, mockGetSocketByUserId, mockGetFollowingSockets, mockGetRoomSockets, mockValidUserInRoom } from '../core/socketUtil';
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockGetSocketByUsername } from '../core/socketUtil';
 import mocks from '../../spec/mocks';
 import sut from './telepathy';
 

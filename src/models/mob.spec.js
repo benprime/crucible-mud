@@ -1,5 +1,5 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
-import { mockSocketInRoom, mockRoomMessage, mockGetSocketByUsername, mockGetSocketByUserId, mockGetFollowingSockets, mockGetRoomSockets, mockValidUserInRoom } from '../core/socketUtil';
+import { mockGetById } from '../models/room';
+import { mockSocketInRoom, mockRoomMessage, mockGetRoomSockets } from '../core/socketUtil';
 import { mockRoll, mockGetRandomNumber } from '../core/dice';
 import mocks from '../../spec/mocks';
 import sutModel from '../models/mob';

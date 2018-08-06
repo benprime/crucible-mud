@@ -1,6 +1,5 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
-import utils from '../core/utilities';
 
 export default {
   name: 'destroy',
@@ -14,7 +13,7 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      help(socket);
+      this.help(socket);
       return;
     }
     let typeName = match[1];

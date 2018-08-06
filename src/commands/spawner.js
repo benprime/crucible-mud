@@ -70,6 +70,8 @@ export default {
     let removeMobType;
     let index;
     let desc;
+    let maxVal;
+    let timeoutVal;
 
     switch (action) {
       case 'add':
@@ -98,7 +100,7 @@ export default {
         }
         break;
       case 'max':
-        const maxVal = parseInt(param);
+        maxVal = parseInt(param);
         if(isNaN(maxVal)) {
           socket.emit('output', { message: 'Invalid max value - must be an integer.' });
           break;
@@ -108,7 +110,7 @@ export default {
         socket.emit('output', { message: `Max creatures updated to ${maxVal}.` });
         break;
       case 'timeout':
-        const timeoutVal = parseInt(param);
+        timeoutVal = parseInt(param);
         if(isNaN(timeoutVal)) {
           socket.emit('output', { message: 'Invalid max value - must be an integer.' });
           break;

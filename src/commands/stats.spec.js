@@ -1,5 +1,3 @@
-'use strict';
-
 import mocks from '../../spec/mocks';
 import sut from './stats';
 

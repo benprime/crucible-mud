@@ -1,7 +1,5 @@
 import mocks from '../../spec/mocks';
 import sut from './list';
-import utils from '../core/utilities';
-
 
 
 describe('list', () => {
@@ -48,7 +46,7 @@ describe('list', () => {
 
   beforeEach(() => {
     socket.emit.mockReset();
-  })
+  });
 
   describe('execute', () => {
     test('should lists mob catalog', () => {

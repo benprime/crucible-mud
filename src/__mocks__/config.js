@@ -9,7 +9,7 @@
 // mock.autocompleteTypes = mockAutocompleteTypes;
 
 const mock = {
-  DOOR_CLOSE_TIMER: 100
-}
+  DOOR_CLOSE_TIMER: 100,
+};
 
 export default mock;

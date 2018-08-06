@@ -1,5 +1,5 @@
 import mocks from '../../spec/mocks';
-import {mockRoll} from '../core/dice'
+import {mockRoll} from '../core/dice';
 import sut from './roll';
 
 jest.mock('../core/dice');

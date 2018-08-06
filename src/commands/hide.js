@@ -22,7 +22,7 @@ function hideItem(socket, room, itemName) {
     return;
   }
 
-  const hideTargetObj = acResult.item
+  const hideTargetObj = acResult.item;
 
   if (!hideTargetObj) {
     socket.emit('output', { message: 'Item does not exist in inventory or in room.<br />' });
@@ -49,7 +49,7 @@ export default {
       hideTarget = match[1];
     }
     else {
-      help(socket);
+      this.help(socket);
       return;
     }
     this.execute(socket, hideTarget);

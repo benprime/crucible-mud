@@ -1,4 +1,4 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort, mockOppositeDirection } from '../models/room';
+import { mockGetById, mockShortToLong, mockOppositeDirection } from '../models/room';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
 import sut from './yell';

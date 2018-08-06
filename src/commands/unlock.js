@@ -13,12 +13,12 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      help(socket);
+      this.help(socket);
       return;
     }
     const dir = match[1].toLowerCase();
     const keyName = match[2];
-    execute(socket, dir, keyName);
+    this.execute(socket, dir, keyName);
   },
 
   execute(socket, dir, keyName, cb) {

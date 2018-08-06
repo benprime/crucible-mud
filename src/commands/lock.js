@@ -13,7 +13,7 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      help(socket);
+      this.help(socket);
       return;
     }
     const dir = match[1].toLowerCase();

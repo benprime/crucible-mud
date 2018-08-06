@@ -1,4 +1,4 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort, mockOppositeDirection } from '../models/room';
+import { mockGetById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';

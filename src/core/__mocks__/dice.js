@@ -3,7 +3,7 @@ export const mockGetRandomNumber = jest.fn();
 
 const mock = jest.fn().mockImplementation(() => {
   return {
-    roll: mockRoll
+    roll: mockRoll,
   };
 });
 

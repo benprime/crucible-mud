@@ -1,4 +1,4 @@
-import { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
+import { mockGetById, mockValidDirectionInput, mockShortToLong } from '../models/room';
 import mocks from '../../spec/mocks';
 import sut from './close';
 
@@ -22,7 +22,7 @@ describe('close', () => {
           { dir: 's', roomId: 'sRoomId', closed: false },
           { dir: 'e', roomId: 'eRoomId' },
           { dir: 'w', roomId: 'wRoomId' },
-        ]
+        ],
       };
       mockGetById.mockReturnValue(mockRoom);
     });

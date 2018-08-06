@@ -1,4 +1,3 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import Item from '../models/item';
 import mocks from '../../spec/mocks';
@@ -9,11 +8,9 @@ jest.mock('../core/autocomplete');
 
 describe('unequip', () => {
   let socket;
-  let mockRoom;
 
   beforeAll(() => {
     socket = new mocks.SocketMock();
-    mockRoom = mocks.getMockRoom();
   });
 
   beforeEach(() => {

@@ -1,12 +1,6 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
+import { mockGetById } from '../models/room';
 import mocks from '../../spec/mocks';
 import sut from './spawn';
-
-// requiring models to use their constuctors directly
-import Mob from '../models/mob';
-
-import Item from '../models/item';
-
 
 jest.mock('../models/room');
 
@@ -31,7 +25,7 @@ describe('spawn', () => {
       test('should create instance of mob in room mobs list', () => {
         sut.execute(socket, 'mob', 'kobold');
 
-        expect(mockRoom.mobs.length).toBe(1);
+        expect(mockRoom.mobs).toHaveLength(1);
         expect(mockRoom.mobs[0].displayName.endsWith('kobold sentry')).toBeTruthy();
         expect(socket.emit).toBeCalledWith('output', { message: 'Summoning successful.' });
         expect(mockRoom.save).not.toHaveBeenCalled();
@@ -48,7 +42,7 @@ describe('spawn', () => {
       test('should create instance of item in user inventory', () => {
         sut.execute(socket, 'item', 'shortsword');
 
-        expect(socket.user.inventory.length).toBe(1);
+        expect(socket.user.inventory).toHaveLength(1);
         expect(socket.user.inventory[0].displayName).toBe('short sword');
         expect(socket.emit).toBeCalledWith('output', { message: 'Item created.' });
         expect(socket.user.save).toHaveBeenCalled();
@@ -65,7 +59,7 @@ describe('spawn', () => {
       test('should create instance of key in user keys', () => {
         sut.execute(socket, 'key', 'jadekey');
 
-        expect(socket.user.keys.length).toBe(1);
+        expect(socket.user.keys).toHaveLength(1);
         expect(socket.user.keys[0].displayName).toBe('jade key');
         expect(socket.emit).toBeCalledWith('output', { message: 'Key created.' });
         expect(socket.user.save).toHaveBeenCalled();

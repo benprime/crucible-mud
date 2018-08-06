@@ -1,11 +1,8 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
 import mocks from '../../spec/mocks';
 import sut from './follow';
+import { mockValidUserInRoom } from '../core/socketUtil';
 
 jest.mock('../models/room');
-
-
-import { mockSocketInRoom, mockRoomMessage, mockGetSocketByUsername, mockGetSocketByUserId, mockGetFollowingSockets, mockGetRoomSockets, mockValidUserInRoom } from '../core/socketUtil';
 jest.mock('../core/socketUtil');
 
 
@@ -32,7 +29,7 @@ describe('follow', () => {
     test('sets socket leader tracking variable and clears follow invite when user follows user', () => {
       sut.execute(socket, mockInvitingSocket.user.username);
 
-      expect(socket.partyInvites.length).toBe(0);
+      expect(socket.partyInvites).toHaveLength(0);
     });
 
     // this feature is not yet implemented

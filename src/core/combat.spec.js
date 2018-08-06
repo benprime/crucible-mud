@@ -1,5 +1,4 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort, mockRoomCache } from '../models/room';
-import { mockSocketInRoom, mockRoomMessage, mockGetSocketByUsername, mockGetSocketByUserId, mockGetFollowingSockets, mockGetRoomSockets, mockValidUserInRoom } from '../core/socketUtil';
+import Room, { mockGetById } from '../models/room';
 import Mob from '../models/mob';
 import sut from '../core/combat';
 import mocks from '../../spec/mocks';
@@ -27,7 +26,7 @@ describe('combat command', () => {
       sut.processPlayerCombatActions(now);
 
       expect(mockRoom.processPlayerCombatActions).toBeCalledWith(now);
-      expect(mockRoom.processPlayerCombatActions.mock.calls.length).toEqual(2);
+      expect(mockRoom.processPlayerCombatActions.mock.calls).toHaveLength(2);
     });
 
     test('should not call room.processPlayerCombatActions with no room ids', () => {

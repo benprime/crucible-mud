@@ -1,6 +1,5 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
-import { mockAutocompleteTypes } from '../core/autocomplete';
-import socketUtil, { mockUsersInRoom, mockSocketInRoom, mockRoomMessage, mockGetRoomSockets, mockValidUserInRoom, mockGetFollowingSockets, mockGetSocketByUserId, mockGetSocketByUsername } from '../core/socketUtil';
+import { mockGetById } from '../models/room';
+import { mockGetSocketByUsername } from '../core/socketUtil';
 import mocks from '../../spec/mocks';
 import sut from './summon';
 

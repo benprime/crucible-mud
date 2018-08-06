@@ -1,6 +1,5 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort, mockRoomCache } from '../models/room';
+import Room, { mockGetById, mockRoomCache } from '../models/room';
 import { mockGetSocketByUsername } from '../core/socketUtil';
-import { mockAutocompleteTypes } from '../core/autocomplete';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
 import sut from './teleport';
@@ -10,7 +9,6 @@ jest.mock('../models/room');
 jest.mock('../core/autocomplete');
 jest.mock('../core/socketUtil');
 
-let mockRoom = {};
 
 describe('teleport', () => {
   let socket;
@@ -76,7 +74,6 @@ describe('teleport', () => {
     // This is not currently possible (but may be soon)
     xtest('should output messages when room cannot be found', () => {
 
-      mockRoom = null;
       let toRoom = otherRoom.id;
       Room.roomCache[toRoom] = {};
 

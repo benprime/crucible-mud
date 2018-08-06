@@ -1,6 +1,5 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
+import { mockGetById, mockValidDirectionInput, mockShortToLong } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
-import autocomplete from '../core/autocomplete';
 import Item from '../models/item';
 import mocks from '../../spec/mocks';
 import sut from './unlock';
@@ -63,7 +62,7 @@ describe('unlock', () => {
 
     sut.execute(socket, 'nw', 'some key');
 
-    expect(socket.emit).toHaveBeenCalledWith('output', {"message": "You don't seem to be carrying that key."});
+    expect(socket.emit).toHaveBeenCalledWith('output', {'message': 'You don\'t seem to be carrying that key.'});
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 

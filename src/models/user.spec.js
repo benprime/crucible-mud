@@ -2,7 +2,6 @@ import User from '../models/user';
 
 describe('user model', () => {
   let user;
-  let saveCalled;
 
   describe('nextExp', () => {
     beforeEach(() => {
@@ -34,11 +33,7 @@ describe('user model', () => {
           level: 1,
           xp: 0,
         });
-        saveCalled = false;
-        // janky work around for mongoose spying
-        spyOn(User.prototype, 'save').and.callFake(() => {
-          saveCalled = true;
-        });
+        user.save = jest.fn();
       });
 
       test('saves correct value when experience is added', () => {
@@ -46,7 +41,7 @@ describe('user model', () => {
 
         expect(user.xp).toBe(10);
         expect(user.level).toBe(1);
-        expect(saveCalled).toBe(true);
+        expect(user.save).toHaveBeenCalled();
       });
 
       test('changes level when user has enough experience for level 2', () => {
@@ -54,7 +49,7 @@ describe('user model', () => {
 
         expect(user.xp).toBe(310);
         expect(user.level).toBe(2);
-        expect(saveCalled).toBe(true);
+        expect(user.save).toHaveBeenCalled();
       });
     });
   });

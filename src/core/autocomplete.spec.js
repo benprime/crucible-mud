@@ -1,11 +1,11 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
+import { mockGetById } from '../models/room';
 import sut from './autocomplete';
 import mocks from '../../spec/mocks';
 
 
 jest.mock('../models/room');
 
-xdescribe('autocomplete', () => {
+describe('autocomplete', () => {
   let socket;
   let room;
 
@@ -19,7 +19,7 @@ xdescribe('autocomplete', () => {
         keys: [],
       };
       room = mocks.getMockRoom();
-      spyOn(Room, 'getById').and.callFake(() => room);
+      mockGetById.mockReturnValue(room);
     });
 
     test('returns object when only one target type has a match', () => {
@@ -31,7 +31,7 @@ xdescribe('autocomplete', () => {
       const result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'tes');
 
       // assert
-      expect(result.length).toBe(1);
+      expect(result).toHaveLength(1);
       expect(result[0].displayName).toBe('test displayName');
     });
 
@@ -44,7 +44,7 @@ xdescribe('autocomplete', () => {
       const result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'a');
 
       // assert
-      expect(result.length).toBe(0);
+      expect(result).toHaveLength(0);
     });
 
     test('returns array containing all matching objects when more than one target type matches', () => {
@@ -56,7 +56,7 @@ xdescribe('autocomplete', () => {
       const result = sut.autocompleteByProperty(socket.user.inventory, 'displayName', 'a');
 
       // assert
-      expect(result.length).toBe(1);
+      expect(result).toHaveLength(1);
       expect(result.find(({matchedValue, target}) => matchedValue === userInventoryItem.displayName
         && target === 'inventory')).not.toBeNull();
     });
@@ -72,7 +72,7 @@ xdescribe('autocomplete', () => {
         keys: [],
       };
       room = mocks.getMockRoom();
-      spyOn(Room, 'getById').and.callFake(() => room);
+      mockGetById.mockReturnValue(room);
     });
 
     test('should return object if only displayName has a matching object', () => {

@@ -1,4 +1,4 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
+import { mockGetById } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import { mockGetSocketByUsername } from '../core/socketUtil';
 import mocks from '../../spec/mocks';
@@ -22,7 +22,7 @@ describe('take', () => {
 
   describe('dispatch', () => {
     beforeEach(() => {
-      spyOn(sut, 'execute');
+      jest.spyOn(sut, 'execute');
       socket.emit.mockClear();
     });
 
@@ -69,15 +69,15 @@ describe('take', () => {
 
       sut.execute(socket, 'aItem');
 
-      expect(socket.offers.length).toEqual(0);
+      expect(socket.offers).toHaveLength(0);
       expect(socket.emit).toBeCalledWith('output', { message: `${offeredItem.displayName} was added to your inventory.` });
       expect(socket.user.save).toHaveBeenCalled();
-      expect(socket.user.inventory.length).toEqual(1);
+      expect(socket.user.inventory).toHaveLength(1);
       expect(socket.user.inventory[0].name).toEqual('aItem');
 
       expect(offeringSocket.emit).toBeCalledWith('output', { message: `${offeredItem.displayName} was removed from your inventory.` });
       expect(offeringSocket.user.save).toHaveBeenCalled();
-      expect(offeringSocket.user.inventory.length).toEqual(0);
+      expect(offeringSocket.user.inventory).toHaveLength(0);
     });
 
     test('should output message when item is not found', () => {
@@ -106,7 +106,7 @@ describe('take', () => {
 
       sut.execute(socket, 'aItem');
 
-      expect(socket.user.inventory.length).toEqual(0);
+      expect(socket.user.inventory).toHaveLength(0);
       expect(socket.emit).toBeCalledWith('output', { message: 'You cannot take that!' });
       expect(mockRoom.save).not.toHaveBeenCalled();
       expect(socket.user.save).not.toHaveBeenCalled();

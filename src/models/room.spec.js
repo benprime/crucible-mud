@@ -1,4 +1,4 @@
-import socketUtil, { mockUsersInRoom, mockSocketInRoom, mockRoomMessage, mockGetRoomSockets, mockValidUserInRoom, mockGetFollowingSockets, mockGetSocketByUserId, mockGetSocketByUsername } from '../core/socketUtil';
+import { mockGetRoomSockets } from '../core/socketUtil';
 import Mob from '../models/mob';
 import mobData from '../data/mobData';
 import sutModel from '../models/room';
@@ -188,7 +188,7 @@ describe('room model', () => {
         const result = room.usersInRoom(socket.id);
 
         expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBe(0);
+        expect(result).toHaveLength(0);
       });
 
       test('should return array of names when users in room', () => {
@@ -206,7 +206,7 @@ describe('room model', () => {
         const result = room.usersInRoom(socket.id);
 
         expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBe(2);
+        expect(result).toHaveLength(2);
         expect(result).toEqual(['TestUser1', 'TestUser2']);
       });
     });
@@ -255,7 +255,7 @@ describe('room model', () => {
       });
 
       test('should not load new room to cache when creating a door in a direction where room exists', () => {
-        sutModel.mockByCoords = jest.fn((coords, cb) => {
+        sutModel.mockByCoords = jest.fn((cb) => {
           cb(new sutModel());
         });
 

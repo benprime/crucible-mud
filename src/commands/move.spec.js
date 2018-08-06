@@ -1,5 +1,4 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort, mockOppositeDirection, mockRoomCache } from '../models/room';
-import BreakCommand from './break';
+import { mockGetById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection, mockRoomCache } from '../models/room';
 import mocks from '../../spec/mocks';
 import { when } from 'jest-when';
 import sut from './move';
@@ -170,16 +169,6 @@ describe('move', () => {
 
       expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the door to the west.</span>` });
       expect(socket.emit).toBeCalledWith('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
-    });
-
-    // I think this test is messing up the existing mockGetById mocks
-    xtest('should output message when direction is invalid', () => {
-      mockGetById.mockReturnValueOnce(undefined);
-
-      sut.execute(socket, 'u');
-
-      expect(socket.to(socket.user.roomId).emit).toBeCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the ceiling.</span>` });
-      expect(socket.emit).toBeCalledWith('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
     });
 
     xtest('should message correctly movement when direction is up', () => {

@@ -1,4 +1,4 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
+import { mockGetById } from '../models/room';
 import { mockRoll } from '../core/dice';
 import mocks from '../../spec/mocks';
 import sut from './search';
@@ -69,8 +69,8 @@ describe('search', function () {
     expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(true);
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
-/*
-  test('should only reveal some items/exits if skill check doesn't fully succed', function () {
+
+  xtest('should only reveal some items/exits if skill check doesn\'t fully succed', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
 
@@ -84,7 +84,7 @@ describe('search', function () {
     expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(true);
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
-*/
+
   test('should reveal hidden targets and output message when skill fully succeeds seach test', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;

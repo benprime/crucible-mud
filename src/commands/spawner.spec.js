@@ -1,11 +1,9 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
+import { mockGetById } from '../models/room';
 import mocks from '../../spec/mocks';
 import sut from './spawner';
 
 
 jest.mock('../models/room');
-
-let mockRoom = mocks.getMockRoom();
 
 import SpawnerModel from '../models/spawner';
 

@@ -115,7 +115,7 @@ export default {
     const validDir = Room.validDirectionInput(dir.toLowerCase());
     const sourceRoom = Room.getById(socket.user.roomId);
     if(!sourceRoom) {
-      throw "Could not fetch room that user is currently in";
+      throw 'Could not fetch room that user is currently in';
     }
 
     if(!validDir) {

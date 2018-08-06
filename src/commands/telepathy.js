@@ -10,7 +10,7 @@ export default {
 
   dispatch(socket, match) {
     if(match.length != 3) {
-      help(socket);
+      this.help(socket);
       return;
     }
     this.execute(socket, match[1], match[2]);

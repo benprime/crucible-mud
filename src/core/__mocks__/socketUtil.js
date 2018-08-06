@@ -17,14 +17,14 @@ export const mockGetSocketByUsername = jest.fn();
 // });
 
 const mock = {
-    usersInRoom: mockUsersInRoom,
-    socketInRoom: mockSocketInRoom,
-    roomMessage: mockRoomMessage,
-    getRoomSockets: mockGetRoomSockets,
-    validUserInRoom: mockValidUserInRoom,
-    getFollowingSockets: mockGetFollowingSockets,
-    getSocketByUserId: mockGetSocketByUserId,
-    getSocketByUsername: mockGetSocketByUsername,
+  usersInRoom: mockUsersInRoom,
+  socketInRoom: mockSocketInRoom,
+  roomMessage: mockRoomMessage,
+  getRoomSockets: mockGetRoomSockets,
+  validUserInRoom: mockValidUserInRoom,
+  getFollowingSockets: mockGetFollowingSockets,
+  getSocketByUserId: mockGetSocketByUserId,
+  getSocketByUsername: mockGetSocketByUsername,
 };
 
 export default mock;

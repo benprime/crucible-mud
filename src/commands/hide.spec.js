@@ -1,4 +1,4 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort, mockGetExit } from '../models/room';
+import { mockGetById, mockValidDirectionInput } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './hide';
@@ -53,7 +53,7 @@ describe('hide', () => {
   describe('items', () => {
 
     test('should output message when item is invalid', () => {
-      mockAutocompleteTypes.mockReturnValueOnce(null)
+      mockAutocompleteTypes.mockReturnValueOnce(null);
       sut.execute(socket, 'emu');
 
       expect(socket.emit).toBeCalledWith('output', { message: 'Item does not exist in inventory or in room.<br />' });

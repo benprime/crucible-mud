@@ -1,4 +1,4 @@
-import Room, { mockGetById, mockValidDirectionInput, mockShortToLong, mockLongToShort } from '../models/room';
+import { mockGetById, mockValidDirectionInput, mockShortToLong } from '../models/room';
 import mocks from '../../spec/mocks';
 import sut from './open';
 

@@ -13,7 +13,7 @@ export default {
     if (match.length > 1) {
       dieType = match[1];
     }
-    module.exports.execute(socket, dieType);
+    this.execute(socket, dieType);
   },
 
   execute(socket, dieType) {

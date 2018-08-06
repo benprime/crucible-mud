@@ -3,5 +3,5 @@
     ".*": "<rootDir>/node_modules/babel-jest"
   },
   "testURL": "http://localhost",
-  "testPathDirs": ["src/"]
+  "roots": ["src/"]
 }

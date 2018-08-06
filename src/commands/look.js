@@ -1,10 +1,11 @@
-const Room = require('../models/room');
-const autocomplete = require('../core/autocomplete');
+import Room from '../models/room';
+import autocomplete from '../core/autocomplete';
 
 function lookDir(socket, {exits}, dir) {
   dir = Room.validDirectionInput(dir);
   const exit = exits.find(e => e.dir === dir);
   if (!exit || exit.hidden) {
+    socket.emit('output', { message: 'There is no exit in that direction!' });
     return;
   }
 
@@ -23,13 +24,14 @@ function lookDir(socket, {exits}, dir) {
 function lookItem(socket, room, itemName) {
   const lookTargetObj = autocomplete.autocompleteTypes(socket, ['inventory', 'mob', 'room'], itemName);
   if (!lookTargetObj || lookTargetObj.hidden) {
+    socket.emit('output', { message: 'Unknown item!' });
     return;
   }
   lookTargetObj.look(socket);
 }
 
 
-module.exports = {
+export default {
   name: 'look',
 
   patterns: [
@@ -47,7 +49,7 @@ module.exports = {
       lookTarget = match[1];
     }
     const short = (match[0] === '');
-    module.exports.execute(socket, short, lookTarget);
+    this.execute(socket, short, lookTarget);
   },
 
   execute(socket, short, lookTarget) {

@@ -1,10 +1,10 @@
-const socketUtil = require('./socketUtil');
-const config = require('../../config');
-const hud = require('./hud');
-const Room = require('../models/room');
-const User = require('../models/user');
+import socketUtil from './socketUtil';
+import config from '../config';
+import hud from './hud';
+import Room from '../models/room';
+import User from '../models/user';
 
-module.exports = {
+export default {
   LoginUsername(socket, {value}) {
     if (socket.state == config.STATES.LOGIN_USERNAME) {
       User.findByName(value, (err, user) => {

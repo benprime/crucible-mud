@@ -1,8 +1,8 @@
-const Room = require('../models/room');
-const Mob = require('../models/mob');
-const config = require('../../config');
-const mobData = require('../../data/mobData');
-const dice = require('../core/dice');
+import Room from '../models/room';
+import Mob from '../models/mob';
+import config from '../config';
+import mobData from '../data/mobData';
+import dice from '../core/dice';
 
 // Not sure if the global server code should really be living with
 // the command, but it's okay here for now.
@@ -38,7 +38,7 @@ setInterval(() => {
   });
 }, config.SPAWNER_INTERVAL);
 
-module.exports = {
+export default {
   name: 'spawner',
   admin: true,
 
@@ -55,7 +55,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1], match[2]);
+    this.execute(socket, match[1], match[2]);
   },
 
   execute(socket, action, param) {
@@ -70,6 +70,8 @@ module.exports = {
     let removeMobType;
     let index;
     let desc;
+    let maxVal;
+    let timeoutVal;
 
     switch (action) {
       case 'add':
@@ -98,7 +100,7 @@ module.exports = {
         }
         break;
       case 'max':
-        const maxVal = parseInt(param);
+        maxVal = parseInt(param);
         if(isNaN(maxVal)) {
           socket.emit('output', { message: 'Invalid max value - must be an integer.' });
           break;
@@ -108,7 +110,7 @@ module.exports = {
         socket.emit('output', { message: `Max creatures updated to ${maxVal}.` });
         break;
       case 'timeout':
-        const timeoutVal = parseInt(param);
+        timeoutVal = parseInt(param);
         if(isNaN(timeoutVal)) {
           socket.emit('output', { message: 'Invalid max value - must be an integer.' });
           break;

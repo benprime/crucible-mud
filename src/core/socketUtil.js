@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   // used by mob prototype
   socketInRoom(roomId, socketId) {
     const ioRoom = global.io.sockets.adapter.rooms[roomId];

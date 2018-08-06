@@ -1,9 +1,9 @@
 'use strict';
 
-const Room = require('../models/room');
-const dice = require('../core/dice');
+import Room from '../models/room';
+import dice from '../core/dice';
 
-module.exports = {
+export default {
   name: 'search',
 
   patterns: [
@@ -11,7 +11,7 @@ module.exports = {
   ],
 
   dispatch(socket) {
-    module.exports.execute(socket);
+    this.execute(socket);
   },
 
   execute(socket) {

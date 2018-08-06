@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   formatMessage () {
     const args = Array.prototype.slice.call(arguments);
     const string = args.shift();

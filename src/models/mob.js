@@ -1,11 +1,13 @@
-const socketUtil = require('../core/socketUtil');
-const config = require('../../config');
+import socketUtil from '../core/socketUtil';
+import config from '../config';
+import utils from '../core/utilities';
 
 /* State only model */
-const ObjectId = require('mongodb').ObjectId;
-const Room = require('../models/room');
-const dice = require('../core/dice');
-const utils = require('../core/utilities');
+import { Types } from 'mongoose';
+const { ObjectId } = Types;
+
+import Room from '../models/room';
+import dice from '../core/dice';
 
 class Mob {
   constructor(mobType, roomId, adjectiveIndex) {
@@ -64,7 +66,7 @@ class Mob {
 
   // todo: cleaning up for current room. This may need some rework when the mobs
   // can move from room to room.
-  awardExperience({user}) {
+  awardExperience({ user }) {
     const room = Room.getById(user.roomId);
     let sockets = socketUtil.getRoomSockets(room.id);
     sockets.forEach((s) => {
@@ -156,7 +158,7 @@ class Mob {
     if (!this.attackTarget) return;
 
     const socket = global.io.sockets.connected[this.attackTarget];
-    if(!socket) {
+    if (!socket) {
       return;
     }
 
@@ -187,4 +189,4 @@ class Mob {
   }
 }
 
-module.exports = Mob;
+export default Mob;

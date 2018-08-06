@@ -1,7 +1,7 @@
-const mobData = require('../../data/mobData');
-const itemData = require('../../data/itemData');
+import mobData from '../data/mobData';
+import itemData from '../data/itemData';
 
-module.exports = {
+export default {
   name: 'list',
   admin: true,
 
@@ -23,11 +23,11 @@ module.exports = {
     const type = match[1].toLowerCase();
 
     if (type === 'items') {
-      module.exports.execute(socket, itemData, 'item');
+      this.execute(socket, itemData, 'item');
     } else if (type === 'mobs') {
-      module.exports.execute(socket, mobData);
+      this.execute(socket, mobData);
     } else if (type === 'keys') {
-      module.exports.execute(socket, itemData, 'key');
+      this.execute(socket, itemData, 'key');
     } else {
       socket.emit('output', { message: 'Unknown catalog: {types}' });
       return;

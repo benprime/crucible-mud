@@ -1,9 +1,10 @@
 /* todo: rename this model to character or something */
 
-const mongoose = require('mongoose');
-const config = require('../../config');
-const ItemSchema = require('./itemSchema');
-const dice = require('../core/dice');
+import mongoose from 'mongoose';
+
+import config from '../config';
+import ItemSchema from './itemSchema';
+import dice from '../core/dice';
 
 const UserSchema = new mongoose.Schema({
   // User info
@@ -24,7 +25,7 @@ const UserSchema = new mongoose.Schema({
   },
   // Character info
   roomId: {
-    type: mongoose.Schema.ObjectId,
+    type: String,
   },
   inventory: [ItemSchema],
   keys: [ItemSchema],
@@ -167,7 +168,7 @@ UserSchema.methods.readyToAttack = function (now) {
 };
 
 UserSchema.methods.attackroll = weapon => /*
-var wdParts = weapon.damage.split(" ");
+var wdParts = weapon.damage.spltest(" ");
 
 if(!weapon) {
   return this.strengh + (dice.roll(this.actionDie) - 2);  --bare fist
@@ -210,4 +211,4 @@ UserSchema.methods.attack = function (socket, mob, now) {
 
 const User = mongoose.model('User', UserSchema);
 
-module.exports = User;
+export default User;

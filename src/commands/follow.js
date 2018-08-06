@@ -1,7 +1,7 @@
-const socketUtil = require('../core/socketUtil');
-const utils = require('../core/utilities');
+import socketUtil from '../core/socketUtil';
+import utils from '../core/utilities';
 
-module.exports = {
+export default {
   name: 'follow',
 
   patterns: [
@@ -10,7 +10,7 @@ module.exports = {
   ],
 
   dispatch(socket, match) {
-    module.exports.execute(socket, match[1]);
+    this.execute(socket, match[1]);
   },
 
   execute(socket, username) {

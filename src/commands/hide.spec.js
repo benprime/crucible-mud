@@ -1,21 +1,14 @@
-const Room = require('../models/room');
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+import { mockGetById, mockValidDirectionInput } from '../models/room';
+import { mockAutocompleteTypes } from '../core/autocomplete';
+import mocks from '../../spec/mocks';
+import sut from './hide';
+
+
+jest.mock('../models/room');
+jest.mock('../core/autocomplete');
 
 let mockRoom;
-let autocompleteResult;
-const sut = SandboxedModule.require('./hide', {
-  requires: {
-    '../core/autocomplete': {
-      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
-    },
-    '../models/room': {
-      getById: () => mockRoom,
-      validDirectionInput: Room.validDirectionInput,
-      longToShort: Room.longToShort,
-    },
-  },
-});
+
 
 describe('hide', () => {
   let socket;
@@ -32,40 +25,52 @@ describe('hide', () => {
       getExit: jasmine.createSpy('getExit').and.callFake(dir => mockRoom.exits.find(e => e.dir == dir)),
       save: jasmine.createSpy('roomSave'),
     };
+    mockGetById.mockReturnValue(mockRoom);
   });
 
-  it('should output message when direction is invalid', () => {
-    sut.execute(socket, 'e');
+  describe('doors', () => {
+    test('should output message when direction is invalid', () => {
+      mockValidDirectionInput.mockReturnValueOnce('e');
+      
+      sut.execute(socket, 'e');
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No exit in that direction.<br />' });
-    expect(mockRoom.save).not.toHaveBeenCalled();
+      expect(socket.emit).toBeCalledWith('output', { message: 'No exit in that direction.<br />' });
+      expect(mockRoom.save).not.toHaveBeenCalled();
+    });
+
+    test('should succeed on valid direction', () => {
+      mockValidDirectionInput.mockReturnValueOnce('d');
+      
+      sut.execute(socket, 'd');
+      const exit = mockRoom.exits.find(({ dir }) => dir === 'd');
+
+      expect(socket.emit).toBeCalledWith('output', { message: 'The exit has been concealed.<br />' });
+      expect(mockRoom.save).toHaveBeenCalledTimes(1);
+      expect(exit.hidden).toBe(true);
+    });
   });
 
-  it('should output message when item is invalid', () => {
-    autocompleteResult = null;
-    sut.execute(socket, 'emu');
+  describe('items', () => {
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Item does not exist in inventory or in room.<br />' });
-    expect(mockRoom.save).not.toHaveBeenCalled();
+    test('should output message when item is invalid', () => {
+      mockAutocompleteTypes.mockReturnValueOnce(null);
+      sut.execute(socket, 'emu');
+
+      expect(socket.emit).toBeCalledWith('output', { message: 'Item does not exist in inventory or in room.<br />' });
+      expect(mockRoom.save).not.toHaveBeenCalled();
+    });
+
+
+
+    test('should succeed on valid item', () => {
+      const item = { id: 'clownId', name: 'clown', hidden: false };
+      mockAutocompleteTypes.mockReturnValueOnce({item: item});
+
+      sut.execute(socket, 'clown');
+
+      expect(socket.emit).toBeCalledWith('output', { message: 'clown has been concealed.<br />' });
+      expect(mockRoom.save).toHaveBeenCalledTimes(1);
+      expect(item.hidden).toBe(true);
+    });
   });
-
-  it('should succeed on valid direction', () => {
-    sut.execute(socket, 'd');
-    const exit = mockRoom.exits.find(({dir}) => dir === 'd');
-
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'The exit has been concealed.<br />' });
-    expect(mockRoom.save).toHaveBeenCalledTimes(1);
-    expect(exit.hidden).toBe(true);
-  });
-
-  it('should succeed on valid item', () => {
-    autocompleteResult = [{ id: 'clownId', name: 'clown', hidden: false }];
-
-    sut.execute(socket, 'clown');
-
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: 'clown has been concealed.<br />' });
-    expect(mockRoom.save).toHaveBeenCalledTimes(1);
-    expect(autocompleteResult.hidden).toBe(true);
-  });
-
 });

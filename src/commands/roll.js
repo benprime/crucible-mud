@@ -1,8 +1,6 @@
-'use strict';
+import dice from '../core/dice';
 
-const dice = require('../core/dice');
-
-module.exports = {
+export default {
   name: 'roll',
 
   patterns: [
@@ -15,7 +13,7 @@ module.exports = {
     if (match.length > 1) {
       dieType = match[1];
     }
-    module.exports.execute(socket, dieType);
+    this.execute(socket, dieType);
   },
 
   execute(socket, dieType) {

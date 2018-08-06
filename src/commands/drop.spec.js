@@ -1,20 +1,14 @@
-const Room = require('../models/room');
-const Item = require('../models/item');
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+import { mockGetById } from '../models/room';
+import { mockAutocompleteTypes } from '../core/autocomplete';
+import Item from '../models/item';
+import mocks from '../../spec/mocks';
+import sut from './drop';
+
+jest.mock('../models/room');
+jest.mock('../core/autocomplete');
 
 let mockRoom = mocks.getMockRoom();
-let autocompleteResult;
-const sut = SandboxedModule.require('./drop', {
-  requires: {
-    '../core/autocomplete': {
-      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
-    },
-    '../models/room': {
-      getById: () => mockRoom,
-    },
-  },
-});
+
 
 describe('drop', () => {
   let socket;
@@ -47,7 +41,7 @@ describe('drop', () => {
 
   beforeEach(() => {
     mockRoom.reset();
-    spyOn(Room, 'getById').and.callFake(() => mockRoom);
+    mockGetById.mockReturnValueOnce(mockRoom);
     socket = new mocks.SocketMock();
 
     item = new Item();
@@ -74,8 +68,8 @@ describe('drop', () => {
 
     describe('when item.type is item', () => {
 
-      it('should output error message when item is not found in user inventory', () => {
-        autocompleteResult = null;
+      test('should output error message when item is not found in user inventory', () => {
+        mockAutocompleteTypes.mockReturnValueOnce(null);
         sut.execute(socket, 'non-existent item');
 
         expect(socket.user.save).not.toHaveBeenCalled();
@@ -83,36 +77,40 @@ describe('drop', () => {
         expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
       });
 
-      it('should remove item from user inventory and add to room inventory', () => {
-        autocompleteResult = {
+      test('should remove item from user inventory and add to room inventory', () => {
+        let autocompleteResult = {
           type: 'item',
           item,
         };
+        mockAutocompleteTypes.mockReturnValueOnce(autocompleteResult);
+
         sut.execute(socket, 'dropItem');
 
         expect(socket.user.save).toHaveBeenCalled();
         expect(mockRoom.save).toHaveBeenCalled();
-        expect(socket.user.inventory.length).toBe(0);
+        expect(socket.user.inventory).toHaveLength(0);
         expect(mockRoom.inventory[0].name).toEqual(item.name);
-        expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser drops dropItem.' });
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Dropped.' });
+        expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser drops dropItem.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Dropped.' });
       });
     });
 
     describe('when item.type is key', () => {
-      it('should remove key from user keys and add to room inventory', () => {
-        autocompleteResult = {
+      test('should remove key from user keys and add to room inventory', () => {
+        let autocompleteResult = {
           type: 'key',
           item: key,
         };
+        mockAutocompleteTypes.mockReturnValueOnce(autocompleteResult);
+
         sut.execute(socket, 'dropKey');
 
         expect(socket.user.save).toHaveBeenCalled();
         expect(mockRoom.save).toHaveBeenCalled();
-        expect(socket.user.keys.length).toBe(0);
+        expect(socket.user.keys).toHaveLength(0);
         expect(mockRoom.inventory[0].name).toEqual(key.name);
-        expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser drops dropKey.' });
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Dropped.' });
+        expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser drops dropKey.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Dropped.' });
       });
     });
   });

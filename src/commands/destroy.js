@@ -1,7 +1,7 @@
-const Room = require('../models/room');
-const autocomplete = require('../core/autocomplete');
+import Room from '../models/room';
+import autocomplete from '../core/autocomplete';
 
-module.exports = {
+export default {
   name: 'destroy',
   admin: true,
 
@@ -13,12 +13,12 @@ module.exports = {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      module.exports.help(socket);
+      this.help(socket);
       return;
     }
     let typeName = match[1];
     let objectID = match[2];
-    module.exports.execute(socket, typeName, objectID);
+    this.execute(socket, typeName, objectID);
   },
 
   execute(socket, type, name) {

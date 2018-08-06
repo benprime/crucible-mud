@@ -1,9 +1,9 @@
-const Room = require('../models/room');
-const socketUtil = require('../core/socketUtil');
-const autocomplete = require('../core/autocomplete');
-const utils = require('../core/utilities');
+import Room from '../models/room';
+import socketUtil from '../core/socketUtil';
+import autocomplete from '../core/autocomplete';
+import utils from '../core/utilities';
 
-module.exports = {
+export default {
   name: 'take',
 
   alias: [],
@@ -19,7 +19,7 @@ module.exports = {
     if (match.length != 2) {
       socket.emit('output', { message: 'What do you want to take?' });
     }
-    module.exports.execute(socket, match[1]);
+    this.execute(socket, match[1]);
   },
 
   execute(socket, itemName) {

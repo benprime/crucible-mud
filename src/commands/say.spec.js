@@ -1,7 +1,5 @@
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
-
-const sut = SandboxedModule.require('./say', {});
+import mocks from '../../spec/mocks';
+import sut from './say';
 
 describe('say', () => {
   let socket;
@@ -15,7 +13,7 @@ describe('say', () => {
   });
 
   describe('execute', () => {
-    it('should output messages to room', () => {
+    test('should output messages to room', () => {
 
       // arrange
       const msg = 'This is a message.';
@@ -24,13 +22,13 @@ describe('say', () => {
       sut.execute(socket, msg);
 
       // assert
-      expect(socket.broadcast.to).toHaveBeenCalledWith(socket.user.roomId);
-      expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser says "This is a message."' });
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You say "This is a message."' });
+      expect(socket.broadcast.to).toBeCalledWith(socket.user.roomId);
+      expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser says "This is a message."' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'You say "This is a message."' });
 
     });
 
-    it('should escape tags for display', () => {
+    test('should escape tags for display', () => {
 
       // arrange
       const msg = '<Safety_First.com>';
@@ -39,9 +37,9 @@ describe('say', () => {
       sut.execute(socket, msg);
 
       // assert
-      expect(socket.broadcast.to).toHaveBeenCalledWith(socket.user.roomId);
-      expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser says "&lt;Safety_First.com&gt;"' });
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You say "&lt;Safety_First.com&gt;"' });
+      expect(socket.broadcast.to).toBeCalledWith(socket.user.roomId);
+      expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser says "&lt;Safety_First.com&gt;"' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'You say "&lt;Safety_First.com&gt;"' });
 
     });
 

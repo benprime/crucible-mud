@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
-const SpawnerSchema = require('./spawnerSchema');
+import mongoose from 'mongoose';
+import SpawnerSchema from './spawnerSchema';
 
 const Spawner = mongoose.model('Spawner', SpawnerSchema);
 
-module.exports = Spawner;
+export default Spawner;

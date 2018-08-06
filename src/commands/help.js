@@ -1,4 +1,4 @@
-const actionData = require('../../data/actionData');
+import actionData from '../data/actionData';
 
 let commandHandlers = {};
 
@@ -78,7 +78,7 @@ function topicHelp(socket, topic) {
   }
 }
 
-module.exports = {
+export default {
   name: 'help',
 
   patterns: [
@@ -90,7 +90,7 @@ module.exports = {
 
   dispatch(socket, match) {
     const topic = match.length < 2 ? null : match[1];
-    module.exports.execute(socket, topic);
+    this.execute(socket, topic);
   },
 
   execute(socket, topic) {

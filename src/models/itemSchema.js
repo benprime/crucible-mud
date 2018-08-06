@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const itemTypeEnum = [
   'item',
@@ -53,4 +53,4 @@ ItemSchema.methods.look = function (socket) {
   socket.emit('output', { message: output });
 };
 
-module.exports = ItemSchema;
+export default ItemSchema;

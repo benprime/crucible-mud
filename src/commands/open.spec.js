@@ -1,18 +1,11 @@
-const Room = require('../models/room');
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+import { mockGetById, mockValidDirectionInput, mockShortToLong } from '../models/room';
+import mocks from '../../spec/mocks';
+import sut from './open';
+
+
+jest.mock('../models/room');
 
 let mockRoom = mocks.getMockRoom();
-const sut = SandboxedModule.require('./open', {
-  requires: {
-    '../models/room': {
-      getById: () => mockRoom,
-      shortToLong: Room.shortToLong,
-      validDirectionInput: Room.validDirectionInput,
-      longToShort: Room.longToShort,
-    },
-  },
-});
 
 describe('open', () => {
   let socket;
@@ -30,6 +23,7 @@ describe('open', () => {
         { dir: 'sw', roomId: 'swRoomId' },
       ],
     };
+    mockGetById.mockReturnValue(mockRoom);
   });
 
   beforeEach(() => {
@@ -37,24 +31,30 @@ describe('open', () => {
   });
 
   describe('execute', () => {
-    it('should output message when direction is invalid', () => {
+    test('should output message when direction is invalid', () => {
+      mockValidDirectionInput.mockReturnValueOnce(null);
+
       sut.execute(socket, 'ne');
 
       expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'There is no exit in that direction!' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'There is no exit in that direction!' });
     });
 
-    it('should output message when direction has no door', () => {
+    test('should output message when direction has no door', () => {
+      mockValidDirectionInput.mockReturnValueOnce('sw');
+      
       sut.execute(socket, 'sw');
       const exit = mockRoom.exits.find(({dir}) => dir === 'sw');
 
       expect(exit.hasOwnProperty('closed')).toBe(false);
       expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'There is no door in that direction!' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'There is no door in that direction!' });
     });
 
     describe('when key is associated', () => {
-      it('should fail and output message when door is locked and closed', () => {
+      test('should fail and output message when door is locked and closed', () => {
+        mockValidDirectionInput.mockReturnValueOnce('e');
+        
         sut.execute(socket, 'e');
         const exit = mockRoom.exits.find(({dir}) => dir === 'e');
 
@@ -62,21 +62,27 @@ describe('open', () => {
         expect(exit.locked).toBe(true);
         expect(exit.closed).toBe(true);
         expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'That door is locked.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'That door is locked.' });
       });
 
-      it('should succeed and output message when door is unlocked and closed', () => {
+      test('should succeed and output message when door is unlocked and closed', () => {
+        mockValidDirectionInput.mockReturnValueOnce('se');
+        mockShortToLong.mockReturnValueOnce('southeast');
+        
         sut.execute(socket, 'se');
         const exit = mockRoom.exits.find(({dir}) => dir === 'se');
 
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(false);
         expect(exit.closed).toBe(false);
-        expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser opens the door to the southeast.' });
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Door opened.' });
+        expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser opens the door to the southeast.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Door opened.' });
       });
 
-      it('should send messages when door and is unlocked and open', () => {
+      test('should send messages when door and is unlocked and open', () => {
+        mockValidDirectionInput.mockReturnValueOnce('w');
+        
+        
         sut.execute(socket, 'w');
         const exit = mockRoom.exits.find(({dir}) => dir === 'w');
 
@@ -84,27 +90,30 @@ describe('open', () => {
         expect(exit.locked).toBe(false);
         expect(exit.closed).toBe(false);
         expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'That door is already open.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'That door is already open.' });
       });
     });
 
     describe('when no key is associated', () => {
-      it('should output message when door is closed', () => {
+      test('should output message when door is closed', () => {
+        mockValidDirectionInput.mockReturnValueOnce('n');
+        mockShortToLong.mockReturnValueOnce('north');
         sut.execute(socket, 'n');
         const exit = mockRoom.exits.find(({dir}) => dir === 'n');
 
         expect(exit.closed).toBe(false);
-        expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalledWith('output', { message: 'TestUser opens the door to the north.' });
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Door opened.' });
+        expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser opens the door to the north.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Door opened.' });
       });
 
-      it('should output message when door and is open', () => {
+      test('should output message when door and is open', () => {
+        mockValidDirectionInput.mockReturnValueOnce('s');
         sut.execute(socket, 's');
         const exit = mockRoom.exits.find(({dir}) => dir === 's');
 
         expect(exit.closed).toBe(false);
         expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'That door is already open.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'That door is already open.' });
       });
     });
 

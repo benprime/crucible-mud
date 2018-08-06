@@ -1,58 +1,53 @@
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+import { mockGetById } from '../models/room';
+import { mockAutocompleteTypes } from '../core/autocomplete';
+import mocks from '../../spec/mocks';
+import sut from './destroy';
+
+jest.mock('../models/room');
+jest.mock('../core/autocomplete');
 
 let mockRoom = mocks.getMockRoom();
-let autocompleteResult;
-const sut = SandboxedModule.require('./destroy', {
-  requires: {
-    '../core/autocomplete': {
-      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
-    },
-    '../models/room': {
-      getById: () => mockRoom,
-    },
-  },
-});
+
 
 describe('destroy', () => {
   let socket;
 
   beforeAll(() => {
     socket = new mocks.SocketMock();
+    mockGetById.mockReturnValue(mockRoom);
   });
 
   beforeEach(() => {
     socket.reset();
-    mockRoom.reset();
   });
 
   describe('execute', () => {
 
     describe('when type is mob', () => {
 
-      it('should do nothing when mob is not found', () => {
+      test('should do nothing when mob is not found', () => {
         // arrange
-        autocompleteResult = null;
+        mockAutocompleteTypes.mockReturnValueOnce(null);
 
         // act
         sut.execute(socket, 'mob', 'not found name');
 
         // assert
         expect(socket.emit).not.toHaveBeenCalled();
-        
+
         expect(mockRoom.mobs.remove).not.toHaveBeenCalled();
       });
 
-      it('should remove mob from room and output messages when successful', () => {
+      test('should remove mob from room and output messages when successful', () => {
         // arrange
-        autocompleteResult = {};
+        mockAutocompleteTypes.mockReturnValueOnce({});
 
         // act
         sut.execute(socket, 'mob', 'mob name');
 
         // assert
         expect(socket.emit).toHaveBeenCalledTimes(1);
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Mob successfully destroyed.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Mob successfully destroyed.' });
         expect(mockRoom.mobs.remove).toHaveBeenCalledTimes(1);
       });
     });
@@ -63,9 +58,9 @@ describe('destroy', () => {
         mockRoom.reset();
       });
 
-      it('should do nothing when inventory does not contain item', () => {
+      test('should do nothing when inventory does not contain item', () => {
         // arrange
-        autocompleteResult = null;
+        mockAutocompleteTypes.mockReturnValueOnce(null);
 
         // act
         sut.execute(socket, 'item', 'non-existant item');
@@ -76,34 +71,34 @@ describe('destroy', () => {
         expect(socket.user.save).not.toHaveBeenCalled();
       });
 
-      it('should remove item from inventory when successful', () => {
+      test('should remove item from inventory when successful', () => {
         // arrange
         let item = {};
-        autocompleteResult = {};
+        mockAutocompleteTypes.mockReturnValueOnce({});
 
         // act
         sut.execute(socket, 'item', 'item name');
 
         // assert
         expect(socket.emit).toHaveBeenCalledTimes(1);
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Item successfully destroyed.' });
-        expect(socket.user.inventory.remove).toHaveBeenCalledWith(item);
+        expect(socket.emit).toBeCalledWith('output', { message: 'Item successfully destroyed.' });
+        expect(socket.user.inventory.remove).toBeCalledWith(item);
         expect(socket.user.save).toHaveBeenCalledTimes(1);
       });
     });
 
-    it('should output error when create type is invalid', () => {
+    test('should output error when create type is invalid', () => {
       // act
       sut.execute(socket, 'invalid type', 'name of thing to destroy');
 
       // assert
       expect(socket.emit).toHaveBeenCalledTimes(1);
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Invalid destroy type.' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'Invalid destroy type.' });
       expect(socket.user.inventory.remove).not.toHaveBeenCalled();
       expect(socket.user.save).not.toHaveBeenCalled();
     });
 
-    it('should be an admin command', () => {
+    test('should be an admin command', () => {
       expect(sut.admin).toBe(true);
     });
 

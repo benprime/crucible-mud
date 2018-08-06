@@ -1,21 +1,15 @@
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+import { mockGetSocketByUsername } from '../core/socketUtil';
+import mocks from '../../spec/mocks';
+import sut from './telepathy';
 
-let mockGlobalIO = new mocks.IOMock();
-let mockReturnSocket = {};
-let autocompleteResult = {};
-const sut = SandboxedModule.require('./telepathy', {
-  requires: {
-    '../core/autocomplete': {
-      autocompleteTypes: jasmine.createSpy('autocompleteTypesSpy').and.callFake(() => autocompleteResult),
-    },
-    '../models/room': {},
-    '../core/socketUtil': {
-      'getSocketByUsername' : () => mockReturnSocket,
-    },
-  },
-  globals: { io: mockGlobalIO },
-});
+
+jest.mock('../models/room');
+jest.mock('../core/autocomplete');
+jest.mock('../core/socketUtil');
+
+
+global.io = new mocks.IOMock();
+
 
 describe('telepathy', () => {
   let socket;
@@ -30,29 +24,29 @@ describe('telepathy', () => {
 
   describe('execute', () => {
 
-    it('should output messages when user is invalid', () => {
+    test('should output messages when user is invalid', () => {
       // arrange
       const msg = 'This is a telepath message!';
-      mockReturnSocket = null;
+      mockGetSocketByUsername.mockReturnValueOnce(null);
 
       // act
       sut.execute(socket, 'Wrong', msg);
 
       // assert
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Invalid username.' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'Invalid username.' });
     });
 
-    it('should output messages when command is successful', () => {
+    test('should output messages when command is successful', () => {
       // arrange
       const msg = 'This is a telepath message!';
-      mockReturnSocket = otherSocket;
+      mockGetSocketByUsername.mockReturnValueOnce(otherSocket);
 
       // act
       sut.execute(socket, otherSocket.username, msg);
 
       // assert
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Telepath to OtherUser: This is a telepath message!' });
-      expect(otherSocket.emit).toHaveBeenCalledWith('output', { message: 'TestUser telepaths: This is a telepath message!' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'Telepath to OtherUser: This is a telepath message!' });
+      expect(otherSocket.emit).toBeCalledWith('output', { message: 'TestUser telepaths: This is a telepath message!' });
     });
 
   });

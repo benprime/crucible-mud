@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const ItemSchema = require('./itemSchema');
-const SpawnerSchema = require('./spawnerSchema');
-const socketUtil = require('../core/socketUtil');
+import mongoose from 'mongoose';
+import ItemSchema from './itemSchema';
+import SpawnerSchema from './spawnerSchema';
+import socketUtil from '../core/socketUtil';
 
 const roomCache = {};
 
@@ -331,7 +331,7 @@ RoomSchema.methods.processMobCombatActions = function (now) {
 const Room = mongoose.model('Room', RoomSchema);
 
 // populate cache
-((() => {
+(() => {
   Room.find({}, (err, result) => {
     result.forEach(room => {
       room.mobs = [];
@@ -340,6 +340,6 @@ const Room = mongoose.model('Room', RoomSchema);
         roomCache[room.alias] = room;
     });
   });
-}))();
+})();
 
-module.exports = Room;
+export default Room;

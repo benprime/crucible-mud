@@ -1,7 +1,7 @@
-const Room = require('../models/room');
-const lookCmd = require('./look');
+import Room from '../models/room';
+import lookCmd from './look';
 
-module.exports = {
+export default {
   name: 'set',
   admin: true,
 
@@ -26,7 +26,7 @@ module.exports = {
     const prop = match[2];
     const value = match[3];
 
-    module.exports.execute(socket, type, prop, value);
+    this.execute(socket, type, prop, value);
   },
 
   execute(socket, type, prop, value) {

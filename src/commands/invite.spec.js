@@ -1,23 +1,14 @@
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+import { mockValidUserInRoom } from '../core/socketUtil';
+import mocks from '../../spec/mocks';
+import sut from './invite';
 
-const mockGlobalIO = new mocks.IOMock();
+
+jest.mock('../models/room');
+jest.mock('../core/socketUtil');
+
+global.io = new mocks.IOMock();
 let mockTargetSocket = new mocks.SocketMock();
 let mockRoom = mocks.getMockRoom();
-let validUserInRoomResult = mockTargetSocket;
-const sut = SandboxedModule.require('./invite', {
-  requires: {
-    '../models/room': {
-      getById: () => mockRoom,
-
-    },
-    '../core/socketUtil': {
-      'getSocketByUsername': () => mockTargetSocket,
-      'validUserInRoom': () => validUserInRoomResult,
-    },
-  },
-  globals: { io: mockGlobalIO },
-});
 
 describe('invite', () => {
   let socket;
@@ -26,7 +17,7 @@ describe('invite', () => {
     socket = new mocks.SocketMock();
 
     // add mock room to io rooms
-    mockGlobalIO.sockets.adapter.rooms[mockRoom.id] = mockRoom;
+    global.io.sockets.adapter.rooms[mockRoom.id] = mockRoom;
   });
 
   describe('execute', () => {
@@ -34,15 +25,16 @@ describe('invite', () => {
     beforeEach(() => {
       mockTargetSocket.user.username = 'TargetUser';
 
-      mockGlobalIO.addUserToIORoom(mockRoom.id, mockTargetSocket);
+      global.io.addUserToIORoom(mockRoom.id, mockTargetSocket);
 
       socket.user.inventory = [{ id: 'aItemId', name: 'aItem' }];
       socket.user.username = 'TestUser';
-      socket.emit.calls.reset();
+      socket.emit.mockClear();
     });
 
-    it('adds invite to socket tracking variable of recipient socket', () => {
+    test('adds invite to socket tracking variable of recipient socket', () => {
       let username = 'TargetUser';
+      mockValidUserInRoom.mockReturnValueOnce(mockTargetSocket);
 
       sut.execute(socket, username);
 

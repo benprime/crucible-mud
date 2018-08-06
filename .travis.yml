@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-- 9.8.0
+- 10.8.0
 addons:
   ssh_known_hosts: cruciblemud.com
 before_install:
@@ -10,7 +10,8 @@ before_script:
 cache:
   directories:
   - node_modules
-script: node_modules/jasmine/bin/jasmine.js
+script:
+- npm test && npm run build
 before_deploy:
 - openssl aes-256-cbc -K $encrypted_6609cbccfb5a_key -iv $encrypted_6609cbccfb5a_iv
   -in deploy_rsa.enc -out /tmp/deploy_rsa -d
@@ -20,11 +21,11 @@ before_deploy:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: rsync -am --stats --delete-after $TRAVIS_BUILD_DIR/ root@cruciblemud.com:/root/develop && ssh root@cruciblemud.com '/usr/local/lib/nodejs/node-v9.8.0/bin/forever restart ~/develop/src/server.js'
+    script: rsync -am --stats --delete-after $TRAVIS_BUILD_DIR/ root@cruciblemud.com:/root/develop && ssh root@cruciblemud.com '/usr/local/lib/nodejs/node-v9.8.0/bin/forever restart ~/develop/dist/server.js'
     on:
       branch: develop
   - provider: script
     skip_cleanup: true
-    script: rsync -am --stats --delete-after $TRAVIS_BUILD_DIR/ root@cruciblemud.com:/root/mud && ssh root@cruciblemud.com '/usr/local/lib/nodejs/node-v9.8.0/bin/forever restart ~/mud/src/server.js'
+    script: rsync -am --stats --delete-after $TRAVIS_BUILD_DIR/ root@cruciblemud.com:/root/mud && ssh root@cruciblemud.com '/usr/local/lib/nodejs/node-v9.8.0/bin/forever restart ~/mud/dist/server.js'
     on:
       branch: master

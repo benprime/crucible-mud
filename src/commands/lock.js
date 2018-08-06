@@ -1,7 +1,7 @@
-const Room = require('../models/room');
-const autocomplete = require('../core/autocomplete');
+import Room from '../models/room';
+import autocomplete from '../core/autocomplete';
 
-module.exports = {
+export default {
   name: 'lock',
   admin: true,
 
@@ -13,12 +13,12 @@ module.exports = {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      module.exports.help(socket);
+      this.help(socket);
       return;
     }
     const dir = match[1].toLowerCase();
     const keyName = match[2];
-    module.exports.execute(socket, dir, keyName);
+    this.execute(socket, dir, keyName);
   },
 
   execute(socket, dir, keyName) {
@@ -30,10 +30,13 @@ module.exports = {
       return;
     }
 
-    const key = autocomplete.autocompleteTypes(socket, ['key'], keyName);
-    if (!key) {
+    const acResult = autocomplete.autocompleteTypes(socket, ['key'], keyName);
+    if (!acResult) {
+      socket.emit('output', { message: 'Unknown key.' });
       return;
     }
+
+    let key = acResult.item;
 
     exit.closed = true;
     exit.keyName = key.name;

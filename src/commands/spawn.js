@@ -1,11 +1,10 @@
-const Room = require('../models/room');
-const mobData = require('../../data/mobData');
-const Mob = require('../models/mob');
+import Room from '../models/room';
+import mobData from '../data/mobData';
+import Mob from '../models/mob';
+import itemData from '../data/itemData';
+import Item from '../models/item';
 
-const itemData = require('../../data/itemData');
-const Item = require('../models/item');
-
-module.exports = {
+export default {
   name: 'spawn',
   admin: true,
 
@@ -25,7 +24,7 @@ module.exports = {
     }
     let typeName = match[1];
     let itemTypeName = match[2];
-    module.exports.execute(socket, typeName, itemTypeName);
+    this.execute(socket, typeName, itemTypeName);
   },
 
   execute(socket, type, name) {

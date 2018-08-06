@@ -1,39 +1,18 @@
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+import { mockGetById } from '../models/room';
+import { mockGetSocketByUsername } from '../core/socketUtil';
+import mocks from '../../spec/mocks';
+import { when } from 'jest-when';
+import sut from './actionHandler';
 
-let mockGlobalIO = new mocks.IOMock();
+
+jest.mock('../models/room');
+jest.mock('../core/socketUtil');
+
+global.io = new mocks.IOMock();
 let mockRoom;
-let mockTargetSocket;
-let otherMockSocket;
+let targetSocket;
+let bystanderSocket;
 let usersInRoom = [];
-
-const sut = SandboxedModule.require('./actionHandler', {
-  requires: {
-    '../../data/actionData': {  
-      actions: {
-        hug: {
-          solo: {
-            roomMessage: '{0} hugs himself.',
-            sourceMessage: 'You hug yourself.',
-          },
-          target: {
-            targetMessage: '{0} hugs you close!',
-            roomMessage: '{0} hugs {1} close!',
-            sourceMessage: 'You hug {1} close!',
-          },
-        },
-      },
-    },
-    '../models/room': {
-      getById: jasmine.createSpy('getByIdSpy').and.callFake(() => mockRoom),
-      usersInRoom: jasmine.createSpy('usersInRoomSpy').and.callFake(() => usersInRoom),
-    },
-    '../core/socketUtil': {
-      'getSocketByUsername': () => mockTargetSocket,
-    },
-  },
-  globals: { io: mockGlobalIO },
-});
 
 describe('actionHandler', () => {
   let socket;
@@ -42,61 +21,77 @@ describe('actionHandler', () => {
   describe('actionDispatcher', () => {
     beforeEach(() => {
       mockRoom = mocks.getMockRoom();
+      mockGetById.mockReturnValue(mockRoom);
 
       socket = new mocks.SocketMock();
       socket.user.roomId = mockRoom.id;
+      when(mockGetSocketByUsername).calledWith(socket.user.username).mockReturnValue(socket);
       sockets[socket.id] = socket;
 
       usersInRoom.push('aDifferentUser');
-      mockTargetSocket = new mocks.SocketMock();
-      mockTargetSocket.user.username = 'aDifferentUser';
-      mockTargetSocket.user.roomId = mockRoom.id;
-      sockets[mockTargetSocket.id] = mockTargetSocket;
+      targetSocket = new mocks.SocketMock();
+      targetSocket.user.username = 'aDifferentUser';
+      targetSocket.user.roomId = mockRoom.id;
+      when(mockGetSocketByUsername).calledWith(targetSocket.user.username).mockReturnValue(targetSocket);
+      sockets[targetSocket.id] = targetSocket;
 
       usersInRoom.push('aThirdUser');
-      otherMockSocket = new mocks.SocketMock();
-      otherMockSocket.user.username = 'aThirdUser';
-      otherMockSocket.user.roomId = mockRoom.id;
-      sockets[otherMockSocket.id] = otherMockSocket;
+      bystanderSocket = new mocks.SocketMock();
+      bystanderSocket.user.username = 'aThirdUser';
+      bystanderSocket.user.roomId = mockRoom.id;
+      when(mockGetSocketByUsername).calledWith(bystanderSocket.user.username).mockReturnValue(bystanderSocket);
+      sockets[bystanderSocket.id] = bystanderSocket;
 
-      mockGlobalIO.sockets.adapter.rooms = {};
-      mockGlobalIO.sockets.adapter.rooms[mockRoom.id] = {
+      global.io.sockets.adapter.rooms = {};
+      global.io.sockets.adapter.rooms[mockRoom.id] = {
         sockets,
       };
-      mockRoom.usersInRoom = jasmine.createSpy('usersInRoomSpy').and.callFake(() => usersInRoom);
     });
 
-    it('should output message when no socket is returned for the user', () => {
-      mockTargetSocket = undefined;
+    test('should output message when no socket is returned for the user', () => {
+      targetSocket = undefined;
 
-      const result = sut.actionDispatcher(socket, 'hug', 'aUser');
+      const result = sut.actionDispatcher(socket, 'hug', 'anUnknownUser');
 
       expect(result).toBe(true);
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown user: aUser' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'Unknown user' });
     });
 
-    it('should output message when action is performed on self', () => {
-      mockTargetSocket = socket;
-  
-      const result = sut.actionDispatcher(socket, 'hug', 'aUser');
-  
+    test('should output message when action is performed on self', () => {
+      targetSocket = socket;
+
+      const result = sut.actionDispatcher(socket, 'hug');
+
       expect(result).toBe(true);
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You hug yourself.' });
-      expect(mockGlobalIO.to(otherMockSocket.id).emit).toHaveBeenCalledWith('output', { message: 'TestUser hugs himself.' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'You hug yourself.' });
+      expect(global.io.to(bystanderSocket.id).emit).toBeCalledWith('output', { message: `${socket.user.username} hugs himself.` });
     });
 
-    it('should output message when action is performed on other user', () => {
-      const result = sut.actionDispatcher(socket, 'hug', 'aDifferentUser');
-  
+    test('should output message when action is performed on self using username', () => {
+      mockRoom.userInRoom.mockReturnValue(true);
+      targetSocket = socket;
+
+      const result = sut.actionDispatcher(socket, 'hug', socket.user.username);
+
       expect(result).toBe(true);
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'You hug aDifferentUser close!' });
-      expect(mockGlobalIO.to(otherMockSocket.id).emit).toHaveBeenCalledWith('output', { message: 'TestUser hugs aDifferentUser close!' });
-      expect(mockTargetSocket.emit).toHaveBeenCalledWith('output', { message: 'TestUser hugs you close!' });
+      expect(socket.emit).toBeCalledWith('output', { message: 'You hug yourself.' });
+      expect(global.io.to(bystanderSocket.id).emit).toBeCalledWith('output', { message: `${socket.user.username} hugs himself.` });
     });
 
-    it('should return false when action is not found', () => {
-      const result = sut.actionDispatcher(socket, 'notAnAction', 'aDifferentUser');
-  
+    test('should output message when action is performed on other user', () => {
+      mockGetSocketByUsername.mockReturnValueOnce(targetSocket);
+      mockRoom.userInRoom.mockReturnValue(true);
+      const result = sut.actionDispatcher(socket, 'hug', targetSocket.user.username);
+
+      expect(result).toBe(true);
+      expect(socket.emit).toBeCalledWith('output', { message: `You hug ${targetSocket.user.username} close!` });
+      expect(global.io.to(bystanderSocket.id).emit).toBeCalledWith('output', { message: `${socket.user.username} hugs ${targetSocket.user.username} close!` });
+      expect(targetSocket.emit).toBeCalledWith('output', { message: `${socket.user.username} hugs you close!` });
+    });
+
+    test('should return false when action is not found', () => {
+      const result = sut.actionDispatcher(socket, 'notAnAction', targetSocket.user.username);
+
       expect(result).toBe(false);
     });
   });

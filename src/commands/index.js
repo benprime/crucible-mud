@@ -43,6 +43,7 @@ const commands = [];
 let defaultCommand;
 
 function validateCommand(commandHandler, file) {
+  if(!commandHandler) throw `could not load ${file} when initializing commands`;
   if (!commandHandler.name) throw `command ${file} missing name!`;
   if (!commandHandler.dispatch) throw `command ${file} missing dispatch!`;
   if (!commandHandler.execute) throw `command ${file} missing execute!`;

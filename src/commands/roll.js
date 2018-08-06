@@ -1,8 +1,6 @@
-'use strict';
+import dice from '../core/dice';
 
-const dice = require('../core/dice');
-
-module.exports = {
+export default {
   name: 'roll',
 
   patterns: [

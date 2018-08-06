@@ -1,19 +1,19 @@
 import express from 'express';
-
-const app = express();
 import http from 'http';
-
-const serve = http.createServer(app);
-import ioFactory from 'socket.io';
-const io = ioFactory(serve);
-
-// parses command files and prepares them
 import commands from './commands/';
-
 import config from './config';
 import welcome from './core/welcome';
 import loginUtil from './core/login';
 import look from './commands/look';
+import ioFactory from 'socket.io';
+import mongoose from 'mongoose';
+import './core/combat';
+
+const app = express();
+const serve = http.createServer(app);
+const io = ioFactory(serve);
+
+// parses command files and prepares them
 
 // environment variables
 const NODE_PORT = process.env.NODE_PORT || 3000;
@@ -21,14 +21,13 @@ const MONGO_DB = process.env.MONGO_DB || 'mud';
 const MONGO_PORT = process.env.MONGO_PORT || 27017;
 
 app.set('port', NODE_PORT);
-import mongoose from 'mongoose';
+
 
 const db = mongoose.connection;
 
 global.db = db;
 global.io = io;
 
-import './core/combat';
 
 mongoose.connect(`mongodb://localhost:${MONGO_PORT}/${MONGO_DB}`);
 db.on('error', console.error.bind(console, 'connection error:'));

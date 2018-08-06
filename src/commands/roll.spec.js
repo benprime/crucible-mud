@@ -1,14 +1,8 @@
-const mocks = require('../../spec/mocks');
-const SandboxedModule = require('sandboxed-module');
+import mocks from '../../spec/mocks';
+import {mockRoll} from '../core/dice'
+import sut from './roll';
 
-let diceRoll = jasmine.createSpy();
-const sut = SandboxedModule.require('./roll', {
-  requires: {
-    '../core/dice': {
-      roll: diceRoll,
-    },
-  },
-});
+jest.mock('../core/dice');
 
 describe('roll', () => {
 
@@ -16,14 +10,11 @@ describe('roll', () => {
 
   beforeEach(() => {
     socket = new mocks.SocketMock();
-    socket.emit.calls.reset();
-    diceRoll.calls.reset();
   });
 
   describe('execute', () => {
     it('without die type should display Action Die results', () => {
-
-      diceRoll.and.returnValue(1);
+      mockRoll.mockReturnValueOnce(1);
 
       sut.execute(socket);
 
@@ -31,8 +22,7 @@ describe('roll', () => {
     });
 
     it('with die type should display die type results', () => {
-
-      diceRoll.and.returnValue(2);
+      mockRoll.mockReturnValueOnce(2);
 
       sut.execute(socket, '1d4');
 

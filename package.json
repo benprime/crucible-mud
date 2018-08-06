@@ -31,9 +31,9 @@
     "rewire": "^2.5.2"
   },
   "scripts": {
-    "test": "node_modules/jest/bin/jest.js",
-    "test:watch": "node_modules/jest/bin/jest.js --watch",
-    "coverage": "jest --coverage && google-chrome ./coverage/lcov-report/index.html",
+    "test": "node_modules/jest/bin/jest.js --config jest.config.json",
+    "test:watch": "node_modules/jest/bin/jest.js --watch --config jest.config.json",
+    "coverage": "jest --coverage && google-chrome ./coverage/lcov-report/index.html --config jest.config.json",
     "start": "nodemon src/server.js --exec babel-node",
     "db": "mongod --dbpath c:/dev/mongo/data",
     "open": "concurrently \"mongod --dbpath c:/dev/mongo/data\" \"nodemon server.js\"",
@@ -47,11 +47,5 @@
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/slashben/mud#readme",
-  "jest": {
-    "transform": {
-      ".*": "<rootDir>/node_modules/babel-jest"
-    },
-    "testURL": "http://localhost"
-  }
+  "homepage": "https://bitbucket.org/slashben/mud#readme"
 }

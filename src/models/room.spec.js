@@ -1,16 +1,15 @@
 import socketUtil, { mockUsersInRoom, mockSocketInRoom, mockRoomMessage, mockGetRoomSockets, mockValidUserInRoom, mockGetFollowingSockets, mockGetSocketByUserId, mockGetSocketByUsername } from '../core/socketUtil';
-import Room from '../models/room';
-import { Types } from 'mongoose';
-const { ObjectId } = Types;
-import mocks from '../../spec/mocks';
 import Mob from '../models/mob';
 import mobData from '../data/mobData';
 import sutModel from '../models/room';
+import mocks from '../../spec/mocks';
+import { Types } from 'mongoose';
+const { ObjectId } = Types;
 
 jest.mock('../core/socketUtil');
 
 // mocking mongoose provided model methods
-Room.save = jest.fn();
+sutModel.save = jest.fn();
 
 
 global.io = new mocks.IOMock();
@@ -77,7 +76,7 @@ describe('room model', () => {
           z: 3,
         };
 
-        Room.findOne = jest.fn().mockReturnValueOnce(null);
+        sutModel.findOne = jest.fn().mockReturnValueOnce(null);
 
         sutModel.byCoords(coords);
 
@@ -256,7 +255,7 @@ describe('room model', () => {
       });
 
       test('should not load new room to cache when creating a door in a direction where room exists', () => {
-        Room.mockByCoords = jest.fn((coords, cb) => {
+        sutModel.mockByCoords = jest.fn((coords, cb) => {
           cb(new sutModel());
         });
 

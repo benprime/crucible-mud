@@ -18,7 +18,7 @@ export default {
     }
     const dir = match[1].toLowerCase();
     const keyName = match[2];
-    this.execute(socket, dir, keyName);
+    execute(socket, dir, keyName);
   },
 
   execute(socket, dir, keyName, cb) {

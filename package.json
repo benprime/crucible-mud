@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@types/jest": "^23.3.1",
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-jest": "^23.4.2",
     "babel-preset-env": "^1.7.0",
@@ -39,7 +40,7 @@
     "db": "mongod --dbpath c:/dev/mongo/data",
     "open": "concurrently \"mongod --dbpath c:/dev/mongo/data\" \"nodemon server.js\"",
     "clean": "rm -rf dist && mkdir dist",
-    "build": "babel src -d dist",
+    "build": "./node_modules/babel-cli/bin/babel.js src -d dist",
     "serve": "node dist/server.js"
   },
   "repository": {

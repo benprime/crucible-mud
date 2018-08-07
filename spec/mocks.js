@@ -30,7 +30,6 @@ function getMockRoom(roomId) {
   room._id = ObjectId(roomId);
   room.id = room._id.toString();
   room.mobs = [];
-  room.mobs.remove = jest.fn();
   room.inventory = [];
 
   room.roomIds = {
@@ -155,8 +154,6 @@ class SocketMock {
     user.addExp = jest.fn().mockName('addExp');
     user.attackTarget = null;
     user.attack = jest.fn().mockName('userAttack');
-    user.inventory = [];
-    user.inventory.remove = jest.spyOn(user.inventory, 'remove').mockName('inventoryRemove');
     user.actionDie = '1d20';
     this.user = user;
     this.offers = [];
@@ -166,7 +163,6 @@ class SocketMock {
       this.emit.mockClear();
       this.on.mockClear();
       this.user.save.mockClear();
-      this.user.inventory.remove.mockClear();
       Object.keys(this.roomSpies).forEach(rs => this.roomSpies[rs].mockClear());
     };
   }

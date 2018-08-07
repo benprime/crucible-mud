@@ -102,6 +102,7 @@ describe('drop', () => {
           item: key,
         };
         mockAutocompleteTypes.mockReturnValueOnce(autocompleteResult);
+        socket.user.keys = [autocompleteResult.item];
 
         sut.execute(socket, 'dropKey');
 

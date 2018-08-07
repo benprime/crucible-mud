@@ -1,5 +1,6 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
+import utils from '../core/utilities';
 
 export default {
   name: 'destroy',
@@ -26,25 +27,31 @@ export default {
     const room = Room.getById(socket.user.roomId);
     if (type === 'mob') {
       // look for mob in user's current room
-      const mob = autocomplete.autocompleteTypes(socket, ['mob'], name);
-      if (!mob) {
+      const acResult = autocomplete.autocompleteTypes(socket, ['mob'], name);
+      if (!acResult) {
         return;
       }
+      const mob = acResult.item;
 
-      room.mobs.remove(mob);
-      socket.emit('output', { message: 'Mob successfully destroyed.' });
-
-      // announce mob disappearance to any onlookers
-      socket.broadcast.to(room.id).emit('output', { message: 'Mob erased from existence!' });
+      // mobs is a non-mongoose array, so must use removeItem
+      let removedItem = utils.removeItem(room.mobs, mob);
+      if (!removedItem) {
+        socket.emit('output', { message: 'Something went terribly wrong.' });
+      } else {
+        socket.emit('output', { message: 'Mob successfully destroyed.' });
+        // announce mob disappearance to any onlookers
+        socket.broadcast.to(room.id).emit('output', { message: 'Mob erased from existence!' });
+      }
     }
     else if (type === 'item') {
-      const item = autocomplete.autocompleteTypes(socket, ['inventory'], name);
-      if (!item) {
+      const acResult = autocomplete.autocompleteTypes(socket, ['inventory'], name);
+      if (!acResult) {
         return;
       }
 
       // delete item
-      socket.user.inventory.remove(item);
+      // inventory is a mongoose-controlled array, so this must use .remove
+      socket.user.inventory.id(acResult.item.id).remove();
       socket.user.save();
       socket.emit('output', { message: 'Item successfully destroyed.' });
     } else {

@@ -49,6 +49,10 @@ export default {
     return followingSockets;
   },
 
+  getSocket(socketId) {
+    return global.io.sockets.connected[socketId];
+  },
+
   getRoomSockets(roomId) {
     const ioRoom = global.io.sockets.adapter.rooms[roomId];
     if (!ioRoom) return [];

@@ -17,6 +17,12 @@ export default {
   },
 
   execute(socket, username) {
+
+    if (socket.leader) {
+      socket.emit('output', { message: 'Only the party leader may invite followers.' });
+      return;
+    }
+
     const targetSocket = socketUtil.validUserInRoom(socket, username);
     if (!targetSocket) {
       return;

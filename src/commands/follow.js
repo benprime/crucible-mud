@@ -6,7 +6,7 @@ export default {
 
   patterns: [
     /^follow\s+(\w+)$/i,
-    /^follow\s*.*$/i,
+    /^follow\s.+$/i,
   ],
 
   dispatch(socket, match) {

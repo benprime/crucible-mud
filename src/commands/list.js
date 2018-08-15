@@ -1,5 +1,6 @@
 import mobData from '../data/mobData';
 import itemData from '../data/itemData';
+import Area from '../models/area';
 
 export default {
   name: 'list',
@@ -10,13 +11,13 @@ export default {
     /^list (mobs)$/i,
     /^list (items)$/i,
     /^list (keys)$/i,
+    /^list (areas)$/i,
     /^list$/i,
   ],
 
   dispatch(socket, match) {
     if (match.length != 2) {
-      // todo: output the help
-      socket.emit('output', { message: 'Invalid list usage.' });
+      this.help(socket);
       return;
     }
 
@@ -28,6 +29,9 @@ export default {
       this.execute(socket, mobData);
     } else if (type === 'keys') {
       this.execute(socket, itemData, 'key');
+    } else if (type === 'areas') {
+      const areas = Object.values(Area.areaCache);
+      this.execute(socket, areas);
     } else {
       socket.emit('output', { message: 'Unknown catalog: {types}' });
       return;
@@ -40,8 +44,10 @@ export default {
     let catalog;
     if (type) {
       catalog = data.catalog.filter(item => item.type === type);
-    } else {
+    } else if(data.catalog) {
       catalog = data.catalog;
+    } else {
+      catalog = data;
     }
 
 
@@ -57,8 +63,9 @@ export default {
 
   help(socket) {
     let output = '';
-    output += '<span class="mediumOrchid">list mobs </span><span class="purple">-</span> Display info table of all valid mobs.<br />';
+    output += '<span class="mediumOrchid">list mobs </span><span class="purple">-</span> Display info table of all valid mobs<br />';
     output += '<span class="mediumOrchid">list items </span><span class="purple">-</span> Display info table of all valid items<br />';
+    output += '<span class="mediumOrchid">list areas </span><span class="purple">-</span> Display info table of all valid areas<br />';
     socket.emit('output', { message: output });
   },
 };

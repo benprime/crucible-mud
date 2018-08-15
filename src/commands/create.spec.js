@@ -93,7 +93,7 @@ describe('create', () => {
     test('help should output message', () => {
       sut.help(socket);
 
-      expect(socket.emit).toBeCalledWith('output', { message: '<span class="mediumOrchid">create room &lt;dir&gt; </span><span class="purple">-</span> Create new room in specified direction.<br />' });
+      expect(socket.emit.mock.calls[0][1].message).toContain('<span class="mediumOrchid">create room &lt;dir&gt; </span><span class="purple">-</span> Create new room in specified direction.<br />');
     });
   });
 });

@@ -41,13 +41,13 @@ function distinctByProperty(arr, property) {
   });
 }
 
-function autocompleteByProperty(source, property, fragment) {
+export const autocompleteByProperty = (source, property, fragment) => {
   const distinctSource = distinctByProperty(source, property);
   const re = new RegExp(`^${fragment}`, 'i');
   return distinctSource.filter(value => !!re.exec(value[property]));
-}
+};
 
-function autocompleteTypes(socket, types, fragment) {
+export const autocompleteTypes = (socket, types, fragment) => {
   for (const typeKey in types) {
     if (!types.hasOwnProperty(typeKey)) continue;
 
@@ -77,7 +77,7 @@ function autocompleteTypes(socket, types, fragment) {
 
   socket.emit('output', { message: 'You don\'t see that here.' });
   return null;
-}
+};
 
 export default {
   autocompleteTypes,

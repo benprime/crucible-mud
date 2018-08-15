@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import ItemSchema from './itemSchema';
 import ExitSchema from './exitSchema';
 import Exit from './exit';
+import Area from './area';
 import SpawnerSchema from './spawnerSchema';
 import socketUtil from '../core/socketUtil';
 
@@ -64,6 +65,9 @@ const RoomSchema = new mongoose.Schema({
   alias: {
     type: String,
   },
+  area: {
+    type: String,
+  },
   x: {
     type: Number,
   },
@@ -118,6 +122,8 @@ RoomSchema.statics.validDirectionInput = function (dir) {
 
 RoomSchema.statics.populateRoomCache = function () {
   this.find({}, (err, result) => {
+    if(err) throw err;
+
     result.forEach(room => {
       room.mobs = [];
       roomCache[room.id] = room;
@@ -209,7 +215,14 @@ RoomSchema.methods.createRoom = function (dir, cb) {
 };
 
 RoomSchema.methods.look = function (socket, short) {
-  let output = `<span class="cyan">${this.name}</span>\n`;
+  
+  let output = `<span class="cyan">${this.name}`;
+  
+  if(this.area) {
+    output += `, ${Area.getById(this.area).name}`;
+  }
+
+  output += '</span>\n';
 
   if (!short) {
     output += `<span class="silver">${this.desc}</span>\n`;

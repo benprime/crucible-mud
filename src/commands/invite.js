@@ -5,18 +5,24 @@ export default {
 
   patterns: [
     /^invite\s+(\w+)$/i,
-    /^invite\s*.*$/i,
+    /^invite\s.+$/i,
   ],
 
   dispatch(socket, match) {
     if (match.length < 2) {
-      help(socket);
+      this.help(socket);
       return;
     }
     this.execute(socket, match[1]);
   },
 
   execute(socket, username) {
+
+    if (socket.leader) {
+      socket.emit('output', { message: 'Only the party leader may invite followers.' });
+      return;
+    }
+
     const targetSocket = socketUtil.validUserInRoom(socket, username);
     if (!targetSocket) {
       return;

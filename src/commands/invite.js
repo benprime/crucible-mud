@@ -5,12 +5,12 @@ export default {
 
   patterns: [
     /^invite\s+(\w+)$/i,
-    /^invite\s*.*$/i,
+    /^invite\s.+$/i,
   ],
 
   dispatch(socket, match) {
     if (match.length < 2) {
-      help(socket);
+      this.help(socket);
       return;
     }
     this.execute(socket, match[1]);

@@ -284,12 +284,12 @@ describe('socketUtil', () => {
 
       // acting user
       socket = new mocks.SocketMock();
-      socket.roomId = roomId;
+      socket.user.roomId = roomId;
 
       // target user
       let targetSocket = new mocks.SocketMock();
       targetSocket.user.username = 'TargetUser';
-      targetSocket.roomId = roomId;
+      targetSocket.user.roomId = roomId;
 
       // act
       let result = sut.validUserInRoom(socket, targetSocket.user.username);
@@ -305,12 +305,12 @@ describe('socketUtil', () => {
 
       // acting user
       socket = new mocks.SocketMock();
-      socket.roomId = roomId;
+      socket.user.roomId = roomId;
 
       // target user
       let targetSocket = new mocks.SocketMock();
       targetSocket.user.username = 'TargetUser';
-      targetSocket.roomId = roomId;
+      targetSocket.user.roomId = roomId;
 
       // log the user in
       global.io.sockets.connected[targetSocket.id] = targetSocket;
@@ -329,12 +329,12 @@ describe('socketUtil', () => {
 
       // acting user
       socket = new mocks.SocketMock();
-      socket.roomId = roomId;
+      socket.user.roomId = roomId;
 
       // target user
       let targetSocket = new mocks.SocketMock();
       targetSocket.user.username = 'TargetUser';
-      targetSocket.roomId = roomId;
+      targetSocket.user.roomId = roomId;
 
       // log the user in
       global.io.sockets.connected[targetSocket.id] = targetSocket;

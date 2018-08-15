@@ -63,7 +63,7 @@ export default {
       return false;
     }
 
-    if (!this.socketInRoom(socket.roomId, userSocket.id)) {
+    if (!this.socketInRoom(socket.user.roomId, userSocket.id)) {
       socket.emit('output', { message: `You don't see ${username} here.` });
       return false;
     }

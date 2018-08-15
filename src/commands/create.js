@@ -34,7 +34,7 @@ export default {
 
       if (exit) {
         exit.closed = true;
-        room.save();
+        room.save(err => { if (err) throw err; });
       } else {
         socket.emit('output', { message: 'Invalid direction.' });
         return;

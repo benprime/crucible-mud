@@ -169,8 +169,8 @@ RoomSchema.methods.createRoom = function (dir, cb) {
     if (targetRoom) {
       currentRoom.addExit(dir, targetRoom.id);
       targetRoom.addExit(oppDir, currentRoom.id);
-      currentRoom.save();
-      targetRoom.save();
+      currentRoom.save(err => { if (err) throw err; });
+      targetRoom.save(err => { if (err) throw err; });
       if (cb) cb(targetRoom);
     } else {
       // if room does not exist, create a new room
@@ -188,24 +188,19 @@ RoomSchema.methods.createRoom = function (dir, cb) {
         }],
       });
 
-
       // update this room with exit to new room
       targetRoom.save((err, updatedRoom) => {
+
+        if(err) throw err;
 
         // add new room to room cache
         targetRoom.mobs = [];
         roomCache[updatedRoom.id] = updatedRoom;
 
-
-
         currentRoom.addExit(dir, updatedRoom.id);
-        //e.save();
-
-        // not sure why this is necessary now
-        //currentRoom.markModified('exits');
 
         currentRoom.save(function (err) {
-          console.log(err);
+          if(err) throw err;
         });
         if (cb) cb(updatedRoom);
       });

@@ -80,7 +80,7 @@ export default {
 
 
       socket.user.inventory.push(item);
-      socket.user.save();
+      socket.user.save(err => { if (err) throw err; });
       socket.emit('output', { message: 'Item created.' });
 
       // todo: determine if we want to hide when an admin creates an item
@@ -105,7 +105,7 @@ export default {
       });
 
       socket.user.keys.push(key);
-      socket.user.save();
+      socket.user.save(err => { if (err) throw err; });
       socket.emit('output', { message: 'Key created.' });
     }
 

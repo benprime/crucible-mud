@@ -49,7 +49,7 @@ export default {
         Room.roomCache[value] = room;
       }
       room[prop] = value;
-      room.save();
+      room.save(err => { if (err) throw err; });
       socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} has altered the fabric of reality.` });
       lookCmd.execute(socket);
     }

@@ -30,7 +30,7 @@ export default {
       } else {
         socket.user.inventory.push(item);
       }
-      socket.user.save();
+      socket.user.save(err => { if (err) throw err; });
       socket.emit('output', {message: `${item.displayName} was added to your inventory.`});
     }
 
@@ -63,7 +63,7 @@ export default {
         }
         offeringUserSocket.user.inventory.splice(otherUserItemIndex, 1);
         offeringUserSocket.emit('output', { message: `${offer.item.displayName} was removed from your inventory.` });
-        offeringUserSocket.user.save();
+        offeringUserSocket.user.save(err => { if (err) throw err; });
 
         return;
       }
@@ -86,7 +86,7 @@ export default {
       utils.removeItem(room.inventory, roomItem);
 
       saveItem(roomItem);
-      room.save();
+      room.save(err => { if (err) throw err; });
 
       socket.emit('output', { message: `${roomItem.displayName} taken.` });
       socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} takes ${roomItem.displayName}.` });

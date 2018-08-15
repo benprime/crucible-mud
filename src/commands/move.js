@@ -162,7 +162,7 @@ export default {
 
     // update user session
     socket.user.roomId = exit.roomId;
-    socket.user.save();
+    socket.user.save(err => { if (err) throw err; });
     socket.join(exit.roomId);
 
     const targetRoom = Room.getById(socket.user.roomId);

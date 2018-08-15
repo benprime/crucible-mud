@@ -40,8 +40,8 @@ export default {
     room.inventory.push(result.item);
 
     // save both
-    room.save();
-    socket.user.save();
+    room.save(err => { if (err) throw err; });
+    socket.user.save(err => { if (err) throw err; });
 
     socket.emit('output', { message: 'Dropped.' });
     socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} drops ${result.item.displayName}.` });

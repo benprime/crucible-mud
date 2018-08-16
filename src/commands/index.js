@@ -27,6 +27,7 @@ let commandModules = [
   'say.js',
   'search.js',
   'set.js',
+  'sneak.js',
   'spawner.js',
   'spawn.js',
   'stats.js',

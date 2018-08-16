@@ -1,7 +1,7 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 
-function lookDir(socket, {exits}, dir) {
+function lookDir(socket, { exits }, dir) {
   dir = Room.validDirectionInput(dir);
   const exit = exits.find(e => e.dir === dir);
   if (!exit || exit.hidden) {
@@ -22,12 +22,12 @@ function lookDir(socket, {exits}, dir) {
 
 // for items and mobs
 function lookItem(socket, room, itemName) {
-  const lookTargetObj = autocomplete.autocompleteTypes(socket, ['inventory', 'mob', 'room'], itemName);
-  if (!lookTargetObj || lookTargetObj.hidden) {
+  const acResult = autocomplete.autocompleteTypes(socket, ['inventory', 'mob', 'room'], itemName);
+  if (!acResult || acResult.item.hidden) {
     socket.emit('output', { message: 'Unknown item!' });
     return;
   }
-  lookTargetObj.look(socket);
+  acResult.item.look(socket);
 }
 
 

@@ -4,7 +4,6 @@ import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
 import sut from './look';
 
-//jest.mock('../models/user');
 jest.mock('../models/room');
 jest.mock('../core/autocomplete');
 
@@ -16,9 +15,9 @@ describe('look', () => {
 
   beforeAll(() => {
     socket = new mocks.SocketMock();
-    // socket.user.roomId = 'currentRoomId0000000000';
     targetRoomNorth = mocks.getMockRoom();
     currentRoom = mocks.getMockRoom(socket.user.roomId);
+    currentRoom.mobs = [{ displayName: 'dummy', name: 'dummy', desc: 'a dummy!' }];
     const nExit = currentRoom.exits.find(e => e.dir === 'n');
     nExit.roomId = targetRoomNorth.id;
     nExit.closed = true;
@@ -55,52 +54,71 @@ describe('look', () => {
   });
 
   describe('execute', () => {
-    test('should output short room look when short param is true', () => {
-      sut.execute(socket, true);
 
-      expect(currentRoom.look).toBeCalledWith(socket, true);
+    describe('on room', () => {
+
+      test('should output short room look when short param is true', () => {
+        sut.execute(socket, true);
+
+        expect(currentRoom.look).toBeCalledWith(socket, true);
+      });
+
+      test('should output room look when lookTarget is not passed', () => {
+        sut.execute(socket, false);
+
+        expect(currentRoom.look).toBeCalledWith(socket, false);
+      });
+
+      test('should output room look when lookTarget is a direction', () => {
+        // arrange
+        mockValidDirectionInput.mockReturnValue('s');
+        mockShortToLong.mockReturnValueOnce('south').mockReturnValueOnce('north');
+
+        // act
+        sut.execute(socket, false, 's');
+
+        // assert
+        expect(socket.emit).toBeCalledWith('output', { message: 'You look to the south...' });
+        expect(socket.broadcast.to(targetRoomSouth.id).emit).toBeCalledWith('output', { message: `<span class="yellow">${socket.user.username} peaks in from the north.</span>` });
+        expect(targetRoomSouth.look).toBeCalledWith(socket, false);
+      });
+
+      test('should output a message when lookTarget is a direction with a closed door', () => {
+        // arrange
+        mockValidDirectionInput.mockReturnValue('n');
+        mockOppositeDirection.mockReturnValue('s');
+        mockShortToLong.mockReturnValue('south');
+
+        // act
+        sut.execute(socket, false, 'n');
+
+        // assert
+        expect(socket.emit).toBeCalledWith('output', { message: 'The door in that direction is closed!' });
+      });
     });
 
-    test('should output room look when lookTarget is not passed', () => {
-      sut.execute(socket, false);
+    // TODO: this could really use some more tests
+    describe('on item', () => {
 
-      expect(currentRoom.look).toBeCalledWith(socket, false);
+      test('should do nothing when lookTarget is an invalid inventory item', () => {
+        mockValidDirectionInput.mockReturnValue(null);
+        mockAutocompleteTypes.mockReturnValue(undefined);
+
+        sut.execute(socket, false, 'boot');
+
+        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown item!' });
+      });
+
     });
 
-    test('should output room look when lookTarget is a direction', () => {
-      // arrange
-      mockValidDirectionInput.mockReturnValue('s');
-      mockShortToLong.mockReturnValueOnce('south').mockReturnValueOnce('north');
+    describe('on mob', () => {
 
-      // act
-      sut.execute(socket, false, 's');
+      test('should output description of mob', () => {
 
-      // assert
-      expect(socket.emit).toBeCalledWith('output', { message: 'You look to the south...' });
-      expect(socket.broadcast.to(targetRoomSouth.id).emit).toBeCalledWith('output', { message: `<span class="yellow">${socket.user.username} peaks in from the north.</span>` });
-      expect(targetRoomSouth.look).toBeCalledWith(socket, false);
-    });
+        sut.execute(socket, false, 'dummy');
 
-    test('should output a message when lookTarget is a direction with a closed door', () => {
-      // arrange
-      mockValidDirectionInput.mockReturnValue('n');
-      mockOppositeDirection.mockReturnValue('s');
-      mockShortToLong.mockReturnValue('south');
-
-      // act
-      sut.execute(socket, false, 'n');
-
-      // assert
-      expect(socket.emit).toBeCalledWith('output', { message: 'The door in that direction is closed!' });
-    });
-
-    test('should do nothing when lookTarget is an invalid inventory item', () => {
-      mockValidDirectionInput.mockReturnValue(null);
-      mockAutocompleteTypes.mockReturnValue(undefined);
-
-      sut.execute(socket, false, 'boot');
-
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown item!' });
+        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown item!' });
+      });
     });
 
   });

@@ -142,7 +142,17 @@ const UserSchema = new mongoose.Schema({
   resist: { //shield from magic (resist spell, see through illusion/charm, etc) (WIL)
     type: Number,
   },
+
+  //conditional bonuses/flags
+  sneak: { //Boosted stealth stats if player is actively sneaking
+    type: Number,
+  },
 });
+
+let sneakyCommands = ['break','exp','follow','gossip','help','hide','inventory','invite','keys','list','look','party','roll','search','set','sneak','stats','telepathy','who'];
+UserSchema.methods.resetActiveBonuses = function (command) {
+  if(!sneakyCommands.includes(command)) this.sneak = 0;
+};
 
 UserSchema.statics.findByName = function (name, cb) {
   const userRegEx = new RegExp(`^${name}$`, 'i');

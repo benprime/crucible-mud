@@ -3,14 +3,15 @@ import socketUtil from '../core/socketUtil';
 import breakCommand from './break';
 import lookCommand from './look';
 
-function Feedback(dir) {
+function Feedback(dir, sneak) {
   const d = Room.validDirectionInput(dir);
   if(!d) {
     // should never happen, but just in case
     throw `invalid input directions passed to feedback method: ${dir}`;
   }
   const displayDir = Room.shortToLong(d);
-  return `You move ${displayDir}...`;
+  if(sneak > 0) return `You sneak ${displayDir}...`;
+  else return `You move ${displayDir}...`;
 }
 
 function HitWall(socket, dir) {
@@ -148,16 +149,18 @@ export default {
 
     breakCommand.execute(socket);
 
-    // send message to everyone in old room that player is leaving
-    if (validDir === 'u') {
-      message = `${username} has gone above.`;
-    } else if (validDir === 'd') {
-      message = `${username} has gone below.`;
-    } else {
-      message = `${username} has left to the ${Room.shortToLong(validDir)}.`;
+    if(socket.user.sneak >= 0) {  //check to see if player is actively sneaking (this is currently yes/no for testing until individual perception checks are implemented)
+      // send message to everyone in old room that player is leaving
+      if (validDir === 'u') {
+        message = `${username} has gone above.`;
+      } else if (validDir === 'd') {
+        message = `${username} has gone below.`;
+      } else {
+        message = `${username} has left to the ${Room.shortToLong(validDir)}.`;
+      }
+      socket.broadcast.to(sourceRoom.id).emit('output', { message });
+      MovementSounds(socket, sourceRoom, validDir);
     }
-    socket.broadcast.to(sourceRoom.id).emit('output', { message });
-    MovementSounds(socket, sourceRoom, validDir);
     socket.leave(sourceRoom.id);
 
     // update user session
@@ -167,20 +170,23 @@ export default {
 
     const targetRoom = Room.getById(socket.user.roomId);
     const oppDir = Room.oppositeDirection(validDir);
-    MovementSounds(socket, targetRoom, oppDir);
 
-    // send message to everyone is new room that player has arrived
-    if (validDir === 'u') {
-      message = `${username} has entered from below.`;
-    } else if (validDir === 'd') {
-      message = `${username} has entered from above.`;
-    } else {
-      message = `${username} has entered from the ${Room.shortToLong(oppDir)}.`;
+    if(socket.user.sneak >= 0) {  //check to see if player is actively sneaking (this is currently yes/no for testing until individual perception checks are implemented)
+      MovementSounds(socket, targetRoom, oppDir);
+
+      // send message to everyone is new room that player has arrived
+      if (validDir === 'u') {
+        message = `${username} has entered from below.`;
+      } else if (validDir === 'd') {
+        message = `${username} has entered from above.`;
+      } else {
+        message = `${username} has entered from the ${Room.shortToLong(oppDir)}.`;
+      }
+      socket.broadcast.to(exit.roomId).emit('output', { message });
     }
-    socket.broadcast.to(exit.roomId).emit('output', { message });
 
     // You have moved south...
-    socket.emit('output', { message: Feedback(dir) });
+    socket.emit('output', { message: Feedback(dir,socket.user.sneak) });
 
     let followingSockets = socketUtil.getFollowingSockets(socket.id);
     followingSockets.forEach(s => {

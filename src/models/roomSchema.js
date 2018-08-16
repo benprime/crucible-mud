@@ -122,11 +122,11 @@ RoomSchema.statics.validDirectionInput = function (dir) {
 
 RoomSchema.statics.populateRoomCache = function () {
   this.find({}, (err, result) => {
-    if(err) throw err;
+    if (err) throw err;
 
     result.forEach(room => {
       room.mobs = [];
-      roomCache[room.id] = room;
+      roomCache[room.id.toString()] = room;
       if (room.alias)
         roomCache[room.alias] = room;
     });
@@ -184,7 +184,6 @@ RoomSchema.methods.createRoom = function (dir, cb) {
       targetRoom = new this.constructor({
         name: 'Default Room Name',
         desc: 'Room Description',
-        alias: null,
         x: targetCoords.x,
         y: targetCoords.y,
         z: targetCoords.z,
@@ -194,10 +193,14 @@ RoomSchema.methods.createRoom = function (dir, cb) {
         }],
       });
 
+      if (currentRoom.area) {
+        targetRoom.area = currentRoom.area;
+      }
+
       // update this room with exit to new room
       targetRoom.save((err, updatedRoom) => {
 
-        if(err) throw err;
+        if (err) throw err;
 
         // add new room to room cache
         targetRoom.mobs = [];
@@ -206,7 +209,7 @@ RoomSchema.methods.createRoom = function (dir, cb) {
         currentRoom.addExit(dir, updatedRoom.id);
 
         currentRoom.save(function (err) {
-          if(err) throw err;
+          if (err) throw err;
         });
         if (cb) cb(updatedRoom);
       });
@@ -215,10 +218,10 @@ RoomSchema.methods.createRoom = function (dir, cb) {
 };
 
 RoomSchema.methods.look = function (socket, short) {
-  
+
   let output = `<span class="cyan">${this.name}`;
-  
-  if(this.area) {
+
+  if (this.area) {
     output += `, ${Area.getById(this.area).name}`;
   }
 

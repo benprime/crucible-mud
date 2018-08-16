@@ -31,7 +31,7 @@ AreaSchema.statics.populateAreaCache = function () {
     if (err) throw err;
 
     result.forEach(area => {
-      areaCache[area.id] = area;
+      areaCache[area.id.toString()] = area;
     });
 
   });

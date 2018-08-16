@@ -19,25 +19,28 @@ class Mob {
       this.id = new ObjectId();
     }
 
-    let adjIndex;
-    if (Number.isInteger(adjectiveIndex)) {
-      adjIndex = adjectiveIndex;
-    } else {
-      adjIndex = dice.getRandomNumber(0, mobType.adjectives.length);
+
+    if(mobType.adjectives) {
+      let adjIndex;
+      if (Number.isInteger(adjectiveIndex)) {
+        adjIndex = adjectiveIndex;
+      } else {
+        adjIndex = dice.getRandomNumber(0, mobType.adjectives.length);
+      }
+  
+      // apply modifiers
+      const adjective = mobType.adjectives[adjIndex];
+      instance.hp += adjective.modifiers.hp;
+      instance.xp += adjective.modifiers.xp;
+      instance.minDamage += adjective.modifiers.minDamage;
+      instance.maxDamage += adjective.modifiers.maxDamage;
+      instance.hitDice += adjective.modifiers.hitDice;
+      instance.attackInterval += adjective.modifiers.attackInterval;
+
+      instance.displayName = `${adjective.name} ${instance.displayName}`;
     }
 
-    // apply modifiers
-    const adjective = mobType.adjectives[adjIndex];
-    instance.hp += adjective.modifiers.hp;
-    instance.xp += adjective.modifiers.xp;
-    instance.minDamage += adjective.modifiers.minDamage;
-    instance.maxDamage += adjective.modifiers.maxDamage;
-    instance.hitDice += adjective.modifiers.hitDice;
-    instance.attackInterval += adjective.modifiers.attackInterval;
-
     instance.roomId = roomId;
-
-    instance.displayName = `${adjective.name} ${instance.displayName}`;
 
     return instance;
   }

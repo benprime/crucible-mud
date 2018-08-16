@@ -98,7 +98,7 @@ export default {
 
     // move item to backpack
     socket.user.inventory.push(item);
-    socket.user.save();
+    socket.user.save(err => { if (err) throw err; });
 
     socket.emit('output', { message: 'Item unequipped.\n' });
 

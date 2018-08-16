@@ -160,7 +160,7 @@ UserSchema.methods.addExp = function (amount) {
   while (this.xp >= this.nextExp()) {
     this.level++;
   }
-  this.save();
+  this.save(err => { if (err) throw err; });
 };
 
 UserSchema.methods.readyToAttack = function (now) {

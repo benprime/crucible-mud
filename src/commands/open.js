@@ -22,7 +22,7 @@ export default {
       return;
     }
 
-    if (!exit.hasOwnProperty('closed')) {
+    if (!('closed' in exit)) {
       socket.emit('output', { message: 'There is no door in that direction!' });
       return;
     }

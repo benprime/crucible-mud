@@ -48,7 +48,7 @@ export default {
     socket.leave(socket.user.roomId);
     socket.join(room.id);
     socket.user.roomId = room.id;
-    socket.user.save();
+    socket.user.save(err => { if (err) throw err; });
 
     socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} appears out of thin air!` });
     lookCmd.execute(socket);

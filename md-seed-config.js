@@ -1,8 +1,9 @@
 import mongooseLib from 'mongoose';
 mongooseLib.Promise = global.Promise;
 
-import Users from "./seeders/users.seeder";
-import Rooms from "./seeders/rooms.seeder";
+import Areas from './seeders/areas.seeder';
+import Rooms from './seeders/rooms.seeder';
+import Users from './seeders/users.seeder';
 
 // Export the mongoose lib
 export const mongoose = mongooseLib;
@@ -16,6 +17,7 @@ export const mongoURL = process.env.MONGO_URL || 'mongodb://localhost:27017/mud'
   order is important
 */
 export const seedersList = {
-  Users,
+  Areas,
   Rooms,
+  Users,
 };

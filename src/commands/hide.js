@@ -9,7 +9,7 @@ function hideDir(socket, room, dir) {
   }
 
   exit.hidden = true;
-  room.save();
+  room.save(err => { if (err) throw err; });
   socket.emit('output', { message: 'The exit has been concealed.<br />' });
 }
 
@@ -30,7 +30,7 @@ function hideItem(socket, room, itemName) {
   }
 
   hideTargetObj.hidden = true;
-  room.save();
+  room.save(err => { if (err) throw err; });
   socket.emit('output', { message: `${itemName} has been concealed.<br />` });
 }
 

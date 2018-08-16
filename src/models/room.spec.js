@@ -17,7 +17,6 @@ global.io = new mocks.IOMock();
 describe('room model', () => {
 
   beforeEach(() => {
-    //socket = new mocks.SocketMock();
     global.io.reset();
   });
 

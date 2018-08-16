@@ -1,5 +1,6 @@
 import { mockGetRoomById } from '../models/room';
 import { mockGetSocketByUsername } from '../core/socketUtil';
+import { mockAutocompleteTypes } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import { when } from 'jest-when';
 import sut from './actionHandler';
@@ -7,6 +8,7 @@ import sut from './actionHandler';
 
 jest.mock('../models/room');
 jest.mock('../core/socketUtil');
+jest.mock('../core/autocomplete');
 
 global.io = new mocks.IOMock();
 let mockRoom;
@@ -49,40 +51,40 @@ describe('actionHandler', () => {
     });
 
     test('should output message when no socket is returned for the user', () => {
+      // arrange
       targetSocket = undefined;
 
+      // act
       const result = sut.actionDispatcher(socket, 'hug', 'anUnknownUser');
 
+      // assert
       expect(result).toBe(true);
-      expect(socket.emit).toBeCalledWith('output', { message: 'Unknown user' });
+      expect(socket.emit).not.toBeCalled();
     });
 
     test('should output message when action is performed on self', () => {
+      // arrange
       targetSocket = socket;
 
+      // act
       const result = sut.actionDispatcher(socket, 'hug');
 
-      expect(result).toBe(true);
-      expect(socket.emit).toBeCalledWith('output', { message: 'You hug yourself.' });
-      expect(global.io.to(bystanderSocket.id).emit).toBeCalledWith('output', { message: `${socket.user.username} hugs himself.` });
-    });
-
-    test('should output message when action is performed on self using username', () => {
-      mockRoom.userInRoom.mockReturnValue(true);
-      targetSocket = socket;
-
-      const result = sut.actionDispatcher(socket, 'hug', socket.user.username);
-
+      // assert
       expect(result).toBe(true);
       expect(socket.emit).toBeCalledWith('output', { message: 'You hug yourself.' });
       expect(global.io.to(bystanderSocket.id).emit).toBeCalledWith('output', { message: `${socket.user.username} hugs himself.` });
     });
 
     test('should output message when action is performed on other user', () => {
+      // arrange
       mockGetSocketByUsername.mockReturnValueOnce(targetSocket);
       mockRoom.userInRoom.mockReturnValue(true);
+      mockAutocompleteTypes.mockReturnValueOnce({item: targetSocket.user});
+      
+      // act
       const result = sut.actionDispatcher(socket, 'hug', targetSocket.user.username);
 
+      // assert
       expect(result).toBe(true);
       expect(socket.emit).toBeCalledWith('output', { message: `You hug ${targetSocket.user.username} close!` });
       expect(global.io.to(bystanderSocket.id).emit).toBeCalledWith('output', { message: `${socket.user.username} hugs ${targetSocket.user.username} close!` });

@@ -1,4 +1,4 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockGetSocketByUsername } from '../core/socketUtil';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
@@ -13,7 +13,7 @@ let mockTargetSocket;
 let usersInRoomResult = [];
 let mockRoom = mocks.getMockRoom();
 mockRoom.usersInRoom = jest.fn(() => usersInRoomResult).mockName('usersInRoomSpy');
-mockGetById.mockReturnValue(mockRoom);
+mockGetRoomById.mockReturnValue(mockRoom);
 global.io = new mocks.IOMock();
 
 describe('offer', () => {

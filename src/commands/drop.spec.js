@@ -1,4 +1,4 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import Item from '../models/item';
 import mocks from '../../spec/mocks';
@@ -41,7 +41,7 @@ describe('drop', () => {
 
   beforeEach(() => {
     mockRoom.reset();
-    mockGetById.mockReturnValueOnce(mockRoom);
+    mockGetRoomById.mockReturnValueOnce(mockRoom);
     socket = new mocks.SocketMock();
 
     item = new Item();

@@ -1,11 +1,11 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import mocks from '../../spec/mocks';
 import sut from './spawn';
 
 jest.mock('../models/room');
 
 let mockRoom = mocks.getMockRoom();
-mockGetById.mockReturnValue(mockRoom);
+mockGetRoomById.mockReturnValue(mockRoom);
 
 describe('spawn', () => {
   let socket;

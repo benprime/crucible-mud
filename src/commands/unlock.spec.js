@@ -1,4 +1,4 @@
-import { mockGetById, mockValidDirectionInput, mockShortToLong } from '../models/room';
+import { mockGetRoomById, mockValidDirectionInput, mockShortToLong } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import Item from '../models/item';
 import mocks from '../../spec/mocks';
@@ -30,7 +30,7 @@ describe('unlock', () => {
     //global.io.reset();
     socket = new mocks.SocketMock();
 
-    mockGetById.mockReturnValue(mockRoom);
+    mockGetRoomById.mockReturnValue(mockRoom);
   });
 
   beforeEach(() => {

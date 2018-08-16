@@ -1,4 +1,4 @@
-import { mockGetById, mockValidDirectionInput } from '../models/room';
+import { mockGetRoomById, mockValidDirectionInput } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './hide';
@@ -25,7 +25,7 @@ describe('hide', () => {
       getExit: jasmine.createSpy('getExit').and.callFake(dir => mockRoom.exits.find(e => e.dir == dir)),
       save: jasmine.createSpy('roomSave'),
     };
-    mockGetById.mockReturnValue(mockRoom);
+    mockGetRoomById.mockReturnValue(mockRoom);
   });
 
   describe('doors', () => {

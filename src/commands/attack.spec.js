@@ -1,4 +1,4 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './attack';
@@ -54,7 +54,7 @@ describe('attack', () => {
         },
         type: 'mob',
       };
-      mockGetById.mockReturnValueOnce(mockRoom);
+      mockGetRoomById.mockReturnValueOnce(mockRoom);
       mockAutocompleteTypes.mockReturnValueOnce(autocompleteResult);
 
       sut.execute(socket, 'thing');
@@ -65,7 +65,7 @@ describe('attack', () => {
     });
 
     test('should set state and emit output when no target found', () => {
-      mockGetById.mockReturnValueOnce(mockRoom);
+      mockGetRoomById.mockReturnValueOnce(mockRoom);
       mockAutocompleteTypes.mockReturnValueOnce(null);
 
       sut.execute(socket, 'thing');

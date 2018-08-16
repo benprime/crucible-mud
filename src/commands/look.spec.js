@@ -1,4 +1,4 @@
-import { mockGetById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection } from '../models/room';
+import { mockGetRoomById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
@@ -28,9 +28,9 @@ describe('look', () => {
     sExit.roomId = targetRoomSouth.id;
     sExit.closed = false;
 
-    when(mockGetById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
-    when(mockGetById).calledWith(targetRoomNorth.id).mockReturnValue(targetRoomNorth);
-    when(mockGetById).calledWith(targetRoomSouth.id).mockReturnValue(targetRoomSouth);
+    when(mockGetRoomById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
+    when(mockGetRoomById).calledWith(targetRoomNorth.id).mockReturnValue(targetRoomNorth);
+    when(mockGetRoomById).calledWith(targetRoomSouth.id).mockReturnValue(targetRoomSouth);
   });
 
   describe('dispatch triggers execute', () => {

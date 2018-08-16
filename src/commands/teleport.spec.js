@@ -1,4 +1,4 @@
-import Room, { mockGetById, mockRoomCache } from '../models/room';
+import Room, { mockGetRoomById, mockRoomCache } from '../models/room';
 import { mockGetSocketByUsername } from '../core/socketUtil';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
@@ -32,8 +32,8 @@ describe('teleport', () => {
     mockRoomCache[currentRoom.id] = currentRoom;
     mockRoomCache[otherRoom.id] = otherRoom;
 
-    when(mockGetById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
-    when(mockGetById).calledWith(otherRoom.id).mockReturnValue(otherRoom);
+    when(mockGetRoomById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
+    when(mockGetRoomById).calledWith(otherRoom.id).mockReturnValue(otherRoom);
 
     global.io = new mocks.IOMock();
   });

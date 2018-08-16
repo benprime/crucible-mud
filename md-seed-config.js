@@ -9,7 +9,9 @@ import Users from './seeders/users.seeder';
 export const mongoose = mongooseLib;
 
 // Export the mongodb url
-export const mongoURL = process.env.MONGO_URL || 'mongodb://localhost:27017/mud';
+export const mongoURL = process.env.MONGO_DB && process.env.MONGO_PORT
+  ? `mongodb://localhost:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`
+  : 'mongodb://localhost:27017/mud';
 
 /*
   Seeders List

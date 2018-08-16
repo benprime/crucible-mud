@@ -1,4 +1,4 @@
-import Room, { mockGetById } from '../models/room';
+import Room, { mockGetRoomById } from '../models/room';
 import Mob from '../models/mob';
 import sut from '../core/combat';
 import mocks from '../../spec/mocks';
@@ -17,7 +17,7 @@ describe('combat command', () => {
 
     beforeEach(() => {
       mockRoom = mocks.getMockRoom();
-      mockGetById.mockReturnValue(mockRoom);
+      mockGetRoomById.mockReturnValue(mockRoom);
     });
 
     test('should call room.processPlayerCombatActions for all room Ids', () => {

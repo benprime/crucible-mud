@@ -1,4 +1,4 @@
-import { mockGetById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection, mockRoomCache } from '../models/room';
+import { mockGetRoomById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection, mockRoomCache } from '../models/room';
 import mocks from '../../spec/mocks';
 import { when } from 'jest-when';
 import sut from './move';
@@ -57,13 +57,13 @@ describe('move', () => {
     wRoom = mocks.getMockRoom(currentRoom.exits.find(e => e.dir === 'w').roomId);
     wRoom.exits = [{ roomId: currentRoom.id, dir: 'e' }];
 
-    when(mockGetById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
-    when(mockGetById).calledWith(uRoom.id).mockReturnValue(uRoom);
-    when(mockGetById).calledWith(dRoom.id).mockReturnValue(dRoom);
-    when(mockGetById).calledWith(nRoom.id).mockReturnValue(nRoom);
-    when(mockGetById).calledWith(sRoom.id).mockReturnValue(sRoom);
-    when(mockGetById).calledWith(eRoom.id).mockReturnValue(eRoom);
-    when(mockGetById).calledWith(wRoom.id).mockReturnValue(wRoom);
+    when(mockGetRoomById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
+    when(mockGetRoomById).calledWith(uRoom.id).mockReturnValue(uRoom);
+    when(mockGetRoomById).calledWith(dRoom.id).mockReturnValue(dRoom);
+    when(mockGetRoomById).calledWith(nRoom.id).mockReturnValue(nRoom);
+    when(mockGetRoomById).calledWith(sRoom.id).mockReturnValue(sRoom);
+    when(mockGetRoomById).calledWith(eRoom.id).mockReturnValue(eRoom);
+    when(mockGetRoomById).calledWith(wRoom.id).mockReturnValue(wRoom);
 
     mockRoomCache[uRoom.id] = uRoom;
     mockRoomCache[dRoom.id] = dRoom;

@@ -1,4 +1,4 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockGetSocketByUsername } from '../core/socketUtil';
 import mocks from '../../spec/mocks';
 import { when } from 'jest-when';
@@ -21,7 +21,7 @@ describe('actionHandler', () => {
   describe('actionDispatcher', () => {
     beforeEach(() => {
       mockRoom = mocks.getMockRoom();
-      mockGetById.mockReturnValue(mockRoom);
+      mockGetRoomById.mockReturnValue(mockRoom);
 
       socket = new mocks.SocketMock();
       socket.user.roomId = mockRoom.id;

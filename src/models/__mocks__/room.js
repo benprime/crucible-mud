@@ -1,4 +1,4 @@
-export const mockGetById = jest.fn();
+export const mockGetRoomById = jest.fn();
 export const mockValidDirectionInput = jest.fn();
 export const mockShortToLong = jest.fn();
 export const mockLongToShort = jest.fn();
@@ -12,7 +12,7 @@ export const mockByCoords = jest.fn();
 // mock must be a function for when constructing new model instances
 const mock = jest.fn().mockImplementation(() => {
   return {
-    // getById: mockGetById,
+    // getById: mockGetRoomById,
     // validDirectionInput: mockValidDirectionInput,
   };
 });
@@ -20,7 +20,7 @@ const mock = jest.fn().mockImplementation(() => {
 
 // add static methods
 // this feels like the wrong way to do this.
-mock.getById = mockGetById;
+mock.getById = mockGetRoomById;
 mock.validDirectionInput = mockValidDirectionInput;
 mock.shortToLong = mockShortToLong;
 mock.longToShort = mockLongToShort;

@@ -1,4 +1,4 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import mocks from '../../spec/mocks';
 import sut from './spawner';
 
@@ -16,7 +16,7 @@ describe('spawner', () => {
     currentRoom.name = 'Dance Floor';
     currentRoom.spawner = new SpawnerModel();
     currentRoom.spawner.mobTypes.push(mocks.mobType.name);
-    mockGetById.mockReturnValue(currentRoom);
+    mockGetRoomById.mockReturnValue(currentRoom);
 
     socket = new mocks.SocketMock();
     socket.user.roomId = currentRoom.id;

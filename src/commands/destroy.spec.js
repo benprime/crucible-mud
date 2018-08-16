@@ -1,4 +1,4 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './destroy';
@@ -15,7 +15,7 @@ describe('destroy', () => {
 
   beforeAll(() => {
     socket = new mocks.SocketMock();
-    mockGetById.mockReturnValue(mockRoom);
+    mockGetRoomById.mockReturnValue(mockRoom);
   });
 
   beforeEach(() => {

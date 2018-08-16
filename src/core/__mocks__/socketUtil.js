@@ -7,15 +7,6 @@ export const mockGetFollowingSockets = jest.fn();
 export const mockGetSocketByUserId = jest.fn();
 export const mockGetSocketByUsername = jest.fn();
 
-
-
-
-// const mock = jest.fn().mockImplementation(() => {
-//   return {
-//     autocompleteTypes: mockAutocompleteTypes
-//   };
-// });
-
 const mock = {
   usersInRoom: mockUsersInRoom,
   socketInRoom: mockSocketInRoom,

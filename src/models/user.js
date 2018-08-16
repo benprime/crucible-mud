@@ -180,8 +180,8 @@ console.log('attackroll weapon resolution error');
 return 0;
 */
 
-// just return 0 or 1 for now
-dice.roll('1d2');
+  // just return 0 or 1 for now
+  dice.roll('1d2');
 
 UserSchema.methods.attack = function (socket, mob, now) {
   if (!mob) return;

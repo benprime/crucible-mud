@@ -148,7 +148,7 @@ class SocketMock {
     };
     const user = new User();
     user.username = username ? username : 'TestUser';
-    user.userId = ObjectId().toString();
+    user.id = ObjectId().toString();
     user.roomId = ObjectId().toString();
     user.save = jest.fn().mockName('userSave');
     user.addExp = jest.fn().mockName('addExp');

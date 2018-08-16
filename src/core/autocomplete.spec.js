@@ -1,4 +1,4 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import sut from './autocomplete';
 import mocks from '../../spec/mocks';
 
@@ -19,7 +19,7 @@ describe('autocomplete', () => {
         keys: [],
       };
       room = mocks.getMockRoom();
-      mockGetById.mockReturnValue(room);
+      mockGetRoomById.mockReturnValue(room);
     });
 
     test('returns object when only one target type has a match', () => {
@@ -72,7 +72,7 @@ describe('autocomplete', () => {
         keys: [],
       };
       room = mocks.getMockRoom();
-      mockGetById.mockReturnValue(room);
+      mockGetRoomById.mockReturnValue(room);
     });
 
     test('should return object if only displayName has a matching object', () => {

@@ -1,4 +1,4 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockRoll } from '../core/dice';
 import mocks from '../../spec/mocks';
 import sut from './search';
@@ -23,7 +23,7 @@ describe('search', function () {
       ],
       save: jasmine.createSpy('roomSave'),
     };
-    mockGetById.mockReturnValueOnce(mockRoom);
+    mockGetRoomById.mockReturnValueOnce(mockRoom);
   });
 
   test('should reveal all when user is admin', function () {

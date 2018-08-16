@@ -1,4 +1,4 @@
-import { mockGetById, mockValidDirectionInput, mockShortToLong } from '../models/room';
+import { mockGetRoomById, mockValidDirectionInput, mockShortToLong } from '../models/room';
 import mocks from '../../spec/mocks';
 import sut from './create';
 
@@ -14,7 +14,7 @@ describe('create', () => {
   beforeEach(() => {
     socket = new mocks.SocketMock();
     mockRoom = mocks.getMockRoom();
-    mockGetById.mockReturnValue(mockRoom);
+    mockGetRoomById.mockReturnValue(mockRoom);
   });
 
   // describe('dispatch triggers execute', () => {

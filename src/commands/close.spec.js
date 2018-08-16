@@ -1,4 +1,4 @@
-import { mockGetById, mockValidDirectionInput, mockShortToLong } from '../models/room';
+import { mockGetRoomById, mockValidDirectionInput, mockShortToLong } from '../models/room';
 import mocks from '../../spec/mocks';
 import sut from './close';
 
@@ -24,7 +24,7 @@ describe('close', () => {
           { dir: 'w', roomId: 'wRoomId' },
         ],
       };
-      mockGetById.mockReturnValue(mockRoom);
+      mockGetRoomById.mockReturnValue(mockRoom);
     });
 
     test('should print message on invalid direction', () => {

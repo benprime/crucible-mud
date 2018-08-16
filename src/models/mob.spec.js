@@ -1,4 +1,4 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockSocketInRoom, mockRoomMessage, mockGetRoomSockets } from '../core/socketUtil';
 import { mockRoll, mockGetRandomNumber } from '../core/dice';
 import mocks from '../../spec/mocks';
@@ -23,7 +23,7 @@ describe('mob model', () => {
     socket.reset();
     mockRoom.id = socket.user.roomId;
     mockRoom.reset();
-    mockGetById.mockReturnValue(mockRoom);
+    mockGetRoomById.mockReturnValue(mockRoom);
     global.io.reset();
 
     mobType = mobData.catalog[0];

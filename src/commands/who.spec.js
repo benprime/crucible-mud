@@ -1,4 +1,4 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockGetAreaById, mockAreaCache } from '../models/area';
 import mocks from '../../spec/mocks';
 import sut from './who';
@@ -17,7 +17,7 @@ describe('who', () => {
   beforeEach(() => {
     socket = new mocks.SocketMock();
     mockRoom = mocks.getMockRoom(socket.user.roomId);
-    mockGetById.mockReturnValue(mockRoom);
+    mockGetRoomById.mockReturnValue(mockRoom);
     t1 = new mocks.SocketMock();
     t2 = new mocks.SocketMock();
     t1.id = '1';

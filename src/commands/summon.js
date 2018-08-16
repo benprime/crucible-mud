@@ -31,7 +31,7 @@ export default {
     targetUserSocket.leave(targetUserSocket.user.roomId);
     targetUserSocket.join(socket.user.roomId);
     targetUserSocket.user.roomId = socket.user.roomId;
-    targetUserSocket.user.save();
+    targetUserSocket.user.save(err => { if (err) throw err; });
 
     //announce summoned player's arrival
     targetUserSocket.emit('output', { message: `You were summoned to ${socket.user.username}'s room!` });

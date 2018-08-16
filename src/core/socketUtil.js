@@ -49,6 +49,10 @@ export default {
     return followingSockets;
   },
 
+  getSocket(socketId) {
+    return global.io.sockets.connected[socketId];
+  },
+
   getRoomSockets(roomId) {
     const ioRoom = global.io.sockets.adapter.rooms[roomId];
     if (!ioRoom) return [];
@@ -63,7 +67,7 @@ export default {
       return false;
     }
 
-    if (!this.socketInRoom(socket.roomId, userSocket.id)) {
+    if (!this.socketInRoom(socket.user.roomId, userSocket.id)) {
       socket.emit('output', { message: `You don't see ${username} here.` });
       return false;
     }

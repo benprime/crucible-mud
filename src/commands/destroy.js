@@ -52,7 +52,7 @@ export default {
       // delete item
       // inventory is a mongoose-controlled array, so this must use .remove
       socket.user.inventory.id(acResult.item.id).remove();
-      socket.user.save();
+      socket.user.save(err => { if (err) throw err; });
       socket.emit('output', { message: 'Item successfully destroyed.' });
     } else {
       socket.emit('output', { message: 'Invalid destroy type.' });

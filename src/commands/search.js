@@ -54,7 +54,7 @@ export default {
     //reveal remaining things
     hExits.forEach(element => element.hidden = false);
     hItems.forEach(element => element.hidden = false);
-    room.save();
+    room.save(err => { if (err) throw err; });
 
     //tell player that they found something
     socket.emit('output', { message: 'You have spotted something!<br />' });

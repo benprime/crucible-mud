@@ -41,7 +41,7 @@ export default {
     exit.closed = true;
     exit.keyName = key.name;
     exit.locked = true;
-    room.save();
+    room.save(err => { if (err) throw err; });
     socket.emit('output', { message: 'Door locked.' });
   },
 

@@ -23,6 +23,7 @@ let commandModules = [
   'move.js',
   'offer.js',
   'open.js',
+  'party.js',
   'roll.js',
   'say.js',
   'search.js',

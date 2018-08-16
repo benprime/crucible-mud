@@ -98,7 +98,7 @@ export default {
 
     // remove item from backpack
     utils.removeItem(socket.user.inventory, item);
-    socket.user.save();
+    socket.user.save(err => { if (err) throw err; });
 
     socket.emit('output', { message: 'Item equipped.\n' });
 

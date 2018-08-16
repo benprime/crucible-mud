@@ -81,7 +81,7 @@ export default {
           break;
         }
         room.spawner.mobTypes.push(addMobType.name);
-        room.save();
+        room.save(err => { if (err) throw err; });
         socket.emit('output', { message: 'Creature added to spawner.' });
         break;
       case 'remove':
@@ -93,7 +93,7 @@ export default {
         index = room.spawner.mobTypes.indexOf(removeMobType.name);
         if (index !== -1) {
           room.spawner.mobTypes.splice(index);
-          room.save();
+          room.save(err => { if (err) throw err; });
           socket.emit('output', { message: 'Creature removed from spawner.' });
         } else {
           socket.emit('output', { message: 'Creature not found on spawner.' });
@@ -106,7 +106,7 @@ export default {
           break;
         }
         room.spawner.max = maxVal;
-        room.save();
+        room.save(err => { if (err) throw err; });
         socket.emit('output', { message: `Max creatures updated to ${maxVal}.` });
         break;
       case 'timeout':
@@ -116,12 +116,12 @@ export default {
           break;
         }
         room.spawner.timeout = timeoutVal;
-        room.save();
+        room.save(err => { if (err) throw err; });
         socket.emit('output', { message: `Timeout updated to ${timeoutVal}.` });
         break;
       case 'clear':
         room.spawner = null;
-        room.save();
+        room.save(err => { if (err) throw err; });
         socket.emit('output', { message: 'Spawner cleared.' });
         break;
       case 'copy':

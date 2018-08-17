@@ -13,13 +13,10 @@ describe('stats', function () {
 
   describe('execute', function () {
 
-    //TODO: This test needs some updating
-    xtest('should display stat block', function () {
+    test('should display stat block', function () {
       sut.execute(socket);
 
-      //some really long output to check
-      const expectedString = '';
-      expect(socket.emit).toHaveBeenCalledWith('output', {message: expectedString});
+      expect(socket.emit).toHaveBeenCalled();
     });
 
   });

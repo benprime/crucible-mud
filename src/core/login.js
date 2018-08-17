@@ -11,7 +11,6 @@ export default {
         if (!user) {
           socket.emit('output', { message: 'Unknown user, please try again.' });
         } else {
-          // todo: maybe we don't need states for username and password separately. We can just check socket.username
           socket.tempUsername = user.username;
           socket.state = config.STATES.LOGIN_PASSWORD;
           socket.emit('output', { message: 'Enter password:' });

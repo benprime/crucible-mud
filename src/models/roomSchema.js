@@ -78,9 +78,8 @@ const RoomSchema = new mongoose.Schema({
     type: Number,
   },
 
-  // TODO: This may make more sense to be an object instead of a list
-  // with the direction as the key.
   exits: [ExitSchema],
+
   spawner: SpawnerSchema,
   inventory: [ItemSchema],
 }, { usePushEach: true });

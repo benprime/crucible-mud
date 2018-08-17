@@ -14,12 +14,12 @@ describe('party', () => {
     t1 = new mocks.SocketMock();
     t1.id = '1';
     t1.user.username = 'Test1';
-    t1.leader = socket.id;
+    t1.leader = socket.user.id;
 
     t2 = new mocks.SocketMock();
     t2.id = '2';
     t2.user.username = 'Test2';
-    t2.leader = socket.id;
+    t2.leader = socket.user.id;
 
     global.io.reset();
     global.io.sockets.connected = {};
@@ -32,6 +32,7 @@ describe('party', () => {
       sut.execute(socket);
 
       const expected = 'The following people are in your party:\nTest1\nTest2\nTestUser (Leader)\n';
+      
       expect(socket.emit).toBeCalledWith('output', { message: expected });
     });
   });

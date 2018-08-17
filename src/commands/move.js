@@ -46,8 +46,6 @@ function HitDoor(socket, dir) {
 // emits "You hear movement to the <dir>" to all adjacent rooms
 function MovementSounds({broadcast}, {exits}, excludeDir) {
 
-  // TODO: do not send movement sounds to anyone in your own party
-
   // fromRoomId is your current room (before move)
   for(let exit of exits) {
     if (excludeDir && exit.dir === excludeDir) {
@@ -182,7 +180,7 @@ export default {
     // You have moved south...
     socket.emit('output', { message: Feedback(dir) });
 
-    let followingSockets = socketUtil.getFollowingSockets(socket.id);
+    let followingSockets = socketUtil.getFollowingSockets(socket.user.id);
     followingSockets.forEach(s => {
       this.execute(s, dir);
     });

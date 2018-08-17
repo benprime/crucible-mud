@@ -10,17 +10,15 @@ export default {
   roomMessage(roomId, message, exclude) {
     const ioRoom = global.io.sockets.adapter.rooms[roomId];
     if (!ioRoom) return;
-    for (let socketId in ioRoom.sockets) {
-      if (Array.isArray(exclude) && exclude.includes(socketId)) continue;
-      const socket = global.io.sockets.connected[socketId];
+    for (let socket of Object.values(ioRoom.sockets)) {
+      if (Array.isArray(exclude) && exclude.includes(socket.id)) continue;
       if (!socket) continue;
       socket.emit('output', { message });
     }
   },
 
   getSocketByUsername(username) {
-    for (let socketId in global.io.sockets.connected) {
-      let socket = global.io.sockets.connected[socketId];
+    for (let socket of Object.values(global.io.sockets.connected)) {
       if (socket.user && socket.user.username.toLowerCase() == username.toLowerCase()) {
         return socket;
       }
@@ -29,8 +27,7 @@ export default {
   },
 
   getSocketByUserId(userId) {
-    for (let socketId in global.io.sockets.connected) {
-      let socket = global.io.sockets.connected[socketId];
+    for (let socket of Object.values(global.io.sockets.connected)) {
       if (socket.user && socket.user.id == userId) {
         return socket;
       }
@@ -38,11 +35,10 @@ export default {
     return null;
   },
 
-  getFollowingSockets(leaderSocketId) {
+  getFollowingSockets(userId) {
     const followingSockets = [];
-    for (let socketId in global.io.sockets.connected) {
-      let socket = global.io.sockets.connected[socketId];
-      if (socket.user && socket.leader === leaderSocketId) {
+    for (let socket of Object.values(global.io.sockets.connected)) {
+      if (socket.user && socket.leader === userId) {
         followingSockets.push(socket);
       }
     }

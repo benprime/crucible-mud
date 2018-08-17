@@ -39,7 +39,18 @@ describe('spawner', () => {
         expect(currentRoom.spawner.mobTypes.length).toBeGreaterThan(beforeLength);
       });
 
-      xtest('should output error message when mob type is invalid', () => {
+      test('should output error message when mob type is invalid', () => {
+        // arrange
+        const beforeLength = currentRoom.spawner.mobTypes.length;
+
+        // act
+        sut.execute(socket, 'add', 'unknown mob type');
+
+        // assert
+        expect(currentRoom.save).not.toHaveBeenCalled();
+        expect(socket.emit).not.toBeCalledWith('output', { message: 'Creature added to spawner.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Invalid mobType.' });
+        expect(currentRoom.spawner.mobTypes).toHaveLength(beforeLength);
       });
     });
 
@@ -57,7 +68,18 @@ describe('spawner', () => {
         expect(currentRoom.spawner.mobTypes.length).toBeLessThan(beforeLength);
       });
 
-      xtest('should output error message when mob type is invalid', () => {
+      test('should output error message when mob type is invalid', () => {
+        // arrange
+        const beforeLength = currentRoom.spawner.mobTypes.length;
+
+        // act
+        sut.execute(socket, 'add', 'unknown mob type');
+
+        // assert
+        expect(currentRoom.save).not.toHaveBeenCalled();
+        expect(socket.emit).not.toBeCalledWith('output', { message: 'Creature added to spawner.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Invalid mobType.' });
+        expect(currentRoom.spawner.mobTypes).toHaveLength(beforeLength);
       });
 
       test('should output error when mob type does not exist on spawner', () => {
@@ -72,7 +94,17 @@ describe('spawner', () => {
 
 
     describe('when action is max', () => {
-      xtest('should output error message when param value is not an integer', () => {
+      test('should output error message when param value is not an integer', () => {
+        // arrange
+        currentRoom.spawner.max = 2;
+
+        // act
+        sut.execute(socket, 'max', 'not an int');
+
+        // assert
+        expect(currentRoom.save).not.toHaveBeenCalled();
+        expect(socket.emit).toBeCalledWith('output', { message: 'Invalid max value - must be an integer.' });
+        expect(currentRoom.spawner.max).toEqual(2);
       });
 
       test('should set max when value is valid', () => {
@@ -103,7 +135,17 @@ describe('spawner', () => {
         expect(currentRoom.spawner.timeout).toEqual(5);
       });
 
-      xtest('should output error message when param value is not an integer', () => {
+      test('should output error message when param value is not an integer', () => {
+        // arrange
+        currentRoom.spawner.max = 2;
+
+        // act
+        sut.execute(socket, 'timeout', 'not an int');
+
+        // assert
+        expect(currentRoom.save).not.toHaveBeenCalled();
+        expect(socket.emit).toBeCalledWith('output', { message: 'Invalid max value - must be an integer.' });
+        expect(currentRoom.spawner.max).toEqual(2);
       });
     });
 

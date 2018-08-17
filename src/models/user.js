@@ -167,7 +167,8 @@ UserSchema.methods.readyToAttack = function (now) {
   return this.attackTarget && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
 };
 
-UserSchema.methods.attackroll = weapon => /*
+UserSchema.methods.attackroll = () => /*
+/* UserSchema.methods.attackroll = weapon => 
 var wdParts = weapon.damage.spltest(" ");
 
 if(!weapon) {

@@ -16,7 +16,6 @@ export default {
     let item;
     for (const i in socket.user.equipSlots) {
       if (!socket.user.equipSlots[i]) continue;
-      // TODO: The comments and tests seem to think this is using autocomplete, should it be?
       if (socket.user.equipSlots[i].displayName == itemName || socket.user.equipSlots[i].name == itemName)
         item = socket.user.equipSlots[i];
     }

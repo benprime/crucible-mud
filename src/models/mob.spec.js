@@ -82,7 +82,7 @@ describe('mob model', () => {
       mob.hp = 10;
 
       // act
-      mob.takeDamage(socket, 2);
+      mob.takeDamage(2);
 
       // assert
       expect(mob.hp).toBe(8);
@@ -95,7 +95,7 @@ describe('mob model', () => {
       mob.hp = 2;
 
       // act
-      mob.takeDamage(socket, 2);
+      mob.takeDamage(2);
 
       // assert
       expect(mob.hp).toBe(0);

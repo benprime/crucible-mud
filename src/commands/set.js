@@ -3,6 +3,48 @@ import Area from '../models/area';
 import lookCmd from './look';
 import { autocompleteByProperty } from '../core/autocomplete';
 
+
+function setRoom(socket, prop, value) {
+  const room = Room.getById(socket.user.roomId);
+
+  // simple property updates
+  const roomPropertyWhiteList = ['name', 'desc', 'alias'];
+  if (roomPropertyWhiteList.includes(prop)) {
+    if (prop === 'alias') {
+      if (value.toUpperCase() === 'NULL') {
+        value = null;
+        delete Room.roomCache[room.alias];
+      }
+      if (Room.roomCache[value]) return;
+      Room.roomCache[value] = room;
+    }
+    room[prop] = value;
+  }
+
+  else if (prop === 'area') {
+    const areas = autocompleteByProperty(Object.values(Area.areaCache), 'name', value);
+    if (areas.length > 1) {
+      socket.emit('output', { message: `Multiple areas match that param:\n${JSON.stringify(areas)}` });
+      return;
+    } else if (areas.length === 0) {
+      socket.emit('output', { message: 'Unknown area.' });
+      return;
+    }
+
+    room.area = areas[0].id;
+  }
+
+  else {
+    socket.emit('output', { message: 'Invalid property.' });
+    return;
+  }
+
+  room.save(err => { if (err) throw err; });
+  socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} has altered the fabric of reality.` });
+  lookCmd.execute(socket);
+}
+
+
 export default {
   name: 'set',
   admin: true,
@@ -12,16 +54,13 @@ export default {
     /^set\s+(room)\s+(name)\s+(.+)$/i,
     /^set\s+(room)\s+(alias)\s+(.+)$/i,
     /^set\s+(room)\s+(area)\s+(.+)$/i,
-    /^set$/i,
+    /^set.*$/i,
   ],
 
   dispatch(socket, match) {
 
-    // if we've matched on ^set, but the proper parameters
-    // were not passed...
     if (match.length != 4) {
-      // todo: print command help
-      socket.emit('output', { message: 'Invalid command usage.' });
+      this.help(socket);
       return;
     }
 
@@ -34,47 +73,8 @@ export default {
 
   execute(socket, type, prop, value) {
 
-    //todo: break these out into seperate helper methods?
     if (type === 'room') {
-
-      const room = Room.getById(socket.user.roomId);
-
-      // simple property updates
-      const roomPropertyWhiteList = ['name', 'desc', 'alias'];
-      if (roomPropertyWhiteList.includes(prop)) {
-        if (prop === 'alias') {
-          if (value.toUpperCase() === 'NULL') {
-            value = null;
-            delete Room.roomCache[room.alias];
-          }
-          if (Room.roomCache[value]) return;
-          Room.roomCache[value] = room;
-        }
-        room[prop] = value;
-      }
-
-      else if (prop === 'area') {
-        const areas = autocompleteByProperty(Object.values(Area.areaCache), 'name', value);
-        if (areas.length > 1) {
-          socket.emit('output', { message: `Multiple areas match that param:\n${JSON.stringify(areas)}` });
-          return;
-        } else if (areas.length === 0) {
-          socket.emit('output', { message: 'Unknown area.' });
-          return;
-        }
-
-        room.area = areas[0].id;
-      }
-
-      else {
-        socket.emit('output', { message: 'Invalid property.' });
-        return;
-      }
-
-      room.save(err => { if (err) throw err; });
-      socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} has altered the fabric of reality.` });
-      lookCmd.execute(socket);
-
+      setRoom(socket, prop, value);
     }
     else {
       socket.emit('output', { message: 'Invalid type.' });

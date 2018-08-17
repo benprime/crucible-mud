@@ -1,4 +1,4 @@
-import Room, { mockGetRoomById, mockRoomCache } from '../models/room';
+import { mockGetRoomById, mockRoomCache } from '../models/room';
 import { mockGetSocketByUsername } from '../core/socketUtil';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
@@ -68,18 +68,6 @@ describe('teleport', () => {
       // check current room
       expect(socket.user.roomId).toEqual(otherRoom.id);
       expect(socket.user.save).toHaveBeenCalled();
-
-    });
-
-    // This is not currently possible (but may be soon)
-    xtest('should output messages when room cannot be found', () => {
-
-      let toRoom = otherRoom.id;
-      Room.roomCache[toRoom] = {};
-
-      sut.execute(socket, toRoom);
-
-      expect(socket.emit).toBeCalledWith('output', { message: 'Room not found.' });
 
     });
 

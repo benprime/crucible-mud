@@ -1,10 +1,12 @@
 import { mockGetRoomById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection, mockRoomCache } from '../models/room';
 import mocks from '../../spec/mocks';
 import { when } from 'jest-when';
+import { mockLookCommand } from './look';
 import sut from './move';
 
 jest.mock('../models/room');
 jest.mock('./break');
+jest.mock('./look');
 
 global.io = new mocks.IOMock();
 
@@ -20,7 +22,7 @@ describe('move', () => {
   let eRoom;
   let wRoom;
 
-  beforeAll(() => {
+  beforeEach(() => {
     when(mockOppositeDirection).calledWith('e').mockReturnValue('w');
     when(mockOppositeDirection).calledWith('w').mockReturnValue('e');
     when(mockOppositeDirection).calledWith('n').mockReturnValue('s');
@@ -74,9 +76,9 @@ describe('move', () => {
   });
 
   beforeEach(() => {
-    //jest.clearAllMocks();
+    jest.clearAllMocks();
     socket.user.roomId = currentRoom.id;
-    //global.io.reset();
+    global.io.reset();
 
     // working around the closed-door tests
     // for(let i in mockRoomCache) {
@@ -84,32 +86,32 @@ describe('move', () => {
     // }
   });
 
-  // describe('dispatch', () => {
-  //   beforeEach(() => {
-  //     jest.spyOn(sut, 'execute');
-  //     //global.io.reset();
-  //   });
+  describe('dispatch', () => {
+    beforeEach(() => {
+      jest.spyOn(sut, 'execute');
+      //global.io.reset();
+    });
 
-  //   test('should call execute with direction match', () => {
-  //     sut.dispatch(socket, ['aMatch']);
+    test('should call execute with direction match', () => {
+      sut.dispatch(socket, ['aMatch']);
 
-  //     expect(sut.execute).toBeCalledWith(socket, 'aMatch');
-  //   });
+      expect(sut.execute).toBeCalledWith(socket, 'aMatch');
+    });
 
-  //   test('should call execute with command match', () => {
-  //     sut.dispatch(socket, ['go aMatch', 'aMatch']);
+    test('should call execute with command match', () => {
+      sut.dispatch(socket, ['go aMatch', 'aMatch']);
 
-  //     expect(sut.execute).toBeCalledWith(socket, 'aMatch');
-  //   });
+      expect(sut.execute).toBeCalledWith(socket, 'aMatch');
+    });
 
-  //   test('should clear leader tracking when user moves', () => {
-  //     socket.leader = 'test';
+    test('should clear leader tracking when user moves', () => {
+      socket.leader = 'test';
 
-  //     sut.dispatch(socket, ['aMatch']);
+      sut.dispatch(socket, ['aMatch']);
 
-  //     expect(socket.leader).toBeNull();
-  //   });
-  // });
+      expect(socket.leader).toBeNull();
+    });
+  });
 
   describe('execute', () => {
 
@@ -171,7 +173,7 @@ describe('move', () => {
       expect(socket.emit).toBeCalledWith('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
     });
 
-    xtest('should message correctly movement when direction is up', () => {
+    test('should message correctly movement when direction is up', () => {
       sut.execute(socket, 'u');
 
       //expect(BreakCommand.execute).toBeCalledWith(socket);
@@ -181,20 +183,20 @@ describe('move', () => {
       expect(socket.broadcast.to(uRoom.id).emit).toBeCalledWith('output', { message: `${socket.user.username} has entered from below.` });
 
       // current/target rooms should not get a movement message
-      expect(socket.broadcast.to(uRoom.id).emit).toBeCalledWith('output', { message: 'You hear movement from below.' });
-      expect(socket.broadcast.to(currentRoom.id).emit).toBeCalledWith('output', { message: 'You hear movement from below.' });
+      expect(socket.broadcast.to(uRoom.id).emit).not.toBeCalledWith('output', { message: 'You hear movement from below.' });
+      expect(socket.broadcast.to(currentRoom.id).emit).not.toBeCalledWith('output', { message: 'You hear movement from above.' });
 
       expect(socket.emit).toBeCalledWith('output', { message: 'You move up...' });
 
       // state management
       expect(socket.leave).toBeCalledWith(currentRoom.id);
-      expect(socket.join).toBeCalledWith(exit.roomId);
+      expect(socket.join).toBeCalledWith(uRoom.id);
       expect(socket.user.save).toHaveBeenCalled();
-      expect(mockLookCommand.execute).toBeCalledWith(socket);
+      expect(mockLookCommand).toBeCalledWith(socket);
     });
 
 
-    xtest('should output appropriate messages when direction is down', () => {
+    test('should output appropriate messages when direction is down', () => {
 
       sut.execute(socket, 'd');
 

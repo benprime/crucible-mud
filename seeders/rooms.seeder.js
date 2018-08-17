@@ -126,8 +126,8 @@ const data = [
   {
     "_id": Types.ObjectId("5b74beab959cbe4520536877"),
     "area": "5b74b9ca62976d41dae0c288",
-    "name": "Dark Alter",
-    "desc": "An alter and pews are arranged around a staircase leading below.",
+    "name": "Dark Altar",
+    "desc": "An altar and pews are arranged around a staircase leading below.",
     "x": 0,
     "y": -4,
     "z": 0,

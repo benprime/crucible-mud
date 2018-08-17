@@ -78,6 +78,8 @@ class Mob {
 
   selectTarget(roomid) {
 
+    if(this.attackInterval === 0) return;
+
     if (!roomid) return;
 
     // if everyone has disconnected from a room (but mobs still there) the room will not be defined.
@@ -171,6 +173,17 @@ class Mob {
     let roomTaunt = utils.formatMessage(this.taunts[tauntIndex], this.displayName, username);
     socket.emit('output', { message: taunt });
     socket.broadcast.to(socket.user.roomId).emit('output', { message: roomTaunt });
+  }
+
+  idle(now) {
+    if (this.attackTarget) return;
+    if (!this.readyToIdle(now)) return;
+    this.lastIdle = now;
+
+    const idleIndex = dice.getRandomNumber(0, this.idleActions.length);
+    let idleTemplate = this.idleActions[idleIndex];
+    let roomIdleAction = utils.formatMessage(idleTemplate, this.displayName);
+    global.io.to(this.roomId).emit('output', { message: roomIdleAction });
   }
 
   readyToAttack(now) {

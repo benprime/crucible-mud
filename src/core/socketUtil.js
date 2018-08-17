@@ -10,7 +10,8 @@ export default {
   roomMessage(roomId, message, exclude) {
     const ioRoom = global.io.sockets.adapter.rooms[roomId];
     if (!ioRoom) return;
-    for (let socket of Object.values(ioRoom.sockets)) {
+    for (let socketId in ioRoom.sockets) {
+      let socket = global.io.sockets.connected[socketId];
       if (Array.isArray(exclude) && exclude.includes(socket.id)) continue;
       if (!socket) continue;
       socket.emit('output', { message });

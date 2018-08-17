@@ -140,7 +140,7 @@ export default {
           minDamage: -2,
           maxDamage: 0,
           hitDice: 0,
-          attackInterval: -1000,
+          attackInterval: -500,
         },
       },
       {
@@ -151,7 +151,7 @@ export default {
           minDamage: 0,
           maxDamage: 0,
           hitDice: 0,
-          attackInterval: -500,
+          attackInterval: -250,
         },
       },
       {
@@ -237,7 +237,7 @@ export default {
           minDamage: -2,
           maxDamage: 0,
           hitDice: 0,
-          attackInterval: -1000,
+          attackInterval: -500,
         },
       },
       {
@@ -248,7 +248,7 @@ export default {
           minDamage: 0,
           maxDamage: 0,
           hitDice: 0,
-          attackInterval: -500,
+          attackInterval: -250,
         },
       },
       {
@@ -341,7 +341,7 @@ export default {
     idleInterval: 60000, // every minute
     idleActions: [
       'The {0} sighs.',
-      'The {0} looks at {1} hopefully.',
+      'The {0} looks around hopefully.',
       'The {0} asks "Want to punch me in the face?"',
     ],
     tauntInterval: 12000,

@@ -334,7 +334,14 @@ RoomSchema.methods.processMobCombatActions = function (now) {
       if (!mob.attack(now)) {
         mob.selectTarget(room.id, mob);
       }
-      mob.taunt(now);
+      else {
+        mob.taunt(now);
+      }
+
+      // this mostly applies to NPCs (sparring dummy)
+      if (!mob.attackTarget) {
+        mob.idle(now);
+      }
     });
   }
 };

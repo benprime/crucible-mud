@@ -11,6 +11,7 @@ export default {
     /^list (items)$/i,
     /^list (keys)$/i,
     /^list (areas)$/i,
+    /^list\s.*$/i,
     /^list$/i,
   ],
 

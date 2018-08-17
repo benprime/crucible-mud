@@ -1,7 +1,7 @@
 import Room from '../models/room';
 import Area from '../models/area';
 import lookCmd from './look';
-import { autocompleteByProperty } from '../core/autocomplete';
+import autocomplete from '../core/autocomplete';
 
 
 function setRoom(socket, prop, value) {
@@ -22,7 +22,7 @@ function setRoom(socket, prop, value) {
   }
 
   else if (prop === 'area') {
-    const areas = autocompleteByProperty(Object.values(Area.areaCache), 'name', value);
+    const areas = autocomplete.autocompleteByProperty(Object.values(Area.areaCache), 'name', value);
     if (areas.length > 1) {
       socket.emit('output', { message: `Multiple areas match that param:\n${JSON.stringify(areas)}` });
       return;

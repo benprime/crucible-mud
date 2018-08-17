@@ -70,11 +70,11 @@ describe('search', function () {
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  xtest('should only reveal some items/exits if skill check doesn\'t fully succed', function () {
+  test('should only reveal some items/exits if skill check doesn\'t fully succeed', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
 
-    diceRoll.and.returnValue(3);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
+    mockRoll.mockReturnValueOnce(3);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
 
     sut.execute(socket);
 

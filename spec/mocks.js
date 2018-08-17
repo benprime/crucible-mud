@@ -28,21 +28,21 @@ if (!JSON.orderedStringify) {
 function getMockRoom(roomId) {
   var room = new Room();
   room._id = ObjectId(roomId);
-  room.id = room._id.toString();
+  room.id = roomId || room._id.toString();
   room.mobs = [];
   room.inventory = [];
 
   room.roomIds = {
-    u: ObjectId(),
-    d: ObjectId(),
-    n: ObjectId(),
-    s: ObjectId(),
-    e: ObjectId(),
-    w: ObjectId(),
-    ne: ObjectId(),
-    nw: ObjectId(),
-    se: ObjectId(),
-    sw: ObjectId(),
+    u: ObjectId().toString(),
+    d: ObjectId().toString(),
+    n: ObjectId().toString(),
+    s: ObjectId().toString(),
+    e: ObjectId().toString(),
+    w: ObjectId().toString(),
+    ne: ObjectId().toString(),
+    nw: ObjectId().toString(),
+    se: ObjectId().toString(),
+    sw: ObjectId().toString(),
   };
 
   room.exits = [
@@ -82,7 +82,6 @@ function getMockRoom(roomId) {
 
 class IOMock {
   constructor() {
-    // todo: restructure this to bind the roomCalls and emit spies together
     const ioMock = this;
     this.roomSpies = {};
     this.ioEmitSpy = jest.fn().mockName('globalEmitSpy');

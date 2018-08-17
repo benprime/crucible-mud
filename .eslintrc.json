@@ -4,7 +4,7 @@
     "plugin:jest/recommended"
   ],
   "parserOptions": {
-    "ecmaVersion": 6,
+    "ecmaVersion": 2016,
     "sourceType": "module"
   },
   "plugins": [

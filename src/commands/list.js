@@ -6,7 +6,6 @@ export default {
   name: 'list',
   admin: true,
 
-  // todo: this is going to need some kind of search parameter
   patterns: [
     /^list (mobs)$/i,
     /^list (items)$/i,

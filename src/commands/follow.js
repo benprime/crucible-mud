@@ -24,7 +24,15 @@ export default {
       return;
     }
 
-    socket.leader = invitingSocket.id;
+    socket.leader = invitingSocket.user.id;
+
+    // re-assign following sockets to new leader
+    let followingSockets = socketUtil.getFollowingSockets(socket.user.id);
+    followingSockets.forEach(s => {
+      s.leader = invitingSocket.user.id;
+      s.emit('output', { message: `<span class="yellow">Now following ${invitingSocket.user.username}</span>` });
+    });
+
     utils.removeItem(socket.partyInvites, invitingSocket.user.id);
 
     socket.emit('output', { message: `You are now following ${username}.` });

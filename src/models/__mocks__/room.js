@@ -4,9 +4,6 @@ export const mockShortToLong = jest.fn();
 export const mockLongToShort = jest.fn();
 export const mockOppositeDirection = jest.fn();
 export const mockRoomCache = {};
-
-
-
 export const mockByCoords = jest.fn();
 
 // mock must be a function for when constructing new model instances

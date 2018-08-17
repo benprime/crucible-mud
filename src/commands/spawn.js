@@ -82,10 +82,7 @@ export default {
       socket.user.inventory.push(item);
       socket.user.save(err => { if (err) throw err; });
       socket.emit('output', { message: 'Item created.' });
-
-      // todo: determine if we want to hide when an admin creates an item
-      //socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
-
+      socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} emits a wave of energy!` });
 
       // Key
       //---------------------

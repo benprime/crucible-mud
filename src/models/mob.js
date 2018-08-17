@@ -12,22 +12,19 @@ import dice from '../core/dice';
 class Mob {
   constructor(mobType, roomId, adjectiveIndex) {
 
-    // TODO: When we refactor this, the mob instance does
-    // not need to contain the entire mobType.
     const instance = Object.assign(this, mobType);
     if (!this.id) {
       this.id = new ObjectId();
     }
 
-
-    if(mobType.adjectives) {
+    if (mobType.adjectives) {
       let adjIndex;
       if (Number.isInteger(adjectiveIndex)) {
         adjIndex = adjectiveIndex;
       } else {
         adjIndex = dice.getRandomNumber(0, mobType.adjectives.length);
       }
-  
+
       // apply modifiers
       const adjective = mobType.adjectives[adjIndex];
       instance.hp += adjective.modifiers.hp;
@@ -52,26 +49,23 @@ class Mob {
     }
   }
 
-  takeDamage(socket, damage) {
+  takeDamage(damage) {
     this.hp -= damage;
     if (this.hp <= 0) {
-      this.die(socket);
+      this.die();
     }
   }
 
-  die(socket) {
-    const room = Room.getById(socket.user.roomId);
+  die() {
+    const room = Room.getById(this.roomId);
     room.spawnTimer = new Date();
     global.io.to(room.id).emit('output', { message: `The ${this.displayName} collapses.` });
     utils.removeItem(room.mobs, this);
-    this.awardExperience(socket);
+    this.awardExperience();
   }
 
-  // todo: cleaning up for current room. This may need some rework when the mobs
-  // can move from room to room.
-  awardExperience({ user }) {
-    const room = Room.getById(user.roomId);
-    let sockets = socketUtil.getRoomSockets(room.id);
+  awardExperience() {
+    let sockets = socketUtil.getRoomSockets(this.roomId);
     sockets.forEach((s) => {
       if (s.user.attackTarget === this.id) {
         s.user.attackTarget = null;
@@ -84,6 +78,8 @@ class Mob {
 
   selectTarget(roomid) {
 
+    if(this.attackInterval === 0) return;
+
     if (!roomid) return;
 
     // if everyone has disconnected from a room (but mobs still there) the room will not be defined.
@@ -91,7 +87,7 @@ class Mob {
 
     // if there is at least one player in the room
     if (ioRoom) {
-      // todo: check if this player has left or died or whatever.
+
       if (!this.attackTarget) {
         // select random player to attack
         const socketsInRoom = Object.keys(ioRoom.sockets);
@@ -177,6 +173,17 @@ class Mob {
     let roomTaunt = utils.formatMessage(this.taunts[tauntIndex], this.displayName, username);
     socket.emit('output', { message: taunt });
     socket.broadcast.to(socket.user.roomId).emit('output', { message: roomTaunt });
+  }
+
+  idle(now) {
+    if (this.attackTarget) return;
+    if (!this.readyToIdle(now)) return;
+    this.lastIdle = now;
+
+    const idleIndex = dice.getRandomNumber(0, this.idleActions.length);
+    let idleTemplate = this.idleActions[idleIndex];
+    let roomIdleAction = utils.formatMessage(idleTemplate, this.displayName);
+    global.io.to(this.roomId).emit('output', { message: roomIdleAction });
   }
 
   readyToAttack(now) {

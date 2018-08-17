@@ -166,18 +166,12 @@ describe('room model', () => {
         desc: 'Test sutModel Description',
       });
       room.mobs = [];
-      // sutModel.prototype.save = jest.fn().mockName('room save spy').and.callFake((cb) => {
-      //   if (cb) {
-      //     cb(null, new sutModel({ id: '12345' }));
-      //   }
-      // });
     });
 
     describe('usersInRoom', () => {
       let socket;
       beforeEach(() => {
         socket = new mocks.SocketMock();
-        //global.io.reset();
       });
 
       test('should return empty array when no users in room', () => {
@@ -478,6 +472,7 @@ describe('room model', () => {
 
       test('should call attack and taunt on all mobs', () => {
         // arrange
+        const socket = new mocks.SocketMock();
         const mobType = mobData.catalog[0];
         room.mobs = [];
 
@@ -487,8 +482,9 @@ describe('room model', () => {
         room.mobs.push(mobA);
 
         const mobB = new Mob(mobType, room.id);
-        mobB.attack = jest.fn().mockName('mobBattack');
+        mobB.attack = jest.fn().mockName('mobBattack').mockReturnValue(true);
         mobB.taunt = jest.fn().mockName('mobBtaunt');
+        mobB.attackTarget = socket;
         room.mobs.push(mobB);
 
         const mobC = new Mob(mobType, room.id);
@@ -501,11 +497,11 @@ describe('room model', () => {
 
         // assert
         expect(room.mobs[0].attack).toHaveBeenCalled();
-        expect(room.mobs[0].taunt).toHaveBeenCalled();
+        expect(room.mobs[0].taunt).not.toHaveBeenCalled();
         expect(room.mobs[1].attack).toHaveBeenCalled();
         expect(room.mobs[1].taunt).toHaveBeenCalled();
         expect(room.mobs[2].attack).toHaveBeenCalled();
-        expect(room.mobs[2].taunt).toHaveBeenCalled();
+        expect(room.mobs[2].taunt).not.toHaveBeenCalled();
       });
     });
   });

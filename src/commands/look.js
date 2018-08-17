@@ -21,7 +21,7 @@ function lookDir(socket, { exits }, dir) {
 }
 
 // for items and mobs
-function lookItem(socket, room, itemName) {
+function lookItem(socket, itemName) {
   const acResult = autocomplete.autocompleteTypes(socket, ['inventory', 'mob', 'room'], itemName);
   if (!acResult || acResult.item.hidden) {
     socket.emit('output', { message: 'Unknown item!' });
@@ -29,7 +29,6 @@ function lookItem(socket, room, itemName) {
   }
   acResult.item.look(socket);
 }
-
 
 export default {
   name: 'look',

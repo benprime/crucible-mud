@@ -56,7 +56,7 @@ export default {
   },
 
   execute(socket, hideTarget) {
-    const room = Room.getById(socket.user.roomId);
+    const room = Room.getById(socket.character.roomId);
 
     if (hideTarget) {
       hideTarget = hideTarget.toLowerCase();

@@ -3,9 +3,10 @@ import config from '../config';
 import hud from './hud';
 import Room from '../models/room';
 import User from '../models/user';
+import Character from '../models/character';
 
 export default {
-  LoginUsername(socket, {value}) {
+  LoginUsername(socket, { value }) {
     if (socket.state == config.STATES.LOGIN_USERNAME) {
       User.findByName(value, (err, user) => {
         if (!user) {
@@ -19,12 +20,10 @@ export default {
     }
   },
 
-  LoginPassword(socket, {value}, callback) {
+  LoginPassword(socket, { value }, callback) {
     if (socket.state == config.STATES.LOGIN_PASSWORD) {
 
       User.findOne({ username: socket.tempUsername, password: value })
-        //.lean()
-        //.populate('room')
         .exec((err, user) => {
           if (err) return console.error(err);
 
@@ -41,40 +40,47 @@ export default {
             existingSocket.emit('output', { message: 'You have logged in from another session.\n<span class="gray">*** Disconnected ***</span>' });
             existingSocket.disconnect();
           }
-
-          // format the subdocuments so we have actual object instances
-          // Note: tried a lean() query here, but that also stripped away the model
-          // instance methods.
-          const objInventory = user.inventory.map(i => i.toObject());
-          user.inventory = objInventory;
-
-
-          // THIS SHOULD BE THE ONLY USER STATE MANAGEMENT
           socket.user = user;
 
-          // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
-          socket.state = config.STATES.MUD;
+          Character.findOne({ user: user }, (err, character) => {
+            if(err) throw(err);
+            if (!character) {
+              throw 'No character associated with this user.';
+            }
 
-          socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
+            socket.character = character;
 
-          socket.join('realm');
-          socket.broadcast.to('realm').emit('output', { message: `${socket.user.username} has entered the realm.` });
+            // format the subdocuments so we have actual object instances
+            // Note: tried a lean() query here, but that also stripped away the model
+            // instance methods.
+            // TODO: is this still necessary?
+            const objInventory = character.inventory.map(i => i.toObject());
+            character.inventory = objInventory;
 
-          socket.join('gossip');
+            // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
+            socket.state = config.STATES.MUD;
 
-          hud.updateHUD(socket);
+            socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
 
-          const currentRoom = Room.getById(user.roomId);
-          if (!currentRoom) {
-            Room.byCoords({ x: 0, y: 0, z: 0 }, (err, {id}) => {
-              socket.user.roomId = id;
-              socket.join(id);
+            socket.join('realm');
+            socket.broadcast.to('realm').emit('output', { message: `${user.username} has entered the realm.` });
+
+            socket.join('gossip');
+
+            hud.updateHUD(socket);
+
+            const currentRoom = Room.getById(character.roomId);
+            if (!currentRoom) {
+              Room.byCoords({ x: 0, y: 0, z: 0 }, (err, { id }) => {
+                character.roomId = id;
+                socket.join(id);
+                if (callback) callback();
+              });
+            } else {
+              socket.join(character.roomId);
               if (callback) callback();
-            });
-          } else {
-            socket.join(user.roomId);
-            if (callback) callback();
-          }
+            }
+          });
         });
     }
   },

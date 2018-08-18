@@ -11,12 +11,12 @@ export default {
   },
 
   execute(socket) {
-    if (socket.user.attackTarget) {
-      socket.user.attackInterval = undefined;
-      socket.user.lastAttack = undefined;
-      socket.user.attackTarget = undefined;
+    if (socket.character.attackTarget) {
+      socket.character.attackInterval = undefined;
+      socket.character.lastAttack = undefined;
+      socket.character.attackTarget = undefined;
 
-      socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} breaks off his attack.` });
+      socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} breaks off his attack.` });
       socket.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
     }
   },

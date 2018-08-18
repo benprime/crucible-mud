@@ -14,7 +14,7 @@ describe('yell', () => {
 
   beforeAll(() => {
     socket = new mocks.SocketMock();
-    socket.user.roomId = mockRoom.id;
+    socket.character.roomId = mockRoom.id;
 
     const msg = 'This is a yelled message!';
     mockGetRoomById.mockReturnValue(mockRoom);

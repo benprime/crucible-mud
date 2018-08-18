@@ -26,21 +26,21 @@ describe('actionHandler', () => {
       mockGetRoomById.mockReturnValue(mockRoom);
 
       socket = new mocks.SocketMock();
-      socket.user.roomId = mockRoom.id;
+      socket.character.roomId = mockRoom.id;
       when(mockGetSocketByUsername).calledWith(socket.user.username).mockReturnValue(socket);
       sockets[socket.id] = socket;
 
       usersInRoom.push('aDifferentUser');
       targetSocket = new mocks.SocketMock();
       targetSocket.user.username = 'aDifferentUser';
-      targetSocket.user.roomId = mockRoom.id;
+      targetSocket.character.roomId = mockRoom.id;
       when(mockGetSocketByUsername).calledWith(targetSocket.user.username).mockReturnValue(targetSocket);
       sockets[targetSocket.id] = targetSocket;
 
       usersInRoom.push('aThirdUser');
       bystanderSocket = new mocks.SocketMock();
       bystanderSocket.user.username = 'aThirdUser';
-      bystanderSocket.user.roomId = mockRoom.id;
+      bystanderSocket.character.roomId = mockRoom.id;
       when(mockGetSocketByUsername).calledWith(bystanderSocket.user.username).mockReturnValue(bystanderSocket);
       sockets[bystanderSocket.id] = bystanderSocket;
 

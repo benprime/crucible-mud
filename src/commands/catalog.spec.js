@@ -1,8 +1,8 @@
 import mocks from '../../spec/mocks';
-import sut from './list';
+import sut from './catalog';
 
 
-describe('list', () => {
+describe('catalog', () => {
   let socket;
   let itemCatalog;
   let mobCatalog;

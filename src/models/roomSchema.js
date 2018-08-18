@@ -256,7 +256,14 @@ RoomSchema.methods.look = function (socket, short) {
   let notHiddenExits = '';
   let hiddenExits = '';
   if (this.exits) {
-    notHiddenExits = this.exits.filter(({ hidden }) => !hidden).map(({ dir }) => this.constructor.shortToLong(dir)).join(', ');
+    notHiddenExits = this.exits.filter(({ hidden }) => !hidden).map(({ dir }) => {
+      let exitName = this.constructor.shortToLong(dir);
+      const exit = this.exits.find(e => e.dir === dir);
+      if(exit.closed) {
+        exitName += ' (closed)';
+      }
+      return exitName;
+    }).join(', ');
     hiddenExits = this.exits.filter(({ hidden }) => hidden).map(({ dir }) => this.constructor.shortToLong(dir)).join(', ');
   }
   if (notHiddenExits != '') {
@@ -320,10 +327,10 @@ RoomSchema.methods.addExit = function (dir, roomId) {
 RoomSchema.methods.processPlayerCombatActions = function (now) {
   const sockets = socketUtil.getRoomSockets(this.id);
   for (let socket of sockets) {
-    if (!socket.user.attackTarget) continue;
-    let mob = this.getMobById(socket.user.attackTarget);
+    if (!socket.character.attackTarget) continue;
+    let mob = this.getMobById(socket.character.attackTarget);
     if (!mob) continue;
-    socket.user.attack(socket, mob, now);
+    socket.character.attack(socket, mob, now);
   }
 };
 

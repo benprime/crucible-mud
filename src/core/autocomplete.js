@@ -7,27 +7,27 @@ import Room from '../models/room';
 // -------------------------------------------------------------------
 const TypeConfig = Object.freeze({
   mob: {
-    source({ user }) {
-      const room = Room.getById(user.roomId);
+    source({ character }) {
+      const room = Room.getById(character.roomId);
       return room.mobs;
     },
     propertyNames: ['displayName', 'name'],
   },
   inventory: {
-    source({ user }) {
-      return user.inventory;
+    source({ character }) {
+      return character.inventory;
     },
     propertyNames: ['displayName', 'name'],
   },
   key: {
-    source({ user }) {
-      return user.keys;
+    source({ character }) {
+      return character.keys;
     },
     propertyNames: ['displayName', 'name'],
   },
   room: {
-    source({ user }) {
-      const room = Room.getById(user.roomId);
+    source({ character }) {
+      const room = Room.getById(character.roomId);
       return room.inventory;
     },
     propertyNames: ['displayName', 'name'],

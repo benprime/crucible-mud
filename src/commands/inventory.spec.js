@@ -16,24 +16,24 @@ describe('inventory', () => {
     const equipSlotTest = (testName, equipSlot, equippedItem, expectedString) => {
       describe('should display equipped items', () => {
         beforeEach(() => {
-          socket.user.equipSlots.weaponMain = null;
-          socket.user.equipSlots.weaponOff = null;
-          socket.user.equipSlots.body = null;
-          socket.user.equipSlots.back = null;
-          socket.user.equipSlots.legs = null;
-          socket.user.equipSlots.feet = null;
-          socket.user.equipSlots.arms = null;
-          socket.user.equipSlots.hands = null;
-          socket.user.equipSlots.neck = null;
-          socket.user.equipSlots.fingerMain = null;
-          socket.user.equipSlots.fingerOff = null;
+          socket.character.equipSlots.weaponMain = null;
+          socket.character.equipSlots.weaponOff = null;
+          socket.character.equipSlots.body = null;
+          socket.character.equipSlots.back = null;
+          socket.character.equipSlots.legs = null;
+          socket.character.equipSlots.feet = null;
+          socket.character.equipSlots.arms = null;
+          socket.character.equipSlots.hands = null;
+          socket.character.equipSlots.neck = null;
+          socket.character.equipSlots.fingerMain = null;
+          socket.character.equipSlots.fingerOff = null;
         });
 
         test(testName, () => {
 
           // arrange
-          socket.inventory = [];
-          socket.user.equipSlots[equipSlot] = equippedItem;
+          socket.character.inventory = [];
+          socket.character.equipSlots[equipSlot] = equippedItem;
 
           // act
           sut.execute(socket);
@@ -62,7 +62,7 @@ describe('inventory', () => {
 
   test('should display backpack items', () => {
     // arrange
-    socket.user.inventory = [
+    socket.character.inventory = [
       { displayName: 'ItemOne' },
       { displayName: 'ItemTwo' },
       { displayName: 'ItemThree' },
@@ -79,7 +79,7 @@ describe('inventory', () => {
 
   test('should display key items', () => {
     // arrange
-    socket.user.keys = [
+    socket.character.keys = [
       { displayName: 'KeyOne' },
       { displayName: 'KeyTwo' },
       { displayName: 'KeyThree' },
@@ -99,7 +99,7 @@ describe('inventory', () => {
 
       test(testName, () => {
         // arrange
-        socket.user.currency = currency;
+        socket.character.currency = currency;
 
         // act
         sut.execute(socket);

@@ -13,24 +13,24 @@ export default {
   },
 
   execute(socket) {
-    const leaderUserId = socket.leader ? socket.leader : socket.user.id;
-    const followers = socketUtil.getFollowingSockets(leaderUserId);
+    const leadCharacterId = socket.leader ? socket.leader : socket.character.id;
+    const followers = socketUtil.getFollowingSockets(leadCharacterId);
     if (followers.length === 0) {
       socket.emit('output', { message: 'You are not in a party.' });
       return;
     }
 
-    if(leaderUserId == socket.user.id) {
+    if(leadCharacterId == socket.character.id) {
       followers.push(socket);
     } else {
-      let leaderSocket = socketUtil.getSocket(leaderUserId);
+      let leaderSocket = socketUtil.getSocket(leadCharacterId);
       followers.push(leaderSocket);
     }
 
     let output = 'The following people are in your party:\n';
     followers.forEach(follower => {
       output += `${follower.user.username}`;
-      if (follower.user.id === leaderUserId) {
+      if (follower.character.id === leadCharacterId) {
         output += ' (Leader)';
       }
       output += '\n';

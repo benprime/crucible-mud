@@ -22,7 +22,7 @@ export default {
   },
 
   execute(socket, dir, keyName) {
-    const room = Room.getById(socket.user.roomId);
+    const room = Room.getById(socket.character.roomId);
     dir = Room.validDirectionInput(dir);
     let exit = room.getExit(dir);
     if (!exit || !('closed' in exit)) {

@@ -25,9 +25,9 @@ describe('invite', () => {
     beforeEach(() => {
       mockTargetSocket.user.username = 'TargetUser';
 
-      global.io.addUserToIORoom(mockRoom.id, mockTargetSocket);
+      global.io.addCharacterToIORoom(mockRoom.id, mockTargetSocket);
 
-      socket.user.inventory = [{ id: 'aItemId', name: 'aItem' }];
+      socket.character.inventory = [{ id: 'aItemId', name: 'aItem' }];
       socket.user.username = 'TestUser';
       socket.partyInvites = [];
       socket.emit.mockClear();
@@ -40,7 +40,7 @@ describe('invite', () => {
 
       sut.execute(socket, username);
 
-      expect(mockTargetSocket.partyInvites).not.toContain(socket.user.id);
+      expect(mockTargetSocket.partyInvites).not.toContain(socket.character.id);
     });
 
     test('adds invite to socket tracking variable of recipient socket', () => {
@@ -50,7 +50,7 @@ describe('invite', () => {
 
       sut.execute(socket, username);
 
-      expect(mockTargetSocket.partyInvites).toContain(socket.user.id);
+      expect(mockTargetSocket.partyInvites).toContain(socket.character.id);
     });
 
   });

@@ -5,7 +5,7 @@ import autocomplete from '../core/autocomplete';
 
 
 function setRoom(socket, prop, value) {
-  const room = Room.getById(socket.user.roomId);
+  const room = Room.getById(socket.character.roomId);
 
   // simple property updates
   const roomPropertyWhiteList = ['name', 'desc', 'alias'];
@@ -34,13 +34,32 @@ function setRoom(socket, prop, value) {
     room.area = areas[0].id;
   }
 
+  else if (prop === 'shop') {
+    if(room.shop) {
+      socket.emit('output', { message: 'This room is already a shop.'});
+      return;
+    }
+
+    
+    const areas = autocomplete.autocompleteByProperty(Object.values(Area.areaCache), 'name', value);
+    if (areas.length > 1) {
+      socket.emit('output', { message: `Multiple areas match that param:\n${JSON.stringify(areas)}` });
+      return;
+    } else if (areas.length === 0) {
+      socket.emit('output', { message: 'Unknown area.' });
+      return;
+    }
+
+    room.area = areas[0].id;
+  }
+
   else {
     socket.emit('output', { message: 'Invalid property.' });
     return;
   }
 
   room.save(err => { if (err) throw err; });
-  socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} has altered the fabric of reality.` });
+  socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} has altered the fabric of reality.` });
   lookCmd.execute(socket);
 }
 

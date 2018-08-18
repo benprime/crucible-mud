@@ -24,7 +24,7 @@ function HitWall(socket, dir) {
   } else {
     message = `${socket.user.username} runs into the wall to the ${Room.shortToLong(dir)}.`;
   }
-  socket.broadcast.to(socket.user.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
+  socket.broadcast.to(socket.character.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
   socket.emit('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
 }
 
@@ -39,7 +39,7 @@ function HitDoor(socket, dir) {
   } else {
     message = `${socket.user.username} runs into the door to the ${Room.shortToLong(dir)}.`;
   }
-  socket.broadcast.to(socket.user.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
+  socket.broadcast.to(socket.character.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
   socket.emit('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
 }
 
@@ -111,7 +111,7 @@ export default {
 
   execute(socket, dir) {
     const validDir = Room.validDirectionInput(dir.toLowerCase());
-    const sourceRoom = Room.getById(socket.user.roomId);
+    const sourceRoom = Room.getById(socket.character.roomId);
     if(!sourceRoom) {
       throw 'Could not fetch room that user is currently in';
     }
@@ -159,11 +159,11 @@ export default {
     socket.leave(sourceRoom.id);
 
     // update user session
-    socket.user.roomId = exit.roomId;
-    socket.user.save(err => { if (err) throw err; });
+    socket.character.roomId = exit.roomId;
+    socket.character.save(err => { if (err) throw err; });
     socket.join(exit.roomId);
 
-    const targetRoom = Room.getById(socket.user.roomId);
+    const targetRoom = Room.getById(socket.character.roomId);
     const oppDir = Room.oppositeDirection(validDir);
     MovementSounds(socket, targetRoom, oppDir);
 
@@ -180,7 +180,7 @@ export default {
     // You have moved south...
     socket.emit('output', { message: Feedback(dir) });
 
-    let followingSockets = socketUtil.getFollowingSockets(socket.user.id);
+    let followingSockets = socketUtil.getFollowingSockets(socket.character.id);
     followingSockets.forEach(s => {
       this.execute(s, dir);
     });

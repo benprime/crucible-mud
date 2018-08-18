@@ -40,9 +40,9 @@ export default {
         return;
       }
 
-      const room = Room.getById(socket.user.roomId);
+      const room = Room.getById(socket.character.roomId);
       if (!room) {
-        throw `no room found for current user room: ${socket.user.roomId}`;
+        throw `no room found for current user room: ${socket.character.roomId}`;
       }
 
       // clone the create type and give it an id
@@ -79,10 +79,10 @@ export default {
       });
 
 
-      socket.user.inventory.push(item);
-      socket.user.save(err => { if (err) throw err; });
+      socket.character.inventory.push(item);
+      socket.character.save(err => { if (err) throw err; });
       socket.emit('output', { message: 'Item created.' });
-      socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} emits a wave of energy!` });
+      socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} emits a wave of energy!` });
 
       // Key
       //---------------------
@@ -101,8 +101,8 @@ export default {
         type: 'key',
       });
 
-      socket.user.keys.push(key);
-      socket.user.save(err => { if (err) throw err; });
+      socket.character.keys.push(key);
+      socket.character.save(err => { if (err) throw err; });
       socket.emit('output', { message: 'Key created.' });
     }
 

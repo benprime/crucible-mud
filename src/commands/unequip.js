@@ -14,10 +14,10 @@ export default {
   execute(socket, itemName, hand) {
 
     let item;
-    for (const i in socket.user.equipSlots) {
-      if (!socket.user.equipSlots[i]) continue;
-      if (socket.user.equipSlots[i].displayName == itemName || socket.user.equipSlots[i].name == itemName)
-        item = socket.user.equipSlots[i];
+    for (const i in socket.character.equipSlots) {
+      if (!socket.character.equipSlots[i]) continue;
+      if (socket.character.equipSlots[i].displayName == itemName || socket.character.equipSlots[i].name == itemName)
+        item = socket.character.equipSlots[i];
     }
 
     // if no match emit error and return
@@ -31,21 +31,21 @@ export default {
       case '':
         break;
       case 'mainHand':
-        socket.user.equipSlots.weaponMain = null;
+        socket.character.equipSlots.weaponMain = null;
         break;
       case 'offHand':
-        socket.user.equipSlots.weaponOff = null;
+        socket.character.equipSlots.weaponOff = null;
         break;
       case 'bothHand':
-        socket.user.equipSlots.weaponMain = null;
-        socket.user.equipSlots.weaponOff = null;
+        socket.character.equipSlots.weaponMain = null;
+        socket.character.equipSlots.weaponOff = null;
         break;
       case 'eitherHand':
         if (hand == 'main') {
-          socket.user.equipSlots.weaponMain = null;
+          socket.character.equipSlots.weaponMain = null;
         }
         else if (hand == 'off') {
-          socket.user.equipSlots.weaponOff = null;
+          socket.character.equipSlots.weaponOff = null;
         }
         else {
           socket.emit('output', { message: 'Please specify which hand to unequip the item from\n' });
@@ -53,35 +53,35 @@ export default {
         }
         break;
       case 'head':
-        socket.user.equipSlots.head = null;
+        socket.character.equipSlots.head = null;
         break;
       case 'body':
-        socket.user.equipSlots.body = null;
+        socket.character.equipSlots.body = null;
         break;
       case 'back':
-        socket.user.equipSlots.back = null;
+        socket.character.equipSlots.back = null;
         break;
       case 'legs':
-        socket.user.equipSlots.legs = null;
+        socket.character.equipSlots.legs = null;
         break;
       case 'feet':
-        socket.user.equipSlots.feet = null;
+        socket.character.equipSlots.feet = null;
         break;
       case 'arms':
-        socket.user.equipSlots.arms = null;
+        socket.character.equipSlots.arms = null;
         break;
       case 'hands':
-        socket.user.equipSlots.hands = null;
+        socket.character.equipSlots.hands = null;
         break;
       case 'neck':
-        socket.user.equipSlots.neck = null;
+        socket.character.equipSlots.neck = null;
         break;
       case 'finger':
         if (hand == 'main') {
-          socket.user.equipSlots.fingerMain = null;
+          socket.character.equipSlots.fingerMain = null;
         }
         else if (hand == 'off') {
-          socket.user.equipSlots.fingerOff = null;
+          socket.character.equipSlots.fingerOff = null;
         }
         else {
           socket.emit('output', { message: 'Please specify which hand to unequip the item from\n' });
@@ -96,8 +96,8 @@ export default {
     }
 
     // move item to backpack
-    socket.user.inventory.push(item);
-    socket.user.save(err => { if (err) throw err; });
+    socket.character.inventory.push(item);
+    socket.character.save(err => { if (err) throw err; });
 
     socket.emit('output', { message: 'Item unequipped.\n' });
 

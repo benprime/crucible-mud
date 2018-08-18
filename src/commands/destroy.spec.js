@@ -20,7 +20,7 @@ describe('destroy', () => {
 
   beforeEach(() => {
     socket.reset();
-    socket.user.inventory = [];
+    socket.character.inventory = [];
   });
 
   describe('execute', () => {
@@ -69,7 +69,7 @@ describe('destroy', () => {
           displayName: 'item name',
           name: 'item name',
         });
-        socket.user.inventory.push(item);
+        socket.character.inventory.push(item);
         mockAutocompleteTypes.mockReturnValueOnce(null);
 
         // act
@@ -77,8 +77,8 @@ describe('destroy', () => {
 
         // assert
         expect(socket.emit).not.toHaveBeenCalled();
-        expect(socket.user.inventory).toHaveLength(1);
-        expect(socket.user.save).not.toHaveBeenCalled();
+        expect(socket.character.inventory).toHaveLength(1);
+        expect(socket.character.save).not.toHaveBeenCalled();
       });
 
       test('should remove item from inventory when successful', () => {
@@ -88,15 +88,15 @@ describe('destroy', () => {
           name: 'item name',
         });
         mockAutocompleteTypes.mockReturnValueOnce({item: item});
-        socket.user.inventory.push(item);
+        socket.character.inventory.push(item);
 
         // act
         sut.execute(socket, 'item', 'item name');
 
         // assert
         expect(socket.emit).toBeCalledWith('output', { message: 'Item successfully destroyed.' });
-        expect(socket.user.inventory).toHaveLength(0);
-        expect(socket.user.save).toHaveBeenCalledTimes(1);
+        expect(socket.character.inventory).toHaveLength(0);
+        expect(socket.character.save).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -107,8 +107,8 @@ describe('destroy', () => {
       // assert
       expect(socket.emit).toHaveBeenCalledTimes(1);
       expect(socket.emit).toBeCalledWith('output', { message: 'Invalid destroy type.' });
-      expect(socket.user.inventory).toHaveLength(0);
-      expect(socket.user.save).not.toHaveBeenCalled();
+      expect(socket.character.inventory).toHaveLength(0);
+      expect(socket.character.save).not.toHaveBeenCalled();
     });
 
     test('should be an admin command', () => {

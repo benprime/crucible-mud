@@ -39,7 +39,7 @@ An example command object:
 
   // core logic of command
   execute(socket, message) {
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} is screaming his head off!`});
+    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} is screaming his head off!`});
   },
 
   // printed when someone types 'help scream'

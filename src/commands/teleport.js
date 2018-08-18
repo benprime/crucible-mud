@@ -32,7 +32,7 @@ export default {
         socket.emit('output', { message: 'Target not found.' });
         return;
       }
-      toRoomId = userSocket.user.roomId;
+      toRoomId = userSocket.character.roomId;
     }
 
     const room = Room.getById(toRoomId);
@@ -44,13 +44,13 @@ export default {
     }
     breakCmd.execute(socket);
 
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} vanishes!` });
-    socket.leave(socket.user.roomId);
+    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} vanishes!` });
+    socket.leave(socket.character.roomId);
     socket.join(room.id);
-    socket.user.roomId = room.id;
-    socket.user.save(err => { if (err) throw err; });
+    socket.character.roomId = room.id;
+    socket.character.save(err => { if (err) throw err; });
 
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} appears out of thin air!` });
+    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} appears out of thin air!` });
     lookCmd.execute(socket);
   },
 

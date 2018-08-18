@@ -24,7 +24,6 @@ function lookDir(socket, { exits }, dir) {
 function lookItem(socket, itemName) {
   const acResult = autocomplete.autocompleteTypes(socket, ['inventory', 'mob', 'room'], itemName);
   if (!acResult || acResult.item.hidden) {
-    socket.emit('output', { message: 'Unknown item!' });
     return;
   }
   acResult.item.look(socket);
@@ -52,7 +51,7 @@ export default {
   },
 
   execute(socket, short, lookTarget) {
-    const room = Room.getById(socket.user.roomId);
+    const room = Room.getById(socket.character.roomId);
 
     if (lookTarget) {
       lookTarget = lookTarget.toLowerCase();
@@ -60,7 +59,7 @@ export default {
       if (Room.validDirectionInput(lookTarget)) {
         lookDir(socket, room, lookTarget);
       } else {
-        lookItem(socket, room, lookTarget);
+        lookItem(socket, lookTarget);
       }
     } else {
       room.look(socket, short);

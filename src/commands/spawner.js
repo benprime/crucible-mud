@@ -57,7 +57,7 @@ export default {
   },
 
   execute(socket, action, param) {
-    const room = Room.getById(socket.user.roomId);
+    const room = Room.getById(socket.character.roomId);
     action = action ? action.toLowerCase() : null;
 
     if (!room.spawner) {
@@ -123,11 +123,11 @@ export default {
         socket.emit('output', { message: 'Spawner cleared.' });
         break;
       case 'copy':
-        socket.user.spawnerClipboard = room.spawner;
+        socket.character.spawnerClipboard = room.spawner;
         socket.emit('output', { message: 'Spawner copied.' });
         break;
       case 'paste':
-        room.spawner = socket.user.spawnerClipboard;
+        room.spawner = socket.character.spawnerClipboard;
         socket.emit('output', { message: 'Spawner pasted.' });
         break;
       default:

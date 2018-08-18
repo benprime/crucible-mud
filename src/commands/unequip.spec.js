@@ -30,10 +30,10 @@ describe('unequip', () => {
       const ring = new Item();
       ring.equip = 'finger';
       ring.name = 'diamond';
-      mockAutocompleteTypes.mockReturnValueOnce(ring);
+      mockAutocompleteTypes.mockReturnValueOnce({ item: ring });
 
-      socket.user.equipSlots.fingerMain = ring;
-      
+      socket.character.equipSlots.fingerMain = ring;
+
       sut.execute(socket, 'diamond');
 
       expect(socket.emit).toBeCalledWith('output', { message: 'Please specify which hand to unequip the item from\n' });

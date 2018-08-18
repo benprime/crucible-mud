@@ -36,10 +36,10 @@ export default {
     return null;
   },
 
-  getFollowingSockets(userId) {
+  getFollowingSockets(characterId) {
     const followingSockets = [];
     for (let socket of Object.values(global.io.sockets.connected)) {
-      if (socket.user && socket.leader === userId) {
+      if (socket.character && socket.leader === characterId) {
         followingSockets.push(socket);
       }
     }
@@ -64,7 +64,7 @@ export default {
       return false;
     }
 
-    if (!this.socketInRoom(socket.user.roomId, userSocket.id)) {
+    if (!this.socketInRoom(socket.character.roomId, userSocket.id)) {
       socket.emit('output', { message: `You don't see ${username} here.` });
       return false;
     }

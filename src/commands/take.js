@@ -6,8 +6,6 @@ import utils from '../core/utilities';
 export default {
   name: 'take',
 
-  alias: [],
-
   patterns: [
     /^take\s+(.+)$/i,
     /^get\s+(.+)$/i,

@@ -87,7 +87,7 @@ const CharacterSchema = new mongoose.Schema({
     // shield from magic (resist spell, see through illusion/charm, etc) (WIL)
     resist: { type: Number },
   },
-});
+}, { usePushEach: true });
 
 CharacterSchema.methods.nextExp = function () {
   const BASE_XP = 300;

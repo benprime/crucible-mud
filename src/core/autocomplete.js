@@ -59,6 +59,17 @@ export default {
     return distinctSource.filter(value => !!re.exec(value[property]));
   },
 
+  autocompleteByProperties(source, propertyNames, fragment) {
+    const resultArr = [];
+    for (const prop of propertyNames) {
+      let results = this.autocompleteByProperty(source, prop, fragment);
+      resultArr.push(results);
+    }
+
+    const combArr = [].concat(...resultArr);
+    return [...new Set(combArr)];
+  },
+
   autocompleteTypes(socket, types, fragment) {
     for (const typeKey in types) {
       if (!types.hasOwnProperty(typeKey)) continue;
@@ -68,18 +79,14 @@ export default {
       if (!typeConfig) {
         throw `Invalid type: ${type}`;
       }
+
       let source = typeConfig.source(socket);
-
-      // Returning the first match among all the types involved.
-      for (const prop of typeConfig.propertyNames) {
-        let results = this.autocompleteByProperty(source, prop, fragment);
-
-        if (results.length > 0) {
-          return {
-            type,
-            item: results[0],
-          };
-        }
+      const results = this.autocompleteByProperties(source, typeConfig.propertyNames, fragment);
+      if (results.length > 0) {
+        return {
+          type,
+          item: results[0],
+        };
       }
     }
 

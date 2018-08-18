@@ -36,7 +36,7 @@ describe('spawn', () => {
       test('should output message when type name is invalid', () => {
         sut.execute(socket, 'item', 'name');
 
-        expect(socket.emit).toBeCalledWith('output', { message: 'Unknown item type.' });
+        expect(socket.emit).toBeCalledWith('output', { message: 'Attempted to spawn unknown item type: name' });
       });
 
       test('should create instance of item in user inventory', () => {

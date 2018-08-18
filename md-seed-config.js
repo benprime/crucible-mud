@@ -4,7 +4,9 @@ mongooseLib.Promise = global.Promise;
 import Areas from './seeders/areas.seeder';
 import Characters from './seeders/characters.seeder';
 import Rooms from './seeders/rooms.seeder';
+import Shops from './seeders/shops.seeder';
 import Users from './seeders/users.seeder';
+
 
 // Export the mongoose lib
 export const mongoose = mongooseLib;
@@ -23,5 +25,6 @@ export const seedersList = {
   Areas,
   Characters,
   Rooms,
+  Shops,
   Users,
 };

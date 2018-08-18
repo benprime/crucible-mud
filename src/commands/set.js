@@ -4,6 +4,12 @@ import Shop from '../models/shop';
 import lookCmd from './look';
 import autocomplete from '../core/autocomplete';
 
+function setCurrency(character, amount) {
+  character.currency = amount;
+  character.save(err => {
+    if(err) throw err;
+  });
+}
 
 function setRoom(socket, prop, value) {
   const room = Room.getById(socket.character.roomId);
@@ -65,6 +71,8 @@ export default {
     /^set\s+(room)\s+(alias)\s+(.+)$/i,
     /^set\s+(room)\s+(area)\s+(.+)$/i,
     /^set\s+(room)\s+(shop)$/i,
+    /^set\s+(currency)\s+(\d+)$/i,
+    
     /^set.*$/i,
   ],
 
@@ -86,6 +94,8 @@ export default {
 
     if (type === 'room') {
       setRoom(socket, prop, value);
+    } else if(type === 'currency') {
+      setCurrency(socket.character, prop); // prop is 'value' in this case
     }
     else {
       socket.emit('output', { message: 'Invalid type.' });

@@ -13,7 +13,7 @@ describe('search', function () {
 
   beforeEach(function () {
     socket = new mocks.SocketMock();
-    socket.user.search = 0;
+    socket.character.skills.search = 0;
     mockRoom = {
       exits: [
         { dir: 'n', roomId: 'uRoomId', closed: true, hidden: false },

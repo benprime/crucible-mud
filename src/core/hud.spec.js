@@ -11,8 +11,8 @@ describe('updateHUD', () => {
 
     // assert
     expect(socket.emit).toBeCalledWith('hud', {
-      currentHP: socket.user.currentHP,
-      maxHP: socket.user.maxHP,
+      currentHP: socket.character.currentHP,
+      maxHP: socket.character.maxHP,
     });
   });
 });

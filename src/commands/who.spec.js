@@ -16,7 +16,7 @@ describe('who', () => {
 
   beforeEach(() => {
     socket = new mocks.SocketMock();
-    mockRoom = mocks.getMockRoom(socket.user.roomId);
+    mockRoom = mocks.getMockRoom(socket.character.roomId);
     mockGetRoomById.mockReturnValue(mockRoom);
     t1 = new mocks.SocketMock();
     t2 = new mocks.SocketMock();
@@ -47,8 +47,8 @@ describe('who', () => {
     test('should display areas when online users are in rooms that have areas', () => {
       mockRoom.area = 'areaId';
       mockGetAreaById.mockReturnValueOnce(area);
-      mockGetAreaById.mockReturnValueOnce(mocks.getMockRoom(socket.user.roomId));
-      t2.user.roomId = 'room without area';
+      mockGetAreaById.mockReturnValueOnce(mocks.getMockRoom(socket.character.roomId));
+      t2.character.roomId = 'room without area';
 
       sut.execute(socket);
 

@@ -59,8 +59,8 @@ describe('drop', () => {
     invalidItem.type = 'InvalidType';
     invalidItem.displayName = 'invalidDisplayName';
 
-    socket.user.inventory = [item];
-    socket.user.keys = [key];
+    socket.character.inventory = [item];
+    socket.character.keys = [key];
     mockRoom.inventory = [];
   });
 
@@ -68,13 +68,13 @@ describe('drop', () => {
 
     describe('when item.type is item', () => {
 
-      test('should output error message when item is not found in user inventory', () => {
+      test('should output error message whmockAutocompleteTypes.mocken item is not found in user inventory', () => {
         mockAutocompleteTypes.mockReturnValueOnce(null);
-        sut.execute(socket, 'non-existent item');
+        sut.execute(socket, 'non-existent mockAutocompleteTypes.mockitem');
 
-        expect(socket.user.save).not.toHaveBeenCalled();
+        expect(socket.character.save).not.toHaveBeenCalled();
         expect(mockRoom.save).not.toHaveBeenCalled();
-        expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
+        expect(socket.broadcast.to(socket.character.roomId).emit).not.toHaveBeenCalled();
       });
 
       test('should remove item from user inventory and add to room inventory', () => {
@@ -86,11 +86,11 @@ describe('drop', () => {
 
         sut.execute(socket, 'dropItem');
 
-        expect(socket.user.save).toHaveBeenCalled();
+        expect(socket.character.save).toHaveBeenCalled();
         expect(mockRoom.save).toHaveBeenCalled();
-        expect(socket.user.inventory).toHaveLength(0);
+        expect(socket.character.inventory).toHaveLength(0);
         expect(mockRoom.inventory[0].name).toEqual(item.name);
-        expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser drops dropItem.' });
+        expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: 'TestUser drops dropItem.' });
         expect(socket.emit).toBeCalledWith('output', { message: 'Dropped.' });
       });
     });
@@ -102,15 +102,15 @@ describe('drop', () => {
           item: key,
         };
         mockAutocompleteTypes.mockReturnValueOnce(autocompleteResult);
-        socket.user.keys = [autocompleteResult.item];
+        socket.character.keys = [autocompleteResult.item];
 
         sut.execute(socket, 'dropKey');
 
-        expect(socket.user.save).toHaveBeenCalled();
+        expect(socket.character.save).toHaveBeenCalled();
         expect(mockRoom.save).toHaveBeenCalled();
-        expect(socket.user.keys).toHaveLength(0);
+        expect(socket.character.keys).toHaveLength(0);
         expect(mockRoom.inventory[0].name).toEqual(key.name);
-        expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser drops dropKey.' });
+        expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: 'TestUser drops dropKey.' });
         expect(socket.emit).toBeCalledWith('output', { message: 'Dropped.' });
       });
     });

@@ -1,5 +1,6 @@
 import actionHandler from '../core/actionHandler';
 import helpHandler from './help';
+import config from '../config';
 
 let commandModules = [
   'attack.js',
@@ -44,7 +45,7 @@ const commands = [];
 let defaultCommand;
 
 function validateCommand(commandHandler, file) {
-  if(!commandHandler) throw `could not load ${file} when initializing commands`;
+  if (!commandHandler) throw `could not load ${file} when initializing commands`;
   if (!commandHandler.name) throw `command ${file} missing name!`;
   if (!commandHandler.dispatch) throw `command ${file} missing dispatch!`;
   if (!commandHandler.execute) throw `command ${file} missing execute!`;
@@ -61,9 +62,9 @@ commandModules.forEach(file => {
   helpHandler.registerCommand(commandHandler);
 });
 
-defaultCommand = commands.find(({name}) => name === 'say');
+defaultCommand = commands.find(({ name }) => name === 'say');
 
-function matches({patterns}, input) {
+function matches({ patterns }, input) {
   for (let p = 0; p < patterns.length; p++) {
     let match = input.match(patterns[p]);
     if (match) {
@@ -103,12 +104,17 @@ function processDispatch(socket, input) {
 
 export default {
   Dispatch(socket, input) {
-    try {
+
+    if (!config.THROW_EXCEPTIONS) {
+      try {
+        processDispatch(socket, input);
+      } catch (e) {
+        socket.emit('output', { message: `AN ERROR OCCURED!\n${e.message}` });
+        console.error(e);
+        console.error(new Error().stack);
+      }
+    } else {
       processDispatch(socket, input);
-    } catch (e) {
-      socket.emit('output', { message: `AN ERROR OCCURED!\n${e.message}` });
-      console.error(e);
-      console.error(new Error().stack);
     }
   },
 };

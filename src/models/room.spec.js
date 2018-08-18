@@ -417,11 +417,11 @@ describe('room model', () => {
 
         // set attack targets for three players
         const socketA = new mocks.SocketMock();
-        socketA.user.attackTarget = mob1.id;
+        socketA.character.attackTarget = mob1.id;
         const socketB = new mocks.SocketMock();
-        socketB.user.attackTarget = mob2.id;
+        socketB.character.attackTarget = mob2.id;
         const socketC = new mocks.SocketMock();
-        socketC.user.attackTarget = mob3.id;
+        socketC.character.attackTarget = mob3.id;
 
         mockGetRoomSockets.mockReturnValueOnce([socketA, socketB, socketC]);
 
@@ -429,9 +429,9 @@ describe('room model', () => {
         room.processPlayerCombatActions(new Date());
 
         // assert
-        expect(socketA.user.attack).toHaveBeenCalled();
-        expect(socketB.user.attack).toHaveBeenCalled();
-        expect(socketC.user.attack).toHaveBeenCalled();
+        expect(socketA.character.attack).toHaveBeenCalled();
+        expect(socketB.character.attack).toHaveBeenCalled();
+        expect(socketC.character.attack).toHaveBeenCalled();
       });
 
       test('should not call attack when player attack target is null', () => {
@@ -448,20 +448,20 @@ describe('room model', () => {
 
         // set attack targets for two of three players
         const socketA = new mocks.SocketMock();
-        socketA.user.attackTarget = mob1.id;
+        socketA.character.attackTarget = mob1.id;
         const socketB = new mocks.SocketMock();
-        socketB.user.attackTarget = null;
+        socketB.character.attackTarget = null;
         const socketC = new mocks.SocketMock();
-        socketC.user.attackTarget = mob3.id;
+        socketC.character.attackTarget = mob3.id;
         mockGetRoomSockets.mockReturnValueOnce([socketA, socketB, socketC]);
 
         // act
         room.processPlayerCombatActions(new Date());
 
         // assert
-        expect(socketA.user.attack).toHaveBeenCalled();
-        expect(socketB.user.attack).not.toHaveBeenCalled();
-        expect(socketC.user.attack).toHaveBeenCalled();
+        expect(socketA.character.attack).toHaveBeenCalled();
+        expect(socketB.character.attack).not.toHaveBeenCalled();
+        expect(socketC.character.attack).toHaveBeenCalled();
       });
     });
 

@@ -14,12 +14,13 @@ export default {
   },
 
   execute(socket, userName, itemName, cb) {
-    const room = Room.getById(socket.user.roomId);
-    const item = autocomplete.autocompleteTypes(socket, ['inventory'], itemName);
-
-    if (!item || item.length === 0) {
+    const room = Room.getById(socket.character.roomId);
+    const acResult = autocomplete.autocompleteTypes(socket, ['inventory'], itemName);
+    if (!acResult) {
       return;
     }
+
+    const item = acResult.item;
 
     const userNames = room.usersInRoom()
       .filter(name => name !== socket.user.username && name.toLowerCase() === userName.toLowerCase());
@@ -34,11 +35,10 @@ export default {
       userName = userNames[0];
     }
 
-    const userItemIndex = socket.user.inventory.findIndex(({id}) => id === item.id);
     const offer = {
       fromUserName: socket.user.username,
       toUserName: userName,
-      item: socket.user.inventory[userItemIndex],
+      item: socket.character.inventory.id(item.id),
     };
 
     let toUserSocket = socketUtil.getSocketByUsername(userName);
@@ -48,8 +48,7 @@ export default {
     }
 
     let existingOfferIndex;
-
-    if (!toUserSocket.offers || toUserSocket.offers.length < 1) {
+    if (!toUserSocket.offers || toUserSocket.offers.length === 0) {
       toUserSocket.offers = [offer];
     } else {
       existingOfferIndex = toUserSocket.offers.findIndex(o => o.item.id === offer.item.id);

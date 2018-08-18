@@ -21,7 +21,7 @@ describe('mob model', () => {
 
   beforeEach(() => {
     socket.reset();
-    mockRoom.id = socket.user.roomId;
+    mockRoom.id = socket.character.roomId;
     mockRoom.reset();
     mockGetRoomById.mockReturnValue(mockRoom);
     global.io.reset();
@@ -142,7 +142,7 @@ describe('mob model', () => {
 
     beforeEach(() => {
       mob = new sutModel(mobType, mockRoom.roomId, 0);
-      socket.user.attackTarget = mob.id;
+      socket.character.attackTarget = mob.id;
     });
 
     test('should award experience to each player currently attacking mob', () => {
@@ -153,7 +153,7 @@ describe('mob model', () => {
       mob.die(socket);
 
       // assert
-      expect(socket.user.addExp).toBeCalledWith(mob.xp);
+      expect(socket.character.addExp).toBeCalledWith(mob.xp);
       expect(socket.emit).toBeCalledWith('output', { message: `You gain ${mob.xp} experience.` });
       expect(socket.emit).toBeCalledWith('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
     });
@@ -276,7 +276,7 @@ describe('mob model', () => {
 
       // assert
       expect(socket.emit).toBeCalledWith('output', { message: playerMessage });
-      expect(mockRoomMessage).toBeCalledWith(socket.user.roomId, roomMessage, [socket.id]);
+      expect(mockRoomMessage).toBeCalledWith(socket.character.roomId, roomMessage, [socket.id]);
     });
 
     test('should output miss messages if attack roll fails', () => {
@@ -293,7 +293,7 @@ describe('mob model', () => {
 
       // assert
       expect(socket.emit).toBeCalledWith('output', { message: playerMessage });
-      expect(mockRoomMessage).toBeCalledWith(socket.user.roomId, roomMessage, [socket.id]);
+      expect(mockRoomMessage).toBeCalledWith(socket.character.roomId, roomMessage, [socket.id]);
     });
   });
 
@@ -308,7 +308,7 @@ describe('mob model', () => {
 
       // assert
       expect(socket.emit).not.toHaveBeenCalled();
-      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
+      expect(socket.broadcast.to(socket.character.roomId).emit).not.toHaveBeenCalled();
     });
 
     test('should return if user has left room', () => {
@@ -320,7 +320,7 @@ describe('mob model', () => {
 
       // assert
       expect(socket.emit).not.toHaveBeenCalled();
-      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
+      expect(socket.broadcast.to(socket.character.roomId).emit).not.toHaveBeenCalled();
     });
 
     test('should send an individual message and a room message', () => {
@@ -336,7 +336,7 @@ describe('mob model', () => {
 
       // assert
       expect(socket.emit).toHaveBeenCalled();
-      expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalled();
+      expect(socket.broadcast.to(socket.character.roomId).emit).toHaveBeenCalled();
     });
   });
 

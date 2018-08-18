@@ -23,10 +23,10 @@ describe('teleport', () => {
     otherSocket = new mocks.SocketMock();
     otherSocket.user.username = 'OtherUser';
 
-    currentRoom = mocks.getMockRoom(socket.user.roomId);
+    currentRoom = mocks.getMockRoom(socket.character.roomId);
     currentRoom.name = 'OLD';
 
-    otherRoom = mocks.getMockRoom(otherSocket.user.roomId);
+    otherRoom = mocks.getMockRoom(otherSocket.character.roomId);
     otherRoom.name = 'NEW';
 
     mockRoomCache[currentRoom.id] = currentRoom;
@@ -51,8 +51,8 @@ describe('teleport', () => {
       sut.execute(socket, 'OtherUser');
 
       // check current room
-      expect(socket.user.roomId).toEqual(otherRoom.id);
-      expect(socket.user.save).toHaveBeenCalled();
+      expect(socket.character.roomId).toEqual(otherRoom.id);
+      expect(socket.character.save).toHaveBeenCalled();
     });
 
     test('should teleport to room if parameter is a room', () => {
@@ -66,8 +66,8 @@ describe('teleport', () => {
       sut.execute(socket, otherRoom.id);
 
       // check current room
-      expect(socket.user.roomId).toEqual(otherRoom.id);
-      expect(socket.user.save).toHaveBeenCalled();
+      expect(socket.character.roomId).toEqual(otherRoom.id);
+      expect(socket.character.save).toHaveBeenCalled();
 
     });
 

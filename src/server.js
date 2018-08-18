@@ -42,7 +42,7 @@ db.once('open', () => {
     socket.emit('output', { message: 'Enter username:' });
 
     socket.on('disconnect', () => {
-      if (socket.user) {
+      if (socket.character) {
         socket.broadcast.emit('output', { message: `${socket.user.username} has left the realm.` });
       }
     });

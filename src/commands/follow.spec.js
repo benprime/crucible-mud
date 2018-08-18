@@ -23,7 +23,7 @@ describe('follow', () => {
 
       socket.emit.mockClear();
 
-      socket.partyInvites = [mockInvitingSocket.user.id];
+      socket.partyInvites = [mockInvitingSocket.character.id];
     });
 
     test('sets socket leader tracking variable and clears follow invite when user follows user', () => {
@@ -41,9 +41,9 @@ describe('follow', () => {
       
       sut.execute(socket, mockInvitingSocket.user.username);
 
-      expect(follower1.leader).toBe(mockInvitingSocket.user.id);
-      expect(follower2.leader).toBe(mockInvitingSocket.user.id);
-      expect(follower3.leader).toBe(mockInvitingSocket.user.id);
+      expect(follower1.leader).toBe(mockInvitingSocket.character.id);
+      expect(follower2.leader).toBe(mockInvitingSocket.character.id);
+      expect(follower3.leader).toBe(mockInvitingSocket.character.id);
     });
 
   });

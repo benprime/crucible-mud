@@ -3,6 +3,7 @@ import { mockAutocompleteTypes } from '../core/autocomplete';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
 import sut from './look';
+import Item from '../models/item';
 
 jest.mock('../models/room');
 jest.mock('../core/autocomplete');
@@ -16,7 +17,7 @@ describe('look', () => {
   beforeAll(() => {
     socket = new mocks.SocketMock();
     targetRoomNorth = mocks.getMockRoom();
-    currentRoom = mocks.getMockRoom(socket.user.roomId);
+    currentRoom = mocks.getMockRoom(socket.character.roomId);
     currentRoom.mobs = [{ displayName: 'dummy', name: 'dummy', desc: 'a dummy!' }];
     const nExit = currentRoom.exits.find(e => e.dir === 'n');
     nExit.roomId = targetRoomNorth.id;
@@ -51,9 +52,17 @@ describe('look', () => {
 
       expect(executeSpy).toBeCalledWith(socket, false, lookTarget);
     });
+
+    afterAll(() => {
+      sut.execute.mockRestore();
+    });
   });
 
   describe('execute', () => {
+
+    beforeEach(() => {
+      socket.reset();
+    });
 
     describe('on room', () => {
 
@@ -106,7 +115,7 @@ describe('look', () => {
 
         sut.execute(socket, false, 'boot');
 
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown item!' });
+        expect(socket.emit).not.toHaveBeenCalled();
       });
 
     });
@@ -114,10 +123,12 @@ describe('look', () => {
     describe('on mob', () => {
 
       test('should output description of mob', () => {
+        mockAutocompleteTypes.mockReturnValue({item: new Item({desc: 'a practice dummy'})});
+        mockValidDirectionInput.mockReturnValue(false);
 
         sut.execute(socket, false, 'dummy');
 
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown item!' });
+        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'a practice dummy' });
       });
     });
 

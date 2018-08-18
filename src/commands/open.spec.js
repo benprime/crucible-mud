@@ -36,7 +36,7 @@ describe('open', () => {
 
       sut.execute(socket, 'ne');
 
-      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
+      expect(socket.broadcast.to(socket.character.roomId).emit).not.toHaveBeenCalled();
       expect(socket.emit).toBeCalledWith('output', { message: 'There is no exit in that direction!' });
     });
 
@@ -47,7 +47,7 @@ describe('open', () => {
       const exit = mockRoom.exits.find(({dir}) => dir === 'sw');
 
       expect(exit.hasOwnProperty('closed')).toBe(false);
-      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
+      expect(socket.broadcast.to(socket.character.roomId).emit).not.toHaveBeenCalled();
       expect(socket.emit).toBeCalledWith('output', { message: 'There is no door in that direction!' });
     });
 
@@ -61,7 +61,7 @@ describe('open', () => {
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(true);
         expect(exit.closed).toBe(true);
-        expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
+        expect(socket.broadcast.to(socket.character.roomId).emit).not.toHaveBeenCalled();
         expect(socket.emit).toBeCalledWith('output', { message: 'That door is locked.' });
       });
 
@@ -75,7 +75,7 @@ describe('open', () => {
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(false);
         expect(exit.closed).toBe(false);
-        expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser opens the door to the southeast.' });
+        expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: 'TestUser opens the door to the southeast.' });
         expect(socket.emit).toBeCalledWith('output', { message: 'Door opened.' });
       });
 
@@ -89,7 +89,7 @@ describe('open', () => {
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(false);
         expect(exit.closed).toBe(false);
-        expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
+        expect(socket.broadcast.to(socket.character.roomId).emit).not.toHaveBeenCalled();
         expect(socket.emit).toBeCalledWith('output', { message: 'That door is already open.' });
       });
     });
@@ -102,7 +102,7 @@ describe('open', () => {
         const exit = mockRoom.exits.find(({dir}) => dir === 'n');
 
         expect(exit.closed).toBe(false);
-        expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser opens the door to the north.' });
+        expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: 'TestUser opens the door to the north.' });
         expect(socket.emit).toBeCalledWith('output', { message: 'Door opened.' });
       });
 
@@ -112,7 +112,7 @@ describe('open', () => {
         const exit = mockRoom.exits.find(({dir}) => dir === 's');
 
         expect(exit.closed).toBe(false);
-        expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
+        expect(socket.broadcast.to(socket.character.roomId).emit).not.toHaveBeenCalled();
         expect(socket.emit).toBeCalledWith('output', { message: 'That door is already open.' });
       });
     });

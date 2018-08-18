@@ -19,7 +19,7 @@ export default {
   },
 
   execute(socket, itemName) {
-    const room = Room.getById(socket.user.roomId);
+    const room = Room.getById(socket.character.roomId);
     const result = autocomplete.autocompleteTypes(socket, ['inventory', 'key'], itemName);
     if (!result) {
       return;
@@ -27,9 +27,9 @@ export default {
 
     // remove item from users inventory or key ring
     if (result.item.type === 'item') {
-      socket.user.inventory.remove(result.item);
+      socket.character.inventory.remove(result.item);
     } else if (result.item.type === 'key') {
-      socket.user.keys.remove(result.item);
+      socket.character.keys.remove(result.item);
     } else {
       // just a catch for bad data
       socket.emit('output', { message: 'Unknown item type!' });
@@ -41,10 +41,10 @@ export default {
 
     // save both
     room.save(err => { if (err) throw err; });
-    socket.user.save(err => { if (err) throw err; });
+    socket.character.save(err => { if (err) throw err; });
 
     socket.emit('output', { message: 'Dropped.' });
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} drops ${result.item.displayName}.` });
+    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} drops ${result.item.displayName}.` });
   },
 
   help(socket) {

@@ -14,12 +14,12 @@ describe('party', () => {
     t1 = new mocks.SocketMock();
     t1.id = '1';
     t1.user.username = 'Test1';
-    t1.leader = socket.user.id;
+    t1.leader = socket.character.id;
 
     t2 = new mocks.SocketMock();
     t2.id = '2';
     t2.user.username = 'Test2';
-    t2.leader = socket.user.id;
+    t2.leader = socket.character.id;
 
     global.io.reset();
     global.io.sockets.connected = {};

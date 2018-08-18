@@ -24,7 +24,7 @@ export default {
 
   execute(socket, type, name) {
 
-    const room = Room.getById(socket.user.roomId);
+    const room = Room.getById(socket.character.roomId);
     if (type === 'mob') {
       // look for mob in user's current room
       const acResult = autocomplete.autocompleteTypes(socket, ['mob'], name);
@@ -51,8 +51,8 @@ export default {
 
       // delete item
       // inventory is a mongoose-controlled array, so this must use .remove
-      socket.user.inventory.id(acResult.item.id).remove();
-      socket.user.save(err => { if (err) throw err; });
+      socket.character.inventory.id(acResult.item.id).remove();
+      socket.character.save(err => { if (err) throw err; });
       socket.emit('output', { message: 'Item successfully destroyed.' });
     } else {
       socket.emit('output', { message: 'Invalid destroy type.' });

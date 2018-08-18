@@ -2,8 +2,8 @@
 export default {
   updateHUD(socket) {
     socket.emit('hud', {
-      currentHP: socket.user.currentHP,
-      maxHP: socket.user.maxHP,
+      currentHP: socket.character.currentHP,
+      maxHP: socket.character.maxHP,
     });
   },
 };

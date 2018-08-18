@@ -17,7 +17,7 @@ export default {
       .filter(s => s.user);
 
     const whoUsers = sockets.map(s => {
-      const room = Room.getById(s.user.roomId);
+      const room = Room.getById(s.character.roomId);
       const area = room.area ? Area.getById(room.area).name : null;
       return {
         username: s.user.username,

@@ -28,7 +28,7 @@ describe('equip', () => {
       const sword = new Item();
       sword.equip = null;
       sword.name = 'sword';
-      mockAutocompleteTypes.mockReturnValueOnce(sword);
+      mockAutocompleteTypes.mockReturnValueOnce({item: sword});
 
       sut.execute(socket, 'sword');
 
@@ -39,7 +39,7 @@ describe('equip', () => {
       const finger = new Item();
       finger.equip = 'nose';
       finger.name = 'finger';
-      mockAutocompleteTypes.mockReturnValueOnce(finger);
+      mockAutocompleteTypes.mockReturnValueOnce({item: finger});
 
       sut.execute(socket, 'finger');
 
@@ -50,7 +50,7 @@ describe('equip', () => {
       const ring = new Item();
       ring.equip = 'finger';
       ring.name = 'mood';
-      mockAutocompleteTypes.mockReturnValueOnce(ring);
+      mockAutocompleteTypes.mockReturnValueOnce({item: ring});
 
       sut.execute(socket, 'mood');
 

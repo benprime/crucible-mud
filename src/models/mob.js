@@ -67,9 +67,9 @@ class Mob {
   awardExperience() {
     let sockets = socketUtil.getRoomSockets(this.roomId);
     sockets.forEach((s) => {
-      if (s.user.attackTarget === this.id) {
-        s.user.attackTarget = null;
-        s.user.addExp(this.xp);
+      if (s.character.attackTarget === this.id) {
+        s.character.attackTarget = null;
+        s.character.addExp(this.xp);
         s.emit('output', { message: `You gain ${this.xp} experience.` });
         s.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
       }
@@ -145,7 +145,7 @@ class Mob {
     }
 
     playerSocket.emit('output', { message: playerMessage });
-    socketUtil.roomMessage(playerSocket.user.roomId, roomMessage, [playerSocket.id]);
+    socketUtil.roomMessage(playerSocket.character.roomId, roomMessage, [playerSocket.id]);
 
     return true;
   }
@@ -172,7 +172,7 @@ class Mob {
     let username = socket.user.username;
     let roomTaunt = utils.formatMessage(this.taunts[tauntIndex], this.displayName, username);
     socket.emit('output', { message: taunt });
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: roomTaunt });
+    socket.broadcast.to(socket.character.roomId).emit('output', { message: roomTaunt });
   }
 
   idle(now) {

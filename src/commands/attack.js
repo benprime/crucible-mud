@@ -14,15 +14,17 @@ export default {
   },
 
   execute(socket, targetName) {
-    const room = Room.getById(socket.user.roomId);
-    const target = autocomplete.autocompleteTypes(socket, ['mob'], targetName);
-    if (!target) {
-      socket.user.attackTarget = null;
+    const room = Room.getById(socket.character.roomId);
+    const acResult = autocomplete.autocompleteTypes(socket, ['mob'], targetName);
+    if (!acResult) {
+      socket.character.attackTarget = null;
       return;
     }
 
-    socket.user.attackTarget = target.item.id;
-    socket.user.attackInterval = 4000;
+    const target = acResult.item;
+
+    socket.character.attackTarget = target.id;
+    socket.character.attackInterval = 4000;
 
     socket.emit('output', { message: '<span class="olive">*** Combat Engaged ***</span>' });
     socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} moves to attack ${target.displayName}!` });

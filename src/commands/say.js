@@ -18,7 +18,7 @@ export default {
     socket.emit('output', { message: `You say "${safeMessage}"` });
 
     // everyone else
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} says "${safeMessage}"` });
+    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} says "${safeMessage}"` });
   },
 
   help(socket) { 

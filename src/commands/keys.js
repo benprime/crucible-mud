@@ -10,7 +10,7 @@ export default {
   },
 
   execute(socket) {
-    const keys = socket.user.keys || [];
+    const keys = socket.character.keys || [];
     let keyOutput = keys.map(({displayName}) => displayName).join(', ');
     if (!keyOutput) {
       keyOutput = 'None.';

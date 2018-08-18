@@ -22,7 +22,7 @@ export default {
   },
 
   execute(socket, dir, keyName, cb) {
-    const room = Room.getById(socket.user.roomId);
+    const room = Room.getById(socket.character.roomId);
     dir = Room.validDirectionInput(dir);
     let exit = room.getExit(dir);
     if (!exit) {
@@ -35,11 +35,13 @@ export default {
       return;
     }
 
-    const key = autocomplete.autocompleteTypes(socket, ['key'], keyName);
-    if(!key) {
+    const acResult = autocomplete.autocompleteTypes(socket, ['key'], keyName);
+    if(!acResult) {
       socket.emit('output', { message: 'You don\'t seem to be carrying that key.' });
       return;
     }
+
+    const key = acResult.item;
 
     if (key.name != exit.keyName) {
       socket.emit('output', { message: 'That key does not unlock that door.' });

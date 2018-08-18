@@ -14,7 +14,7 @@ export default {
 
   execute(socket, message) {
 
-    const room = Room.getById(socket.user.roomId);
+    const room = Room.getById(socket.character.roomId);
 
     // send message to all adjacent exits
     room.exits.forEach(({dir, roomId}) => {

@@ -32,8 +32,8 @@ export default {
       targetSocket.partyInvites = [];
     }
 
-    if (!targetSocket.partyInvites.includes(socket.user.id)) {
-      targetSocket.partyInvites.push(socket.user.id);
+    if (!targetSocket.partyInvites.includes(socket.character.id)) {
+      targetSocket.partyInvites.push(socket.character.id);
     }
 
     targetSocket.emit('output', { message: `${socket.user.username} has invited you to join a party.` });

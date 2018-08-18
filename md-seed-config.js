@@ -2,6 +2,7 @@ import mongooseLib from 'mongoose';
 mongooseLib.Promise = global.Promise;
 
 import Areas from './seeders/areas.seeder';
+import Characters from './seeders/characters.seeder';
 import Rooms from './seeders/rooms.seeder';
 import Users from './seeders/users.seeder';
 
@@ -20,6 +21,7 @@ export const mongoURL = process.env.MONGO_DB && process.env.MONGO_PORT
 */
 export const seedersList = {
   Areas,
+  Characters,
   Rooms,
   Users,
 };

@@ -19,7 +19,7 @@ describe('spawner', () => {
     mockGetRoomById.mockReturnValue(currentRoom);
 
     socket = new mocks.SocketMock();
-    socket.user.roomId = currentRoom.id;
+    socket.character.roomId = currentRoom.id;
     socket.user.username = 'Disco Jim';
   });
 
@@ -168,14 +168,14 @@ describe('spawner', () => {
 
         // assert
         expect(socket.emit).toBeCalledWith('output', { message: 'Spawner copied.' });
-        expect(socket.user.spawnerClipboard).toEqual(currentRoom.spawner);
+        expect(socket.character.spawnerClipboard).toEqual(currentRoom.spawner);
       });
     });
 
     describe('when action is paste', () => {
       test('when action is paste', () => {
         // arrange
-        socket.user.spawnerClipboard = null;
+        socket.character.spawnerClipboard = null;
 
         // act
         sut.execute(socket, 'paste');

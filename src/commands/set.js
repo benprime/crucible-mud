@@ -1,5 +1,6 @@
 import Room from '../models/room';
 import Area from '../models/area';
+import Shop from '../models/shop';
 import lookCmd from './look';
 import autocomplete from '../core/autocomplete';
 
@@ -35,22 +36,12 @@ function setRoom(socket, prop, value) {
   }
 
   else if (prop === 'shop') {
-    if(room.shop) {
-      socket.emit('output', { message: 'This room is already a shop.'});
+    const shop = Shop.getById(socket.character.roomId);
+    if (shop) {
+      socket.emit('output', { message: 'This room is already a shop.' });
       return;
     }
-
-    
-    const areas = autocomplete.autocompleteByProperty(Object.values(Area.areaCache), 'name', value);
-    if (areas.length > 1) {
-      socket.emit('output', { message: `Multiple areas match that param:\n${JSON.stringify(areas)}` });
-      return;
-    } else if (areas.length === 0) {
-      socket.emit('output', { message: 'Unknown area.' });
-      return;
-    }
-
-    room.area = areas[0].id;
+    Shop.createShop(socket.character.roomId, () => socket.emit('output', { message: 'Shop created.' }));
   }
 
   else {
@@ -73,12 +64,13 @@ export default {
     /^set\s+(room)\s+(name)\s+(.+)$/i,
     /^set\s+(room)\s+(alias)\s+(.+)$/i,
     /^set\s+(room)\s+(area)\s+(.+)$/i,
+    /^set\s+(room)\s+(shop)$/i,
     /^set.*$/i,
   ],
 
   dispatch(socket, match) {
 
-    if (match.length != 4) {
+    if (match.length < 3) {
       this.help(socket);
       return;
     }

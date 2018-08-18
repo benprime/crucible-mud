@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "ascii-table": "0.0.9",
     "express": "^4.16.1",
     "mongodb": "^2.2.19",
     "mongoose": "^4.13.15",

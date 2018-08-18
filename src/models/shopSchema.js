@@ -1,25 +1,39 @@
 import mongoose from 'mongoose';
-import ItemSchema from './item';
+
+const shopCache = {};
 
 const ShopSchema = new mongoose.Schema({
-  inventory: {
-    type: ItemSchema,
-  },
-  desc: {
-    type: String,
-  },
-  owner: {
-    // the npc that owns the shop?
-    type: String,
-  },
-});
+  roomId: { type: String, unique: true },
+  stock: [{
+    itemTypeName: { type: String, required: true },
+    quantity: { type: Number, required: true, min: 0 },
+  }],
+  owner: { String }, // this will be the NPC that owns the shop
+}, { usePushEach: true });
 
-ItemSchema.methods.look = function (socket) {
-  let output = this.desc;
-  if(socket.user.admin) {
-    output += `\nItem ID: ${this.id}`;
-  }
-  socket.emit('output', { message: output });
+ShopSchema.statics.shopCache = shopCache;
+
+ShopSchema.statics.getById = roomId => {
+  const shop = shopCache[roomId];
+  return shop;
 };
 
-export default ItemSchema;
+ShopSchema.statics.createShop = function (roomId, cb) {
+  const shop = new this({ roomId: roomId });
+  shop.save((err, shop) => {
+    if (err) throw err;
+    shopCache[roomId] = shop;
+    cb(shop);
+  });
+};
+
+ShopSchema.statics.populateShopCache = function () {
+  this.find({}, (err, result) => {
+    if (err) throw err;
+    result.forEach(shop => {
+      shopCache[shop.roomId] = shop;
+    });
+  });
+};
+
+export default ShopSchema;

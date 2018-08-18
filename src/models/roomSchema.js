@@ -9,6 +9,38 @@ import socketUtil from '../core/socketUtil';
 const roomCache = {};
 
 //============================================================================
+// Room Schema
+//============================================================================
+const RoomSchema = new mongoose.Schema({
+  name: {
+    type: String,
+  },
+  desc: {
+    type: String,
+  },
+  alias: {
+    type: String,
+  },
+  area: {
+    type: String,
+  },
+  x: {
+    type: Number,
+  },
+  y: {
+    type: Number,
+  },
+  z: {
+    type: Number,
+  },
+
+  exits: [ExitSchema],
+
+  spawner: SpawnerSchema,
+  inventory: [ItemSchema],
+}, { usePushEach: true });
+
+//============================================================================
 // Direction Support
 //============================================================================
 const dirEnum = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw', 'u', 'd'];
@@ -51,38 +83,6 @@ const oppositeDir = {
   u: 'd',
   d: 'u',
 };
-
-//============================================================================
-// Room Schema
-//============================================================================
-const RoomSchema = new mongoose.Schema({
-  name: {
-    type: String,
-  },
-  desc: {
-    type: String,
-  },
-  alias: {
-    type: String,
-  },
-  area: {
-    type: String,
-  },
-  x: {
-    type: Number,
-  },
-  y: {
-    type: Number,
-  },
-  z: {
-    type: Number,
-  },
-
-  exits: [ExitSchema],
-
-  spawner: SpawnerSchema,
-  inventory: [ItemSchema],
-}, { usePushEach: true });
 
 //============================================================================
 // Statics

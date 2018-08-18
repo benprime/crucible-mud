@@ -5,6 +5,7 @@ import config from '../config';
 let commandModules = [
   'attack.js',
   'break.js',
+  'catalog.js',
   'close.js',
   'create.js',
   'destroy.js',
@@ -32,6 +33,7 @@ let commandModules = [
   'spawner.js',
   'spawn.js',
   'stats.js',
+  'stock.js',
   'summon.js',
   'take.js',
   'telepathy.js',

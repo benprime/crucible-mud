@@ -64,7 +64,7 @@ export default {
       }
 
       // Object.assign didn't seem to work properly when
-      // working with mongoose instance...
+      // working with mongoose instances...
       let item = new Item({
         name: createType.name,
         desc: createType.desc,

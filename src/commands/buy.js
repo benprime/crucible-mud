@@ -26,6 +26,7 @@ export default {
     const itemType = shop.getItemTypeByAutocomplete(itemName);
     if(!itemType) {
       socket.emit('output', { message: 'This shop does not deal in those types of items.' });
+      return;
     }
 
     // check if user has money

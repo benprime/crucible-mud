@@ -261,6 +261,8 @@ RoomSchema.methods.look = function (socket, short) {
       const exit = this.exits.find(e => e.dir === dir);
       if(exit.closed) {
         exitName += ' (closed)';
+      } else if('closed' in exit && exit.closed === false) {
+        exitName += ' (open)';
       }
       return exitName;
     }).join(', ');

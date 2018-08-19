@@ -45,7 +45,7 @@ export default {
         return;
       }
 
-      if (exit.hasOwnProperty('closed')) {
+      if (exit.closed !== undefined) {
         socket.emit('output', { message: 'Door already exists.' });
         return;
       }

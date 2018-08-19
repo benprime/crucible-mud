@@ -22,7 +22,7 @@ export default {
       return;
     }
 
-    if (!('closed' in exit)) {
+    if (exit.closed === undefined) {
       socket.emit('output', { message: 'There is no door in that direction!' });
       return;
     }
@@ -32,7 +32,7 @@ export default {
       return;
     }
 
-    if (!exit.closed) {
+    if (exit.closed === false) {
       socket.emit('output', { message: 'That door is already open.' });
       return;
     }

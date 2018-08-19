@@ -80,6 +80,11 @@ function matches({ patterns }, input) {
 
 function processDispatch(socket, input) {
   input = input.trim();
+
+  if(input) {
+    socket.emit('output', { message: `\n<span class="silver">&gt; ${input}</span>` });
+  }
+
   // check if input string matches any of our matching patterns.
   // then call the handler with the input, socket
   for (let h = 0; h < commands.length; h++) {

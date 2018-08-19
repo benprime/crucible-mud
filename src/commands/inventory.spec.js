@@ -110,28 +110,28 @@ describe('inventory', () => {
       });
     });
   };
-  currencyTest('when user is carrying no money', 0, '0 Copper');
-  currencyTest('', 1, '1 Copper');
+  currencyTest('when user is carrying no money', 0, '0 copper');
+  currencyTest('', 1, '1 copper');
 
-  currencyTest('', 9, '9 Copper');
-  currencyTest('', 10, '1 Silver');
-  currencyTest('', 11, '1 Silver 1 Copper');
+  currencyTest('', 9, '9 copper');
+  currencyTest('', 10, '1 silver');
+  currencyTest('', 11, '1 silver, 1 copper');
 
-  currencyTest('', 99, '9 Silver 9 Copper');
-  currencyTest('', 100, '1 Gold');
-  currencyTest('', 101, '1 Gold 1 Copper');
+  currencyTest('', 99, '9 silver, 9 copper');
+  currencyTest('', 100, '1 gold');
+  currencyTest('', 101, '1 gold, 1 copper');
 
-  currencyTest('', 999, '9 Gold 9 Silver 9 Copper');
-  currencyTest('', 1000, '1 Platinum');
-  currencyTest('', 1001, '1 Platinum 1 Copper');
+  currencyTest('', 999, '9 gold, 9 silver, 9 copper');
+  currencyTest('', 1000, '1 platinum');
+  currencyTest('', 1001, '1 platinum, 1 copper');
 
-  currencyTest('', 9999, '9 Platinum 9 Gold 9 Silver 9 Copper');
-  currencyTest('', 10000, '10 Platinum');
-  currencyTest('', 10001, '10 Platinum 1 Copper');
+  currencyTest('', 9999, '9 platinum, 9 gold, 9 silver, 9 copper');
+  currencyTest('', 10000, '10 platinum');
+  currencyTest('', 10001, '10 platinum, 1 copper');
 
-  currencyTest('', 99999, '99 Platinum 9 Gold 9 Silver 9 Copper');
-  currencyTest('', 100000, '100 Platinum');
-  currencyTest('', 100001, '100 Platinum 1 Copper');
+  currencyTest('', 99999, '99 platinum, 9 gold, 9 silver, 9 copper');
+  currencyTest('', 100000, '100 platinum');
+  currencyTest('', 100001, '100 platinum, 1 copper');
 
-  currencyTest('', 1111, '1 Platinum 1 Gold 1 Silver 1 Copper');
+  currencyTest('', 1111, '1 platinum, 1 gold, 1 silver, 1 copper');
 });

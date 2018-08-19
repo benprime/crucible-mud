@@ -3,6 +3,7 @@ import helpHandler from './help';
 import config from '../config';
 
 let commandModules = [
+  'accept.js',
   'attack.js',
   'break.js',
   'buy.js',

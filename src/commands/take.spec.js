@@ -1,12 +1,7 @@
 import { mockGetRoomById } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
-import { mockGetSocketByUsername } from '../core/socketUtil';
 import mocks from '../../spec/mocks';
 import sut from './take';
-import Item from '../models/item';
-import { Types } from 'mongoose';
-const { ObjectId } = Types;
-
 
 jest.mock('../models/room');
 jest.mock('../core/autocomplete');
@@ -46,40 +41,7 @@ describe('take', () => {
       socket.character.save.mockReset();
       mockAutocompleteTypes.mockReset();
     });
-
-    test('should update from/to inventory on successful offer/take', () => {
-      let offeringSocket = new mocks.SocketMock();
-
-      let offeredItem = new Item();
-      offeredItem._id = new ObjectId();
-      offeredItem.name = 'aItem';
-      offeredItem.displayName = 'aItem display name';
-
-      mockAutocompleteTypes.mockReturnValueOnce({ item: offeredItem });
-      mockGetSocketByUsername.mockReturnValueOnce(offeringSocket);
-
-      offeringSocket.user.username = 'aUser';
-      offeringSocket.character.inventory = [offeredItem];
-
-      socket.offers = [{
-        fromUserName: offeringSocket.user.username,
-        toUserName: socket.user.username,
-        item: offeredItem,
-      }];
-
-      sut.execute(socket, 'aItem');
-
-      expect(socket.offers).toHaveLength(0);
-      expect(socket.emit).toBeCalledWith('output', { message: `${offeredItem.displayName} was added to your inventory.` });
-      expect(socket.character.save).toHaveBeenCalled();
-      expect(socket.character.inventory).toHaveLength(1);
-      expect(socket.character.inventory[0].name).toEqual('aItem');
-
-      expect(offeringSocket.emit).toBeCalledWith('output', { message: `${offeredItem.displayName} was removed from your inventory.` });
-      expect(offeringSocket.character.save).toHaveBeenCalled();
-      expect(offeringSocket.character.inventory).toHaveLength(0);
-    });
-
+    
     test('should output message when item is not found', () => {
       mockRoom.save.mockClear();
       mockAutocompleteTypes.mockReturnValueOnce(null);

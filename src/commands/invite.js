@@ -23,7 +23,7 @@ export default {
       return;
     }
 
-    const targetSocket = socketUtil.validUserInRoom(socket, username);
+    const targetSocket = socketUtil.characterInRoom(socket, username);
     if (!targetSocket) {
       return;
     }

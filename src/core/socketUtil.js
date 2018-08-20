@@ -1,10 +1,4 @@
 export default {
-  // used by mob prototype
-  socketInRoom(roomId, socketId) {
-    const ioRoom = global.io.sockets.adapter.rooms[roomId];
-    return !!(ioRoom && socketId in ioRoom.sockets);
-  },
-
   // method for sending a message to all players in a room, except one.
   // using the receiver's socket instead of relying on the "sender" socket.
   roomMessage(roomId, message, exclude) {
@@ -36,6 +30,26 @@ export default {
     return null;
   },
 
+  getSocketByCharacterId(characterId) {
+    for (let socket of Object.values(global.io.sockets.connected)) {
+      if (socket.user && socket.character.id == characterId) {
+        return socket;
+      }
+    }
+    return null;
+  },
+
+  // not sure this belongs here. We're trying to make is so that game code has no knowledge of sockets.
+  // game code uses this all the time and has to include the socketUtil library to do it. Perhaps move this?
+  getCharacterByName(name) {
+    for (let socket of Object.values(global.io.sockets.connected)) {
+      if (socket.user && socket.character.name == name) {
+        return socket.character;
+      }
+    }
+    return null;
+  },
+
   getFollowingSockets(characterId) {
     const followingSockets = [];
     for (let socket of Object.values(global.io.sockets.connected)) {
@@ -57,19 +71,17 @@ export default {
   },
 
   // method for validating a valid username and that the user is in the current room
-  validUserInRoom(socket, username) {
-    const userSocket = this.getSocketByUsername(username);
-    if (!userSocket) {
-      socket.emit('output', { message: 'Unknown user' });
+  characterInRoom(roomId, name) {
+    const character = this.getCharacterByName(name);
+    if (!character) {
       return false;
     }
 
-    if (!this.socketInRoom(socket.character.roomId, userSocket.id)) {
-      socket.emit('output', { message: `You don't see ${username} here.` });
+    if (character.roomId !== roomId) {
       return false;
     }
 
-    return userSocket;
+    return character;
   },
 };
 

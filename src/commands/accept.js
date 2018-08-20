@@ -1,6 +1,7 @@
 import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import { currencyToString } from '../core/currency';
+import errors from '../core/errors';
 
 export default {
   name: 'accept',
@@ -16,65 +17,64 @@ export default {
       this.help(socket);
       return;
     }
-    this.execute(socket, match[1], match[2]);
+    this.execute(socket.character, match[1], match[2]);
   },
 
-  execute(socket, userName) {
+  execute(toCharacter, userName) {
     // autocomplete username
-    const acResult = autocomplete.autocompleteTypes(socket, ['player'], userName);
+    const acResult = autocomplete.autocompleteTypes(toCharacter, ['player'], userName);
     if (!acResult) return;
     const fromUser = acResult.item;
 
-    // from user socket
-    let fromUserSocket = socketUtil.validUserInRoom(socket, fromUser.username);
-    if (!fromUserSocket) {
-      socket.emit('output', { message: `${userName} is not here!` });
-      return;
+    let fromCharacter = socketUtil.characterInRoom(toCharacter.roomId, fromUser.username);
+    if (!fromCharacter) {
+      return Promise.reject(new errors.OfferNotFound(`${userName} is not here!`));
     }
 
-    const offer = socket.character.offers.find(o => o.fromUserName === fromUser.username);
+    const offer = toCharacter.offers.find(o => o.fromUserName === fromUser.username);
     if (!offer) {
-      socket.emit('output', { message: `There are no offers from ${fromUser.username}.` });
-      return;
+      return Promise.reject(new errors.UserNotInRoom(`There are no offers from ${fromCharacter.username}.`));
     }
 
     if (offer.currency) {
       // check if offering user's funds have changed since the offer was made
-      if (fromUserSocket.character.currency < offer.currency) {
-        socket.emit('output', { message: `${fromUser.username} no longer has enough money to complete this offer.` });
-        socket.character.offers = socket.character.offers.filter(o => o.fromUserName !== fromUser.username);
-        return;
+      if (fromCharacter.character.currency < offer.currency) {
+        toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== fromUser.username);
+        return Promise.reject(new errors.InsufficientFundsError(`${fromCharacter.username} no longer has enough money to complete this offer.`));
       }
-      fromUserSocket.character.currency -= offer.currency;
-      socket.character.currency += offer.currency;
+      fromCharacter.character.currency -= offer.currency;
+      toCharacter.currency += offer.currency;
     } else {
       // check that offering user still has item when it is accepted
-      const item = fromUserSocket.character.inventory.id(offer.item.id);
+      const item = fromCharacter.character.inventory.id(offer.item.id);
       if (!item) {
-        socket.emit('output', { message: `${fromUser.username} no longer has the offered item in their inventory.` });
-        socket.character.offers = socket.character.offers.filter(o => o.fromUserName !== fromUser.username);
-        return;
+        toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== fromUser.username);
+        return Promise.reject(new errors.ItemNotFoundError(`${fromCharacter.name} no longer has the offered item in their inventory.`));
       }
-      fromUserSocket.character.inventory.id(offer.item.id).remove();
-      socket.character.inventory.push(item);
+      fromCharacter.character.inventory.id(offer.item.id).remove();
+      toCharacter.inventory.push(item);
     }
-    socket.character.offers = socket.character.offers.filter(o => o.fromUserName !== fromUser.username);
-    fromUserSocket.character.save(err => { if (err) throw err; });
-    socket.character.save(err => { if (err) throw err; });
+    toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== fromUser.username);
+    fromCharacter.character.save(err => { if (err) throw err; });
+    toCharacter.save(err => { if (err) throw err; });
 
-    // format and emit feedback messages
-    let fromUserMessage;
-    let toUserMessage;
+    // format feedback messages
+    let fromCharacterMessage;
+    let toCharacterMessage;
     if (offer.currency) {
-      fromUserMessage = `${socket.user.username} accepts your offer of ${currencyToString(offer.currency)}.`;
-      toUserMessage = `You accept the offer of ${currencyToString(offer.currency)} from ${fromUserSocket.user.username}.`;
+      fromCharacterMessage = `${toCharacter.name} accepts your offer of ${currencyToString(offer.currency)}.`;
+      toCharacterMessage = `You accept the offer of ${currencyToString(offer.currency)} from ${fromCharacter.name}.`;
     } else {
-      fromUserMessage = `${socket.user.username} accepts the ${offer.item.displayName}.`;
-      toUserMessage = `You accept the ${offer.item.displayName} from ${fromUserSocket.user.username}.`;
+      fromCharacterMessage = `${fromCharacter.name} accepts the ${offer.item.displayName}.`;
+      toCharacterMessage = `You accept the ${offer.item.displayName} from ${fromCharacter.name}.`;
     }
 
-    fromUserSocket.emit('output', { message: fromUserMessage });
-    socket.emit('output', { message: toUserMessage });
+    return Promise.resolve({
+      charMessages: [
+        { charId: fromCharacter.id, message: fromCharacterMessage },
+        { charId: toCharacter.id, message: toCharacterMessage },
+      ],
+    });
   },
 
   help(socket) {

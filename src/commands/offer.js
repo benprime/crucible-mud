@@ -38,7 +38,7 @@ export default {
     const toUser = acResult.item;
 
     // validate target user and get target user socket
-    let toUserSocket = socketUtil.validUserInRoom(socket, toUser.username);
+    let toUserSocket = socketUtil.characterInRoom(socket, toUser.username);
     if (!toUserSocket) {
       socket.emit('output', { message: `${userName} is not here!` });
       return;

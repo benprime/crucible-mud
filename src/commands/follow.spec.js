@@ -1,6 +1,6 @@
 import mocks from '../../spec/mocks';
 import sut from './follow';
-import { mockValidUserInRoom, mockGetFollowingSockets } from '../core/socketUtil';
+import { mockCharacterInRoom, mockGetFollowingSockets } from '../core/socketUtil';
 
 jest.mock('../models/room');
 jest.mock('../core/socketUtil');
@@ -14,7 +14,7 @@ describe('follow', () => {
     mockInvitingSocket = new mocks.SocketMock();
     mockInvitingSocket.user.username = 'InvitingUser';
     socket = new mocks.SocketMock();
-    mockValidUserInRoom.mockReturnValue(mockInvitingSocket);
+    mockCharacterInRoom.mockReturnValue(mockInvitingSocket);
   });
 
   describe('execute', () => {

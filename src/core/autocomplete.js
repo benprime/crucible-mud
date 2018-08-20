@@ -7,36 +7,38 @@ import Room from '../models/room';
 // -------------------------------------------------------------------
 const TypeConfig = Object.freeze({
   mob: {
-    source({ character }) {
+    source(character) {
       const room = Room.getById(character.roomId);
       return room.mobs;
     },
     propertyNames: ['displayName', 'name'],
   },
   inventory: {
-    source({ character }) {
+    source(character) {
       return character.inventory;
     },
     propertyNames: ['displayName', 'name'],
   },
   key: {
-    source({ character }) {
+    source(character) {
       return character.keys;
     },
     propertyNames: ['displayName', 'name'],
   },
   room: {
-    source({ character }) {
+    source(character) {
       const room = Room.getById(character.roomId);
       return room.inventory;
     },
     propertyNames: ['displayName', 'name'],
   },
   player: {
-    source({ user }) {
+    source(character) {
       return Object.values(global.io.sockets.connected)
-        .filter(s => s.user && s.user.id != user.id)
-        .map(s => s.user);
+        .filter(s => s.character && s.character != character.id)
+        // TODO: This should probably return their character, not user.
+        // Character name needs to be used throughout the game instead of username.
+        .map(s => s.user); 
     },
     propertyNames: ['username'],
   },
@@ -70,7 +72,7 @@ export default {
     return [...new Set(combArr)];
   },
 
-  autocompleteTypes(socket, types, fragment) {
+  autocompleteTypes(character, types, fragment) {
     for (const typeKey in types) {
       if (!types.hasOwnProperty(typeKey)) continue;
 
@@ -80,7 +82,7 @@ export default {
         throw `Invalid type: ${type}`;
       }
 
-      let source = typeConfig.source(socket);
+      let source = typeConfig.source(character);
       const results = this.autocompleteByProperties(source, typeConfig.propertyNames, fragment);
       if (results.length > 0) {
         return {
@@ -90,7 +92,7 @@ export default {
       }
     }
 
-    socket.emit('output', { message: 'You don\'t see that here.' });
+    //socket.emit('output', { message: 'You don\'t see that here.' });
     return null;
   },
 };

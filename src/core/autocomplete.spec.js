@@ -84,7 +84,7 @@ describe('autocomplete', () => {
       room.inventory = [roomItem];
 
       // act
-      const result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'd');
+      const result = sut.autocompleteTypes(socket.character, ['inventory', 'room'], 'd');
 
       // assert
       expect(result.type).toBe('room');
@@ -100,7 +100,7 @@ describe('autocomplete', () => {
       room.inventory = [roomItem];
 
       // act
-      const result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'a');
+      const result = sut.autocompleteTypes(socket.character, ['inventory', 'room'], 'a');
 
       // assert
       expect(result.item.id).toBe(inventoryItem.id);
@@ -114,7 +114,7 @@ describe('autocomplete', () => {
       room.inventory = [roomItem];
 
       // act
-      const result = sut.autocompleteTypes(socket, ['inventory', 'room'], 'b');
+      const result = sut.autocompleteTypes(socket.character, ['inventory', 'room'], 'b');
 
       // assert
       expect(result).toBeNull();

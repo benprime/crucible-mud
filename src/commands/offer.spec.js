@@ -1,6 +1,6 @@
 import { mockGetRoomById } from '../models/room';
 import Item from '../models/item';
-import { mockValidUserInRoom } from '../core/socketUtil';
+import { mockCharacterInRoom } from '../core/socketUtil';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './offer';
@@ -66,7 +66,7 @@ describe('offer', () => {
     test('should output message when user is not in room', () => {
       mockAutocompleteTypes.mockReturnValueOnce({ item: item }).mockReturnValueOnce({ item: mockTargetSocket.user });
       usersInRoomResult = ['TestUser'];
-      mockValidUserInRoom.mockReturnValueOnce(undefined);
+      mockCharacterInRoom.mockReturnValueOnce(undefined);
 
       sut.execute(socket, 'aItem', 'aUser');
 
@@ -88,7 +88,7 @@ describe('offer', () => {
       socket.character.inventory = [item];
 
       mockTargetSocket.character.offers = [];
-      mockValidUserInRoom.mockReturnValueOnce(mockTargetSocket);
+      mockCharacterInRoom.mockReturnValueOnce(mockTargetSocket);
 
 
       let expectedOffer = {
@@ -109,7 +109,7 @@ describe('offer', () => {
 
     test('should overwrite offer to other user socket offers collection if same offer item exists', () => {
       mockAutocompleteTypes.mockReturnValueOnce({ item: item }).mockReturnValueOnce({ item: mockTargetSocket.user });
-      mockValidUserInRoom.mockReturnValueOnce(mockTargetSocket);
+      mockCharacterInRoom.mockReturnValueOnce(mockTargetSocket);
       usersInRoomResult = ['TestUser', 'TestUser2', 'aUser'];
 
       socket.user = {
@@ -151,7 +151,7 @@ describe('offer', () => {
 
     test('should add offer to other user socket offers collection if existing offers exist', () => {
       mockAutocompleteTypes.mockReturnValueOnce({ item: item }).mockReturnValueOnce({ item: mockTargetSocket.user });
-      mockValidUserInRoom.mockReturnValueOnce(mockTargetSocket);
+      mockCharacterInRoom.mockReturnValueOnce(mockTargetSocket);
       usersInRoomResult = ['TestUser', 'aUser'];
 
       socket.user = {

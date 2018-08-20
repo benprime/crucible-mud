@@ -64,7 +64,7 @@ export default {
             socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
 
             socket.join('realm');
-            socket.broadcast.to('realm').emit('output', { message: `${user.username} has entered the realm.` });
+            socket.broadcast.to('realm').emit('output', { message: `${character.name} has entered the realm.` });
 
             socket.join('gossip');
 

@@ -14,7 +14,7 @@ export default {
   },
 
   execute(socket, username) {
-    const invitingSocket = socketUtil.validUserInRoom(socket, username);
+    const invitingSocket = socketUtil.characterInRoom(socket, username);
     if (!invitingSocket) {
       return;
     }

@@ -1,5 +1,5 @@
 import { mockGetRoomById } from '../models/room';
-import { mockSocketInRoom, mockRoomMessage, mockGetRoomSockets } from '../core/socketUtil';
+import { mockCharacterInRoom, mockRoomMessage, mockGetRoomSockets, mockGetCharacterById, mockGetSocketByCharacterId } from '../core/socketUtil';
 import { mockRoll, mockGetRandomNumber } from '../core/dice';
 import mocks from '../../spec/mocks';
 import sutModel from '../models/mob';
@@ -175,6 +175,8 @@ describe('mob model', () => {
       });
 
       test('and mob attack target is null, mob should move to attack', () => {
+        mockGetSocketByCharacterId.mockReturnValueOnce(socket);
+
         mob.attackTarget = null;
         mob.selectTarget(mockRoom.id);
 
@@ -235,7 +237,7 @@ describe('mob model', () => {
     test('should set attackTarget to null if target socket is not in room', () => {
       // arrange
       mob.attackTarget = 'non existant socket';
-      mockSocketInRoom.mockReturnValueOnce(false);
+      mockCharacterInRoom.mockReturnValueOnce(false);
 
       // act
       const result = mob.attack(new Date());
@@ -249,15 +251,17 @@ describe('mob model', () => {
 
     test('should update lastAttack and return true on every successful attack', () => {
       // arrange
-      mockSocketInRoom.mockReturnValueOnce(true);
-      mob.attackTarget = socket.id;
+      mockCharacterInRoom.mockReturnValueOnce(socket.character);
+      mockGetCharacterById.mockReturnValueOnce(socket.character);
+      mockGetSocketByCharacterId.mockReturnValueOnce(socket);
+      mob.attackTarget = socket.character.id;
       mockRoll.mockReturnValueOnce(0);
 
       // act
       const result = mob.attack(new Date());
 
       // assert
-      expect(mob.attackTarget).toBe(socket.id);
+      expect(mob.attackTarget).toBe(socket.character.id);
       expect(socket.emit).toHaveBeenCalled();
       expect(mockRoomMessage).toHaveBeenCalled();
       expect(result).toBe(true);
@@ -265,9 +269,11 @@ describe('mob model', () => {
 
     test('should output hit messages if attack roll successful', () => {
       // arrange
-      mockSocketInRoom.mockReturnValueOnce(true);
+      mockCharacterInRoom.mockReturnValueOnce(socket.character);
+      mockGetCharacterById.mockReturnValueOnce(socket.character);
+      mockGetSocketByCharacterId.mockReturnValueOnce(socket);
       mockRoll.mockReturnValueOnce(1);
-      mob.attackTarget = socket.id;
+      mob.attackTarget = socket.character.id;
       const playerMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits you for 0 damage!</span>`;
       const roomMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits ${socket.user.username} for 0 damage!</span>`;
 
@@ -276,15 +282,17 @@ describe('mob model', () => {
 
       // assert
       expect(socket.emit).toBeCalledWith('output', { message: playerMessage });
-      expect(mockRoomMessage).toBeCalledWith(socket.character.roomId, roomMessage, [socket.id]);
+      expect(mockRoomMessage).toBeCalledWith(socket.character.roomId, roomMessage, [socket.character.id]);
     });
 
     test('should output miss messages if attack roll fails', () => {
       // arrange
-      mockSocketInRoom.mockReturnValueOnce(true);
+      mockCharacterInRoom.mockReturnValueOnce(socket.character);
+      mockGetCharacterById.mockReturnValueOnce(socket.character);
+      mockGetSocketByCharacterId.mockReturnValueOnce(socket);
 
       mockRoll.mockReturnValueOnce(0);
-      mob.attackTarget = socket.id;
+      mob.attackTarget = socket.character.id;
       const playerMessage = `<span class="${config.MSG_COLOR}">The ${mob.displayName} swings at you, but misses!</span>`;
       const roomMessage = `<span class="${config.MSG_COLOR}">The ${mob.displayName} swings at ${socket.user.username}, but misses!</span>`;
 
@@ -293,7 +301,7 @@ describe('mob model', () => {
 
       // assert
       expect(socket.emit).toBeCalledWith('output', { message: playerMessage });
-      expect(mockRoomMessage).toBeCalledWith(socket.character.roomId, roomMessage, [socket.id]);
+      expect(mockRoomMessage).toBeCalledWith(socket.character.roomId, roomMessage, [socket.character.id]);
     });
   });
 
@@ -326,7 +334,7 @@ describe('mob model', () => {
     test('should send an individual message and a room message', () => {
       // arrange
       mockGetRandomNumber.mockReturnValueOnce(0);
-      mockSocketInRoom.mockReturnValueOnce(true);
+      mockCharacterInRoom.mockReturnValueOnce(socket.character);
 
       global.io.sockets.connected[socket.id] = socket;
       mob.attackTarget = socket.id;

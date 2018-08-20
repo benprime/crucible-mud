@@ -90,15 +90,17 @@ class Mob {
 
       if (!this.attackTarget) {
         // select random player to attack
-        const socketsInRoom = Object.keys(ioRoom.sockets);
-        if (socketsInRoom.length == 0) return;
-        const targetIndex = dice.getRandomNumber(0, socketsInRoom.length);
-        const socketId = socketsInRoom[targetIndex];
+        const charactersInRoom = Object.values(ioRoom.sockets).map(s => s.character);
+        if (charactersInRoom.length == 0) return;
+        const targetIndex = dice.getRandomNumber(0, charactersInRoom.length);
+        
+        const targetCharacter = charactersInRoom[targetIndex];
 
         // get player socket
-        const socket = global.io.sockets.connected[socketId];
+        // TODO: this will all go away..?
+        const socket = socketUtil.getSocketByCharacterId(targetCharacter.id);
 
-        this.attackTarget = socketId;
+        this.attackTarget = targetCharacter.id;
         const username = socket.user.username;
 
         socket.broadcast.to(roomid).emit('output', { message: `The ${this.displayName} moves to attack ${username}!` });
@@ -121,31 +123,31 @@ class Mob {
       return false;
     }
 
-    if (!socketUtil.socketInRoom(this.roomId, this.attackTarget)) {
+    if (!socketUtil.characterInRoom(this.roomId, this.attackTarget)) {
       this.attackTarget = null;
       return false;
     }
 
     this.lastAttack = now;
     const dmg = 0;
-    let socketId = this.attackTarget;
     let playerMessage = '';
     let roomMessage = '';
 
-    let playerSocket = global.io.sockets.connected[socketId];
-    if (!playerSocket) return false;
-    let playerName = playerSocket.user.username;
+    let character = socketUtil.getCharacterById(this.attackTarget);
+    if (!character) return false;
 
     if (this.attackroll() == 1) {
       playerMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits you for ${dmg} damage!</span>`;
-      roomMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits ${playerName} for ${dmg} damage!</span>`;
+      roomMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits ${character.name} for ${dmg} damage!</span>`;
     } else {
       playerMessage = `<span class="${config.MSG_COLOR}">The ${this.displayName} swings at you, but misses!</span>`;
-      roomMessage = `<span class="${config.MSG_COLOR}">The ${this.displayName} swings at ${playerName}, but misses!</span>`;
+      roomMessage = `<span class="${config.MSG_COLOR}">The ${this.displayName} swings at ${character.name}, but misses!</span>`;
     }
 
-    playerSocket.emit('output', { message: playerMessage });
-    socketUtil.roomMessage(playerSocket.character.roomId, roomMessage, [playerSocket.id]);
+    const socket = socketUtil.getSocketByCharacterId(character.id);
+
+    socket.emit('output', { message: playerMessage });
+    socketUtil.roomMessage(character.roomId, roomMessage, [character.id]);
 
     return true;
   }
@@ -161,7 +163,7 @@ class Mob {
       return;
     }
 
-    if (!socketUtil.socketInRoom(this.roomId, this.attackTarget)) {
+    if (!socketUtil.characterInRoom(this.roomId, this.attackTarget)) {
       this.attackTarget = null;
       return;
     }

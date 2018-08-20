@@ -1,4 +1,4 @@
-import { mockValidUserInRoom } from '../core/socketUtil';
+import { mockCharacterInRoom } from '../core/socketUtil';
 import mocks from '../../spec/mocks';
 import sut from './invite';
 
@@ -36,7 +36,7 @@ describe('invite', () => {
     test('users following a party leader may not invite followers', () => {
       socket.leader = 'aLeader';
       let username = 'TargetUser';
-      mockValidUserInRoom.mockReturnValueOnce(mockTargetSocket);
+      mockCharacterInRoom.mockReturnValueOnce(mockTargetSocket);
 
       sut.execute(socket, username);
 
@@ -46,7 +46,7 @@ describe('invite', () => {
     test('adds invite to socket tracking variable of recipient socket', () => {
       socket.leader = undefined;
       let username = 'TargetUser';
-      mockValidUserInRoom.mockReturnValueOnce(mockTargetSocket);
+      mockCharacterInRoom.mockReturnValueOnce(mockTargetSocket);
 
       sut.execute(socket, username);
 

@@ -19,7 +19,7 @@ export default {
       return;
     }
 
-    if (!Array.isArray(socket.partyInvites) || !socket.partyInvites.includes(invitingSocket.character.id)) {
+    if (!Array.isArray(socket.character.partyInvites) || !socket.character.partyInvites.includes(invitingSocket.character.id)) {
       socket.emit('output', { message: 'You must be invited.' });
       return;
     }
@@ -33,7 +33,7 @@ export default {
       s.emit('output', { message: `<span class="yellow">Now following ${invitingSocket.user.username}</span>` });
     });
 
-    utils.removeItem(socket.partyInvites, invitingSocket.character.id);
+    utils.removeItem(socket.character.partyInvites, invitingSocket.character.id);
 
     socket.emit('output', { message: `You are now following ${username}.` });
     invitingSocket.emit('output', { message: `${socket.user.username} has started following you.` });

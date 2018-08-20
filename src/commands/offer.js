@@ -53,12 +53,12 @@ export default {
     };
 
     // a player can only offer one item or amount to another player
-    toUserSocket.offers = toUserSocket.offers.filter(o => o.fromUserName != socket.user.username);
-    toUserSocket.offers.push(offer);
+    toUserSocket.character.offers = toUserSocket.character.offers.filter(o => o.fromUserName != socket.user.username);
+    toUserSocket.character.offers.push(offer);
 
     // set an expiration of 60 seconds for this offer
     setTimeout(() => {
-      toUserSocket.offers = toUserSocket.offers.filter(o => o.fromUserName != socket.user.username);
+      toUserSocket.character.offers = toUserSocket.character.offers.filter(o => o.fromUserName != socket.user.username);
     }, 60000);
 
     // format and emit feedback messages

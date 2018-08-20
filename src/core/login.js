@@ -49,7 +49,7 @@ export default {
             }
 
             socket.character = character;
-            socket.offers = [];
+            socket.character.offers = [];
 
             // format the subdocuments so we have actual object instances
             // Note: tried a lean() query here, but that also stripped away the model

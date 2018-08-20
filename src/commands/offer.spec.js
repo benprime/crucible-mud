@@ -26,7 +26,7 @@ describe('offer', () => {
   });
 
   beforeEach(() => {
-    //socket.offers = [];
+    //socket.character.offers = [];
   });
 
   describe('dispatch', () => {
@@ -87,7 +87,7 @@ describe('offer', () => {
       usersInRoomResult = ['TestUser', 'aUser'];
       socket.character.inventory = [item];
 
-      mockTargetSocket.offers = [];
+      mockTargetSocket.character.offers = [];
       mockValidUserInRoom.mockReturnValueOnce(mockTargetSocket);
 
 
@@ -99,9 +99,9 @@ describe('offer', () => {
 
       sut.execute(socket, 'aItem', 'aUser');
 
-      expect(mockTargetSocket.offers[0]).toHaveProperty('fromUserName', expectedOffer.fromUserName);
-      expect(mockTargetSocket.offers[0]).toHaveProperty('toUserName', expectedOffer.toUserName);
-      expect(mockTargetSocket.offers[0].item.id).toBe(expectedOffer.item.id);
+      expect(mockTargetSocket.character.offers[0]).toHaveProperty('fromUserName', expectedOffer.fromUserName);
+      expect(mockTargetSocket.character.offers[0]).toHaveProperty('toUserName', expectedOffer.toUserName);
+      expect(mockTargetSocket.character.offers[0].item.id).toBe(expectedOffer.item.id);
 
       expect(mockTargetSocket.emit).toBeCalledWith('output', { message: 'TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser' });
       expect(socket.emit).toBeCalledWith('output', { message: 'You offer your aItem to aUser.' });
@@ -124,7 +124,7 @@ describe('offer', () => {
         item: existingItem,
       };
 
-      mockTargetSocket.offers = [existingOffer];
+      mockTargetSocket.character.offers = [existingOffer];
 
       let expectedOffer = {
         fromUserName: socket.user.username,
@@ -134,17 +134,17 @@ describe('offer', () => {
 
       sut.execute(socket, 'aItem', 'aUser');
 
-      expect(mockTargetSocket.offers).toHaveLength(2);
+      expect(mockTargetSocket.character.offers).toHaveLength(2);
 
-      expect(mockTargetSocket.offers[0]).toHaveProperty('fromUserName', existingOffer.fromUserName);
-      expect(mockTargetSocket.offers[0]).toHaveProperty('toUserName', 'aUser');
-      expect(mockTargetSocket.offers[0].item.id).toBe(existingItem.id);
+      expect(mockTargetSocket.character.offers[0]).toHaveProperty('fromUserName', existingOffer.fromUserName);
+      expect(mockTargetSocket.character.offers[0]).toHaveProperty('toUserName', 'aUser');
+      expect(mockTargetSocket.character.offers[0].item.id).toBe(existingItem.id);
 
-      expect(mockTargetSocket.offers[1]).toHaveProperty('fromUserName', expectedOffer.fromUserName);
-      expect(mockTargetSocket.offers[1]).toHaveProperty('toUserName', expectedOffer.toUserName);
-      expect(mockTargetSocket.offers[1].item.id).toBe(expectedOffer.item.id);
+      expect(mockTargetSocket.character.offers[1]).toHaveProperty('fromUserName', expectedOffer.fromUserName);
+      expect(mockTargetSocket.character.offers[1]).toHaveProperty('toUserName', expectedOffer.toUserName);
+      expect(mockTargetSocket.character.offers[1].item.id).toBe(expectedOffer.item.id);
 
-      //expect(mockTargetSocket.offers[1]).toMatchObject(expectedOffers);
+      //expect(mockTargetSocket.character.offers[1]).toMatchObject(expectedOffers);
       expect(mockTargetSocket.emit).toBeCalledWith('output', { message: 'TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser' });
       expect(socket.emit).toBeCalledWith('output', { message: 'You offer your aItem to aUser.' });
     });
@@ -167,19 +167,19 @@ describe('offer', () => {
         item: existingItem,
       };
 
-      mockTargetSocket.offers = [existingOffer];
+      mockTargetSocket.character.offers = [existingOffer];
 
       sut.execute(socket, 'aItem', 'aUser');
 
-      expect(mockTargetSocket.offers).toHaveLength(2);
+      expect(mockTargetSocket.character.offers).toHaveLength(2);
 
-      expect(mockTargetSocket.offers[0].fromUserName).toBe(existingOffer.fromUserName);
-      expect(mockTargetSocket.offers[0].toUserName).toBe('aUser');
-      expect(mockTargetSocket.offers[0].item).toBe(existingItem);
+      expect(mockTargetSocket.character.offers[0].fromUserName).toBe(existingOffer.fromUserName);
+      expect(mockTargetSocket.character.offers[0].toUserName).toBe('aUser');
+      expect(mockTargetSocket.character.offers[0].item).toBe(existingItem);
 
-      expect(mockTargetSocket.offers[1].fromUserName).toBe(socket.user.username);
-      expect(mockTargetSocket.offers[1].toUserName).toBe('aUser');
-      expect(mockTargetSocket.offers[1].item.id).toBe(item.id);
+      expect(mockTargetSocket.character.offers[1].fromUserName).toBe(socket.user.username);
+      expect(mockTargetSocket.character.offers[1].toUserName).toBe('aUser');
+      expect(mockTargetSocket.character.offers[1].item.id).toBe(item.id);
 
       expect(mockTargetSocket.emit).toBeCalledWith('output', { message: 'TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser' });
       expect(socket.emit).toBeCalledWith('output', { message: 'You offer your aItem to aUser.' });
@@ -195,7 +195,7 @@ describe('offer', () => {
       };
 
       sut.execute(socket, 'aUser', 'aItem', () => {
-        expect(mockTargetSocket.offers).toHaveLength(0);
+        expect(mockTargetSocket.character.offers).toHaveLength(0);
       });
     });
   });

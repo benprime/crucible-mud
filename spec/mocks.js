@@ -159,10 +159,10 @@ class SocketMock {
     character.attack = jest.fn().mockName('userAttack');
     character.actionDie = '1d20';
     character.inventory = [];
+    character.offers = [];
+    character.partyInvites = [];
     this.character = character;
 
-    this.offers = [];
-    this.partyInvites = [];
     this.reset = function () {
       broadcastEmitSpy.mockClear();
       this.emit.mockClear();

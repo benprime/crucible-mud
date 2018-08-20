@@ -29,7 +29,7 @@ describe('invite', () => {
 
       socket.character.inventory = [{ id: 'aItemId', name: 'aItem' }];
       socket.user.username = 'TestUser';
-      socket.partyInvites = [];
+      socket.character.partyInvites = [];
       socket.emit.mockClear();
     });
 
@@ -40,7 +40,7 @@ describe('invite', () => {
 
       sut.execute(socket, username);
 
-      expect(mockTargetSocket.partyInvites).not.toContain(socket.character.id);
+      expect(mockTargetSocket.character.partyInvites).not.toContain(socket.character.id);
     });
 
     test('adds invite to socket tracking variable of recipient socket', () => {
@@ -50,7 +50,7 @@ describe('invite', () => {
 
       sut.execute(socket, username);
 
-      expect(mockTargetSocket.partyInvites).toContain(socket.character.id);
+      expect(mockTargetSocket.character.partyInvites).toContain(socket.character.id);
     });
 
   });

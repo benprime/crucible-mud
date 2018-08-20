@@ -23,14 +23,14 @@ describe('follow', () => {
 
       socket.emit.mockClear();
 
-      socket.partyInvites = [mockInvitingSocket.character.id];
+      socket.character.partyInvites = [mockInvitingSocket.character.id];
     });
 
     test('sets socket leader tracking variable and clears follow invite when user follows user', () => {
       mockGetFollowingSockets.mockReturnValueOnce([]);
       sut.execute(socket, mockInvitingSocket.user.username);
 
-      expect(socket.partyInvites).toHaveLength(0);
+      expect(socket.character.partyInvites).toHaveLength(0);
     });
 
     test('transfers any current followers to the new leader\'s party', () => {

@@ -28,12 +28,12 @@ export default {
       return;
     }
 
-    if (!targetSocket.partyInvites) {
-      targetSocket.partyInvites = [];
+    if (!targetSocket.character.partyInvites) {
+      targetSocket.character.partyInvites = [];
     }
 
-    if (!targetSocket.partyInvites.includes(socket.character.id)) {
-      targetSocket.partyInvites.push(socket.character.id);
+    if (!targetSocket.character.partyInvites.includes(socket.character.id)) {
+      targetSocket.character.partyInvites.push(socket.character.id);
     }
 
     targetSocket.emit('output', { message: `${socket.user.username} has invited you to join a party.` });
@@ -41,9 +41,9 @@ export default {
 
     // TODO: make party invites timeout
     // setTimeout(() => {
-    //   let itemIndex = toUserSocket.offers.findIndex(o => o.item.id === item.id);
+    //   let itemIndex = toUserSocket.character.offers.findIndex(o => o.item.id === item.id);
     //   if (itemIndex !== -1) {
-    //     toUserSocket.offers.splice(itemIndex, 1);
+    //     toUserSocket.character.offers.splice(itemIndex, 1);
     //   }
     //   if (cb) cb();
     // }, 60000);

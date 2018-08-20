@@ -43,7 +43,7 @@ describe('accept', () => {
       offeringSocket.user.username = 'aUser';
       offeringSocket.character.inventory = [offeredItem];
 
-      socket.offers = [{
+      socket.character.offers = [{
         fromUserName: offeringSocket.user.username,
         toUserName: socket.user.username,
         item: offeredItem,
@@ -51,7 +51,7 @@ describe('accept', () => {
 
       sut.execute(socket, 'aItem');
 
-      expect(socket.offers).toHaveLength(0);
+      expect(socket.character.offers).toHaveLength(0);
       expect(socket.emit).toBeCalledWith('output', { message: `You accept the ${offeredItem.displayName} from ${offeringSocket.user.username}.` });
       expect(socket.character.save).toHaveBeenCalled();
       expect(socket.character.inventory).toHaveLength(1);

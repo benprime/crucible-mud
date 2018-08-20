@@ -38,7 +38,7 @@ function setRoom(socket, prop, value) {
       return;
     }
 
-    room.area = areas[0].id;
+    room.areaId = areas[0].id;
   }
 
   else if (prop === 'shop') {

@@ -32,7 +32,7 @@ export default {
       return;
     }
 
-    const offer = socket.offers.find(o => o.fromUserName === fromUser.username);
+    const offer = socket.character.offers.find(o => o.fromUserName === fromUser.username);
     if (!offer) {
       socket.emit('output', { message: `There are no offers from ${fromUser.username}.` });
       return;
@@ -42,7 +42,7 @@ export default {
       // check if offering user's funds have changed since the offer was made
       if (fromUserSocket.character.currency < offer.currency) {
         socket.emit('output', { message: `${fromUser.username} no longer has enough money to complete this offer.` });
-        socket.offers = socket.offers.filter(o => o.fromUserName !== fromUser.username);
+        socket.character.offers = socket.character.offers.filter(o => o.fromUserName !== fromUser.username);
         return;
       }
       fromUserSocket.character.currency -= offer.currency;
@@ -52,13 +52,13 @@ export default {
       const item = fromUserSocket.character.inventory.id(offer.item.id);
       if (!item) {
         socket.emit('output', { message: `${fromUser.username} no longer has the offered item in their inventory.` });
-        socket.offers = socket.offers.filter(o => o.fromUserName !== fromUser.username);
+        socket.character.offers = socket.character.offers.filter(o => o.fromUserName !== fromUser.username);
         return;
       }
       fromUserSocket.character.inventory.id(offer.item.id).remove();
       socket.character.inventory.push(item);
     }
-    socket.offers = socket.offers.filter(o => o.fromUserName !== fromUser.username);
+    socket.character.offers = socket.character.offers.filter(o => o.fromUserName !== fromUser.username);
     fromUserSocket.character.save(err => { if (err) throw err; });
     socket.character.save(err => { if (err) throw err; });
 

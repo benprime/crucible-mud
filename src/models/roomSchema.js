@@ -21,7 +21,7 @@ const RoomSchema = new mongoose.Schema({
   alias: {
     type: String,
   },
-  area: {
+  areaId: {
     type: String,
   },
   x: {
@@ -259,9 +259,9 @@ RoomSchema.methods.look = function (socket, short) {
     notHiddenExits = this.exits.filter(({ hidden }) => !hidden).map(({ dir }) => {
       let exitName = this.constructor.shortToLong(dir);
       const exit = this.exits.find(e => e.dir === dir);
-      if(exit.closed) {
+      if (exit.closed) {
         exitName += ' (closed)';
-      } else if('closed' in exit && exit.closed === false) {
+      } else if ('closed' in exit && exit.closed === false) {
         exitName += ' (open)';
       }
       return exitName;

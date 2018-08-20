@@ -18,18 +18,18 @@ export default {
 
     const whoUsers = sockets.map(s => {
       const room = Room.getById(s.character.roomId);
-      const area = room.area ? Area.getById(room.area).name : null;
+      const areaName = room.areaId ? Area.getById(room.areaId).name : null;
       return {
         username: s.user.username,
-        area: area,
+        areaName: areaName,
       };
     });
 
     let output = `<span class="cyan"> -=- ${whoUsers.length} Players Online -=-</span><br />`;
     output += '<div class="mediumOrchid">';
     whoUsers.forEach(wu => {
-      let area = wu.area ? ` (${wu.area})` : '';
-      output += `${wu.username}${area}<br />`;
+      let areaName = wu.areaName ? ` (${wu.areaName})` : '';
+      output += `${wu.username}${areaName}<br />`;
     });
     output += '</div>';
     socket.emit('output', { message: output });

@@ -129,6 +129,11 @@ export default {
       return;
     }
 
+    if(exit.disabledMessage) {
+      socket.emit('output', { message: `<span class="yellow">${exit.disabledMessage}</span>` });
+      return;
+    }
+
     // general public cannot enter hidden rooms
     if (exit.hidden && !socket.user.admin) {
       HitWall(socket, dir);

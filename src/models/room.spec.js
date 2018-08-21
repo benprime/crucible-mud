@@ -317,7 +317,7 @@ describe('room model', () => {
         socket.user.admin = true;
         room.look(socket);
 
-        expect(socket.emit).toBeCalledWith('output', { message: `<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="gray">Room ID: ${room.id}</span>\n` });
+        expect(socket.emit).toBeCalledWith('output', { message: `<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="gray">Room ID: ${room.id}</span>\n<span class="gray">Room coords: ${room.x}, ${room.y}</span>\n` });
       });
     });
 

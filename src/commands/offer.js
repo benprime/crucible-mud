@@ -7,8 +7,11 @@ export default {
 
   patterns: [
     /^offer\s+(.+)\s+to\s+(.+)$/i,
+    /^off\s+(.+)\s+to\s+(.+)$/i,
     /^offer\s.*$/i,
     /^offer$/i,
+    /^off\s.*$/i,
+    /^off$/i,
   ],
 
   dispatch(socket, match) {
@@ -22,19 +25,13 @@ export default {
   execute(socket, itemName, userName) {
     let item = null;
 
-    // check if the offer is currency
-    const copperValue = currencyToInt(itemName);
-    if (!copperValue) {
-      const acResult = autocomplete.autocompleteTypes(socket, ['inventory'], itemName);
-      if (!acResult) {
-        return;
-      }
-      item = acResult.item;
-    }
 
     // autocomplete username
     const acResult = autocomplete.autocompleteTypes(socket, ['player'], userName);
-    if (!acResult) return;
+    if (!acResult) {
+      socket.emit('output', { message: 'Unknown user or user not connected.' });
+      return;
+    }
     const toUser = acResult.item;
 
     // validate target user and get target user socket
@@ -44,12 +41,33 @@ export default {
       return;
     }
 
+    // check if the offer is currency
+    const currencyValue = currencyToInt(itemName);
+    if (currencyValue) {
+      if (socket.character.currency < currencyValue) {
+        toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== socket.user.username);
+        socket.emit('output', { message: 'You do not have enough money.' });
+        return;
+        //return Promise.reject(new errors.InsufficientFundsError(`${fromCharacter.username} no longer has enough money to complete this offer.`));
+      }
+
+    } else {
+      const acResult = autocomplete.autocompleteTypes(socket, ['inventory'], itemName);
+      if (!acResult) {
+        return;
+      }
+      item = acResult.item;
+
+    }
+
+
+
     // build offer
     const offer = {
       fromUserName: socket.user.username,
       toUserName: userName,
       item: item,
-      currency: copperValue,
+      currency: currencyValue,
     };
 
     // a player can only offer one item or amount to another player
@@ -64,9 +82,9 @@ export default {
     // format and emit feedback messages
     let offerMessage;
     let feedbackMessage;
-    if (copperValue) {
-      offerMessage = `${socket.user.username} offers you ${currencyToString(copperValue)}`;
-      feedbackMessage = `You offer ${currencyToString(copperValue)} to ${userName}.`;
+    if (currencyValue) {
+      offerMessage = `${socket.user.username} offers you ${currencyToString(currencyValue)}`;
+      feedbackMessage = `You offer ${currencyToString(currencyValue)} to ${userName}.`;
     } else {
       offerMessage = `${socket.user.username} offers you a ${itemName}.`;
       feedbackMessage = `You offer your ${itemName} to ${userName}.`;

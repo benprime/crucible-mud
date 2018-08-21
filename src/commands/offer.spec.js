@@ -154,10 +154,8 @@ describe('offer', () => {
       mockCharacterInRoom.mockReturnValueOnce(mockTargetSocket);
       usersInRoomResult = ['TestUser', 'aUser'];
 
-      socket.user = {
-        username: 'TestUser',
-        inventory: [item],
-      };
+      socket.user.username = 'TestUser';
+      socket.inventory = [item];
 
       let existingItem = new Item({ name: 'aDifferentItem' });
 
@@ -189,10 +187,9 @@ describe('offer', () => {
       mockAutocompleteTypes.mockReturnValueOnce({ item: item });
       usersInRoomResult = ['TestUser', 'aUser'];
 
-      socket.user = {
-        username: 'TestUser',
-        inventory: [item],
-      };
+      socket.user.username = 'TestUser';
+      socket.inventory = [item];
+
 
       sut.execute(socket, 'aUser', 'aItem', () => {
         expect(mockTargetSocket.character.offers).toHaveLength(0);

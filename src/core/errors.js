@@ -12,6 +12,9 @@ class UserNotInRoomError extends Error {}
 class InsufficientFundsError extends Error {}
 class ItemNotFoundError extends Error {}
 
+class DoorClosedError extends Error {}
+class ExitDoesNotExistError extends Error {}
+
 
 
 export default {
@@ -20,4 +23,6 @@ export default {
   AutocompleteNotFoundError,
   UserNotInRoomError,
   InsufficientFundsError,
+  DoorClosedError,
+  ExitDoesNotExistError,
 };

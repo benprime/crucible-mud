@@ -1,7 +1,9 @@
 import mongoose from 'mongoose';
 import config from '../config';
 import ItemSchema from './itemSchema';
+import Room from './room';
 import dice from '../core/dice';
+import socketUtil from '../core/socketUtil';
 
 const CharacterSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -41,12 +43,12 @@ const CharacterSchema = new mongoose.Schema({
   },
 
   stats: {
-    strength: { type: Number },
-    intelligence: { type: Number },
-    dexterity: { type: Number },
-    charisma: { type: Number },
-    constitution: { type: Number },
-    willpower: { type: Number },
+    strength: { type: Number, default: 10 },
+    intelligence: { type: Number, default: 10 },
+    dexterity: { type: Number, default: 10 },
+    charisma: { type: Number, default: 10 },
+    constitution: { type: Number, default: 10 },
+    willpower: { type: Number, default: 10 },
   },
 
   skills: {
@@ -151,5 +153,65 @@ CharacterSchema.methods.attack = function (socket, mob, now) {
     mob.takeDamage(playerDmg);
   }
 };
+
+CharacterSchema.methods.break = function () {
+  this.attackInterval = undefined;
+  this.lastAttack = undefined;
+  this.attackTarget = undefined;
+};
+
+CharacterSchema.methods.move = function (dir) {
+  const fromRoom = Room.getById(this.roomId);
+  const socket = socketUtil.getSocketByCharacterId(this.id);
+
+  return fromRoom.IsExitPassable(this, dir).then((exit) => {
+    const toRoom = Room.getById(exit.roomId);
+    this.break();
+
+    fromRoom.leave(this, dir, socket);
+    const enterDir = Room.oppositeDirection(dir);
+    toRoom.enter(this, enterDir, socket);
+
+    let followers = socketUtil.getFollowingCharacters(socket.character.id);
+    followers.forEach(c => {
+      c.move(dir);
+    });
+
+    return Promise.resolve(toRoom);
+  });
+};
+
+CharacterSchema.methods.teleport = function (roomId) {
+  if(this.roomId === roomId) {
+    return Promise.reject('Character is already here.');
+  }
+
+  // todo: remove the socket writes, as this method could be used
+  // for different reasons, not all of which is an actual teleport.
+  this.break();
+  const socket = socketUtil.getSocketByCharacterId(this.id);
+
+  //socketUtil.roomMessage(socket, `${this.name} vanishes!`, [socket.id]);
+  if(socket) {
+    socket.leave(socket.character.roomId);
+    socket.join(roomId);
+  }
+
+  this.roomId = roomId;
+  
+  // npcs don't save to database on every move
+  if(socket) {
+    this.save(err => { if (err) throw err; });
+  }
+  //socketUtil.roomMessage(socket, `${socket.character.name} appears out of thin air!`, [socket.id]);
+  //socketUtil.output(socket, 'You successfully teleport.');
+  return Promise.resolve();
+};
+
+CharacterSchema.output = function(msg) {
+  const socket = socketUtil.getSocketByCharacterId(this.id);
+  socket.emit('output', {message: msg});
+};
+
 
 export default CharacterSchema;

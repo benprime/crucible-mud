@@ -22,8 +22,8 @@ describe('who', () => {
     t2 = new mocks.SocketMock();
     t1.id = '1';
     t2.id = '2';
-    t1.user.username = 'Test1';
-    t2.user.username = 'Test2';
+    t1.character.name = 'Test1';
+    t2.character.name = 'Test2';
     global.io.reset();
     global.io.sockets.connected = {};
     global.io.sockets.connected[t1.id] = t1;
@@ -39,9 +39,10 @@ describe('who', () => {
 
   describe('execute', () => {
     test('should display online users', () => {
-      sut.execute(socket);
+      return sut.execute().then(response => {
+        expect(response).toContain('<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1<br />Test2<br /></div>');
+      });
 
-      expect(socket.emit.mock.calls[0][1].message).toContain('<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1<br />Test2<br /></div>');
     });
 
     test('should display areas when online users are in rooms that have areas', () => {
@@ -50,9 +51,10 @@ describe('who', () => {
       mockGetAreaById.mockReturnValueOnce(mocks.getMockRoom(socket.character.roomId));
       t2.character.roomId = 'room without area';
 
-      sut.execute(socket);
+      return sut.execute().then(response => {
+        expect(response).toContain('<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1 (A dangerous area)<br />Test2<br /></div>');
+      });
 
-      expect(socket.emit.mock.calls[0][1].message).toContain('<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1 (A dangerous area)<br />Test2<br /></div>');
     });
   });
 });

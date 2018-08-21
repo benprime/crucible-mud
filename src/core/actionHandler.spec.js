@@ -1,6 +1,6 @@
 import { mockGetRoomById } from '../models/room';
 import { mockGetSocketByUsername } from '../core/socketUtil';
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteTypes, mockAutocompleteCharacter } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import { when } from 'jest-when';
 import sut from './actionHandler';
@@ -14,7 +14,7 @@ global.io = new mocks.IOMock();
 let mockRoom;
 let targetSocket;
 let bystanderSocket;
-let usersInRoom = [];
+let charactersInRoom = [];
 
 describe('actionHandler', () => {
   let socket;
@@ -22,26 +22,27 @@ describe('actionHandler', () => {
 
   describe('actionDispatcher', () => {
     beforeEach(() => {
+      sockets = {};
       mockRoom = mocks.getMockRoom();
       mockGetRoomById.mockReturnValue(mockRoom);
 
       socket = new mocks.SocketMock();
-      socket.character.roomId = mockRoom.id;
-      when(mockGetSocketByUsername).calledWith(socket.user.username).mockReturnValue(socket);
+      when(mockGetSocketByUsername).calledWith(socket.character.name).mockReturnValue(socket);
       sockets[socket.id] = socket;
+      socket.character.roomId = mockRoom.id;
 
-      usersInRoom.push('aDifferentUser');
+      charactersInRoom.push('aDifferentUser');
       targetSocket = new mocks.SocketMock();
-      targetSocket.user.username = 'aDifferentUser';
+      targetSocket.character.name = 'aDifferentUser';
       targetSocket.character.roomId = mockRoom.id;
-      when(mockGetSocketByUsername).calledWith(targetSocket.user.username).mockReturnValue(targetSocket);
+      when(mockGetSocketByUsername).calledWith(targetSocket.character.name).mockReturnValue(targetSocket);
       sockets[targetSocket.id] = targetSocket;
 
-      usersInRoom.push('aThirdUser');
+      charactersInRoom.push('aThirdUser');
       bystanderSocket = new mocks.SocketMock();
-      bystanderSocket.user.username = 'aThirdUser';
+      bystanderSocket.character.name = 'aThirdUser';
       bystanderSocket.character.roomId = mockRoom.id;
-      when(mockGetSocketByUsername).calledWith(bystanderSocket.user.username).mockReturnValue(bystanderSocket);
+      when(mockGetSocketByUsername).calledWith(bystanderSocket.character.name).mockReturnValue(bystanderSocket);
       sockets[bystanderSocket.id] = bystanderSocket;
 
       global.io.sockets.adapter.rooms = {};
@@ -52,49 +53,53 @@ describe('actionHandler', () => {
 
     test('should output message when no socket is returned for the user', () => {
       // arrange
-      targetSocket = undefined;
+      mockAutocompleteCharacter.mockReturnValueOnce(targetSocket);
+      //targetSocket = undefined;
 
       // act
-      const result = sut.actionDispatcher(socket, 'hug', 'anUnknownUser');
+      return sut.actionDispatcher(socket.character, 'hug', 'anUnknownUser').catch(response => {
+        // assert
+        expect(response).toBe('You don\'t see anUnknownUser anywhere!');
+      });
 
-      // assert
-      expect(result).toBe(true);
-      expect(socket.emit).not.toBeCalled();
     });
 
     test('should output message when action is performed on self', () => {
       // arrange
-      targetSocket = socket;
+      //targetSocket = socket;
 
       // act
-      const result = sut.actionDispatcher(socket, 'hug');
-
-      // assert
-      expect(result).toBe(true);
-      expect(socket.emit).toBeCalledWith('output', { message: 'You hug yourself.' });
-      expect(global.io.to(bystanderSocket.id).emit).toBeCalledWith('output', { message: `${socket.user.username} hugs himself.` });
+      return sut.actionDispatcher(socket.character, 'hug').then(response => {
+        // assert
+        expect(response.charMessages).toHaveLength(3);
+        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You hug yourself.' });
+        expect(response.charMessages).toContainEqual({ charId: bystanderSocket.character.id, message: `${socket.character.name} hugs himself.` });
+      });
     });
 
     test('should output message when action is performed on other user', () => {
       // arrange
-      mockGetSocketByUsername.mockReturnValueOnce(targetSocket);
+      mockAutocompleteCharacter.mockReturnValueOnce(targetSocket.character);
       mockRoom.userInRoom.mockReturnValue(true);
-      mockAutocompleteTypes.mockReturnValueOnce({item: targetSocket.user});
-      
-      // act
-      const result = sut.actionDispatcher(socket, 'hug', targetSocket.user.username);
+      mockAutocompleteTypes.mockReturnValueOnce({ item: targetSocket.user });
 
-      // assert
-      expect(result).toBe(true);
-      expect(socket.emit).toBeCalledWith('output', { message: `You hug ${targetSocket.user.username} close!` });
-      expect(global.io.to(bystanderSocket.id).emit).toBeCalledWith('output', { message: `${socket.user.username} hugs ${targetSocket.user.username} close!` });
-      expect(targetSocket.emit).toBeCalledWith('output', { message: `${socket.user.username} hugs you close!` });
+      // act
+      return sut.actionDispatcher(socket.character, 'hug', targetSocket.character.name).then(response => {
+        // assert
+        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `You hug ${targetSocket.character.name} close!` });
+        expect(response.charMessages).toContainEqual({ charId: targetSocket.character.id, message: `${socket.character.name} hugs you close!` });
+        expect(response.charMessages).toContainEqual({ charId: bystanderSocket.character.id, message: `${socket.character.name} hugs ${targetSocket.character.name} close!` });
+        //expect(global.io.to(bystanderSocket.id).emit).toBeCalledWith('output', { message: `${socket.character.name} hugs ${targetSocket.character.name} close!` });
+        //expect(targetSocket.emit).toBeCalledWith('output', { message: `${socket.character.name} hugs you close!` });
+
+      });
+
     });
 
     test('should return false when action is not found', () => {
-      const result = sut.actionDispatcher(socket, 'notAnAction', targetSocket.user.username);
-
-      expect(result).toBe(false);
+      return sut.actionDispatcher(socket.character, 'notAnAction', targetSocket.character.name).catch(response => {
+        expect(response).toBe('invalid action');
+      });
     });
   });
 });

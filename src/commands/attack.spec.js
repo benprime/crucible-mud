@@ -37,18 +37,18 @@ describe('attack', () => {
       mockGetRoomById.mockReturnValueOnce(mockRoom);
       mockAutocompleteTypes.mockReturnValueOnce(autocompleteResult);
 
-      sut.execute(socket, 'thing');
-
-      expect(socket.emit).toBeCalledWith('output', { message: '<span class="olive">*** Combat Engaged ***</span>' });
-      expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: `${socket.user.username} moves to attack ${autocompleteResult.item.displayName}!` });
-      expect(socket.character.attackTarget).toBe(autocompleteResult.item.id);
+      return sut.execute(socket.character, 'thing').then(response => {
+        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: '<span class="olive">*** Combat Engaged ***</span>' });
+        expect(response.roomMessages).toContainEqual({ roomId: mockRoom.id, message: `${socket.character.name} moves to attack ${autocompleteResult.item.displayName}!` });
+        expect(socket.character.attackTarget).toBe(autocompleteResult.item.id);
+      });
     });
 
     test('should set state and emit output when no target found', () => {
       mockGetRoomById.mockReturnValueOnce(mockRoom);
       mockAutocompleteTypes.mockReturnValueOnce(null);
 
-      sut.execute(socket, 'thing');
+      sut.execute(socket.character, 'thing');
 
       expect(socket.emit).not.toHaveBeenCalled();
       expect(socket.character.attackTarget).toBeFalsy();

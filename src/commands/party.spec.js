@@ -1,7 +1,10 @@
 import mocks from '../../spec/mocks';
 import sut from './party';
+import { mockGetFollowingCharacters } from '../core/socketUtil';
 
 global.io = new mocks.IOMock();
+
+jest.mock('../core/socketUtil');
 
 describe('party', () => {
   let socket;
@@ -12,28 +15,22 @@ describe('party', () => {
     socket = new mocks.SocketMock();
 
     t1 = new mocks.SocketMock();
-    t1.id = '1';
-    t1.user.username = 'Test1';
-    t1.leader = socket.character.id;
+    t1.character.name = 'Test1';
 
     t2 = new mocks.SocketMock();
-    t2.id = '2';
-    t2.user.username = 'Test2';
-    t2.leader = socket.character.id;
+    t2.character.name = 'Test2';
 
-    global.io.reset();
-    global.io.sockets.connected = {};
-    global.io.sockets.connected[t1.id] = t1;
-    global.io.sockets.connected[t2.id] = t2;
+    mockGetFollowingCharacters.mockReturnValue([t1.character, t2.character]);
   });
 
   describe('execute', () => {
     test('should display party members', () => {
-      sut.execute(socket);
+      return sut.execute(socket.character).then(response => {
+        const expected = 'The following people are in your party:\nTest1\nTest2\nTestUser (Leader)\n';
 
-      const expected = 'The following people are in your party:\nTest1\nTest2\nTestUser (Leader)\n';
-      
-      expect(socket.emit).toBeCalledWith('output', { message: expected });
+        expect(response).toEqual(expected);
+      });
+
     });
   });
 });

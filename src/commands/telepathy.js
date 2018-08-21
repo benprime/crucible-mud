@@ -9,24 +9,29 @@ export default {
   ],
 
   dispatch(socket, match) {
-    if(match.length != 3) {
+    if (match.length != 3) {
       this.help(socket);
       return;
     }
-    this.execute(socket, match[1], match[2]);
+    this.execute(socket.character, match[1], match[2])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, username, message) {
+  execute(character, username, message) {
     const userSocket = socketUtil.getSocketByUsername(username);
     if (!userSocket) {
-      socket.emit('output', { message: 'Invalid username.' });
-      return;
+      return Promise.reject('Invalid username.');
     }
-    username = userSocket.user.username;
-    const sender = socket.user.username;
+    username = userSocket.character.name;
+    const sender = character.name;
 
-    userSocket.emit('output', { message: `${sender} telepaths: ${message}` });
-    socket.emit('output', { message: `Telepath to ${username}: ${message}` });
+    return Promise.resolve({
+      charMessages: [
+        { charId: userSocket.character.id, message: `${sender} telepaths: ${message}` },
+        { charId: character.id, message: `Telepath to ${username}: ${message}` },
+      ],
+    });
   },
 
   help(socket) {

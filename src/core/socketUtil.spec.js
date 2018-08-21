@@ -112,7 +112,7 @@ describe('socketUtil', () => {
       global.io.sockets.connected[socket.id] = socket;
 
       // act
-      const result = sut.getSocketByUsername(socket.user.username);
+      const result = sut.getSocketByUsername(socket.character.name);
 
       // assert
       expect(result).toBe(socket);
@@ -186,7 +186,7 @@ describe('socketUtil', () => {
     });
   });
 
-  describe('getFollowingSockets', () => {
+  describe('getFollowingCharacters', () => {
     beforeEach(() => {
       global.io.reset();
     });
@@ -215,7 +215,7 @@ describe('socketUtil', () => {
       global.io.sockets.connected[nonFollower3.id] = nonFollower3;
 
       // act
-      const result = sut.getFollowingSockets(leaderId);
+      const result = sut.getFollowingCharacters(leaderId);
 
       // assert
       expect(result).toHaveLength(3);

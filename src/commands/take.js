@@ -14,51 +14,52 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 2) {
-      socket.emit('output', { message: 'What do you want to take?' });
+      return Promise.reject('What do you want to take?');
     }
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1], socket.user.admin);
   },
 
-  execute(socket, itemName) {
+  execute(character, itemName, admin) {
     function saveItem(item) {
       // and give it to the user
       if (item.type === 'key') {
-        socket.character.keys.push(item);
+        character.keys.push(item);
       } else {
-        socket.character.inventory.push(item);
+        character.inventory.push(item);
       }
-      socket.character.save(err => { if (err) throw err; });
-      socket.emit('output', { message: `${item.displayName} was added to your inventory.` });
+      character.save(err => { if (err) throw err; });
     }
 
-    const acResult = autocomplete.autocompleteTypes(socket, ['room'], itemName);
+    const acResult = autocomplete.autocompleteTypes(character, ['room'], itemName);
     if (acResult) {
       const roomItem = acResult.item;
 
       // fixed items cannot be taken, such as a sign.
       if (roomItem.fixed) {
-        socket.emit('output', { message: 'You cannot take that!' });
-        return;
+        return Promise.reject('You cannot take that!');
       }
-      if (roomItem.hidden && !socket.user.admin) {
+      if (roomItem.hidden && !admin) {
         //ignore players from unknowingly grabbing a hidden item
-        socket.emit('output', { message: 'You don\'t see that here!' });
-        return;
+        return Promise.reject('You don\'t see that here!');
       }
       // take the item from the room
-      const room = Room.getById(socket.character.roomId);
+      const room = Room.getById(character.roomId);
       utils.removeItem(room.inventory, roomItem);
 
       saveItem(roomItem);
       room.save(err => { if (err) throw err; });
 
-      socket.emit('output', { message: `${roomItem.displayName} taken.` });
-      socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} takes ${roomItem.displayName}.` });
-      return;
+      return Promise.resolve({
+        charMessages: [
+          { charId: character.id, message: `${roomItem.displayName} taken.` },
+        ],
+        roomMessages: [
+          { roomId: character.roomId, message: `${character.name} takes ${roomItem.displayName}.` },
+        ],
+      });
     }
 
-    socket.emit('output', { message: 'You don\'t see that here!' });
-    return;
+    return Promise.reject('You don\'t see that here!');
   },
 
   help(socket) {

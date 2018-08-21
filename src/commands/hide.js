@@ -1,37 +1,36 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
+import socketUtil from '../core/socketUtil';
 
 function hideDir(socket, room, dir) {
   let exit = room.getExit(dir);
   if (!exit) {
-    socket.emit('output', { message: 'No exit in that direction.<br />' });
-    return;
+    return Promise.reject('No exit in that direction.<br />');
   }
 
   exit.hidden = true;
   room.save(err => { if (err) throw err; });
-  socket.emit('output', { message: 'The exit has been concealed.<br />' });
+  return Promise.resolve('The exit has been concealed.<br />');
 }
 
 // for items
-function hideItem(socket, room, itemName) {
+function hideItem(character, room, itemName) {
 
-  const acResult = autocomplete.autocompleteTypes(socket, ['inventory', 'room'], itemName);
+  const acResult = autocomplete.autocompleteTypes(character, ['inventory', 'room'], itemName);
   if (!acResult) {
-    socket.emit('output', { message: 'Item does not exist in inventory or in room.<br />' });
-    return;
+    return Promise.reject('Item does not exist in inventory or in room.<br />');
   }
 
   const hideTargetObj = acResult.item;
 
   if (!hideTargetObj) {
-    socket.emit('output', { message: 'Item does not exist in inventory or in room.<br />' });
-    return;
+    return Promise.reject('Item does not exist in inventory or in room.<br />');
   }
 
   hideTargetObj.hidden = true;
   room.save(err => { if (err) throw err; });
-  socket.emit('output', { message: `${itemName} has been concealed.<br />` });
+
+  return Promise.resolve(`${itemName} has been concealed.<br />`);
 }
 
 
@@ -52,19 +51,21 @@ export default {
       this.help(socket);
       return;
     }
-    this.execute(socket, hideTarget);
+    this.execute(socket.character, hideTarget)
+      .then(output => socketUtil.output(socket, output))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, hideTarget) {
-    const room = Room.getById(socket.character.roomId);
+  execute(character, hideTarget) {
+    const room = Room.getById(character.roomId);
 
     if (hideTarget) {
       hideTarget = hideTarget.toLowerCase();
 
       if (Room.validDirectionInput(hideTarget)) {
-        hideDir(socket, room, hideTarget);
+        return hideDir(character, room, hideTarget);
       } else {
-        hideItem(socket, room, hideTarget);
+        return hideItem(character, room, hideTarget);
       }
     }
   },

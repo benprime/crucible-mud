@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import socketUtil from '../core/socketUtil';
 
 const itemTypeEnum = [
   'item',
@@ -45,12 +46,13 @@ const ItemSchema = new mongoose.Schema({
   },
 });
 
-ItemSchema.methods.look = function (socket) {
+ItemSchema.methods.look = function (character) {
+  const socket = socketUtil.getSocketByCharacterId(character.id);
   let output = this.desc;
-  if(socket.user.admin) {
+  if(socket.user.debug) {
     output += `\nItem ID: ${this.id}`;
   }
-  socket.emit('output', { message: output });
+  return Promise.resolve(output);
 };
 
 export default ItemSchema;

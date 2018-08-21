@@ -11,22 +11,21 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket, match[1], match[2]);
+    this.execute(socket.character, match[1], match[2]);
   },
 
-  execute(socket, itemName, hand) {
+  execute(character, itemName, hand) {
 
-    const acResult = autocomplete.autocompleteTypes(socket, ['inventory'], itemName);
+    const acResult = autocomplete.autocompleteTypes(character, ['inventory'], itemName);
     if (!acResult) {
-      return;
+      return Promise.reject('item is not in inventory.');
     }
 
     const item = acResult.item;
 
     // check if item is equipable or return
     if (!item.equip) {
-      socket.emit('output', { message: 'You cannot equip that!\n' });
-      return;
+      return Promise.reject('You cannot equip that!\n');
     }
 
     // if match add itemName to appropriate character item slot
@@ -34,75 +33,72 @@ export default {
       case '':
         break;
       case 'mainHand':
-        socket.character.equipSlots.weaponMain = item;
+        character.equipSlots.weaponMain = item;
         break;
       case 'offHand':
-        socket.character.equipSlots.weaponOff = item;
+        character.equipSlots.weaponOff = item;
         break;
       case 'bothHand':
-        socket.character.equipSlots.weaponMain = item;
-        socket.character.equipSlots.weaponOff = item;
+        character.equipSlots.weaponMain = item;
+        character.equipSlots.weaponOff = item;
         break;
       case 'eitherHand':
         if (hand == 'main') {
-          socket.character.equipSlots.weaponMain = item;
+          character.equipSlots.weaponMain = item;
         }
         else if (hand == 'off') {
-          socket.character.equipSlots.weaponOff = item;
+          character.equipSlots.weaponOff = item;
         }
         else {
-          socket.emit('output', { message: 'Please specify which hand to equip the item\n' });
-          return;
+          return Promise.reject('Please specify which hand to equip the item\n');
         }
         break;
       case 'head':
-        socket.character.equipSlots.head = item;
+        character.equipSlots.head = item;
         break;
       case 'body':
-        socket.character.equipSlots.body = item;
+        character.equipSlots.body = item;
         break;
       case 'back':
-        socket.character.equipSlots.back = item;
+        character.equipSlots.back = item;
         break;
       case 'legs':
-        socket.character.equipSlots.legs = item;
+        character.equipSlots.legs = item;
         break;
       case 'feet':
-        socket.character.equipSlots.feet = item;
+        character.equipSlots.feet = item;
         break;
       case 'arms':
-        socket.character.equipSlots.arms = item;
+        character.equipSlots.arms = item;
         break;
       case 'hands':
-        socket.character.equipSlots.hands = item;
+        character.equipSlots.hands = item;
         break;
       case 'neck':
-        socket.character.equipSlots.neck = item;
+        character.equipSlots.neck = item;
         break;
       case 'finger':
         if (hand == 'main') {
-          socket.character.equipSlots.fingerMain = item;
+          character.equipSlots.fingerMain = item;
         }
         else if (hand == 'off') {
-          socket.character.equipSlots.fingerOff = item;
+          character.equipSlots.fingerOff = item;
         }
         else {
-          socket.emit('output', { message: 'Please specify which hand to equip the item\n' });
-          return;
+          return Promise.reject('Please specify which hand to equip the item\n');
         }
         break;
       default:
-        socket.emit('output', { message: 'Um, you want to put that where?!?!\n' });
-        return;
+        return Promise.reject('Um, you want to put that where?!?!\n');
 
       //add bonuses from itemName to corresponding character stats
     }
 
     // remove item from backpack
-    utils.removeItem(socket.character.inventory, item);
-    socket.character.save(err => { if (err) throw err; });
+    utils.removeItem(character.inventory, item);
+    character.save(err => { if (err) throw err; });
 
-    socket.emit('output', { message: 'Item equipped.\n' });
+    return Promise.resolve('Item equipped.\n');
 
     //TODO: fix main/off hand selection (currently autocomplete takes in all parameters including the main/off hand bit...)
   },

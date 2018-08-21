@@ -5,15 +5,14 @@ const UserSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
-  username: {
-    type: String,
-    unique: true,
-  },
   // todo: hash this
   password: {
     type: String,
   },
   admin: {
+    type: Boolean,
+  },
+  debug: {
     type: Boolean,
   },
 });

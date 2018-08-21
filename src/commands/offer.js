@@ -27,16 +27,15 @@ export default {
   execute(character, itemName, userName) {
     let item = null;
 
-
     // autocomplete username
     const acResult = autocomplete.autocompleteTypes(character, ['player'], userName);
     if (!acResult) {
       return Promise.reject('Unknown user or user not connected.');
     }
-    const toUser = acResult.item;
+    const tocharacter = acResult.item;
 
     // validate target user and get target user socket
-    let toCharacter = socketUtil.characterInRoom(character.roomId, toUser.username);
+    let toCharacter = socketUtil.characterInRoom(character.roomId, tocharacter.name);
     if (!toCharacter) {
       return Promise.reject(`${userName} is not here!`);
     }
@@ -51,7 +50,7 @@ export default {
     } else {
       const acResult = autocomplete.autocompleteTypes(character, ['inventory'], itemName);
       if (!acResult) {
-        return;
+        return Promise.reject('You don\'t seem to be carrying that.');
       }
       item = acResult.item;
     }

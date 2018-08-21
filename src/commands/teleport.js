@@ -1,5 +1,5 @@
 import socketUtil from '../core/socketUtil';
-import breakCmd from './break';
+import autocomplete from '../core/autocomplete';
 import lookCmd from './look';
 import Room from '../models/room';
 
@@ -13,45 +13,34 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1]).then(() => lookCmd.execute(socket.character, false));
   },
 
-  execute(socket, teleportTo) {
-    if(!teleportTo) return;
-    // if the parameter is an object id or alias, we are definitely teleporting to a room.
-    
-    
-    
+  execute(character, teleportTo) {
+    if (!teleportTo) return;
+
     let toRoomId = '';
+    
+    // if the parameter is an object id or alias, we are definitely teleporting to a room.
     if (Room.roomCache[teleportTo]) {
       toRoomId = teleportTo;
-    } else {
+
+
+
+
       // otherwise, we are teleporting to a user
-      const userSocket = socketUtil.getSocketByUsername(teleportTo);
-      if (!userSocket) {
-        socket.emit('output', { message: 'Target not found.' });
-        return;
+    } else {
+
+      // autocomplete username
+      const targetCharacter = autocomplete.character(character, teleportTo);
+      if (!targetCharacter) {
+        return Promise.reject('Target not found.');
       }
-      toRoomId = userSocket.character.roomId;
+      toRoomId = targetCharacter.roomId;
     }
 
-    const room = Room.getById(toRoomId);
-    if (!room) {
-      // this should not currently be possible. The room cache has
-      // already been checkedin this method.
-      socket.emit('output', { message: 'Room not found.' });
-      return;
-    }
-    breakCmd.execute(socket);
-
-    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} vanishes!` });
-    socket.leave(socket.character.roomId);
-    socket.join(room.id);
-    socket.character.roomId = room.id;
-    socket.character.save(err => { if (err) throw err; });
-
-    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} appears out of thin air!` });
-    lookCmd.execute(socket);
+    character.teleport(toRoomId);
+    return Promise.resolve();
   },
 
   help(socket) {

@@ -19,43 +19,48 @@ export default {
     }
     let typeName = match[1];
     let objectID = match[2];
-    this.execute(socket, typeName, objectID);
+    this.execute(socket.character, typeName, objectID);
   },
 
-  execute(socket, type, name) {
+  execute(character, type, name) {
 
-    const room = Room.getById(socket.character.roomId);
+    const room = Room.getById(character.roomId);
     if (type === 'mob') {
       // look for mob in user's current room
-      const acResult = autocomplete.autocompleteTypes(socket, ['mob'], name);
+      const acResult = autocomplete.autocompleteTypes(character, ['mob'], name);
       if (!acResult) {
-        return;
+        return Promise.reject('Mob not found.');
       }
       const mob = acResult.item;
 
       // mobs is a non-mongoose array, so must use removeItem
       let removedItem = utils.removeItem(room.mobs, mob);
       if (!removedItem) {
-        socket.emit('output', { message: 'Something went terribly wrong.' });
+        return Promise.reject('Something went terribly wrong.');
       } else {
-        socket.emit('output', { message: 'Mob successfully destroyed.' });
-        // announce mob disappearance to any onlookers
-        socket.broadcast.to(room.id).emit('output', { message: 'Mob erased from existence!' });
+        return Promise.resolve({
+          charMessages: [
+            { charId: character.id, message: 'Mob successfully destroyed.' },
+          ],
+          roomMessages: [
+            { roomId: character.roomId, message: 'Mob erased from existence!' },
+          ],
+        });
       }
     }
     else if (type === 'item') {
-      const acResult = autocomplete.autocompleteTypes(socket, ['inventory'], name);
+      const acResult = autocomplete.autocompleteTypes(character, ['inventory'], name);
       if (!acResult) {
-        return;
+        return Promise.reject('You don\'t seem to be carrying that item.');
       }
 
       // delete item
       // inventory is a mongoose-controlled array, so this must use .remove
-      socket.character.inventory.id(acResult.item.id).remove();
-      socket.character.save(err => { if (err) throw err; });
-      socket.emit('output', { message: 'Item successfully destroyed.' });
+      character.inventory.id(acResult.item.id).remove();
+      character.save(err => { if (err) throw err; });
+      return Promise.resolve('Item successfully destroyed.');
     } else {
-      socket.emit('output', { message: 'Invalid destroy type.' });
+      return Promise.reject('Invalid destroy type.');
     }
   },
 

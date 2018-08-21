@@ -35,31 +35,32 @@ describe('accept', () => {
       offeredItem.name = 'aItem';
       offeredItem.displayName = 'aItem display name';
 
-      mockAutocompleteTypes.mockReturnValueOnce({item: offeringSocket.user});
-      //mockReturnValueOnce({ item: offeredItem })
-      //mockGetSocketByUsername.mockReturnValueOnce(offeringSocket);
+      mockAutocompleteTypes.mockReturnValueOnce({ item: offeringSocket.user });
       mockCharacterInRoom.mockReturnValueOnce(offeringSocket.character);
 
-      offeringSocket.user.username = 'aUser';
+      offeringSocket.character.name = 'aUser';
+      offeringSocket.character.name = 'aUser';
       offeringSocket.character.inventory = [offeredItem];
 
       socket.character.offers = [{
-        fromUserName: offeringSocket.user.username,
-        toUserName: socket.user.username,
+        fromUserName: offeringSocket.character.name,
+        toUserName: socket.character.name,
         item: offeredItem,
       }];
 
-      sut.execute(socket.character, 'aItem');
+      return sut.execute(socket.character, 'aItem').then(response => {
+        expect(socket.character.offers).toHaveLength(0);
+        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `You accept the ${offeredItem.displayName} from ${offeringSocket.character.name}.` });
+        expect(socket.character.save).toHaveBeenCalled();
+        expect(socket.character.inventory).toHaveLength(1);
+        expect(socket.character.inventory[0].name).toEqual('aItem');
 
-      expect(socket.character.offers).toHaveLength(0);
-      //expect(socket.emit).toBeCalledWith('output', { message: `You accept the ${offeredItem.displayName} from ${offeringSocket.user.username}.` });
-      expect(socket.character.save).toHaveBeenCalled();
-      expect(socket.character.inventory).toHaveLength(1);
-      expect(socket.character.inventory[0].name).toEqual('aItem');
+        expect(response.charMessages).toContainEqual({ charId: offeringSocket.character.id, message: `${socket.character.name} accepts the ${offeredItem.displayName}.` });
+        expect(offeringSocket.character.save).toHaveBeenCalled();
+        expect(offeringSocket.character.inventory).toHaveLength(0);
+      });
 
-      //expect(offeringSocket.emit).toBeCalledWith('output', { message: `${socket.user.username} accepts the ${offeredItem.displayName}.` });
-      expect(offeringSocket.character.save).toHaveBeenCalled();
-      expect(offeringSocket.character.inventory).toHaveLength(0);
+
     });
   });
 });

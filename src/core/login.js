@@ -12,7 +12,7 @@ export default {
         if (!user) {
           socket.emit('output', { message: 'Unknown user, please try again.' });
         } else {
-          socket.tempUsername = user.username;
+          socket.tempUsername = character.name;
           socket.state = config.STATES.LOGIN_PASSWORD;
           socket.emit('output', { message: 'Enter password:' });
         }
@@ -35,7 +35,7 @@ export default {
           delete socket.tempUsername;
 
           // if the user is logged in from another connection, disconnect it.
-          const existingSocket = socketUtil.getSocketByUsername(user.username);
+          const existingSocket = socketUtil.getSocketByUsername(character.name);
           if (existingSocket) {
             existingSocket.emit('output', { message: 'You have logged in from another session.\n<span class="gray">*** Disconnected ***</span>' });
             existingSocket.disconnect();

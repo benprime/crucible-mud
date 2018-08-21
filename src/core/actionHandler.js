@@ -1,71 +1,73 @@
 import actionsData from '../data/actionData';
-import socketUtil from '../core/socketUtil';
 import Room from '../models/room';
 import utils from '../core/utilities';
 import autocomplete from '../core/autocomplete';
 
 export default {
-  actionDispatcher(socket, action, username) {
+  actionDispatcher(character, action, username) {
 
     // validate action
-    if (!(action in actionsData.actions)) return false;
+    if (!(action in actionsData.actions)) return Promise.reject('invalid action');
 
     // autocomplete username
-    let targetSocket = socket;
+    let targetCharacter = character;
     if (username) {
-      const acResult = autocomplete.autocompleteTypes(socket, ['player'], username);
-      if (!acResult) {
-        return true;
+      targetCharacter = autocomplete.character(character, username);
+      if (!targetCharacter) {
+        return Promise.reject(`Unknwon player: ${username}`);
       }
-      username = acResult.item.username;
-      targetSocket = socketUtil.getSocketByUsername(username);
     }
 
     // make sure the user is someone in the room
-    if (targetSocket !== socket) {
-      const room = Room.getById(socket.character.roomId);
-      const userInRoom = room.userInRoom(targetSocket.user.username);
+    if (targetCharacter.id !== character.id) {
+      const room = Room.getById(character.roomId);
+      const userInRoom = room.userInRoom(targetCharacter.name);
       if (!userInRoom) {
-        socket.emit('output', { message: `You don't see ${username} anywhere!` });
-        return true;
+        return Promise.reject(`You don't see ${username} anywhere!`);
       }
     }
 
+    const selfAction = targetCharacter.id === character.id;
+
     // determine message set to use
     const actionMessages = actionsData.actions[action];
-    const messages = targetSocket === socket ? actionMessages.solo : actionMessages.target;
+    const messageSet = selfAction ? actionMessages.solo : actionMessages.target;
 
-    // format messages
-    const fromUser = socket.user.username;
-    const toUser = targetSocket ? targetSocket.user.username : null;
+    const fromUserName = character.name;
+    const toUserName = !selfAction ? targetCharacter.name : null;
+
+    const charMessages = [];
 
     // messages to action-taker
-    if (messages.sourceMessage) {
-      socket.emit('output', { message: utils.formatMessage(messages.sourceMessage, fromUser, toUser) });
+    if (messageSet.sourceMessage) {
+      charMessages.push({ charId: character.id, message: utils.formatMessage(messageSet.sourceMessage, fromUserName, toUserName) });
     }
 
     // messages to all bystanders
-    if (messages.roomMessage) {
-      const socketRoom = global.io.sockets.adapter.rooms[socket.character.roomId];
+    if (messageSet.roomMessage) {
+      const socketRoom = global.io.sockets.adapter.rooms[character.roomId];
 
-      Object.keys(socketRoom.sockets).forEach((socketId) => {
+      for (let toChar of Object.values(socketRoom.sockets).map(s => s.character)) {
         // if you have a sourceMessage, don't send "room message" to source socket
-        if (messages.sourceMessage && socketId === socket.id) {
-          return;
+        if (messageSet.sourceMessage && character.id === toChar.id) {
+          continue;
         }
 
         // not to target user's socket (since they have their own message)
-        if (targetSocket && messages.targetMessage && socketId === targetSocket.id) {
-          return;
+        if (!selfAction && messageSet.targetMessage && toChar.id === targetCharacter.id) {
+          continue;
         }
-        global.io.to(socketId).emit('output', { message: utils.formatMessage(messages.roomMessage, fromUser, toUser) });
-      });
+        charMessages.push({ charId: toChar.id, message: utils.formatMessage(messageSet.roomMessage, fromUserName, toUserName) });
+      }
     }
 
     // message to target user
-    if (targetSocket && messages.targetMessage) {
-      targetSocket.emit('output', { message: utils.formatMessage(messages.targetMessage, fromUser, toUser) });
+    if (!selfAction && messageSet.targetMessage) {
+      charMessages.push({ charId: targetCharacter.id, message: utils.formatMessage(messageSet.targetMessage, fromUserName, toUserName) });
     }
-    return true;
+
+    return Promise.resolve({
+      charMessages: charMessages,
+    });
   },
 };

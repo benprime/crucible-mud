@@ -22,12 +22,11 @@ ShopSchema.statics.getById = roomId => {
   return shop;
 };
 
-ShopSchema.statics.createShop = function (roomId, cb) {
+ShopSchema.statics.createShop = function (roomId) {
   const shop = new this({ roomId: roomId });
-  shop.save((err, shop) => {
+  return shop.save((err, shop) => {
     if (err) throw err;
     shopCache[roomId] = shop;
-    cb(shop);
   });
 };
 

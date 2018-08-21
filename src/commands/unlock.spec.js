@@ -33,30 +33,34 @@ describe('unlock', () => {
   });
 
   test('should output message when direction is invalid', () => {
-    sut.execute(socket, 'e', 'some key');
+    return sut.execute(socket.character, 'e', 'some key').catch(response => {
+      expect(response).toEqual('No door in that direction.' );
+      expect(mockRoom.save).not.toHaveBeenCalled();
+    });
 
-    expect(socket.emit).toBeCalledWith('output', { message: 'No door in that direction.' });
-    expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
   test('should output message when a door exists but is not locked', () => {
 
     mockValidDirectionInput.mockReturnValueOnce('n');
 
-    sut.execute(socket, 'n', 'some key');
+    return sut.execute(socket.character, 'n', 'some key').catch(response => {
+      expect(response).toEqual('That door is not locked.' );
+      expect(mockRoom.save).not.toHaveBeenCalled();
+    });
 
-    expect(socket.emit).toBeCalledWith('output', { message: 'That door is not locked.' });
-    expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
   test('should output no messages when user is not carrying the key', () => {
     mockValidDirectionInput.mockReturnValueOnce('nw');
     mockAutocompleteTypes.mockReturnValueOnce(null);
 
-    sut.execute(socket, 'nw', 'some key');
+    return sut.execute(socket.character, 'nw', 'some key').catch(response => {
+      expect(response).toBe('You don\'t seem to be carrying that key.');
+      expect(mockRoom.save).not.toHaveBeenCalled();
+    });
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { 'message': 'You don\'t seem to be carrying that key.' });
-    expect(mockRoom.save).not.toHaveBeenCalled();
+
   });
 
   test('should output message when key is the wrong key for the door', () => {
@@ -66,10 +70,12 @@ describe('unlock', () => {
     mockValidDirectionInput.mockReturnValueOnce('ne');
     mockAutocompleteTypes.mockReturnValueOnce({ item: key });
 
-    sut.execute(socket, 'ne', 'Blue');
+    return sut.execute(socket.character, 'ne', 'Blue').catch(response => {
+      expect(response).toEqual('That key does not unlock that door.');
+      expect(mockRoom.save).not.toHaveBeenCalled();
+    });
 
-    expect(socket.emit).toBeCalledWith('output', { message: 'That key does not unlock that door.' });
-    expect(mockRoom.save).not.toHaveBeenCalled();
+
   });
 
   test('should unlock door with output message when command successful', () => {
@@ -79,16 +85,17 @@ describe('unlock', () => {
     mockValidDirectionInput.mockReturnValueOnce('w');
     mockAutocompleteTypes.mockReturnValueOnce({ item: key });
 
-    sut.execute(socket, 'w', 'Gold');
+    return sut.execute(socket.character, 'w', 'Gold').then(response => {
+      expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Door unlocked.' });
+      expect(mockRoom.save).not.toHaveBeenCalled();
+    });
 
-    expect(socket.emit).toBeCalledWith('output', { message: 'Door unlocked.' });
-    expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
   describe('asyncTest', () => {
     let worked = false;
 
-    beforeEach(done => {
+    beforeEach(() => {
       global.io.reset();
       const key = new Item();
       key.itemTypeEnum = 'key';
@@ -96,17 +103,20 @@ describe('unlock', () => {
       mockValidDirectionInput.mockReturnValueOnce('nw');
       mockShortToLong.mockReturnValueOnce('northwest');
       mockAutocompleteTypes.mockReturnValueOnce({ item: key });
-
-      sut.execute(socket, 'nw', 'Silver', () => {
-        worked = true;
-        done();
-      });
     });
 
-    test('should automatically relock door after timeout', () => {
-      expect(global.io.to('bogus').emit).toHaveBeenCalledWith('output', { message: 'The door to the northwest clicks locked!' });
-      expect(mockRoom.save).not.toHaveBeenCalled();
-      expect(worked).toBe(true);
+    test('should automatically relock door after timeout', (done) => {
+
+      return sut.execute(socket.character, 'nw', 'Silver', () => {
+        worked = true;
+
+        expect(global.io.to('bogus').emit).toHaveBeenCalledWith('output', { message: 'The door to the northwest clicks locked!' });
+        expect(mockRoom.save).not.toHaveBeenCalled();
+        expect(worked).toBe(true);
+
+        done();
+      });
+
     });
   });
 });

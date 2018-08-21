@@ -31,46 +31,49 @@ describe('hide', () => {
   describe('doors', () => {
     test('should output message when direction is invalid', () => {
       mockValidDirectionInput.mockReturnValueOnce('e');
-      
-      sut.execute(socket, 'e');
 
-      expect(socket.emit).toBeCalledWith('output', { message: 'No exit in that direction.<br />' });
-      expect(mockRoom.save).not.toHaveBeenCalled();
+      return sut.execute(socket.character, 'e').catch(response => {
+        expect(response).toEqual('No exit in that direction.<br />');
+        expect(mockRoom.save).not.toHaveBeenCalled();
+      });
     });
 
-    test('should succeed on valid direction', () => {
-      mockValidDirectionInput.mockReturnValueOnce('d');
-      
-      sut.execute(socket, 'd');
-      const exit = mockRoom.exits.find(({ dir }) => dir === 'd');
+  });
 
-      expect(socket.emit).toBeCalledWith('output', { message: 'The exit has been concealed.<br />' });
+  test('should succeed on valid direction', () => {
+    mockValidDirectionInput.mockReturnValueOnce('d');
+
+    return sut.execute(socket.character, 'd').then(response => {
+      const exit = mockRoom.exits.find(({ dir }) => dir === 'd');
+      expect(response).toEqual('The exit has been concealed.<br />');
       expect(mockRoom.save).toHaveBeenCalledTimes(1);
       expect(exit.hidden).toBe(true);
     });
   });
 
+
+
   describe('items', () => {
 
     test('should output message when item is invalid', () => {
       mockAutocompleteTypes.mockReturnValueOnce(null);
-      sut.execute(socket, 'emu');
-
-      expect(socket.emit).toBeCalledWith('output', { message: 'Item does not exist in inventory or in room.<br />' });
-      expect(mockRoom.save).not.toHaveBeenCalled();
+      return sut.execute(socket.character, 'emu').catch(response => {
+        expect(response).toEqual('Item does not exist in inventory or in room.<br />');
+        expect(mockRoom.save).not.toHaveBeenCalled();
+      });
     });
-
 
 
     test('should succeed on valid item', () => {
       const item = { id: 'clownId', name: 'clown', hidden: false };
-      mockAutocompleteTypes.mockReturnValueOnce({item: item});
+      mockAutocompleteTypes.mockReturnValueOnce({ item: item });
 
-      sut.execute(socket, 'clown');
+      return sut.execute(socket.character, 'clown').then(response => {
+        expect(response).toEqual('clown has been concealed.<br />');
+        expect(mockRoom.save).toHaveBeenCalledTimes(1);
+        expect(item.hidden).toBe(true);
+      });
 
-      expect(socket.emit).toBeCalledWith('output', { message: 'clown has been concealed.<br />' });
-      expect(mockRoom.save).toHaveBeenCalledTimes(1);
-      expect(item.hidden).toBe(true);
     });
   });
 });

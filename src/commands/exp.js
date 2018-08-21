@@ -7,17 +7,18 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket);
+    this.execute(socket.character).then(output => socket.emit('output', { message: output }));
   },
 
-  execute(socket) {
+  execute(character) {
     let output = '<span class=\'cyan\'>XP: </span>';
-    output += `<span class='silver'>${socket.character.xp}</span>\n`;
+    output += `<span class='silver'>${character.xp}</span>\n`;
     output += '<span class=\'cyan\'>Level: </span>';
-    output += `<span class='silver'>${socket.character.level}</span>\n`;
+    output += `<span class='silver'>${character.level}</span>\n`;
     output += '<span class=\'cyan\'>Next: </span>';
-    output += `<span class='silver'>${socket.character.nextExp()}</span>\n`;
-    socket.emit('output', { message: output });
+    output += `<span class='silver'>${character.nextExp()}</span>\n`;
+
+    return Promise.resolve(output);
   },
 
   help(socket) {

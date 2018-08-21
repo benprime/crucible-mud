@@ -43,7 +43,7 @@ db.once('open', () => {
 
     socket.on('disconnect', () => {
       if (socket.character) {
-        socket.broadcast.emit('output', { message: `${socket.user.username} has left the realm.` });
+        socket.broadcast.emit('output', { message: `<span class="yellow">${socket.character.name} has left the realm.</span>` });
       }
     });
 
@@ -58,7 +58,7 @@ db.once('open', () => {
           break;
         case config.STATES.LOGIN_PASSWORD:
           loginUtil.LoginPassword(socket, data, () => {
-            look.execute(socket);
+            look.execute(socket.character).then(output => socket.emit('output', { message: output }));
           });
           break;
       }

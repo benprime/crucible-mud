@@ -13,31 +13,36 @@ export default {
       this.help(socket);
       return;
     }
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, username) {
+  execute(character, username) {
 
-    if (socket.leader) {
-      socket.emit('output', { message: 'Only the party leader may invite followers.' });
+    if (character.leader) {
+      return Promise.reject('Only the party leader may invite followers.');
+    }
+
+    const targetCharacter = socketUtil.characterInRoom(character, username);
+    if (!targetCharacter) {
       return;
     }
 
-    const targetSocket = socketUtil.characterInRoom(socket, username);
-    if (!targetSocket) {
-      return;
+    if (!targetCharacter.partyInvites) {
+      targetCharacter.partyInvites = [];
     }
 
-    if (!targetSocket.character.partyInvites) {
-      targetSocket.character.partyInvites = [];
+    if (!targetCharacter.partyInvites.includes(character.id)) {
+      targetCharacter.partyInvites.push(character.id);
     }
 
-    if (!targetSocket.character.partyInvites.includes(socket.character.id)) {
-      targetSocket.character.partyInvites.push(socket.character.id);
-    }
-
-    targetSocket.emit('output', { message: `${socket.user.username} has invited you to join a party.` });
-    socket.emit('output', { message: `You have invited ${targetSocket.user.username} to join your party.` });
+    return Promise.resolve({
+      charMessages: [
+        { charId: targetCharacter.id, message: `${character.name} has invited you to join a party.` },
+        { charId: character.id, message: `You have invited ${targetCharacter.name} to join your party.` },
+      ],
+    });
 
     // TODO: make party invites timeout
     // setTimeout(() => {

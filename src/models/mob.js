@@ -101,7 +101,7 @@ class Mob {
         const socket = socketUtil.getSocketByCharacterId(targetCharacter.id);
 
         this.attackTarget = targetCharacter.id;
-        const username = socket.user.username;
+        const username = socket.character.name;
 
         socket.broadcast.to(roomid).emit('output', { message: `The ${this.displayName} moves to attack ${username}!` });
         socket.emit('output', { message: `The ${this.displayName} moves to attack you!` });
@@ -171,7 +171,7 @@ class Mob {
     const tauntIndex = dice.getRandomNumber(0, this.taunts.length);
     let taunt = this.taunts[tauntIndex];
     taunt = utils.formatMessage(taunt, this.displayName, 'you');
-    let username = socket.user.username;
+    let username = socket.character.name;
     let roomTaunt = utils.formatMessage(this.taunts[tauntIndex], this.displayName, username);
     socket.emit('output', { message: taunt });
     socket.broadcast.to(socket.character.roomId).emit('output', { message: roomTaunt });

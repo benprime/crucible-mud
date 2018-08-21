@@ -1,3 +1,4 @@
+import socketUtil from '../core/socketUtil';
 import Room from '../models/room';
 
 export default {
@@ -8,30 +9,37 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, dir) {
+  execute(character, dir) {
 
     // changes "north" to "n" (just returns "n" if that's what's passed in)
     const d = Room.validDirectionInput(dir.toLowerCase());
-    const room = Room.getById(socket.character.roomId);
+    const room = Room.getById(character.roomId);
 
     // valid exit in that direction?
     const exit = room.exits.find(e => e.dir === d);
     if (!exit) {
-      socket.emit('output', { message: 'There is no exit in that direction!' });
-      return;
+      return Promise.reject('There is no exit in that direction!');
     }
 
     if (exit.closed === undefined) {
-      socket.emit('output', { message: 'There is no door in that direction!' });
-      return;
+      return Promise.reject('There is no door in that direction!');
     }
 
     exit.closed = true;
-    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} closes the door to the ${Room.shortToLong(d)}.` });
-    socket.emit('output', { message: 'Door closed.' });
+
+    return Promise.resolve({
+      charMessages: [
+        { charId: character.id, message: 'Door closed.' },
+      ],
+      roomMessages: [
+        { roomId: character.roomId, message: `${character.name} closes the door to the ${Room.shortToLong(d)}.`},
+      ],
+    });
   },
 
   help(socket) {

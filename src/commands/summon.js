@@ -1,4 +1,5 @@
 import breakCmd from './break';
+import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
 import lookCmd from './look';
 
@@ -12,33 +13,31 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1]);
   },
 
-  execute(socket, username) {
-    const targetUserSocket = socketUtil.getSocketByUsername(username);
+  execute(character, name) {
 
-    //verify summoned player
-    if (!targetUserSocket) {
-      socket.emit('output', { message: 'Player not found.' });
-      return;
+    // autocomplete character
+    const targetCharacter = autocomplete.character(character, name);
+    if (!targetCharacter) {
+      return Promise.reject('Player not found.');
     }
 
-    //remove summoned player from combat
-    breakCmd.execute(targetUserSocket);
+    const oldRoomId = targetCharacter.roomId;
 
-    //move summoned player to summoner's room
-    targetUserSocket.leave(targetUserSocket.character.roomId);
-    targetUserSocket.join(socket.character.roomId);
-    targetUserSocket.character.roomId = socket.character.roomId;
-    targetUserSocket.character.save(err => { if (err) throw err; });
+    return targetCharacter.teleport(character.roomId).then(() => {
+      lookCmd.execute(targetCharacter);
 
-    //announce summoned player's arrival
-    targetUserSocket.emit('output', { message: `You were summoned to ${socket.user.username}'s room!` });
-    targetUserSocket.broadcast.to(targetUserSocket.character.roomId).emit('output', { message: `${targetUserSocket.user.username} appears out of thin air!` });
+      return Promise.resolve({
+        roomMessages: [
+          { roomId: oldRoomId, message: `${targetCharacter.name} vanishes!` },
+          { roomId: character.roomId, message: `${targetCharacter.name} appears out of thin air!` },
+        ],
+        charMessages: [{ charId: targetCharacter.id, message: `You were summoned to ${character.name}'s room!` }],
+      });
 
-    //display room info to summoned player
-    lookCmd.execute(targetUserSocket);
+    });
   },
 
   help(socket) {

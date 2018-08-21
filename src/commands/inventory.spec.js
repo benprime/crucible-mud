@@ -36,11 +36,12 @@ describe('inventory', () => {
           socket.character.equipSlots[equipSlot] = equippedItem;
 
           // act
-          sut.execute(socket);
+          return sut.execute(socket.character).then(response => {
 
-          // assert
-          expect(socket.emit.mock.calls[0][0]).toBe('output');
-          expect(socket.emit.mock.calls[0][1].message).toContain(expectedString);
+            // assert
+            expect(response).toContain(expectedString);
+          });
+
         });
       });
     };
@@ -70,11 +71,11 @@ describe('inventory', () => {
     const expectedString = '<span class="cyan">Backpack: </span><span class="silver">ItemOne, ItemTwo, ItemThree</span>';
 
     // act
-    sut.execute(socket);
+    return sut.execute(socket.character).then(response => {
+      // assert
+      expect(response).toContain(expectedString);
+    });
 
-    // assert
-    expect(socket.emit.mock.calls[0][0]).toBe('output');
-    expect(socket.emit.mock.calls[0][1].message).toContain(expectedString);
   });
 
   test('should display key items', () => {
@@ -87,11 +88,11 @@ describe('inventory', () => {
     const expectedString = '<span class="cyan">Keys: </span><span class="silver">KeyOne, KeyTwo, KeyThree</span>';
 
     // act
-    sut.execute(socket);
+    return sut.execute(socket.character).then(response => {
+      // assert
+      expect(response).toContain(expectedString);
+    });
 
-    // assert
-    expect(socket.emit.mock.calls[0][0]).toBe('output');
-    expect(socket.emit.mock.calls[0][1].message).toContain(expectedString);
   });
 
   const currencyTest = (testName, currency, expectedString) => {
@@ -102,11 +103,11 @@ describe('inventory', () => {
         socket.character.currency = currency;
 
         // act
-        sut.execute(socket);
+        return sut.execute(socket.character).then(response => {
+          // assert
+          expect(response).toContain(expectedString);
+        });
 
-        // assert
-        expect(socket.emit.mock.calls[0][0]).toBe('output');
-        expect(socket.emit.mock.calls[0][1].message).toContain(expectedString);
       });
     });
   };

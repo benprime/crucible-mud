@@ -29,46 +29,50 @@ describe('close', () => {
 
     test('should print message on invalid direction', () => {
       mockValidDirectionInput.mockReturnValueOnce('ne');
-      sut.execute(socket, 'ne');
+      return sut.execute(socket.character, 'ne').catch(response => {
+        expect(response).toEqual('There is no exit in that direction!');
+      });
 
-      expect(socket.broadcast.to(socket.character.roomId).emit).not.toHaveBeenCalled();
-      expect(socket.emit).toHaveBeenLastCalledWith('output', { message: 'There is no exit in that direction!' });
     });
 
     test('should print message when no door exists in valid direction', () => {
       mockValidDirectionInput.mockReturnValueOnce('e');
 
-      sut.execute(socket, 'e');
-      const exit = mockRoom.exits.find(({ dir }) => dir === 'e');
+      return sut.execute(socket.character, 'e').catch(response => {
+        const exit = mockRoom.exits.find(({ dir }) => dir === 'e');
 
-      expect(exit.hasOwnProperty('closed')).toBe(false);
-      expect(socket.broadcast.to(socket.character.roomId).emit).not.toHaveBeenCalled();
-      expect(socket.emit).toHaveBeenLastCalledWith('output', { message: 'There is no door in that direction!' });
+        expect(exit.hasOwnProperty('closed')).toBe(false);
+        expect(response).toEqual('There is no door in that direction!');
+      });
     });
 
     test('should be succesful when door is open', () => {
       mockValidDirectionInput.mockReturnValueOnce('s');
       mockShortToLong.mockReturnValueOnce('south');
 
-      sut.execute(socket, 's');
-      const exit = mockRoom.exits.find(({ dir }) => dir === 's');
+      return sut.execute(socket.character, 's').then(response => {
+        const exit = mockRoom.exits.find(({ dir }) => dir === 's');
 
-      expect(exit.closed).toBe(true);
-      expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: 'TestUser closes the door to the south.' });
-      expect(socket.emit).toHaveBeenLastCalledWith('output', { message: 'Door closed.' });
+        expect(exit.closed).toBe(true);
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser closes the door to the south.' });
+        expect(response.charMessages).toContainEqual({charId: socket.character.id, message: 'Door closed.'});
+      });
+
     });
 
     test('should be succesful when door is already closed', () => {
       mockValidDirectionInput.mockReturnValueOnce('n');
       mockShortToLong.mockReturnValueOnce('north');
 
-      sut.execute(socket, 'n');
-
-      const exit = mockRoom.exits.find(({ dir }) => dir === 'n');
-      expect(exit.closed).toBe(true);
-      expect(socket.broadcast.to(socket.character.roomId).emit).toHaveBeenLastCalledWith('output', { message: 'TestUser closes the door to the north.' });
-      expect(socket.emit).toHaveBeenLastCalledWith('output', { message: 'Door closed.' });
+      return sut.execute(socket.character, 'n').then(response => {
+        const exit = mockRoom.exits.find(({ dir }) => dir === 'n');
+        expect(exit.closed).toBe(true);
+        expect(response.roomMessages).toContainEqual({roomId: socket.character.roomId, message: 'TestUser closes the door to the north.'});
+        expect(response.charMessages).toContainEqual({charId: socket.character.id, message: 'Door closed.'});
+      });
     });
+
+
 
   });
 

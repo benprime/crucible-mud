@@ -1,5 +1,6 @@
 import config from '../config';
 import autocomplete from '../core/autocomplete';
+import socketUtil from '../core/socketUtil';
 import Room from '../models/room';
 
 export default {
@@ -18,34 +19,33 @@ export default {
     }
     const dir = match[1].toLowerCase();
     const keyName = match[2];
-    this.execute(socket, dir, keyName);
+    this.execute(socket.character, dir, keyName)
+      .then(output => socketUtil.output(socket, output))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, dir, keyName, cb) {
-    const room = Room.getById(socket.character.roomId);
+  execute(character, dir, keyName, cb) {
+    const room = Room.getById(character.roomId);
     dir = Room.validDirectionInput(dir);
     let exit = room.getExit(dir);
     if (!exit) {
-      socket.emit('output', { message: 'No door in that direction.' });
-      return;
+      return Promise.reject('No door in that direction.');
     }
+    let displayDir = Room.shortToLong(exit.dir);
 
     if (!exit.locked) {
-      socket.emit('output', { message: 'That door is not locked.' });
-      return;
+      return Promise.reject('That door is not locked.');
     }
 
-    const acResult = autocomplete.autocompleteTypes(socket, ['key'], keyName);
-    if(!acResult) {
-      socket.emit('output', { message: 'You don\'t seem to be carrying that key.' });
-      return;
+    const acResult = autocomplete.autocompleteTypes(character, ['key'], keyName);
+    if (!acResult) {
+      return Promise.reject('You don\'t seem to be carrying that key.');
     }
 
     const key = acResult.item;
 
     if (key.name != exit.keyName) {
-      socket.emit('output', { message: 'That key does not unlock that door.' });
-      return;
+      return Promise.reject('That key does not unlock that door.');
     }
 
     setTimeout(() => {
@@ -56,20 +56,28 @@ export default {
       } else if (exit.dir === 'd') {
         doorDesc = 'below';
       } else {
-        doorDesc = `to the ${Room.shortToLong(exit.dir)}`;
+        doorDesc = `to the ${displayDir}`;
       }
 
+      // todo: move this socket interaction to the room model
       if (exit.closed === true) {
         global.io.to(room.id).emit('output', { message: `The door ${doorDesc} clicks locked!` });
       } else {
         exit.closed = true;
         global.io.to(room.id).emit('output', { message: `The door ${doorDesc} slams shut and clicks locked!` });
       }
-      if(cb) cb(exit);
+      if (cb) cb(exit);
     }, config.DOOR_CLOSE_TIMER);
 
     exit.locked = false;
-    socket.emit('output', { message: 'Door unlocked.' });
+    return Promise.resolve({
+      charMessages: [
+        { charId: character.id, message: 'Door unlocked.' },
+      ],
+      roomMessage: [
+        { roomId: character.roomId, message: `${character.name} unlocks the door to the ${displayDir}.` },
+      ],
+    });
   },
 
   help(socket) {

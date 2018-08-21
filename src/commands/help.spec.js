@@ -16,27 +16,29 @@ describe('help', () => {
     sut.registerCommand(command);
   });
 
-  describe('execute', () => {
+  xdescribe('execute', () => {
 
     test('should display general help with no parameters', () => {
-      sut.execute(socket);
+      return sut.execute(socket.character).then(response => {
+        expect(response).not.toBeNull();
+      });
 
-      //TODO: Preload entire help message into a variable or whatnot to check for accuracy
-      expect(socket.emit).toHaveBeenCalled();
     });
 
     test('should display topic help with a parameter', () => {
-      sut.execute(socket, 'gossip');
+      return sut.execute(socket.character, 'gossip').then(response => {
+        expect(response).not.toBeNull();
+      });
 
-      //check accuracy of output for gossip
-      expect(command.help).toHaveBeenCalled();
+
     });
 
     test('should display error message when topic is invalid', () => {
-      sut.execute(socket, 'yourface');
+      return sut.dispatch(socket, 'yourface').catch(response => {
+        //check output for bad command
+        expect(response).toEqual('No help for that topic.');
+      });
 
-      //check output for bad command
-      expect(socket.emit).toBeCalledWith('output', { message: 'No help for that topic.' });
     });
   });
 

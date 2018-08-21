@@ -16,21 +16,19 @@ export default {
       return;
     }
 
-    this.execute(socket, match[1], match[2]);
+    this.execute(socket.character, match[1], match[2]);
   },
 
-  execute(socket, name, count) {
+  execute(character, name, count) {
 
-    const shop = Shop.getById(socket.character.roomId);
+    const shop = Shop.getById(character.roomId);
     if (!shop) {
-      socket.emit('output', { message: 'This command can only be used in a shop.' });
-      return;
+      return Promise.reject('This command can only be used in a shop.');
     }
 
     const createType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'item');
     if (!createType) {
-      socket.emit('output', { message: 'Unknown item type.' });
-      return;
+      return Promise.reject('Unknown item type.');
     }
 
     // see if the shop already carries this item
@@ -46,7 +44,7 @@ export default {
 
     shop.save((err) => {
       if (err) throw err;
-      socket.emit('output', { message: 'Items created and added to shop.' });
+      return Promise.resolve('Items created and added to shop.');
     });
   },
 

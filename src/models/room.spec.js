@@ -1,4 +1,4 @@
-import { mockGetRoomSockets } from '../core/socketUtil';
+import { mockGetRoomSockets, mockGetSocketByCharacterId } from '../core/socketUtil';
 import Mob from '../models/mob';
 import mobData from '../data/mobData';
 import sutModel from '../models/room';
@@ -9,7 +9,10 @@ const { ObjectId } = Types;
 jest.mock('../core/socketUtil');
 
 // mocking mongoose provided model methods
-sutModel.save = jest.fn();
+sutModel.save = jest.fn(() => Promise.resolve({}));
+sutModel.constructor = jest.fn(() => Promise.resolve({
+  save: jest.fn(() => Promise.resolve({})),
+}));
 
 
 global.io = new mocks.IOMock();
@@ -75,11 +78,12 @@ describe('room model', () => {
           z: 3,
         };
 
-        sutModel.findOne = jest.fn().mockReturnValueOnce(null);
+        sutModel.findOne = jest.fn().mockReturnValueOnce(Promise.resolve({}));
 
-        sutModel.byCoords(coords);
+        sutModel.byCoords(coords).then(() => {
+          expect(sutModel.findOne).toBeCalledWith(coords);
+        });
 
-        expect(sutModel.findOne).toBeCalledWith(coords, undefined);
       });
     });
 
@@ -168,7 +172,7 @@ describe('room model', () => {
       room.mobs = [];
     });
 
-    describe('usersInRoom', () => {
+    describe('charactersInRoom', () => {
       let socket;
       beforeEach(() => {
         socket = new mocks.SocketMock();
@@ -178,7 +182,7 @@ describe('room model', () => {
         global.io.sockets.adapter.rooms[room.id] = {};
         global.io.sockets.adapter.rooms[room.id].sockets = {};
 
-        const result = room.usersInRoom(socket.id);
+        const result = room.charactersInRoom(socket.id);
 
         expect(Array.isArray(result)).toBe(true);
         expect(result).toHaveLength(0);
@@ -187,16 +191,16 @@ describe('room model', () => {
       test('should return array of names when users in room', () => {
         const sockets = {};
         sockets[socket.id] = new mocks.SocketMock();
-        sockets[socket.id].user.username = 'TestUser1';
+        sockets[socket.id].character.name = 'TestUser1';
         sockets['socket2'] = new mocks.SocketMock();
-        sockets['socket2'].user.username = 'TestUser2';
+        sockets['socket2'].character.name = 'TestUser2';
 
         global.io.sockets.adapter.rooms[room.id] = {
           sockets,
         };
         global.io.sockets.connected = sockets;
 
-        const result = room.usersInRoom(socket.id);
+        const result = room.charactersInRoom(socket.id);
 
         expect(Array.isArray(result)).toBe(true);
         expect(result).toHaveLength(2);
@@ -220,45 +224,50 @@ describe('room model', () => {
       });
 
       test('should return false if direction is invalid', () => {
-        room.createRoom('invalid direction', (result) => {
-          expect(result).toBe(false);
-          expect(socket.emit).not.toHaveBeenCalled();
-          expect(sutModel.save).not.toHaveBeenCalled();
+        return room.createRoom('invalid direction').catch(response => {
+          expect(response).toBe('Invalid direction');
         });
       });
 
       test('should return false if there is already an exit in a valid input direction', () => {
         room.exits.push({ dir: 'n', roomId: 'some-id' });
-        room.createRoom('n', (result) => {
-          expect(result).toBe(false);
-          expect(socket.emit).not.toHaveBeenCalled();
-          expect(sutModel.save).not.toHaveBeenCalled();
+        return room.createRoom('n').catch(response => {
+          expect(response).toBe('Exit already exists');
         });
       });
 
-      test('should create a new room if room does not already exist in target direction', () => {
 
-        room.createRoom('s', ({ id }) => {
-          const exit = room.exits.find(({ dir }) => dir === 's');
+      describe('successful creation', () => {
 
-          expect(exit).not.toBeUndefined();
-          expect(id in sutModel.roomCache).toBe(true);
-          expect(sutModel.prototype.save).toHaveBeenCalledTimes(2);
+        beforeEach(() => {
+          room.save = jest.fn(() => Promise.resolve(room));
+          const resultRoom = mocks.getMockRoom();
+          resultRoom.save = jest.fn(() => Promise.resolve(resultRoom));
+          sutModel.create = jest.fn().mockReturnValue(resultRoom);
         });
-      });
-
-      test('should not load new room to cache when creating a door in a direction where room exists', () => {
-        sutModel.mockByCoords = jest.fn((cb) => {
-          cb(new sutModel());
+        afterEach(() => {
+          sutModel.create.mockRestore();
         });
 
-        room.createRoom('s', ({ id }) => {
-          const exit = room.exits.find(({ dir }) => dir === 's');
+        test('should create a new room if room does not already exist in target direction', () => {
 
-          expect(exit).not.toBeUndefined();
-          expect(id in sutModel.roomCache).toBe(false);
-          expect(sutModel.prototype.save).toHaveBeenCalledTimes(2);
+          return room.createRoom('s').then(room => {
+            const exit = room.exits.find(({ dir }) => dir === 's');
+
+            expect(exit).not.toBeUndefined();
+            expect(exit.roomId in sutModel.roomCache).toBe(true);
+          });
         });
+
+        test('should not load new room to cache when creating a door in a direction where room exists', () => {
+          return room.createRoom('s').then(updateRoom => {
+            const exit = updateRoom.exits.find(({ dir }) => dir === 's');
+
+            expect(exit).not.toBeUndefined();
+            expect(updateRoom.id in sutModel.roomCache).toBe(false);
+          });
+        });
+
       });
     });
 
@@ -268,56 +277,61 @@ describe('room model', () => {
 
       beforeEach(() => {
         socket = new mocks.SocketMock();
+        mockGetSocketByCharacterId.mockReturnValue(socket);
       });
 
       test('should build output string with just title and exits when short parameter is passed', () => {
-        room.look(socket, true);
+        return room.look(socket, true).then(output => {
+          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n');
+        });
 
-        expect(socket.emit).toBeCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n' });
       });
 
       test('should build output string with description when short parameter is false', () => {
-        room.look(socket, false);
-
-        expect(socket.emit).toBeCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n' });
+        return room.look(socket, false).then(output => {
+          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n');
+        });
       });
 
       test('should include inventory in output when inventory length is not zero', () => {
         room.inventory = [{ displayName: 'An Item' }];
-        room.look(socket);
+        return room.look(socket).then(output => {
+          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="darkcyan">You notice: An Item.</span>\n');
+        });
 
-        expect(socket.emit).toBeCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="darkcyan">You notice: An Item.</span>\n' });
       });
 
       test('should include users in room when the user is not the only user in room', () => {
         const sockets = {};
         sockets[socket.id] = new mocks.SocketMock();
-        sockets[socket.id].user.username = 'TestUser1';
+        sockets[socket.id].character.name = 'TestUser1';
         sockets['socket2'] = new mocks.SocketMock();
-        sockets['socket2'].user.username = 'TestUser2';
+        sockets['socket2'].character.name = 'TestUser2';
 
         global.io.sockets.adapter.rooms[room.id] = {
           sockets,
         };
         global.io.sockets.connected = sockets;
 
-        room.look(socket);
-
-        expect(socket.emit).toBeCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="purple">Also here: <span class="teal">TestUser1<span class="mediumOrchid">, </span>TestUser2</span>.</span>\n' });
+        return room.look(socket).then(output => {
+          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="purple">Also here: <span class="teal">TestUser1<span class="mediumOrchid">, </span>TestUser2</span>.</span>\n');
+        });
       });
 
       test('should include exits when there is at least one exit in the room', () => {
         room.exits = [{ dir: 'n' }];
-        room.look(socket);
+        return room.look(socket).then(output => {
+          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="green">Exits: north</span>\n');
+        });
 
-        expect(socket.emit).toBeCalledWith('output', { message: '<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="green">Exits: north</span>\n' });
       });
 
       test('should display room id when user is an admin', () => {
-        socket.user.admin = true;
-        room.look(socket);
+        socket.user.debug = true;
+        return room.look(socket).then(output => {
+          expect(output).toEqual(`<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="gray">Room ID: ${room.id}</span>\n<span class="gray">Room coords: ${room.x}, ${room.y}</span>\n`);
+        });
 
-        expect(socket.emit).toBeCalledWith('output', { message: `<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="gray">Room ID: ${room.id}</span>\n<span class="gray">Room coords: ${room.x}, ${room.y}</span>\n` });
       });
     });
 
@@ -436,7 +450,7 @@ describe('room model', () => {
 
       test('should not call attack when player attack target is null', () => {
         // arrange
-        
+
         // add three mobs to the room
         const mob1 = mocks.getMockMob();
         mob1.id = 'mob1';

@@ -1,6 +1,4 @@
 export default {
-  // method for sending a message to all players in a room, except one.
-  // using the receiver's socket instead of relying on the "sender" socket.
   roomMessage(roomId, message, exclude) {
     const ioRoom = global.io.sockets.adapter.rooms[roomId];
     if (!ioRoom) return;
@@ -12,9 +10,34 @@ export default {
     }
   },
 
+  sendMessages(socket, commandResult) {
+    if (typeof commandResult === 'string' || commandResult instanceof String) {
+      socket.emit('output', { message: commandResult });
+    }
+    else {
+      if (Array.isArray(commandResult.charMessages)) {
+        for (let msg of commandResult.charMessages) {
+          let charSocket = this.getSocketByCharacterId(msg.charId);
+          if (!charSocket) continue;
+          charSocket.emit('output', { message: msg.message });
+        }
+      }
+
+      if (Array.isArray(commandResult.roomMessages)) {
+        for (let msg of commandResult.roomMessages) {
+          global.io.to(socket.character.roomId).emit('output', { message: msg.message });
+        }
+      }
+    }
+  },
+
+  output(socket, output) {
+    socket.emit('output', { message: output });
+  },
+
   getSocketByUsername(username) {
     for (let socket of Object.values(global.io.sockets.connected)) {
-      if (socket.user && socket.user.username.toLowerCase() == username.toLowerCase()) {
+      if (socket.user && socket.character.name.toLowerCase() == username.toLowerCase()) {
         return socket;
       }
     }
@@ -50,14 +73,14 @@ export default {
     return null;
   },
 
-  getFollowingSockets(characterId) {
-    const followingSockets = [];
+  getFollowingCharacters(characterId) {
+    const followers = [];
     for (let socket of Object.values(global.io.sockets.connected)) {
       if (socket.character && socket.leader === characterId) {
-        followingSockets.push(socket);
+        followers.push(socket);
       }
     }
-    return followingSockets;
+    return followers;
   },
 
   getSocket(socketId) {
@@ -84,22 +107,7 @@ export default {
     return character;
   },
 
-  sendMessages(socket, commandResult) {
-    if (Array.isArray(commandResult.charMessages)) {
-      for (let msg of commandResult.charMessages) {
-        let charSocket = this.getSocketByCharacterId(msg.charId);
-        if (!charSocket) continue;
-        charSocket.emit('output', { message: msg.message });
-      }
-    }
 
-    if (Array.isArray(commandResult.roomMessages)) {
-      for (let msg of commandResult.roomMessages) {
-        socket.broadcast.emit('output', { message: msg.message });
-      }
-    }
-
-  },
 };
 
 

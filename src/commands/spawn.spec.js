@@ -17,59 +17,64 @@ describe('spawn', () => {
   describe('execute', () => {
     describe('when type is mob', () => {
       test('should output message when type name is invalid', () => {
-        sut.execute(socket, 'mob', 'name');
-
-        expect(socket.emit).toBeCalledWith('output', { message: 'Unknown mob type.' });
+        return sut.execute(socket.character, 'mob', 'name').catch(response => {
+          expect(response).toBe('Unknown mob type.');
+        });
       });
 
       test('should create instance of mob in room mobs list', () => {
-        sut.execute(socket, 'mob', 'kobold');
-
-        expect(mockRoom.mobs).toHaveLength(1);
-        expect(mockRoom.mobs[0].displayName.endsWith('kobold sentry')).toBeTruthy();
-        expect(socket.emit).toBeCalledWith('output', { message: 'Summoning successful.' });
-        expect(mockRoom.save).not.toHaveBeenCalled();
+        return sut.execute(socket.character, 'mob', 'kobold').then(response => {
+          expect(mockRoom.mobs).toHaveLength(1);
+          expect(mockRoom.mobs[0].displayName.endsWith('kobold sentry')).toBeTruthy();
+          expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Summoning successful.' });
+          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser waves his hand and a kobold sentry appears!'});
+          expect(mockRoom.save).not.toHaveBeenCalled();
+        });
       });
     });
 
     describe('when type is item', () => {
       test('should output message when type name is invalid', () => {
-        sut.execute(socket, 'item', 'name');
-
-        expect(socket.emit).toBeCalledWith('output', { message: 'Attempted to spawn unknown item type: name' });
+        return sut.execute(socket.character, 'item', 'name').catch(response => {
+          expect(response).toBe('Attempted to spawn unknown item type: name');
+        });
       });
 
       test('should create instance of item in user inventory', () => {
-        sut.execute(socket, 'item', 'shortsword');
-
-        expect(socket.character.inventory).toHaveLength(1);
-        expect(socket.character.inventory[0].displayName).toBe('short sword');
-        expect(socket.emit).toBeCalledWith('output', { message: 'Item created.' });
-        expect(socket.character.save).toHaveBeenCalled();
+        return sut.execute(socket.character, 'item', 'shortsword').then(response => {
+          expect(socket.character.inventory).toHaveLength(1);
+          expect(socket.character.inventory[0].displayName).toBe('short sword');
+          expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Item created.' });
+          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser emits a wave of energy!' });
+          expect(socket.character.save).toHaveBeenCalled();
+        });
       });
     });
 
     describe('when type is key', () => {
       test('should output message when type name is invalid', () => {
-        sut.execute(socket, 'key', 'name');
+        return sut.execute(socket.character, 'key', 'name').catch(response => {
+          expect(response).toBe('Unknown key type.');
 
-        expect(socket.emit).toBeCalledWith('output', { message: 'Unknown key type.' });
+        });
       });
 
       test('should create instance of key in user keys', () => {
-        sut.execute(socket, 'key', 'jadekey');
-
-        expect(socket.character.keys).toHaveLength(1);
-        expect(socket.character.keys[0].displayName).toBe('jade key');
-        expect(socket.emit).toBeCalledWith('output', { message: 'Key created.' });
-        expect(socket.character.save).toHaveBeenCalled();
+        return sut.execute(socket.character, 'key', 'jadekey').then(response => {
+          expect(socket.character.keys).toHaveLength(1);
+          expect(socket.character.keys[0].displayName).toBe('jade key');
+          expect(response).toBe('Key created.');
+          expect(socket.character.save).toHaveBeenCalled();
+        });
       });
     });
 
     test('should output message when object type is invalid', () => {
-      sut.execute(socket, 'unknownType', 'name');
+      return sut.execute(socket.character, 'unknownType', 'name').catch(response => {
+        expect(response).toBe('Unknown object type.');
 
-      expect(socket.emit).toBeCalledWith('output', { message: 'Unknown object type.' });
+      });
+
     });
   });
 });

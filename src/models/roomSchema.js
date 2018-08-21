@@ -40,6 +40,8 @@ const RoomSchema = new mongoose.Schema({
   inventory: [ItemSchema],
 }, { usePushEach: true });
 
+RoomSchema.index({ x: 1, y: 1, z: 1 }, { unique: true });
+
 //============================================================================
 // Direction Support
 //============================================================================
@@ -277,6 +279,7 @@ RoomSchema.methods.look = function (socket, short) {
 
   if (!short && socket.user.admin) {
     output += `<span class="gray">Room ID: ${this.id}</span>\n`;
+    output += `<span class="gray">Room coords: ${this.x}, ${this.y}</span>\n`;
     if (this.alias) output += `<span class="gray">Alias: ${this.alias}</span>\n`;
   }
 

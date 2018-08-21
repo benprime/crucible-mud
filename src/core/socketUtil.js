@@ -83,6 +83,23 @@ export default {
 
     return character;
   },
+
+  sendMessages(socket, commandResult) {
+    if (Array.isArray(commandResult.charMessages)) {
+      for (let msg of commandResult.charMessages) {
+        let charSocket = this.getSocketByCharacterId(msg.charId);
+        if (!charSocket) continue;
+        charSocket.emit('output', { message: msg.message });
+      }
+    }
+
+    if (Array.isArray(commandResult.roomMessages)) {
+      for (let msg of commandResult.roomMessages) {
+        socket.broadcast.emit('output', { message: msg.message });
+      }
+    }
+
+  },
 };
 
 

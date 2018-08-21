@@ -38,8 +38,8 @@ export default {
     const toUser = acResult.item;
 
     // validate target user and get target user socket
-    let toUserSocket = socketUtil.characterInRoom(socket, toUser.username);
-    if (!toUserSocket) {
+    let toCharacter = socketUtil.characterInRoom(socket.character.roomId, toUser.username);
+    if (!toCharacter) {
       socket.emit('output', { message: `${userName} is not here!` });
       return;
     }
@@ -53,12 +53,12 @@ export default {
     };
 
     // a player can only offer one item or amount to another player
-    toUserSocket.character.offers = toUserSocket.character.offers.filter(o => o.fromUserName != socket.user.username);
-    toUserSocket.character.offers.push(offer);
+    toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName != socket.user.username);
+    toCharacter.offers.push(offer);
 
     // set an expiration of 60 seconds for this offer
     setTimeout(() => {
-      toUserSocket.character.offers = toUserSocket.character.offers.filter(o => o.fromUserName != socket.user.username);
+      toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName != socket.user.username);
     }, 60000);
 
     // format and emit feedback messages
@@ -73,7 +73,8 @@ export default {
     }
     offerMessage += `\nTo accept the offer: accept offer ${socket.user.username}`;
 
-    toUserSocket.emit('output', { message: offerMessage });
+    let toSocket = socketUtil.getSocketByCharacterId(toCharacter.id);
+    toSocket.emit('output', { message: offerMessage });
     socket.emit('output', { message: feedbackMessage });
   },
 

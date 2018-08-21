@@ -5,6 +5,7 @@ import dice from '../core/dice';
 
 const CharacterSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  name: { type: String },
   roomId: { type: String },
 
   inventory: [ItemSchema],

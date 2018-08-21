@@ -1,7 +1,6 @@
 import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import { currencyToString } from '../core/currency';
-import errors from '../core/errors';
 
 export default {
   name: 'accept',
@@ -17,7 +16,8 @@ export default {
       this.help(socket);
       return;
     }
-    this.execute(socket.character, match[1], match[2]);
+    let commandResult = this.execute(socket.character, match[1], match[2]);
+    socketUtil.sendMessages(socket, commandResult);
   },
 
   execute(toCharacter, userName) {
@@ -28,34 +28,38 @@ export default {
 
     let fromCharacter = socketUtil.characterInRoom(toCharacter.roomId, fromUser.username);
     if (!fromCharacter) {
-      return Promise.reject(new errors.OfferNotFound(`${userName} is not here!`));
+      throw `${userName} is not here!`;
+      //return Promise.reject(new errors.OfferNotFound(`${userName} is not here!`));
     }
 
     const offer = toCharacter.offers.find(o => o.fromUserName === fromUser.username);
     if (!offer) {
-      return Promise.reject(new errors.UserNotInRoom(`There are no offers from ${fromCharacter.username}.`));
+      throw `There are no offers from ${fromCharacter.username}.`;
+      //return Promise.reject(new errors.UserNotInRoom(`There are no offers from ${fromCharacter.username}.`));
     }
 
     if (offer.currency) {
       // check if offering user's funds have changed since the offer was made
-      if (fromCharacter.character.currency < offer.currency) {
+      if (fromCharacter.currency < offer.currency) {
         toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== fromUser.username);
-        return Promise.reject(new errors.InsufficientFundsError(`${fromCharacter.username} no longer has enough money to complete this offer.`));
+        throw `${fromCharacter.username} no longer has enough money to complete this offer.`;
+        //return Promise.reject(new errors.InsufficientFundsError(`${fromCharacter.username} no longer has enough money to complete this offer.`));
       }
-      fromCharacter.character.currency -= offer.currency;
+      fromCharacter.currency -= offer.currency;
       toCharacter.currency += offer.currency;
     } else {
       // check that offering user still has item when it is accepted
-      const item = fromCharacter.character.inventory.id(offer.item.id);
+      const item = fromCharacter.inventory.id(offer.item.id);
       if (!item) {
         toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== fromUser.username);
-        return Promise.reject(new errors.ItemNotFoundError(`${fromCharacter.name} no longer has the offered item in their inventory.`));
+        throw `${fromCharacter.name} no longer has the offered item in their inventory.`;
+        //return Promise.reject(new errors.ItemNotFoundError(`${fromCharacter.name} no longer has the offered item in their inventory.`));
       }
-      fromCharacter.character.inventory.id(offer.item.id).remove();
+      fromCharacter.inventory.id(offer.item.id).remove();
       toCharacter.inventory.push(item);
     }
     toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== fromUser.username);
-    fromCharacter.character.save(err => { if (err) throw err; });
+    fromCharacter.save(err => { if (err) throw err; });
     toCharacter.save(err => { if (err) throw err; });
 
     // format feedback messages
@@ -69,12 +73,14 @@ export default {
       toCharacterMessage = `You accept the ${offer.item.displayName} from ${fromCharacter.name}.`;
     }
 
-    return Promise.resolve({
+    //return Promise.resolve(
+    return {
       charMessages: [
         { charId: fromCharacter.id, message: fromCharacterMessage },
         { charId: toCharacter.id, message: toCharacterMessage },
       ],
-    });
+    };
+    //});
   },
 
   help(socket) {

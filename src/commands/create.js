@@ -30,9 +30,11 @@ export default {
         socket.emit('output', { message: 'Invalid direction!' });
         return;
       }
-      room.createRoom(dir, () => {
-        socket.emit('output', { message: 'Room created.' });
-        socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!` });
+      room.createRoom(dir, (result) => {
+        if(result) {
+          socket.emit('output', { message: 'Room created.' });
+          socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!` });
+        }
       });
     }
 

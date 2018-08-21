@@ -82,7 +82,7 @@ function processDispatch(socket, input) {
   input = input.trim();
 
   if(input) {
-    socket.emit('output', { message: `\n<span class="silver">&gt; ${input}</span>` });
+    socket.emit('output', { message: `\n<span class="silver">&gt; ${input}</span>\n` });
   }
 
   // check if input string matches any of our matching patterns.

@@ -38,7 +38,7 @@ describe('accept', () => {
       mockAutocompleteTypes.mockReturnValueOnce({item: offeringSocket.user});
       //mockReturnValueOnce({ item: offeredItem })
       //mockGetSocketByUsername.mockReturnValueOnce(offeringSocket);
-      mockCharacterInRoom.mockReturnValueOnce(offeringSocket);
+      mockCharacterInRoom.mockReturnValueOnce(offeringSocket.character);
 
       offeringSocket.user.username = 'aUser';
       offeringSocket.character.inventory = [offeredItem];

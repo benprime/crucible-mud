@@ -19,81 +19,78 @@ export default {
       this.help(socket);
       return;
     }
-    this.execute(socket, match[1], match[2]);
+    this.execute(socket.character, match[1], match[2])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, itemName, userName) {
+  execute(character, itemName, userName) {
     let item = null;
 
 
     // autocomplete username
-    const acResult = autocomplete.autocompleteTypes(socket, ['player'], userName);
+    const acResult = autocomplete.autocompleteTypes(character, ['player'], userName);
     if (!acResult) {
-      socket.emit('output', { message: 'Unknown user or user not connected.' });
-      return;
+      return Promise.reject('Unknown user or user not connected.');
     }
     const toUser = acResult.item;
 
     // validate target user and get target user socket
-    let toCharacter = socketUtil.characterInRoom(socket.character.roomId, toUser.username);
+    let toCharacter = socketUtil.characterInRoom(character.roomId, toUser.username);
     if (!toCharacter) {
-      socket.emit('output', { message: `${userName} is not here!` });
-      return;
+      return Promise.reject(`${userName} is not here!`);
     }
 
     // check if the offer is currency
     const currencyValue = currencyToInt(itemName);
     if (currencyValue) {
-      if (socket.character.currency < currencyValue) {
-        toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== socket.user.username);
-        socket.emit('output', { message: 'You do not have enough money.' });
-        return;
-        //return Promise.reject(new errors.InsufficientFundsError(`${fromCharacter.username} no longer has enough money to complete this offer.`));
+      if (character.currency < currencyValue) {
+        toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== character.name);
+        return Promise.reject('You do not have enough money.');
       }
-
     } else {
-      const acResult = autocomplete.autocompleteTypes(socket, ['inventory'], itemName);
+      const acResult = autocomplete.autocompleteTypes(character, ['inventory'], itemName);
       if (!acResult) {
         return;
       }
       item = acResult.item;
-
     }
-
-
 
     // build offer
     const offer = {
-      fromUserName: socket.user.username,
+      fromUserName: character.name,
       toUserName: userName,
       item: item,
       currency: currencyValue,
     };
 
     // a player can only offer one item or amount to another player
-    toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName != socket.user.username);
+    toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName != character.name);
     toCharacter.offers.push(offer);
 
     // set an expiration of 60 seconds for this offer
     setTimeout(() => {
-      toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName != socket.user.username);
+      toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName != character.name);
     }, 60000);
 
     // format and emit feedback messages
     let offerMessage;
     let feedbackMessage;
     if (currencyValue) {
-      offerMessage = `${socket.user.username} offers you ${currencyToString(currencyValue)}`;
+      offerMessage = `${character.name} offers you ${currencyToString(currencyValue)}`;
       feedbackMessage = `You offer ${currencyToString(currencyValue)} to ${userName}.`;
     } else {
-      offerMessage = `${socket.user.username} offers you a ${itemName}.`;
+      offerMessage = `${character.name} offers you a ${itemName}.`;
       feedbackMessage = `You offer your ${itemName} to ${userName}.`;
     }
-    offerMessage += `\nTo accept the offer: accept offer ${socket.user.username}`;
+    offerMessage += `\nTo accept the offer: accept offer ${character.name}`;
 
-    let toSocket = socketUtil.getSocketByCharacterId(toCharacter.id);
-    toSocket.emit('output', { message: offerMessage });
-    socket.emit('output', { message: feedbackMessage });
+    return Promise.resolve({
+      charMessages: [
+        { charId: toCharacter.id, message: offerMessage },
+        { charId: character.id, message: feedbackMessage },
+      ],
+    });
   },
 
   help(socket) {

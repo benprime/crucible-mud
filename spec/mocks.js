@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 const { ObjectId } = Types;
 import Room from '../src/models/room';
 import User from '../src/models/user';
+import Character from '../src/models/character';
 import Mob from '../src/models/mob';
 
 // this method provides a serialization of an
@@ -28,21 +29,21 @@ if (!JSON.orderedStringify) {
 function getMockRoom(roomId) {
   var room = new Room();
   room._id = ObjectId(roomId);
-  room.id = room._id.toString();
+  room.id = roomId || room._id.toString();
   room.mobs = [];
   room.inventory = [];
 
   room.roomIds = {
-    u: ObjectId(),
-    d: ObjectId(),
-    n: ObjectId(),
-    s: ObjectId(),
-    e: ObjectId(),
-    w: ObjectId(),
-    ne: ObjectId(),
-    nw: ObjectId(),
-    se: ObjectId(),
-    sw: ObjectId(),
+    u: ObjectId().toString(),
+    d: ObjectId().toString(),
+    n: ObjectId().toString(),
+    s: ObjectId().toString(),
+    e: ObjectId().toString(),
+    w: ObjectId().toString(),
+    ne: ObjectId().toString(),
+    nw: ObjectId().toString(),
+    se: ObjectId().toString(),
+    sw: ObjectId().toString(),
   };
 
   room.exits = [
@@ -82,7 +83,6 @@ function getMockRoom(roomId) {
 
 class IOMock {
   constructor() {
-    // todo: restructure this to bind the roomCalls and emit spies together
     const ioMock = this;
     this.roomSpies = {};
     this.ioEmitSpy = jest.fn().mockName('globalEmitSpy');
@@ -100,7 +100,7 @@ class IOMock {
       },
       connected: {},
     };
-    this.addUserToIORoom = function (roomId, socket) {
+    this.addCharacterToIORoom = function (roomId, socket) {
       this.sockets.adapter.rooms[roomId] = {
         sockets: {},
       };
@@ -128,9 +128,9 @@ class SocketMock {
     // to the _id property like it does on the mongoose objects.
     this.id = ObjectId().toString();
     this.roomSpies = {};
-    
+
     let broadcastEmitSpy = jest.fn().mockName('userSocketBroadcastEmit');
-    
+
     this.emit = jest.fn().mockName('userSocketEmit');
     this.on = jest.fn().mockName('userSocketOn');
     this.leave = jest.fn().mockName('userSocketLeave');
@@ -148,21 +148,26 @@ class SocketMock {
     };
     const user = new User();
     user.username = username ? username : 'TestUser';
-    user.userId = ObjectId().toString();
-    user.roomId = ObjectId().toString();
-    user.save = jest.fn().mockName('userSave');
-    user.addExp = jest.fn().mockName('addExp');
-    user.attackTarget = null;
-    user.attack = jest.fn().mockName('userAttack');
-    user.actionDie = '1d20';
+    user.id = ObjectId().toString();
     this.user = user;
+
+    const character = new Character();
+    character.roomId = ObjectId().toString();
+    character.save = jest.fn().mockName('userSave');
+    character.addExp = jest.fn().mockName('addExp');
+    character.attackTarget = null;
+    character.attack = jest.fn().mockName('userAttack');
+    character.actionDie = '1d20';
+    character.inventory = [];
+    this.character = character;
+
     this.offers = [];
     this.partyInvites = [];
     this.reset = function () {
       broadcastEmitSpy.mockClear();
       this.emit.mockClear();
       this.on.mockClear();
-      this.user.save.mockClear();
+      this.character.save.mockClear();
       Object.keys(this.roomSpies).forEach(rs => this.roomSpies[rs].mockClear());
     };
   }

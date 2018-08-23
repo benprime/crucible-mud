@@ -1,4 +1,4 @@
-import { mockGetById, mockValidDirectionInput, mockShortToLong } from '../models/room';
+import { mockGetRoomById, mockValidDirectionInput, mockShortToLong } from '../models/room';
 import mocks from '../../spec/mocks';
 import sut from './close';
 
@@ -14,7 +14,7 @@ describe('close', () => {
 
     beforeEach(() => {
       mockRoom = {
-        id: socket.user.roomId,
+        id: socket.character.roomId,
         inventory: [],
         mobs: [],
         exits: [
@@ -24,14 +24,14 @@ describe('close', () => {
           { dir: 'w', roomId: 'wRoomId' },
         ],
       };
-      mockGetById.mockReturnValue(mockRoom);
+      mockGetRoomById.mockReturnValue(mockRoom);
     });
 
     test('should print message on invalid direction', () => {
       mockValidDirectionInput.mockReturnValueOnce('ne');
       sut.execute(socket, 'ne');
 
-      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
+      expect(socket.broadcast.to(socket.character.roomId).emit).not.toHaveBeenCalled();
       expect(socket.emit).toHaveBeenLastCalledWith('output', { message: 'There is no exit in that direction!' });
     });
 
@@ -42,7 +42,7 @@ describe('close', () => {
       const exit = mockRoom.exits.find(({ dir }) => dir === 'e');
 
       expect(exit.hasOwnProperty('closed')).toBe(false);
-      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
+      expect(socket.broadcast.to(socket.character.roomId).emit).not.toHaveBeenCalled();
       expect(socket.emit).toHaveBeenLastCalledWith('output', { message: 'There is no door in that direction!' });
     });
 
@@ -54,7 +54,7 @@ describe('close', () => {
       const exit = mockRoom.exits.find(({ dir }) => dir === 's');
 
       expect(exit.closed).toBe(true);
-      expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser closes the door to the south.' });
+      expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: 'TestUser closes the door to the south.' });
       expect(socket.emit).toHaveBeenLastCalledWith('output', { message: 'Door closed.' });
     });
 
@@ -66,7 +66,7 @@ describe('close', () => {
 
       const exit = mockRoom.exits.find(({ dir }) => dir === 'n');
       expect(exit.closed).toBe(true);
-      expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenLastCalledWith('output', { message: 'TestUser closes the door to the north.' });
+      expect(socket.broadcast.to(socket.character.roomId).emit).toHaveBeenLastCalledWith('output', { message: 'TestUser closes the door to the north.' });
       expect(socket.emit).toHaveBeenLastCalledWith('output', { message: 'Door closed.' });
     });
 

@@ -5,6 +5,7 @@ export default {
       name: 'shortsword',
       displayName: 'short sword',
       desc: 'an iron short sword',
+      price: 10,
       type: 'item',
       range: 'melee',
       equip: 'mainHand',  //mainHand/offHand/bothHand/eitherHand, head, etc
@@ -17,12 +18,14 @@ export default {
       name: 'jadekey',
       displayName: 'jade key',
       desc: 'a key made out of jade',
+      price: 10,
       type: 'key',
     },
     {
       name: 'torch',
       displayName: 'torch',
       desc: 'a flaming stick',
+      price: 10,
       type: 'item',
       range: 'melee',
       equip: 'offHand',  //mainHand/offHand/bothHand/eitherHand, head, non, etc

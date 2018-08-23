@@ -1,6 +1,11 @@
 # CrucibleMUD
 CrucibleMUD is a web socket framework for creating massively multiplayer text-based games.
 
+
+- Production: www.cruciblemud.com
+- Development: develop.cruciblemud.com
+
+
 Necessary environment variables:
 ```
 NODE_PORT=3000
@@ -34,7 +39,7 @@ An example command object:
 
   // core logic of command
   execute(socket, message) {
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} is screaming his head off!`});
+    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} is screaming his head off!`});
   },
 
   // printed when someone types 'help scream'

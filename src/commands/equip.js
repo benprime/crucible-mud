@@ -16,10 +16,12 @@ export default {
 
   execute(socket, itemName, hand) {
 
-    const item = autocomplete.autocompleteTypes(socket, ['inventory'], itemName);
-    if (!item) {
+    const acResult = autocomplete.autocompleteTypes(socket, ['inventory'], itemName);
+    if (!acResult) {
       return;
     }
+
+    const item = acResult.item;
 
     // check if item is equipable or return
     if (!item.equip) {
@@ -32,21 +34,21 @@ export default {
       case '':
         break;
       case 'mainHand':
-        socket.user.equipSlots.weaponMain = item;
+        socket.character.equipSlots.weaponMain = item;
         break;
       case 'offHand':
-        socket.user.equipSlots.weaponOff = item;
+        socket.character.equipSlots.weaponOff = item;
         break;
       case 'bothHand':
-        socket.user.equipSlots.weaponMain = item;
-        socket.user.equipSlots.weaponOff = item;
+        socket.character.equipSlots.weaponMain = item;
+        socket.character.equipSlots.weaponOff = item;
         break;
       case 'eitherHand':
         if (hand == 'main') {
-          socket.user.equipSlots.weaponMain = item;
+          socket.character.equipSlots.weaponMain = item;
         }
         else if (hand == 'off') {
-          socket.user.equipSlots.weaponOff = item;
+          socket.character.equipSlots.weaponOff = item;
         }
         else {
           socket.emit('output', { message: 'Please specify which hand to equip the item\n' });
@@ -54,35 +56,35 @@ export default {
         }
         break;
       case 'head':
-        socket.user.equipSlots.head = item;
+        socket.character.equipSlots.head = item;
         break;
       case 'body':
-        socket.user.equipSlots.body = item;
+        socket.character.equipSlots.body = item;
         break;
       case 'back':
-        socket.user.equipSlots.back = item;
+        socket.character.equipSlots.back = item;
         break;
       case 'legs':
-        socket.user.equipSlots.legs = item;
+        socket.character.equipSlots.legs = item;
         break;
       case 'feet':
-        socket.user.equipSlots.feet = item;
+        socket.character.equipSlots.feet = item;
         break;
       case 'arms':
-        socket.user.equipSlots.arms = item;
+        socket.character.equipSlots.arms = item;
         break;
       case 'hands':
-        socket.user.equipSlots.hands = item;
+        socket.character.equipSlots.hands = item;
         break;
       case 'neck':
-        socket.user.equipSlots.neck = item;
+        socket.character.equipSlots.neck = item;
         break;
       case 'finger':
         if (hand == 'main') {
-          socket.user.equipSlots.fingerMain = item;
+          socket.character.equipSlots.fingerMain = item;
         }
         else if (hand == 'off') {
-          socket.user.equipSlots.fingerOff = item;
+          socket.character.equipSlots.fingerOff = item;
         }
         else {
           socket.emit('output', { message: 'Please specify which hand to equip the item\n' });
@@ -97,8 +99,8 @@ export default {
     }
 
     // remove item from backpack
-    utils.removeItem(socket.user.inventory, item);
-    socket.user.save(err => { if (err) throw err; });
+    utils.removeItem(socket.character.inventory, item);
+    socket.character.save(err => { if (err) throw err; });
 
     socket.emit('output', { message: 'Item equipped.\n' });
 

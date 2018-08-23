@@ -23,7 +23,7 @@ export default {
   },
 
   execute(socket, type, param) {
-    const room = Room.getById(socket.user.roomId);
+    const room = Room.getById(socket.character.roomId);
     if (type === 'room') {
       const dir = Room.validDirectionInput(param.toLowerCase());
       if (!dir) {
@@ -32,7 +32,7 @@ export default {
       }
       room.createRoom(dir, () => {
         socket.emit('output', { message: 'Room created.' });
-        socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!` });
+        socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!` });
       });
     }
 
@@ -45,7 +45,7 @@ export default {
         return;
       }
 
-      if (exit.hasOwnProperty('closed')) {
+      if (exit.closed !== undefined) {
         socket.emit('output', { message: 'Door already exists.' });
         return;
       }

@@ -4,6 +4,33 @@ import Mob from '../models/mob';
 import itemData from '../data/itemData';
 import Item from '../models/item';
 
+export const spawn = (itemType) => {
+  return new Item({
+    name: itemType.name,
+    desc: itemType.desc,
+    displayName: itemType.displayName,
+    type: itemType.type,
+    fixed: itemType.fixed,
+    equip: itemType.equip,
+    damage: itemType.damage,
+    damageType: itemType.damageType,
+    speed: itemType.speed,
+    bonus: itemType.bonus,
+  });
+};
+
+export const spawnAndGive = (character, itemType, cb) => {
+
+  const item = spawn(itemType);
+
+  character.inventory.push(item);
+  character.save((err, character) => {
+    if (err) throw err;
+    if (cb) cb(character);
+  });
+  return item;
+};
+
 export default {
   name: 'spawn',
   admin: true,
@@ -40,9 +67,9 @@ export default {
         return;
       }
 
-      const room = Room.getById(socket.user.roomId);
+      const room = Room.getById(socket.character.roomId);
       if (!room) {
-        throw `no room found for current user room: ${socket.user.roomId}`;
+        throw `no room found for current user room: ${socket.character.roomId}`;
       }
 
       // clone the create type and give it an id
@@ -52,40 +79,19 @@ export default {
       socket.emit('output', { message: 'Summoning successful.' });
       socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
 
-
       // Item
       //---------------------
     } else if (type === 'item') {
-      const createType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'item');
 
-      if (!createType) {
-        socket.emit('output', { message: 'Unknown item type.' });
+      const itemType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'item');
+      if (!itemType) {
+        socket.emit('output', { message: `Attempted to spawn unknown item type: ${name}` });
         return;
       }
 
-      // Object.assign didn't seem to work properly when
-      // working with mongoose instance...
-      let item = new Item({
-        name: createType.name,
-        desc: createType.desc,
-        displayName: createType.displayName,
-        type: createType.type,
-        fixed: createType.fixed,
-        equip: createType.equip,
-        damage: createType.damage,
-        damageType: createType.damageType,
-        speed: createType.speed,
-        bonus: createType.bonus,
-      });
-
-
-      socket.user.inventory.push(item);
-      socket.user.save(err => { if (err) throw err; });
+      spawnAndGive(socket.character, itemType);
       socket.emit('output', { message: 'Item created.' });
-
-      // todo: determine if we want to hide when an admin creates an item
-      //socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
-
+      socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} emits a wave of energy!` });
 
       // Key
       //---------------------
@@ -104,8 +110,8 @@ export default {
         type: 'key',
       });
 
-      socket.user.keys.push(key);
-      socket.user.save(err => { if (err) throw err; });
+      socket.character.keys.push(key);
+      socket.character.save(err => { if (err) throw err; });
       socket.emit('output', { message: 'Key created.' });
     }
 

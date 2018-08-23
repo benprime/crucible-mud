@@ -1,4 +1,4 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockRoll } from '../core/dice';
 import mocks from '../../spec/mocks';
 import sut from './search';
@@ -13,7 +13,7 @@ describe('search', function () {
 
   beforeEach(function () {
     socket = new mocks.SocketMock();
-    socket.user.search = 0;
+    socket.character.skills.search = 0;
     mockRoom = {
       exits: [
         { dir: 'n', roomId: 'uRoomId', closed: true, hidden: false },
@@ -23,7 +23,7 @@ describe('search', function () {
       ],
       save: jasmine.createSpy('roomSave'),
     };
-    mockGetById.mockReturnValueOnce(mockRoom);
+    mockGetRoomById.mockReturnValueOnce(mockRoom);
   });
 
   test('should reveal all when user is admin', function () {
@@ -70,11 +70,11 @@ describe('search', function () {
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
-  xtest('should only reveal some items/exits if skill check doesn\'t fully succed', function () {
+  test('should only reveal some items/exits if skill check doesn\'t fully succeed', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
 
-    diceRoll.and.returnValue(3);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
+    mockRoll.mockReturnValueOnce(3);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
 
     sut.execute(socket);
 

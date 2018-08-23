@@ -9,6 +9,38 @@ import socketUtil from '../core/socketUtil';
 const roomCache = {};
 
 //============================================================================
+// Room Schema
+//============================================================================
+const RoomSchema = new mongoose.Schema({
+  name: {
+    type: String,
+  },
+  desc: {
+    type: String,
+  },
+  alias: {
+    type: String,
+  },
+  areaId: {
+    type: String,
+  },
+  x: {
+    type: Number,
+  },
+  y: {
+    type: Number,
+  },
+  z: {
+    type: Number,
+  },
+
+  exits: [ExitSchema],
+
+  spawner: SpawnerSchema,
+  inventory: [ItemSchema],
+}, { usePushEach: true });
+
+//============================================================================
 // Direction Support
 //============================================================================
 const dirEnum = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw', 'u', 'd'];
@@ -51,39 +83,6 @@ const oppositeDir = {
   u: 'd',
   d: 'u',
 };
-
-//============================================================================
-// Room Schema
-//============================================================================
-const RoomSchema = new mongoose.Schema({
-  name: {
-    type: String,
-  },
-  desc: {
-    type: String,
-  },
-  alias: {
-    type: String,
-  },
-  area: {
-    type: String,
-  },
-  x: {
-    type: Number,
-  },
-  y: {
-    type: Number,
-  },
-  z: {
-    type: Number,
-  },
-
-  // TODO: This may make more sense to be an object instead of a list
-  // with the direction as the key.
-  exits: [ExitSchema],
-  spawner: SpawnerSchema,
-  inventory: [ItemSchema],
-}, { usePushEach: true });
 
 //============================================================================
 // Statics
@@ -257,7 +256,16 @@ RoomSchema.methods.look = function (socket, short) {
   let notHiddenExits = '';
   let hiddenExits = '';
   if (this.exits) {
-    notHiddenExits = this.exits.filter(({ hidden }) => !hidden).map(({ dir }) => this.constructor.shortToLong(dir)).join(', ');
+    notHiddenExits = this.exits.filter(({ hidden }) => !hidden).map(({ dir }) => {
+      let exitName = this.constructor.shortToLong(dir);
+      const exit = this.exits.find(e => e.dir === dir);
+      if (exit.closed) {
+        exitName += ' (closed)';
+      } else if ('closed' in exit && exit.closed === false) {
+        exitName += ' (open)';
+      }
+      return exitName;
+    }).join(', ');
     hiddenExits = this.exits.filter(({ hidden }) => hidden).map(({ dir }) => this.constructor.shortToLong(dir)).join(', ');
   }
   if (notHiddenExits != '') {
@@ -321,10 +329,10 @@ RoomSchema.methods.addExit = function (dir, roomId) {
 RoomSchema.methods.processPlayerCombatActions = function (now) {
   const sockets = socketUtil.getRoomSockets(this.id);
   for (let socket of sockets) {
-    if (!socket.user.attackTarget) continue;
-    let mob = this.getMobById(socket.user.attackTarget);
+    if (!socket.character.attackTarget) continue;
+    let mob = this.getMobById(socket.character.attackTarget);
     if (!mob) continue;
-    socket.user.attack(socket, mob, now);
+    socket.character.attack(socket, mob, now);
   }
 };
 
@@ -335,7 +343,14 @@ RoomSchema.methods.processMobCombatActions = function (now) {
       if (!mob.attack(now)) {
         mob.selectTarget(room.id, mob);
       }
-      mob.taunt(now);
+      else {
+        mob.taunt(now);
+      }
+
+      // this mostly applies to NPCs (sparring dummy)
+      if (!mob.attackTarget) {
+        mob.idle(now);
+      }
     });
   }
 };

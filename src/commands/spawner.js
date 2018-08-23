@@ -20,8 +20,6 @@ setInterval(() => {
       room.spawnTimer = now;
     }
 
-    // TODO: This appears to spawn mobs back to back without waiting for timeout between spawns
-    // when the count of mobs is less than max.
     if (room.mobs.length < max && now - room.spawnTimer >= timeout && room.spawner.mobTypes.length > 0) {
       let mobTypeIndex = dice.getRandomNumber(0, room.spawner.mobTypes.length);
       let mobTypeName = room.spawner.mobTypes[mobTypeIndex];
@@ -59,7 +57,7 @@ export default {
   },
 
   execute(socket, action, param) {
-    const room = Room.getById(socket.user.roomId);
+    const room = Room.getById(socket.character.roomId);
     action = action ? action.toLowerCase() : null;
 
     if (!room.spawner) {
@@ -125,11 +123,11 @@ export default {
         socket.emit('output', { message: 'Spawner cleared.' });
         break;
       case 'copy':
-        socket.user.spawnerClipboard = room.spawner;
+        socket.character.spawnerClipboard = room.spawner;
         socket.emit('output', { message: 'Spawner copied.' });
         break;
       case 'paste':
-        room.spawner = socket.user.spawnerClipboard;
+        room.spawner = socket.character.spawnerClipboard;
         socket.emit('output', { message: 'Spawner pasted.' });
         break;
       default:
@@ -141,13 +139,13 @@ export default {
 
   help(socket) {
     let output = '<span class="mediumOrchid">spawner </span><span class="purple">-</span> Show spawner settings for current room.<br />';
-    output += '<span class="mediumOrchid">spawner &lt;add&gt; </span><span class="purple">-</span> Add creature to the current room\'s spawner.<br />';
-    output += '<span class="mediumOrchid">spawner &lt;remove&gt; </span><span class="purple">-</span> Remove a creature from the current room\'s spawner.<br />';
-    output += '<span class="mediumOrchid">spawner &lt;max&gt; </span><span class="purple">-</span> Set max number of creatures for this room.<br />';
-    output += '<span class="mediumOrchid">spawner &lt;timeout&gt; </span><span class="purple">-</span> Set timeout from creature death until next spawn.<br />';
-    output += '<span class="mediumOrchid">spawner &lt;clear&gt; </span><span class="purple">-</span> Clear all spawner settings for this room.<br />';
-    output += '<span class="mediumOrchid">spawner &lt;copy&gt; </span><span class="purple">-</span> Copy the current room\'s spawner settings.<br />';
-    output += '<span class="mediumOrchid">spawner &lt;paste&gt; </span><span class="purple">-</span> Paste a room\'s spawner settings.<br />';
+    output += '<span class="mediumOrchid">spawner add &lt;mob type&gt; </span><span class="purple">-</span> Add creature to the current room\'s spawner.<br />';
+    output += '<span class="mediumOrchid">spawner remove &lt;mob type&gt; </span><span class="purple">-</span> Remove a creature from the current room\'s spawner.<br />';
+    output += '<span class="mediumOrchid">spawner max &lt;count&gt; </span><span class="purple">-</span> Set max number of creatures for this room.<br />';
+    output += '<span class="mediumOrchid">spawner timeout &lt;milleseconds&gt; </span><span class="purple">-</span> Set timeout from creature death until next spawn.<br />';
+    output += '<span class="mediumOrchid">spawner clear </span><span class="purple">-</span> Clear all spawner settings for this room.<br />';
+    output += '<span class="mediumOrchid">spawner copy </span><span class="purple">-</span> Copy the current room\'s spawner settings.<br />';
+    output += '<span class="mediumOrchid">spawner paste </span><span class="purple">-</span> Paste a room\'s spawner settings.<br />';
     socket.emit('output', { message: output });
   },
 };

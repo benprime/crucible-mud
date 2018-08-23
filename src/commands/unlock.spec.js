@@ -1,4 +1,4 @@
-import { mockGetById, mockValidDirectionInput, mockShortToLong } from '../models/room';
+import { mockGetRoomById, mockValidDirectionInput, mockShortToLong } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import Item from '../models/item';
 import mocks from '../../spec/mocks';
@@ -27,16 +27,9 @@ describe('unlock', () => {
   let socket;
 
   beforeAll(() => {
-    //global.io.reset();
     socket = new mocks.SocketMock();
 
-    mockGetById.mockReturnValue(mockRoom);
-  });
-
-  beforeEach(() => {
-    // socket.emit.mockReset();
-    // mockRoom.save.mockReset();
-    // autocomplete.autocompleteTypes.mockReset();
+    mockGetRoomById.mockReturnValue(mockRoom);
   });
 
   test('should output message when direction is invalid', () => {
@@ -62,7 +55,7 @@ describe('unlock', () => {
 
     sut.execute(socket, 'nw', 'some key');
 
-    expect(socket.emit).toHaveBeenCalledWith('output', {'message': 'You don\'t seem to be carrying that key.'});
+    expect(socket.emit).toHaveBeenCalledWith('output', { 'message': 'You don\'t seem to be carrying that key.' });
     expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
@@ -71,7 +64,7 @@ describe('unlock', () => {
     key.itemTypeEnum = 'key';
     key.name = 'Blue';
     mockValidDirectionInput.mockReturnValueOnce('ne');
-    mockAutocompleteTypes.mockReturnValueOnce(key);
+    mockAutocompleteTypes.mockReturnValueOnce({ item: key });
 
     sut.execute(socket, 'ne', 'Blue');
 
@@ -84,7 +77,7 @@ describe('unlock', () => {
     key.itemTypeEnum = 'key';
     key.name = 'Gold';
     mockValidDirectionInput.mockReturnValueOnce('w');
-    mockAutocompleteTypes.mockReturnValueOnce(key);
+    mockAutocompleteTypes.mockReturnValueOnce({ item: key });
 
     sut.execute(socket, 'w', 'Gold');
 
@@ -94,7 +87,7 @@ describe('unlock', () => {
 
   describe('asyncTest', () => {
     let worked = false;
-    
+
     beforeEach(done => {
       global.io.reset();
       const key = new Item();
@@ -102,7 +95,7 @@ describe('unlock', () => {
       key.name = 'Silver';
       mockValidDirectionInput.mockReturnValueOnce('nw');
       mockShortToLong.mockReturnValueOnce('northwest');
-      mockAutocompleteTypes.mockReturnValueOnce(key);
+      mockAutocompleteTypes.mockReturnValueOnce({ item: key });
 
       sut.execute(socket, 'nw', 'Silver', () => {
         worked = true;

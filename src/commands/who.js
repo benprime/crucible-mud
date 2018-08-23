@@ -1,3 +1,6 @@
+import Area from '../models/area';
+import Room from '../models/room';
+
 export default {
   name: 'who',
 
@@ -10,17 +13,25 @@ export default {
   },
 
   execute(socket) {
-    const usernames = [];
+    const sockets = Object.values(global.io.sockets.connected)
+      .filter(s => s.user);
 
-    Object.keys(global.io.sockets.connected).forEach((socketId) => {
-      let socket = global.io.sockets.connected[socketId];
-      // check if user logged in
-      if (socket.user) {
-        usernames.push(socket.user.username);
-      }
+    const whoUsers = sockets.map(s => {
+      const room = Room.getById(s.character.roomId);
+      const areaName = room.areaId ? Area.getById(room.areaId).name : null;
+      return {
+        username: s.user.username,
+        areaName: areaName,
+      };
     });
-    let output = `<span class="cyan"> -=- ${usernames.length} Players Online -=-</span><br />`;
-    output += `<div class="mediumOrchid">${usernames.join('<br />')}</div>`;
+
+    let output = `<span class="cyan"> -=- ${whoUsers.length} Players Online -=-</span><br />`;
+    output += '<div class="mediumOrchid">';
+    whoUsers.forEach(wu => {
+      let areaName = wu.areaName ? ` (${wu.areaName})` : '';
+      output += `${wu.username}${areaName}<br />`;
+    });
+    output += '</div>';
     socket.emit('output', { message: output });
   },
 

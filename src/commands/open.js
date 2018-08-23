@@ -13,7 +13,7 @@ export default {
 
   execute(socket, dir) {
     const d = Room.validDirectionInput(dir.toLowerCase());
-    const room = Room.getById(socket.user.roomId);
+    const room = Room.getById(socket.character.roomId);
 
     // valid exit in that direction?
     const exit = room.exits.find(e => e.dir === d);
@@ -22,7 +22,7 @@ export default {
       return;
     }
 
-    if (!('closed' in exit)) {
+    if (exit.closed === undefined) {
       socket.emit('output', { message: 'There is no door in that direction!' });
       return;
     }
@@ -32,13 +32,13 @@ export default {
       return;
     }
 
-    if (!exit.closed) {
+    if (exit.closed === false) {
       socket.emit('output', { message: 'That door is already open.' });
       return;
     }
 
     exit.closed = false;
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} opens the door to the ${Room.shortToLong(d)}.` });
+    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} opens the door to the ${Room.shortToLong(d)}.` });
     socket.emit('output', { message: 'Door opened.' });
   },
 

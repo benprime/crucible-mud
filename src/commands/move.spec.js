@@ -1,10 +1,12 @@
-import { mockGetById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection, mockRoomCache } from '../models/room';
+import { mockGetRoomById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection, mockRoomCache } from '../models/room';
 import mocks from '../../spec/mocks';
 import { when } from 'jest-when';
+import { mockLookCommand } from './look';
 import sut from './move';
 
 jest.mock('../models/room');
 jest.mock('./break');
+jest.mock('./look');
 
 global.io = new mocks.IOMock();
 
@@ -20,7 +22,7 @@ describe('move', () => {
   let eRoom;
   let wRoom;
 
-  beforeAll(() => {
+  beforeEach(() => {
     when(mockOppositeDirection).calledWith('e').mockReturnValue('w');
     when(mockOppositeDirection).calledWith('w').mockReturnValue('e');
     when(mockOppositeDirection).calledWith('n').mockReturnValue('s');
@@ -43,7 +45,7 @@ describe('move', () => {
     when(mockShortToLong).calledWith('d').mockReturnValue('down');
 
     socket = new mocks.SocketMock();
-    currentRoom = mocks.getMockRoom(socket.user.roomId);
+    currentRoom = mocks.getMockRoom(socket.character.roomId);
     uRoom = mocks.getMockRoom(currentRoom.exits.find(e => e.dir === 'u').roomId);
     uRoom.exits = [{ roomId: currentRoom.id, dir: 'd' }];
     dRoom = mocks.getMockRoom(currentRoom.exits.find(e => e.dir === 'd').roomId);
@@ -57,13 +59,13 @@ describe('move', () => {
     wRoom = mocks.getMockRoom(currentRoom.exits.find(e => e.dir === 'w').roomId);
     wRoom.exits = [{ roomId: currentRoom.id, dir: 'e' }];
 
-    when(mockGetById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
-    when(mockGetById).calledWith(uRoom.id).mockReturnValue(uRoom);
-    when(mockGetById).calledWith(dRoom.id).mockReturnValue(dRoom);
-    when(mockGetById).calledWith(nRoom.id).mockReturnValue(nRoom);
-    when(mockGetById).calledWith(sRoom.id).mockReturnValue(sRoom);
-    when(mockGetById).calledWith(eRoom.id).mockReturnValue(eRoom);
-    when(mockGetById).calledWith(wRoom.id).mockReturnValue(wRoom);
+    when(mockGetRoomById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
+    when(mockGetRoomById).calledWith(uRoom.id).mockReturnValue(uRoom);
+    when(mockGetRoomById).calledWith(dRoom.id).mockReturnValue(dRoom);
+    when(mockGetRoomById).calledWith(nRoom.id).mockReturnValue(nRoom);
+    when(mockGetRoomById).calledWith(sRoom.id).mockReturnValue(sRoom);
+    when(mockGetRoomById).calledWith(eRoom.id).mockReturnValue(eRoom);
+    when(mockGetRoomById).calledWith(wRoom.id).mockReturnValue(wRoom);
 
     mockRoomCache[uRoom.id] = uRoom;
     mockRoomCache[dRoom.id] = dRoom;
@@ -74,9 +76,9 @@ describe('move', () => {
   });
 
   beforeEach(() => {
-    //jest.clearAllMocks();
-    socket.user.roomId = currentRoom.id;
-    //global.io.reset();
+    jest.clearAllMocks();
+    socket.character.roomId = currentRoom.id;
+    global.io.reset();
 
     // working around the closed-door tests
     // for(let i in mockRoomCache) {
@@ -84,32 +86,32 @@ describe('move', () => {
     // }
   });
 
-  // describe('dispatch', () => {
-  //   beforeEach(() => {
-  //     jest.spyOn(sut, 'execute');
-  //     //global.io.reset();
-  //   });
+  describe('dispatch', () => {
+    beforeEach(() => {
+      jest.spyOn(sut, 'execute');
+      //global.io.reset();
+    });
 
-  //   test('should call execute with direction match', () => {
-  //     sut.dispatch(socket, ['aMatch']);
+    test('should call execute with direction match', () => {
+      sut.dispatch(socket, ['aMatch']);
 
-  //     expect(sut.execute).toBeCalledWith(socket, 'aMatch');
-  //   });
+      expect(sut.execute).toBeCalledWith(socket, 'aMatch');
+    });
 
-  //   test('should call execute with command match', () => {
-  //     sut.dispatch(socket, ['go aMatch', 'aMatch']);
+    test('should call execute with command match', () => {
+      sut.dispatch(socket, ['go aMatch', 'aMatch']);
 
-  //     expect(sut.execute).toBeCalledWith(socket, 'aMatch');
-  //   });
+      expect(sut.execute).toBeCalledWith(socket, 'aMatch');
+    });
 
-  //   test('should clear leader tracking when user moves', () => {
-  //     socket.leader = 'test';
+    test('should clear leader tracking when user moves', () => {
+      socket.leader = 'test';
 
-  //     sut.dispatch(socket, ['aMatch']);
+      sut.dispatch(socket, ['aMatch']);
 
-  //     expect(socket.leader).toBeNull();
-  //   });
-  // });
+      expect(socket.leader).toBeNull();
+    });
+  });
 
   describe('execute', () => {
 
@@ -122,7 +124,7 @@ describe('move', () => {
 
       sut.execute(socket, 'u');
 
-      expect(socket.to(socket.user.roomId).emit).toBeCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the ceiling.</span>` });
+      expect(socket.to(socket.character.roomId).emit).toBeCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the ceiling.</span>` });
       expect(socket.emit).toBeCalledWith('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
     });
 
@@ -131,7 +133,7 @@ describe('move', () => {
 
       sut.execute(socket, 'd');
 
-      expect(socket.to(socket.user.roomId).emit).toBeCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the floor.</span>` });
+      expect(socket.to(socket.character.roomId).emit).toBeCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the floor.</span>` });
       expect(socket.emit).toBeCalledWith('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
     });
 
@@ -140,7 +142,7 @@ describe('move', () => {
 
       sut.execute(socket, 'invalidDir');
 
-      expect(socket.to(socket.user.roomId).emit).not.toBeCalledWith();
+      expect(socket.to(socket.character.roomId).emit).not.toBeCalledWith();
       expect(socket.emit).toBeCalledWith('output', { message: '<span class="yellow">That is not a valid direction!</span>' });
     });
 
@@ -149,7 +151,7 @@ describe('move', () => {
       currentRoom.exits[exitIndex].closed = true;
       sut.execute(socket, 'u');
 
-      expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the closed door above.</span>` });
+      expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the closed door above.</span>` });
       expect(socket.emit).toBeCalledWith('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
     });
 
@@ -158,7 +160,7 @@ describe('move', () => {
       currentRoom.exits[exitIndex].closed = true;
       sut.execute(socket, 'd');
 
-      expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the trapdoor on the floor.</span>` });
+      expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the trapdoor on the floor.</span>` });
       expect(socket.emit).toBeCalledWith('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
     });
 
@@ -167,11 +169,11 @@ describe('move', () => {
       currentRoom.exits[exitIndex].closed = true;
       sut.execute(socket, 'w');
 
-      expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the door to the west.</span>` });
+      expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: `<span class="silver">${socket.user.username} runs into the door to the west.</span>` });
       expect(socket.emit).toBeCalledWith('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
     });
 
-    xtest('should message correctly movement when direction is up', () => {
+    test('should message correctly movement when direction is up', () => {
       sut.execute(socket, 'u');
 
       //expect(BreakCommand.execute).toBeCalledWith(socket);
@@ -181,20 +183,20 @@ describe('move', () => {
       expect(socket.broadcast.to(uRoom.id).emit).toBeCalledWith('output', { message: `${socket.user.username} has entered from below.` });
 
       // current/target rooms should not get a movement message
-      expect(socket.broadcast.to(uRoom.id).emit).toBeCalledWith('output', { message: 'You hear movement from below.' });
-      expect(socket.broadcast.to(currentRoom.id).emit).toBeCalledWith('output', { message: 'You hear movement from below.' });
+      expect(socket.broadcast.to(uRoom.id).emit).not.toBeCalledWith('output', { message: 'You hear movement from below.' });
+      expect(socket.broadcast.to(currentRoom.id).emit).not.toBeCalledWith('output', { message: 'You hear movement from above.' });
 
       expect(socket.emit).toBeCalledWith('output', { message: 'You move up...' });
 
       // state management
       expect(socket.leave).toBeCalledWith(currentRoom.id);
-      expect(socket.join).toBeCalledWith(exit.roomId);
-      expect(socket.user.save).toHaveBeenCalled();
-      expect(mockLookCommand.execute).toBeCalledWith(socket);
+      expect(socket.join).toBeCalledWith(uRoom.id);
+      expect(socket.character.save).toHaveBeenCalled();
+      expect(mockLookCommand).toBeCalledWith(socket);
     });
 
 
-    xtest('should output appropriate messages when direction is down', () => {
+    test('should output appropriate messages when direction is down', () => {
 
       sut.execute(socket, 'd');
 

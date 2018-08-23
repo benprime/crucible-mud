@@ -16,24 +16,24 @@ describe('inventory', () => {
     const equipSlotTest = (testName, equipSlot, equippedItem, expectedString) => {
       describe('should display equipped items', () => {
         beforeEach(() => {
-          socket.user.equipSlots.weaponMain = null;
-          socket.user.equipSlots.weaponOff = null;
-          socket.user.equipSlots.body = null;
-          socket.user.equipSlots.back = null;
-          socket.user.equipSlots.legs = null;
-          socket.user.equipSlots.feet = null;
-          socket.user.equipSlots.arms = null;
-          socket.user.equipSlots.hands = null;
-          socket.user.equipSlots.neck = null;
-          socket.user.equipSlots.fingerMain = null;
-          socket.user.equipSlots.fingerOff = null;
+          socket.character.equipSlots.weaponMain = null;
+          socket.character.equipSlots.weaponOff = null;
+          socket.character.equipSlots.body = null;
+          socket.character.equipSlots.back = null;
+          socket.character.equipSlots.legs = null;
+          socket.character.equipSlots.feet = null;
+          socket.character.equipSlots.arms = null;
+          socket.character.equipSlots.hands = null;
+          socket.character.equipSlots.neck = null;
+          socket.character.equipSlots.fingerMain = null;
+          socket.character.equipSlots.fingerOff = null;
         });
 
         test(testName, () => {
 
           // arrange
-          socket.inventory = [];
-          socket.user.equipSlots[equipSlot] = equippedItem;
+          socket.character.inventory = [];
+          socket.character.equipSlots[equipSlot] = equippedItem;
 
           // act
           sut.execute(socket);
@@ -62,7 +62,7 @@ describe('inventory', () => {
 
   test('should display backpack items', () => {
     // arrange
-    socket.user.inventory = [
+    socket.character.inventory = [
       { displayName: 'ItemOne' },
       { displayName: 'ItemTwo' },
       { displayName: 'ItemThree' },
@@ -79,7 +79,7 @@ describe('inventory', () => {
 
   test('should display key items', () => {
     // arrange
-    socket.user.keys = [
+    socket.character.keys = [
       { displayName: 'KeyOne' },
       { displayName: 'KeyTwo' },
       { displayName: 'KeyThree' },
@@ -99,7 +99,7 @@ describe('inventory', () => {
 
       test(testName, () => {
         // arrange
-        socket.user.currency = currency;
+        socket.character.currency = currency;
 
         // act
         sut.execute(socket);
@@ -110,28 +110,28 @@ describe('inventory', () => {
       });
     });
   };
-  currencyTest('when user is carrying no money', 0, '0 Copper');
-  currencyTest('', 1, '1 Copper');
+  currencyTest('when user is carrying no money', 0, '0 copper');
+  currencyTest('', 1, '1 copper');
 
-  currencyTest('', 9, '9 Copper');
-  currencyTest('', 10, '1 Silver');
-  currencyTest('', 11, '1 Silver 1 Copper');
+  currencyTest('', 9, '9 copper');
+  currencyTest('', 10, '1 silver');
+  currencyTest('', 11, '1 silver, 1 copper');
 
-  currencyTest('', 99, '9 Silver 9 Copper');
-  currencyTest('', 100, '1 Gold');
-  currencyTest('', 101, '1 Gold 1 Copper');
+  currencyTest('', 99, '9 silver, 9 copper');
+  currencyTest('', 100, '1 gold');
+  currencyTest('', 101, '1 gold, 1 copper');
 
-  currencyTest('', 999, '9 Gold 9 Silver 9 Copper');
-  currencyTest('', 1000, '1 Platinum');
-  currencyTest('', 1001, '1 Platinum 1 Copper');
+  currencyTest('', 999, '9 gold, 9 silver, 9 copper');
+  currencyTest('', 1000, '1 platinum');
+  currencyTest('', 1001, '1 platinum, 1 copper');
 
-  currencyTest('', 9999, '9 Platinum 9 Gold 9 Silver 9 Copper');
-  currencyTest('', 10000, '10 Platinum');
-  currencyTest('', 10001, '10 Platinum 1 Copper');
+  currencyTest('', 9999, '9 platinum, 9 gold, 9 silver, 9 copper');
+  currencyTest('', 10000, '10 platinum');
+  currencyTest('', 10001, '10 platinum, 1 copper');
 
-  currencyTest('', 99999, '99 Platinum 9 Gold 9 Silver 9 Copper');
-  currencyTest('', 100000, '100 Platinum');
-  currencyTest('', 100001, '100 Platinum 1 Copper');
+  currencyTest('', 99999, '99 platinum, 9 gold, 9 silver, 9 copper');
+  currencyTest('', 100000, '100 platinum');
+  currencyTest('', 100001, '100 platinum, 1 copper');
 
-  currencyTest('', 1111, '1 Platinum 1 Gold 1 Silver 1 Copper');
+  currencyTest('', 1111, '1 platinum, 1 gold, 1 silver, 1 copper');
 });

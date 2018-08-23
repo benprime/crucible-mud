@@ -19,13 +19,21 @@ export default {
       return;
     }
 
-    if (!Array.isArray(socket.partyInvites) || !socket.partyInvites.includes(invitingSocket.user.id)) {
+    if (!Array.isArray(socket.partyInvites) || !socket.partyInvites.includes(invitingSocket.character.id)) {
       socket.emit('output', { message: 'You must be invited.' });
       return;
     }
 
-    socket.leader = invitingSocket.id;
-    utils.removeItem(socket.partyInvites, invitingSocket.user.id);
+    socket.leader = invitingSocket.character.id;
+
+    // re-assign following sockets to new leader
+    let followingSockets = socketUtil.getFollowingSockets(socket.character.id);
+    followingSockets.forEach(s => {
+      s.leader = invitingSocket.character.id;
+      s.emit('output', { message: `<span class="yellow">Now following ${invitingSocket.user.username}</span>` });
+    });
+
+    utils.removeItem(socket.partyInvites, invitingSocket.character.id);
 
     socket.emit('output', { message: `You are now following ${username}.` });
     invitingSocket.emit('output', { message: `${socket.user.username} has started following you.` });

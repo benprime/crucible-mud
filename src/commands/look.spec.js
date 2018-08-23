@@ -1,10 +1,10 @@
-import { mockGetById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection } from '../models/room';
+import { mockGetRoomById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection } from '../models/room';
 import { mockAutocompleteTypes } from '../core/autocomplete';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
 import sut from './look';
+import Item from '../models/item';
 
-//jest.mock('../models/user');
 jest.mock('../models/room');
 jest.mock('../core/autocomplete');
 
@@ -16,9 +16,9 @@ describe('look', () => {
 
   beforeAll(() => {
     socket = new mocks.SocketMock();
-    // socket.user.roomId = 'currentRoomId0000000000';
     targetRoomNorth = mocks.getMockRoom();
-    currentRoom = mocks.getMockRoom(socket.user.roomId);
+    currentRoom = mocks.getMockRoom(socket.character.roomId);
+    currentRoom.mobs = [{ displayName: 'dummy', name: 'dummy', desc: 'a dummy!' }];
     const nExit = currentRoom.exits.find(e => e.dir === 'n');
     nExit.roomId = targetRoomNorth.id;
     nExit.closed = true;
@@ -28,9 +28,9 @@ describe('look', () => {
     sExit.roomId = targetRoomSouth.id;
     sExit.closed = false;
 
-    when(mockGetById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
-    when(mockGetById).calledWith(targetRoomNorth.id).mockReturnValue(targetRoomNorth);
-    when(mockGetById).calledWith(targetRoomSouth.id).mockReturnValue(targetRoomSouth);
+    when(mockGetRoomById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
+    when(mockGetRoomById).calledWith(targetRoomNorth.id).mockReturnValue(targetRoomNorth);
+    when(mockGetRoomById).calledWith(targetRoomSouth.id).mockReturnValue(targetRoomSouth);
   });
 
   describe('dispatch triggers execute', () => {
@@ -52,55 +52,84 @@ describe('look', () => {
 
       expect(executeSpy).toBeCalledWith(socket, false, lookTarget);
     });
+
+    afterAll(() => {
+      sut.execute.mockRestore();
+    });
   });
 
   describe('execute', () => {
-    test('should output short room look when short param is true', () => {
-      sut.execute(socket, true);
 
-      expect(currentRoom.look).toBeCalledWith(socket, true);
+    beforeEach(() => {
+      socket.reset();
     });
 
-    test('should output room look when lookTarget is not passed', () => {
-      sut.execute(socket, false);
+    describe('on room', () => {
 
-      expect(currentRoom.look).toBeCalledWith(socket, false);
+      test('should output short room look when short param is true', () => {
+        sut.execute(socket, true);
+
+        expect(currentRoom.look).toBeCalledWith(socket, true);
+      });
+
+      test('should output room look when lookTarget is not passed', () => {
+        sut.execute(socket, false);
+
+        expect(currentRoom.look).toBeCalledWith(socket, false);
+      });
+
+      test('should output room look when lookTarget is a direction', () => {
+        // arrange
+        mockValidDirectionInput.mockReturnValue('s');
+        mockShortToLong.mockReturnValueOnce('south').mockReturnValueOnce('north');
+
+        // act
+        sut.execute(socket, false, 's');
+
+        // assert
+        expect(socket.emit).toBeCalledWith('output', { message: 'You look to the south...' });
+        expect(socket.broadcast.to(targetRoomSouth.id).emit).toBeCalledWith('output', { message: `<span class="yellow">${socket.user.username} peaks in from the north.</span>` });
+        expect(targetRoomSouth.look).toBeCalledWith(socket, false);
+      });
+
+      test('should output a message when lookTarget is a direction with a closed door', () => {
+        // arrange
+        mockValidDirectionInput.mockReturnValue('n');
+        mockOppositeDirection.mockReturnValue('s');
+        mockShortToLong.mockReturnValue('south');
+
+        // act
+        sut.execute(socket, false, 'n');
+
+        // assert
+        expect(socket.emit).toBeCalledWith('output', { message: 'The door in that direction is closed!' });
+      });
     });
 
-    test('should output room look when lookTarget is a direction', () => {
-      // arrange
-      mockValidDirectionInput.mockReturnValue('s');
-      mockShortToLong.mockReturnValueOnce('south').mockReturnValueOnce('north');
+    // TODO: this could really use some more tests
+    describe('on item', () => {
 
-      // act
-      sut.execute(socket, false, 's');
+      test('should do nothing when lookTarget is an invalid inventory item', () => {
+        mockValidDirectionInput.mockReturnValue(null);
+        mockAutocompleteTypes.mockReturnValue(undefined);
 
-      // assert
-      expect(socket.emit).toBeCalledWith('output', { message: 'You look to the south...' });
-      expect(socket.broadcast.to(targetRoomSouth.id).emit).toBeCalledWith('output', { message: `<span class="yellow">${socket.user.username} peaks in from the north.</span>` });
-      expect(targetRoomSouth.look).toBeCalledWith(socket, false);
+        sut.execute(socket, false, 'boot');
+
+        expect(socket.emit).not.toHaveBeenCalled();
+      });
+
     });
 
-    test('should output a message when lookTarget is a direction with a closed door', () => {
-      // arrange
-      mockValidDirectionInput.mockReturnValue('n');
-      mockOppositeDirection.mockReturnValue('s');
-      mockShortToLong.mockReturnValue('south');
+    describe('on mob', () => {
 
-      // act
-      sut.execute(socket, false, 'n');
+      test('should output description of mob', () => {
+        mockAutocompleteTypes.mockReturnValue({item: new Item({desc: 'a practice dummy'})});
+        mockValidDirectionInput.mockReturnValue(false);
 
-      // assert
-      expect(socket.emit).toBeCalledWith('output', { message: 'The door in that direction is closed!' });
-    });
+        sut.execute(socket, false, 'dummy');
 
-    test('should do nothing when lookTarget is an invalid inventory item', () => {
-      mockValidDirectionInput.mockReturnValue(null);
-      mockAutocompleteTypes.mockReturnValue(undefined);
-
-      sut.execute(socket, false, 'boot');
-
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Unknown item!' });
+        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'a practice dummy' });
+      });
     });
 
   });

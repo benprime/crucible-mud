@@ -7,6 +7,11 @@ const data = [
     "_id": Types.ObjectId("5b74b9ca62976d41dae0c288"),
     "name": "Infernal Chasm",
     "__v": 0
+  },
+  {
+    "_id": Types.ObjectId("5b779e8971dfb628458e4d36"),
+    "name": "Eastmark",
+    "__v": 0
   }
 ];
 

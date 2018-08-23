@@ -15,7 +15,7 @@ export default {
   },
 
   execute(socket) {
-    const room = Room.getById(socket.user.roomId);
+    const room = Room.getById(socket.character.roomId);
     let hExits, hItems, totalHidden;
     let roomDC = 4; //base difficulty of rooms to reveal hidden things
 
@@ -28,7 +28,7 @@ export default {
     if (!socket.user.admin) {
 
       //calculate player search skill
-      let searchRoll = socket.user.search + dice.roll(socket.user.actionDie);
+      let searchRoll = socket.character.skills.search + dice.roll(socket.character.actionDie);
       socket.emit('output', { message: `Search Roll: ${searchRoll}<br />` });
 
       //if nothing is hidden, return "You find nothing special."

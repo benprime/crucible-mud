@@ -1,4 +1,4 @@
-import Room, { mockGetById } from '../models/room';
+import { mockGetRoomById, mockRoomCache } from '../models/room';
 import Mob from '../models/mob';
 import sut from '../core/combat';
 import mocks from '../../spec/mocks';
@@ -17,7 +17,7 @@ describe('combat command', () => {
 
     beforeEach(() => {
       mockRoom = mocks.getMockRoom();
-      mockGetById.mockReturnValue(mockRoom);
+      mockGetRoomById.mockReturnValue(mockRoom);
     });
 
     test('should call room.processPlayerCombatActions for all room Ids', () => {
@@ -48,9 +48,9 @@ describe('combat command', () => {
       roomWithMobs.mobs.push(secondMob);
       let roomWithoutMobs = mocks.getMockRoom();
 
-      Room.roomCache = {};
-      Room.roomCache[roomWithMobs.id] = roomWithMobs;
-      Room.roomCache[roomWithoutMobs.id] = roomWithoutMobs;
+      //mockRoomCache = {};
+      mockRoomCache[roomWithMobs.id] = roomWithMobs;
+      mockRoomCache[roomWithoutMobs.id] = roomWithoutMobs;
 
       const now = Date.now();
       sut.processMobCombatActions(now);
@@ -59,16 +59,5 @@ describe('combat command', () => {
       expect(roomWithoutMobs.processMobCombatActions).not.toHaveBeenCalled();
     });
 
-    xdescribe('combatFrame', () => {
-      test('should call processPlayerCombatActions and processMobCombatActions', () => {
-        jest.spyOn(sut, 'processPlayerCombatActions');
-        jest.spyOn(sut, 'processMobCombatActions');
-
-        sut.combatFrame();
-
-        expect(sut.processPlayerCombatActions).toHaveBeenCalled();
-        expect(sut.processMobCombatActions).toHaveBeenCalled();
-      });
-    });
   });
 });

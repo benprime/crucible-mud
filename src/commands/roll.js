@@ -25,7 +25,7 @@ export default {
       output = `${dieType} Roll Result:  ${rollValue}<br />`;
     }
     else {
-      rollValue = dice.roll(socket.user.actionDie);
+      rollValue = dice.roll(socket.character.actionDie);
       output = `Action Die Roll Result:  ${rollValue}<br />`;
     }
 

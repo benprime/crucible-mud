@@ -28,14 +28,14 @@ export default {
     breakCmd.execute(targetUserSocket);
 
     //move summoned player to summoner's room
-    targetUserSocket.leave(targetUserSocket.user.roomId);
-    targetUserSocket.join(socket.user.roomId);
-    targetUserSocket.user.roomId = socket.user.roomId;
-    targetUserSocket.user.save(err => { if (err) throw err; });
+    targetUserSocket.leave(targetUserSocket.character.roomId);
+    targetUserSocket.join(socket.character.roomId);
+    targetUserSocket.character.roomId = socket.character.roomId;
+    targetUserSocket.character.save(err => { if (err) throw err; });
 
     //announce summoned player's arrival
     targetUserSocket.emit('output', { message: `You were summoned to ${socket.user.username}'s room!` });
-    targetUserSocket.broadcast.to(targetUserSocket.user.roomId).emit('output', { message: `${targetUserSocket.user.username} appears out of thin air!` });
+    targetUserSocket.broadcast.to(targetUserSocket.character.roomId).emit('output', { message: `${targetUserSocket.user.username} appears out of thin air!` });
 
     //display room info to summoned player
     lookCmd.execute(targetUserSocket);

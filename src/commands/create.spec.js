@@ -1,4 +1,4 @@
-import { mockGetById, mockValidDirectionInput, mockShortToLong } from '../models/room';
+import { mockGetRoomById, mockValidDirectionInput, mockShortToLong } from '../models/room';
 import mocks from '../../spec/mocks';
 import sut from './create';
 
@@ -14,7 +14,7 @@ describe('create', () => {
   beforeEach(() => {
     socket = new mocks.SocketMock();
     mockRoom = mocks.getMockRoom();
-    mockGetById.mockReturnValue(mockRoom);
+    mockGetRoomById.mockReturnValue(mockRoom);
   });
 
   // describe('dispatch triggers execute', () => {
@@ -44,7 +44,7 @@ describe('create', () => {
 
         expect(mockRoom.createRoom).toBeCalledWith('n', jasmine.any(Function));
         expect(socket.emit).toBeCalledWith('output', { message: 'Room created.' });
-        expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${longDir}!` });
+        expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${longDir}!` });
       });
 
       test('should output error message when direction in invalid', () => {

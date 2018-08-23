@@ -1,9 +1,13 @@
 import actionHandler from '../core/actionHandler';
 import helpHandler from './help';
+import config from '../config';
 
 let commandModules = [
+  'accept.js',
   'attack.js',
   'break.js',
+  'buy.js',
+  'catalog.js',
   'close.js',
   'create.js',
   'destroy.js',
@@ -27,11 +31,13 @@ let commandModules = [
   'roll.js',
   'say.js',
   'search.js',
+  'sell.js',
   'set.js',
   'sneak.js',
   'spawner.js',
   'spawn.js',
   'stats.js',
+  'stock.js',
   'summon.js',
   'take.js',
   'telepathy.js',
@@ -45,7 +51,7 @@ const commands = [];
 let defaultCommand;
 
 function validateCommand(commandHandler, file) {
-  if(!commandHandler) throw `could not load ${file} when initializing commands`;
+  if (!commandHandler) throw `could not load ${file} when initializing commands`;
   if (!commandHandler.name) throw `command ${file} missing name!`;
   if (!commandHandler.dispatch) throw `command ${file} missing dispatch!`;
   if (!commandHandler.execute) throw `command ${file} missing execute!`;
@@ -62,9 +68,9 @@ commandModules.forEach(file => {
   helpHandler.registerCommand(commandHandler);
 });
 
-defaultCommand = commands.find(({name}) => name === 'say');
+defaultCommand = commands.find(({ name }) => name === 'say');
 
-function matches({patterns}, input) {
+function matches({ patterns }, input) {
   for (let p = 0; p < patterns.length; p++) {
     let match = input.match(patterns[p]);
     if (match) {
@@ -75,13 +81,18 @@ function matches({patterns}, input) {
 
 function processDispatch(socket, input) {
   input = input.trim();
+
+  if(input) {
+    socket.emit('output', { message: `\n<span class="silver">&gt; ${input}</span>` });
+  }
+
   // check if input string matches any of our matching patterns.
   // then call the handler with the input, socket
   for (let h = 0; h < commands.length; h++) {
     let match = matches(commands[h], input);
     if (match) {
       if (!commands[h].admin || socket.user.admin) {
-        socket.user.resetActiveBonuses(commands[h].name);
+        socket.character.resetActiveBonuses(commands[h].name);
         commands[h].dispatch(socket, match);
         return;
       }
@@ -105,12 +116,17 @@ function processDispatch(socket, input) {
 
 export default {
   Dispatch(socket, input) {
-    try {
+
+    if (!config.THROW_EXCEPTIONS) {
+      try {
+        processDispatch(socket, input);
+      } catch (e) {
+        socket.emit('output', { message: `AN ERROR OCCURED!\n${e.message}` });
+        console.error(e);
+        console.error(new Error().stack);
+      }
+    } else {
       processDispatch(socket, input);
-    } catch (e) {
-      socket.emit('output', { message: `AN ERROR OCCURED!\n${e.message}` });
-      console.error(e);
-      console.error(new Error().stack);
     }
   },
 };

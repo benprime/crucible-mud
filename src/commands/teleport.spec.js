@@ -1,4 +1,4 @@
-import Room, { mockGetById, mockRoomCache } from '../models/room';
+import { mockGetRoomById, mockRoomCache } from '../models/room';
 import { mockGetSocketByUsername } from '../core/socketUtil';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
@@ -23,17 +23,17 @@ describe('teleport', () => {
     otherSocket = new mocks.SocketMock();
     otherSocket.user.username = 'OtherUser';
 
-    currentRoom = mocks.getMockRoom(socket.user.roomId);
+    currentRoom = mocks.getMockRoom(socket.character.roomId);
     currentRoom.name = 'OLD';
 
-    otherRoom = mocks.getMockRoom(otherSocket.user.roomId);
+    otherRoom = mocks.getMockRoom(otherSocket.character.roomId);
     otherRoom.name = 'NEW';
 
     mockRoomCache[currentRoom.id] = currentRoom;
     mockRoomCache[otherRoom.id] = otherRoom;
 
-    when(mockGetById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
-    when(mockGetById).calledWith(otherRoom.id).mockReturnValue(otherRoom);
+    when(mockGetRoomById).calledWith(currentRoom.id).mockReturnValue(currentRoom);
+    when(mockGetRoomById).calledWith(otherRoom.id).mockReturnValue(otherRoom);
 
     global.io = new mocks.IOMock();
   });
@@ -51,8 +51,8 @@ describe('teleport', () => {
       sut.execute(socket, 'OtherUser');
 
       // check current room
-      expect(socket.user.roomId).toEqual(otherRoom.id);
-      expect(socket.user.save).toHaveBeenCalled();
+      expect(socket.character.roomId).toEqual(otherRoom.id);
+      expect(socket.character.save).toHaveBeenCalled();
     });
 
     test('should teleport to room if parameter is a room', () => {
@@ -66,20 +66,8 @@ describe('teleport', () => {
       sut.execute(socket, otherRoom.id);
 
       // check current room
-      expect(socket.user.roomId).toEqual(otherRoom.id);
-      expect(socket.user.save).toHaveBeenCalled();
-
-    });
-
-    // This is not currently possible (but may be soon)
-    xtest('should output messages when room cannot be found', () => {
-
-      let toRoom = otherRoom.id;
-      Room.roomCache[toRoom] = {};
-
-      sut.execute(socket, toRoom);
-
-      expect(socket.emit).toBeCalledWith('output', { message: 'Room not found.' });
+      expect(socket.character.roomId).toEqual(otherRoom.id);
+      expect(socket.character.save).toHaveBeenCalled();
 
     });
 

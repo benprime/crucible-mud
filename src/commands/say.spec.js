@@ -22,8 +22,8 @@ describe('say', () => {
       sut.execute(socket, msg);
 
       // assert
-      expect(socket.broadcast.to).toBeCalledWith(socket.user.roomId);
-      expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser says "This is a message."' });
+      expect(socket.broadcast.to).toBeCalledWith(socket.character.roomId);
+      expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: 'TestUser says "This is a message."' });
       expect(socket.emit).toBeCalledWith('output', { message: 'You say "This is a message."' });
 
     });
@@ -37,8 +37,8 @@ describe('say', () => {
       sut.execute(socket, msg);
 
       // assert
-      expect(socket.broadcast.to).toBeCalledWith(socket.user.roomId);
-      expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser says "&lt;Safety_First.com&gt;"' });
+      expect(socket.broadcast.to).toBeCalledWith(socket.character.roomId);
+      expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: 'TestUser says "&lt;Safety_First.com&gt;"' });
       expect(socket.emit).toBeCalledWith('output', { message: 'You say "&lt;Safety_First.com&gt;"' });
 
     });

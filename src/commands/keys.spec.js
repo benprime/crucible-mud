@@ -11,7 +11,7 @@ describe('keys', () => {
   describe('execute', () => {
     test('should display output when user has no keys', () => {
       // arrange
-      socket.user.keys = [];
+      socket.character.keys = [];
       const expectedString = '<span class=\'cyan\'>Key ring: </span><span class=\'silver\'>None.</span>';
 
       // act
@@ -23,7 +23,7 @@ describe('keys', () => {
 
     test('should display user keys when user has keys', () => {
       // arrange
-      socket.user.keys = [
+      socket.character.keys = [
         { displayName: 'KeyOne' },
         { displayName: 'KeyTwo' },
         { displayName: 'KeyThree' },

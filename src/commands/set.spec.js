@@ -1,11 +1,11 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import mocks from '../../spec/mocks';
 import sut from './set';
 
 jest.mock('../models/room');
 
 let mockRoom = mocks.getMockRoom();
-mockGetById.mockReturnValue(mockRoom);
+mockGetRoomById.mockReturnValue(mockRoom);
 
 
 describe('set', () => {
@@ -34,7 +34,7 @@ describe('set', () => {
 
         expect(mockRoom.name).toBe('new name value');
         expect(mockRoom.save).toHaveBeenCalled();
-        expect(socket.broadcast.to(socket.user.roomId).emit).toBeCalledWith('output', { message: 'TestUser has altered the fabric of reality.' });
+        expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: 'TestUser has altered the fabric of reality.' });
       });
     });
 

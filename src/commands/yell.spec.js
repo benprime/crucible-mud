@@ -1,4 +1,4 @@
-import { mockGetById, mockShortToLong, mockOppositeDirection } from '../models/room';
+import { mockGetRoomById, mockShortToLong, mockOppositeDirection } from '../models/room';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
 import sut from './yell';
@@ -14,10 +14,10 @@ describe('yell', () => {
 
   beforeAll(() => {
     socket = new mocks.SocketMock();
-    socket.user.roomId = mockRoom.id;
+    socket.character.roomId = mockRoom.id;
 
     const msg = 'This is a yelled message!';
-    mockGetById.mockReturnValue(mockRoom);
+    mockGetRoomById.mockReturnValue(mockRoom);
 
     // using jest-when library
     when(mockOppositeDirection).calledWith('n').mockReturnValue('s');

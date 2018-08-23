@@ -1,4 +1,4 @@
-import { mockGetById } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockGetSocketByUsername } from '../core/socketUtil';
 import mocks from '../../spec/mocks';
 import sut from './summon';
@@ -11,7 +11,7 @@ jest.mock('../core/socketUtil');
 global.io = new mocks.IOMock();
 let mockTargetSocket = new mocks.SocketMock();
 let mockRoom = mocks.getMockRoom();
-mockGetById.mockReturnValue(mockRoom);
+mockGetRoomById.mockReturnValue(mockRoom);
 
 describe('summon', () => {
   let socket;
@@ -24,12 +24,12 @@ describe('summon', () => {
 
     // acting admin socket
     socket = new mocks.SocketMock();
-    socket.user.roomId = mockRoom.id;
+    socket.character.roomId = mockRoom.id;
     socket.user.username = 'TestUser';
 
     // target user socket
     mockTargetSocket = new mocks.SocketMock();
-    mockTargetSocket.user.roomId = otherRoom.id;
+    mockTargetSocket.character.roomId = otherRoom.id;
     mockTargetSocket.user.username = 'OtherUser';
 
   });
@@ -45,7 +45,7 @@ describe('summon', () => {
     test('should join target user to admin room and leave current room', () => {
       // arrange
       mockGetSocketByUsername.mockReturnValueOnce(mockTargetSocket);
-      mockTargetSocket.user.roomId = otherRoom.id;
+      mockTargetSocket.character.roomId = otherRoom.id;
 
       // act
       sut.execute(socket, 'OtherUser');
@@ -58,14 +58,14 @@ describe('summon', () => {
     test('should update target user room id and save user to database', () => {
       // arrange
       mockGetSocketByUsername.mockReturnValueOnce(mockTargetSocket);
-      mockTargetSocket.user.roomId = otherRoom.id;
+      mockTargetSocket.character.roomId = otherRoom.id;
 
       // act
       sut.execute(socket, 'OtherUser');
 
       // assert
-      expect(mockTargetSocket.user.roomId).toEqual(mockRoom.id);
-      expect(mockTargetSocket.user.save).toHaveBeenCalled();
+      expect(mockTargetSocket.character.roomId).toEqual(mockRoom.id);
+      expect(mockTargetSocket.character.save).toHaveBeenCalled();
     });
 
     test('should output messages when command successful', () => {
@@ -76,7 +76,7 @@ describe('summon', () => {
 
       // assert
       expect(mockTargetSocket.emit).toBeCalledWith('output', { message: 'You were summoned to TestUser\'s room!' });
-      expect(mockTargetSocket.broadcast.to(mockTargetSocket.user.roomId).emit).toBeCalledWith('output', { message: 'OtherUser appears out of thin air!' });
+      expect(mockTargetSocket.broadcast.to(mockTargetSocket.character.roomId).emit).toBeCalledWith('output', { message: 'OtherUser appears out of thin air!' });
     });
 
     test('should be an admin command', () => {

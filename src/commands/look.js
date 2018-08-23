@@ -1,7 +1,7 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 
-function lookDir(socket, {exits}, dir) {
+function lookDir(socket, { exits }, dir) {
   dir = Room.validDirectionInput(dir);
   const exit = exits.find(e => e.dir === dir);
   if (!exit || exit.hidden) {
@@ -21,15 +21,13 @@ function lookDir(socket, {exits}, dir) {
 }
 
 // for items and mobs
-function lookItem(socket, room, itemName) {
-  const lookTargetObj = autocomplete.autocompleteTypes(socket, ['inventory', 'mob', 'room'], itemName);
-  if (!lookTargetObj || lookTargetObj.hidden) {
-    socket.emit('output', { message: 'Unknown item!' });
+function lookItem(socket, itemName) {
+  const acResult = autocomplete.autocompleteTypes(socket, ['inventory', 'mob', 'room'], itemName);
+  if (!acResult || acResult.item.hidden) {
     return;
   }
-  lookTargetObj.look(socket);
+  acResult.item.look(socket);
 }
-
 
 export default {
   name: 'look',
@@ -53,7 +51,7 @@ export default {
   },
 
   execute(socket, short, lookTarget) {
-    const room = Room.getById(socket.user.roomId);
+    const room = Room.getById(socket.character.roomId);
 
     if (lookTarget) {
       lookTarget = lookTarget.toLowerCase();
@@ -61,7 +59,7 @@ export default {
       if (Room.validDirectionInput(lookTarget)) {
         lookDir(socket, room, lookTarget);
       } else {
-        lookItem(socket, room, lookTarget);
+        lookItem(socket, lookTarget);
       }
     } else {
       room.look(socket, short);

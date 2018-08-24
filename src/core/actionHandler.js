@@ -1,7 +1,7 @@
 import actionsData from '../data/actionData';
-import Room from '../models/room';
 import utils from '../core/utilities';
 import autocomplete from '../core/autocomplete';
+import sockUtil from '../core/socketUtil';
 
 export default {
   isValidAction(action) {
@@ -19,24 +19,24 @@ export default {
     }
 
     // make sure the user is someone in the room
-    if (targetCharacter.id !== character.id) {
-      const room = Room.getById(character.roomId);
-      const userInRoom = room.userInRoom(targetCharacter.name);
-      if (!userInRoom) {
-        return Promise.reject(`You don't see ${username} anywhere!`);
-      }
+    if (targetCharacter.id !== character.id && targetCharacter.roomId !== character.roomId) {
+      return Promise.reject(`You don't see ${username} anywhere!`);
     }
 
     const selfAction = targetCharacter.id === character.id;
 
     // determine message set to use
     const actionMessages = actionsData.actions[action];
+    if (!actionMessages) {
+      return Promise.reject(`No emote data found for emote: ${action}!`);
+    }
     const messageSet = selfAction ? actionMessages.solo : actionMessages.target;
 
     const fromUserName = character.name;
     const toUserName = !selfAction ? targetCharacter.name : null;
 
     const charMessages = [];
+    const roomMessages = [];
 
     // messages to action-taker
     if (messageSet.sourceMessage) {
@@ -45,21 +45,18 @@ export default {
 
     // messages to all bystanders
     if (messageSet.roomMessage) {
-      const socketRoom = global.io.sockets.adapter.rooms[character.roomId];
 
-      for (let socketId of Object.keys(socketRoom.sockets)) {
-        let toChar = global.io.sockets.connected[socketId].character;
-        // if you have a sourceMessage, don't send "room message" to source socket
-        if (messageSet.sourceMessage && character.id === toChar.id) {
-          continue;
-        }
-
-        // not to target user's socket (since they have their own message)
-        if (!selfAction && messageSet.targetMessage && toChar.id === targetCharacter.id) {
-          continue;
-        }
-        charMessages.push({ charId: toChar.id, message: utils.formatMessage(messageSet.roomMessage, fromUserName, toUserName) });
+      const exclude = [];
+      // if you have a sourceMessage, don't send "room message" to source socket
+      if (messageSet.sourceMessage) {
+        exclude.push(character.id);
       }
+
+      // not to target user's socket (since they have their own message)
+      if (!selfAction && messageSet.targetMessage) {
+        exclude.push(targetCharacter.id);
+      }
+      roomMessages.push({ roomId: character.roomId, message: utils.formatMessage(messageSet.roomMessage, fromUserName, toUserName), exclude: exclude });
     }
 
     // message to target user
@@ -68,6 +65,7 @@ export default {
     }
 
     return Promise.resolve({
+      roomMessages: roomMessages,
       charMessages: charMessages,
     });
   },

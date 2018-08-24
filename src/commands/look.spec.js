@@ -93,7 +93,7 @@ describe('look', () => {
 
           // assert
           expect(response.charMessages[0].message).toContain('You look to the south...');
-          expect(response.roomMessages).toContainEqual({ roomId: targetRoomSouth.id, message: `<span class="yellow">${socket.character.name} peaks in from the north.</span>` });
+          expect(response.roomMessages).toContainEqual({ roomId: targetRoomSouth.id, message: `<span class="yellow">${socket.character.name} peaks in from the north.</span>`, exclude: [socket.character.id] });
           expect(targetRoomSouth.look).toBeCalledWith(socket.character, false);
         });
       });

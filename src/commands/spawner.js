@@ -3,6 +3,7 @@ import Mob from '../models/mob';
 import config from '../config';
 import mobData from '../data/mobData';
 import dice from '../core/dice';
+import socketUtil from '../core/socketUtil';
 
 // Not sure if the global server code should really be living with
 // the command, but it's okay here for now.
@@ -11,7 +12,7 @@ setInterval(() => {
   const now = Date.now();
 
   // loop through rooms that contain spawners...
-  const roomsWithSpawners = Object.values(Room.roomCache).filter(({spawner}) => spawner && spawner.timeout);
+  const roomsWithSpawners = Object.values(Room.roomCache).filter(({ spawner }) => spawner && spawner.timeout);
   roomsWithSpawners.forEach(room => {
     let max = room.spawner.max ? room.spawner.max : config.DEFAULT_ROOM_MOB_MAX;
     let timeout = room.spawner.timeout ? room.spawner.timeout : config.ROUND_DURATION;
@@ -23,7 +24,7 @@ setInterval(() => {
     if (room.mobs.length < max && now - room.spawnTimer >= timeout && room.spawner.mobTypes.length > 0) {
       let mobTypeIndex = dice.getRandomNumber(0, room.spawner.mobTypes.length);
       let mobTypeName = room.spawner.mobTypes[mobTypeIndex];
-      let mobType = mobData.catalog.find(({name}) => name.toLowerCase() === mobTypeName.toLowerCase());
+      let mobType = mobData.catalog.find(({ name }) => name.toLowerCase() === mobTypeName.toLowerCase());
       let mob = new Mob(mobType, room.id);
 
       // update time whenever we spawn a mob
@@ -53,7 +54,9 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1], match[2]);
+    this.execute(socket.character, match[1], match[2])
+      .then(response => socketUtil.output(socket, response))
+      .catch(response => socketUtil.output(socket, response));
   },
 
   execute(character, action, param) {
@@ -73,16 +76,16 @@ export default {
 
     switch (action) {
       case 'add':
-        addMobType = mobData.catalog.find(({name}) => name.toLowerCase() === param.toLowerCase());
-        if(!addMobType) {
+        addMobType = mobData.catalog.find(({ name }) => name.toLowerCase() === param.toLowerCase());
+        if (!addMobType) {
           return Promise.reject('Invalid mobType.');
         }
         room.spawner.mobTypes.push(addMobType.name);
         room.save(err => { if (err) throw err; });
         return Promise.resolve('Creature added to spawner.');
       case 'remove':
-        removeMobType = mobData.catalog.find(({name}) => name.toLowerCase() === param.toLowerCase());
-        if(!removeMobType) {
+        removeMobType = mobData.catalog.find(({ name }) => name.toLowerCase() === param.toLowerCase());
+        if (!removeMobType) {
           return Promise.reject('Invalid mobType.');
         }
         index = room.spawner.mobTypes.indexOf(removeMobType.name);
@@ -95,7 +98,7 @@ export default {
         }
       case 'max':
         maxVal = parseInt(param);
-        if(isNaN(maxVal)) {
+        if (isNaN(maxVal)) {
           return Promise.reject('Invalid max value - must be an integer.');
         }
         room.spawner.max = maxVal;
@@ -103,7 +106,7 @@ export default {
         return Promise.resolve(`Max creatures updated to ${maxVal}.`);
       case 'timeout':
         timeoutVal = parseInt(param);
-        if(isNaN(timeoutVal)) {
+        if (isNaN(timeoutVal)) {
           return Promise.reject('Invalid max value - must be an integer.');
         }
         room.spawner.timeout = timeoutVal;

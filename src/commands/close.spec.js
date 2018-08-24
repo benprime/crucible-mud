@@ -54,7 +54,7 @@ describe('close', () => {
         const exit = mockRoom.exits.find(({ dir }) => dir === 's');
 
         expect(exit.closed).toBe(true);
-        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser closes the door to the south.' });
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser closes the door to the south.', exclude: [socket.character.id] });
         expect(response.charMessages).toContainEqual({charId: socket.character.id, message: 'Door closed.'});
       });
 
@@ -67,7 +67,7 @@ describe('close', () => {
       return sut.execute(socket.character, 'n').then(response => {
         const exit = mockRoom.exits.find(({ dir }) => dir === 'n');
         expect(exit.closed).toBe(true);
-        expect(response.roomMessages).toContainEqual({roomId: socket.character.roomId, message: 'TestUser closes the door to the north.'});
+        expect(response.roomMessages).toContainEqual({roomId: socket.character.roomId, message: 'TestUser closes the door to the north.', exclude: [socket.character.id]});
         expect(response.charMessages).toContainEqual({charId: socket.character.id, message: 'Door closed.'});
       });
     });

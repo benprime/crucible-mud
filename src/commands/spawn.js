@@ -3,6 +3,7 @@ import mobData from '../data/mobData';
 import Mob from '../models/mob';
 import itemData from '../data/itemData';
 import Item from '../models/item';
+import socketUtil from '../core/socketUtil';
 
 export const spawn = (itemType) => {
   return new Item({
@@ -50,7 +51,10 @@ export default {
     }
     let typeName = match[1];
     let itemTypeName = match[2];
-    this.execute(socket.character, typeName, itemTypeName);
+    this.execute(socket.character, typeName, itemTypeName)
+      .then(response => socketUtil.sendMessages(socket, response))
+      .catch(response => socketUtil.output(socket, response));
+
   },
 
   execute(character, type, name) {
@@ -83,7 +87,7 @@ export default {
           { roomId: character.roomId, message: `${character.name} waves his hand and a ${createType.displayName} appears!`, exclude: [character.id] },
         ],
       });
-      
+
       // Item
       //---------------------
     } else if (type === 'item') {

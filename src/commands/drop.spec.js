@@ -91,7 +91,7 @@ describe('drop', () => {
           expect(mockRoom.save).toHaveBeenCalled();
           expect(socket.character.inventory).toHaveLength(0);
           expect(mockRoom.inventory[0].name).toEqual(item.name);
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser drops dropItem.' });
+          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser drops dropItem.', exclude: [socket.character.id] });
           expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Dropped.' });
         });
 
@@ -113,7 +113,7 @@ describe('drop', () => {
           expect(mockRoom.save).toHaveBeenCalled();
           expect(socket.character.keys).toHaveLength(0);
           expect(mockRoom.inventory[0].name).toEqual(key.name);
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser drops dropKey.' });
+          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser drops dropKey.', exclude: [socket.character.id] });
           expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Dropped.' });
         });
 

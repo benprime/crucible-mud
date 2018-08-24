@@ -12,7 +12,6 @@ export default {
     this.execute(socket.character, match[1])
       .then(commandResult => socketUtil.sendMessages(socket, commandResult))
       .catch(error => socket.emit('output', { message: error }));
-
   },
 
   execute(character, dir) {

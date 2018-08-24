@@ -76,7 +76,7 @@ describe('open', () => {
           expect(exit.keyName).toBe('someKey');
           expect(exit.locked).toBe(false);
           expect(exit.closed).toBe(false);
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser opens the door to the southeast.' });
+          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser opens the door to the southeast.', exclude: [socket.character.id] });
           expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Door opened.' });
         });
 
@@ -105,7 +105,7 @@ describe('open', () => {
           const exit = mockRoom.exits.find(({ dir }) => dir === 'n');
 
           expect(exit.closed).toBe(false);
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser opens the door to the north.' });
+          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser opens the door to the north.', exclude: [socket.character.id] });
           expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Door opened.' });
         });
 

@@ -1,5 +1,6 @@
 import Room from '../models/room';
 import dice from '../core/dice';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'search',
@@ -9,7 +10,9 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket, socket.user.admin);
+    this.execute(socket, socket.user.admin)
+      .then(response => socketUtil.output(socket, response))
+      .catch(response => socketUtil.output(socket, response));
   },
 
   execute(character, admin) {

@@ -9,11 +9,26 @@ export default {
 
   patterns: [
     /^teleport\s+(\w+)$/i,
+    /^teleport\s+(\d+)\s(\d+)\s?(\d+)?$/i,
     /^tele\s+(\w+)$/i,
+    /^tele\s+(\d+)\s(\d+)\s?(\d+)?$/i,
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1])
+    // teleport to room coordinates
+    let promise;
+    if (match.length >= 3) {
+      promise = this.execute(socket.character, {
+        x: match[1],
+        y: match[2],
+        z: match[3] || 0,
+      });
+
+    } else {
+      promise = this.execute(socket.character, match[1]);
+    }
+
+    promise
       .then(response => socketUtil.sendMessages(socket, response))
       .then(() => lookCmd.execute(socket.character, false).then(output => socketUtil.sendMessages(socket, output)))
       .catch(err => socketUtil.sendMessages(socket, err));
@@ -23,9 +38,13 @@ export default {
     if (!teleportTo) return;
 
     let toRoomId = '';
+    if (teleportTo.x && teleportTo.y) {
+      const room = Object.values(Room.roomCache).find(r => r.x == teleportTo.x && r.y == teleportTo.y && r.z == teleportTo.z);
+      if (!room) return Promise.reject('room not found in cache by coordinates');
+      toRoomId = room.id;
 
-    // if the parameter is an object id or alias, we are definitely teleporting to a room.
-    if (Room.roomCache[teleportTo]) {
+      // if the parameter is an object id or alias, we are definitely teleporting to a room.
+    } else if (Room.roomCache[teleportTo]) {
       toRoomId = teleportTo;
       // otherwise, we are teleporting to a user
     } else {

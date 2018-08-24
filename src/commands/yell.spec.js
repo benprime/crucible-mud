@@ -48,23 +48,23 @@ describe('yell', () => {
     test('should send message to local rooms', () => {
       return sut.execute(socket.character, msg).then((response) => {
 
-        expect(response.roomMessages).toContainEqual({roomId: socket.character.roomId, message: `${socket.character.name} yells 'This is a yelled message!'`});
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} yells 'This is a yelled message!'`, exclude: [socket.character.id] });
       });
     });
 
     test('should send message to surrounding rooms', () => {
       return sut.execute(socket.character, msg).then((response) => {
 
-        expect(response.roomMessages).toContainEqual({roomId: mockRoom.roomIds.u, message: 'Someone yells from below  \'This is a yelled message!\''});
-        expect(response.roomMessages).toContainEqual({roomId: mockRoom.roomIds.d, message: 'Someone yells from above  \'This is a yelled message!\''});
-        expect(response.roomMessages).toContainEqual({roomId: mockRoom.roomIds.n, message: 'Someone yells from the south  \'This is a yelled message!\''});
-        expect(response.roomMessages).toContainEqual({roomId: mockRoom.roomIds.s, message: 'Someone yells from the north  \'This is a yelled message!\''});
-        expect(response.roomMessages).toContainEqual({roomId: mockRoom.roomIds.e, message: 'Someone yells from the west  \'This is a yelled message!\''});
-        expect(response.roomMessages).toContainEqual({roomId: mockRoom.roomIds.w, message: 'Someone yells from the east  \'This is a yelled message!\''});
-        expect(response.roomMessages).toContainEqual({roomId: mockRoom.roomIds.ne, message: 'Someone yells from the southwest  \'This is a yelled message!\''});
-        expect(response.roomMessages).toContainEqual({roomId: mockRoom.roomIds.se, message: 'Someone yells from the northwest  \'This is a yelled message!\''});
-        expect(response.roomMessages).toContainEqual({roomId: mockRoom.roomIds.nw, message: 'Someone yells from the southeast  \'This is a yelled message!\''});
-        expect(response.roomMessages).toContainEqual({roomId: mockRoom.roomIds.sw, message: 'Someone yells from the northeast  \'This is a yelled message!\''});
+        expect(response.roomMessages).toContainEqual({ roomId: mockRoom.roomIds.u, message: 'Someone yells from below  \'This is a yelled message!\'' });
+        expect(response.roomMessages).toContainEqual({ roomId: mockRoom.roomIds.d, message: 'Someone yells from above  \'This is a yelled message!\'' });
+        expect(response.roomMessages).toContainEqual({ roomId: mockRoom.roomIds.n, message: 'Someone yells from the south  \'This is a yelled message!\'' });
+        expect(response.roomMessages).toContainEqual({ roomId: mockRoom.roomIds.s, message: 'Someone yells from the north  \'This is a yelled message!\'' });
+        expect(response.roomMessages).toContainEqual({ roomId: mockRoom.roomIds.e, message: 'Someone yells from the west  \'This is a yelled message!\'' });
+        expect(response.roomMessages).toContainEqual({ roomId: mockRoom.roomIds.w, message: 'Someone yells from the east  \'This is a yelled message!\'' });
+        expect(response.roomMessages).toContainEqual({ roomId: mockRoom.roomIds.ne, message: 'Someone yells from the southwest  \'This is a yelled message!\'' });
+        expect(response.roomMessages).toContainEqual({ roomId: mockRoom.roomIds.se, message: 'Someone yells from the northwest  \'This is a yelled message!\'' });
+        expect(response.roomMessages).toContainEqual({ roomId: mockRoom.roomIds.nw, message: 'Someone yells from the southeast  \'This is a yelled message!\'' });
+        expect(response.roomMessages).toContainEqual({ roomId: mockRoom.roomIds.sw, message: 'Someone yells from the northeast  \'This is a yelled message!\'' });
       });
 
     });

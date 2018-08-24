@@ -172,7 +172,7 @@ describe('room model', () => {
       room.mobs = [];
     });
 
-    describe('charactersInRoom', () => {
+    describe('getCharacterNames', () => {
       let socket;
       beforeEach(() => {
         socket = new mocks.SocketMock();
@@ -182,7 +182,7 @@ describe('room model', () => {
         global.io.sockets.adapter.rooms[room.id] = {};
         global.io.sockets.adapter.rooms[room.id].sockets = {};
 
-        const result = room.charactersInRoom(socket.id);
+        const result = room.getCharacterNames(socket.id);
 
         expect(Array.isArray(result)).toBe(true);
         expect(result).toHaveLength(0);
@@ -200,7 +200,7 @@ describe('room model', () => {
         };
         global.io.sockets.connected = sockets;
 
-        const result = room.charactersInRoom(socket.id);
+        const result = room.getCharacterNames(socket.id);
 
         expect(Array.isArray(result)).toBe(true);
         expect(result).toHaveLength(2);
@@ -486,7 +486,6 @@ describe('room model', () => {
 
       test('should call attack and taunt on all mobs', () => {
         // arrange
-        const socket = new mocks.SocketMock();
         const mobType = mobData.catalog[0];
         room.mobs = [];
 
@@ -496,9 +495,8 @@ describe('room model', () => {
         room.mobs.push(mobA);
 
         const mobB = new Mob(mobType, room.id);
-        mobB.attack = jest.fn().mockName('mobBattack').mockReturnValue(true);
+        mobB.attack = jest.fn().mockName('mobBattack');
         mobB.taunt = jest.fn().mockName('mobBtaunt');
-        mobB.attackTarget = socket;
         room.mobs.push(mobB);
 
         const mobC = new Mob(mobType, room.id);
@@ -507,15 +505,17 @@ describe('room model', () => {
         room.mobs.push(mobC);
 
         // act
-        room.processMobCombatActions();
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + 1);
+        room.processMobCombatActions(now);
 
         // assert
         expect(room.mobs[0].attack).toHaveBeenCalled();
-        expect(room.mobs[0].taunt).not.toHaveBeenCalled();
+        expect(room.mobs[0].taunt).toHaveBeenCalled();
         expect(room.mobs[1].attack).toHaveBeenCalled();
         expect(room.mobs[1].taunt).toHaveBeenCalled();
         expect(room.mobs[2].attack).toHaveBeenCalled();
-        expect(room.mobs[2].taunt).not.toHaveBeenCalled();
+        expect(room.mobs[2].taunt).toHaveBeenCalled();
       });
     });
   });

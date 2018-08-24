@@ -43,7 +43,7 @@ describe('create', () => {
         return sut.execute(socket.character, 'room', 'n').then(response => {
           expect(mockRoom.createRoom).toBeCalledWith('n');
           expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Room created.' });
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} waves his hand and an exit appears to the ${longDir}!` });
+          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} waves his hand and an exit appears to the ${longDir}!`, exclude: [socket.character.id] });
         });
 
       });
@@ -77,7 +77,7 @@ describe('create', () => {
         return sut.execute(socket.character, 'door', dir).catch(response => {
           expect(mockRoom.getExit).toBeCalledWith(dir);
           expect(mockRoom.save).not.toHaveBeenCalled();
-          expect(response).toEqual('Invalid direction.' );
+          expect(response).toEqual('Invalid direction.');
         });
 
 

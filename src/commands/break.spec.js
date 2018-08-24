@@ -14,7 +14,7 @@ describe('break', () => {
       // act
       return sut.execute(socket.character).then(response => {
         // assert
-        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser breaks off his attack.' });
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser breaks off his attack.', exclude: [socket.character.id] });
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: '<span class="olive">*** Combat Disengaged ***</span>' });
       });
     });

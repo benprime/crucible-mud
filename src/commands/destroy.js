@@ -1,6 +1,7 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 import utils from '../core/utilities';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'destroy',
@@ -19,7 +20,10 @@ export default {
     }
     let typeName = match[1];
     let objectID = match[2];
-    this.execute(socket.character, typeName, objectID);
+    this.execute(socket.character, typeName, objectID)
+      .then(output => socketUtil.output(socket, output))
+      .catch(output => socketUtil.output(socket, output));
+
   },
 
   execute(character, type, name) {
@@ -43,7 +47,7 @@ export default {
             { charId: character.id, message: 'Mob successfully destroyed.' },
           ],
           roomMessages: [
-            { roomId: character.roomId, message: `${character.name} erases ${mob.display} from existence!`, exclude: [character.id] },
+            { roomId: character.roomId, message: `${character.name} erases ${mob.displayName} from existence!`, exclude: [character.id] },
           ],
         });
       }

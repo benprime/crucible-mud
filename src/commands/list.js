@@ -1,6 +1,7 @@
 import Shop from '../models/shop';
 import itemData from '../data/itemData';
 import AsciiTable from 'ascii-table';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'list',
@@ -11,8 +12,8 @@ export default {
 
   dispatch(socket) {
     this.execute(socket.character)
-      .then(output => socket.emit('output', { message: output, pre: true }));
-
+      .then(output => socket.emit('output', { message: output, pre: true }))
+      .catch(output => socketUtil.output(output));
   },
 
   execute(character) {

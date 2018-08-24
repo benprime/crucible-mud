@@ -1,6 +1,7 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 import utils from '../core/utilities';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'take',
@@ -16,7 +17,9 @@ export default {
     if (match.length != 2) {
       return Promise.reject('What do you want to take?');
     }
-    this.execute(socket.character, match[1], socket.user.admin);
+    this.execute(socket.character, match[1], socket.user.admin)
+      .then(response => socketUtil.sendMessages(socket, response))
+      .catch(response => socketUtil.output(socket, response));
   },
 
   execute(character, itemName, admin) {

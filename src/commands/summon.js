@@ -1,4 +1,3 @@
-import breakCmd from './break';
 import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
 import lookCmd from './look';
@@ -13,7 +12,9 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1]);
+    this.execute(socket.character, match[1])
+      .then(response => socketUtil.sendMessages(socket, response))
+      .catch(response => socketUtil.output(socket, response));
   },
 
   execute(character, name) {
@@ -32,7 +33,7 @@ export default {
       return Promise.resolve({
         roomMessages: [
           { roomId: oldRoomId, message: `${targetCharacter.name} vanishes!` },
-          { roomId: character.roomId, message: `${targetCharacter.name} appears out of thin air!`, exclude: [character.id] },
+          { roomId: character.roomId, message: `${targetCharacter.name} appears out of thin air!`, exclude: [targetCharacter.id] },
         ],
         charMessages: [{ charId: targetCharacter.id, message: `You were summoned to ${character.name}'s room!` }],
       });

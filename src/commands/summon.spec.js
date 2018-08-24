@@ -82,7 +82,7 @@ describe('summon', () => {
         // assert
         expect(response.charMessages).toContainEqual({ charId: mockTargetSocket.character.id, message: 'You were summoned to TestUser\'s room!' });
         expect(response.roomMessages).toContainEqual({ roomId: oldRoomId, message: 'OtherUser vanishes!' });
-        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'OtherUser appears out of thin air!' });
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'OtherUser appears out of thin air!', exclude: [mockTargetSocket.character.id] });
       });
 
     });

@@ -6,7 +6,7 @@ export default {
     if (!ioRoom) return;
     for (let socketId in ioRoom.sockets) {
       let socket = global.io.sockets.connected[socketId];
-      if (Array.isArray(exclude) && exclude.includes(socket.id)) continue;
+      if (Array.isArray(exclude) && exclude.includes(socket.character.id)) continue;
       if (!socket) continue;
       socket.emit('output', { message });
     }
@@ -87,6 +87,16 @@ export default {
     }
     return null;
   },
+
+  getCharacterById(characterId) {
+    for (let socket of Object.values(global.io.sockets.connected)) {
+      if (socket.character && socket.character.id == characterId) {
+        return socket.character;
+      }
+    }
+    return null;
+  },
+
 
   getFollowingCharacters(characterId) {
     const followers = [];

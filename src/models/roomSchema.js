@@ -151,31 +151,29 @@ RoomSchema.statics.create = function (obj) {
 /**
  * Returns a list of usernames of other connected players in your room.
  */
-RoomSchema.methods.usersInRoom = function () {
+RoomSchema.methods.getCharacterNames = function () {
+  return this.getCharacters().map(c => c.name);
+};
+
+RoomSchema.methods.getCharacters = function () {
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
   if (!ioRoom) {
     return [];
   }
 
   const otherUsers = Object.keys(ioRoom.sockets);
-  return otherUsers.map(socketId => global.io.sockets.connected[socketId].character.name);
+  return otherUsers.map(socketId => global.io.sockets.connected[socketId].character);
 };
 
-RoomSchema.methods.charactersInRoom = function () {
-  const ioRoom = global.io.sockets.adapter.rooms[this.id];
-  if (!ioRoom) {
-    return [];
-  }
-
-  const otherUsers = Object.keys(ioRoom.sockets);
-  return otherUsers.map(socketId => global.io.sockets.connected[socketId].character.name);
-};
-
-// Candidate for static method.
 RoomSchema.methods.userInRoom = function (username) {
-  let usernames = this.charactersInRoom(this.RoomId);
+  let usernames = this.getCharacterNames(this.RoomId);
   usernames = usernames.map(u => u.toLowerCase());
   return usernames.includes(username.toLowerCase());
+};
+
+RoomSchema.methods.characterInRoom = function (characterId) {
+  const character = socketUtil.getCharacterById(characterId);
+  return character.roomId === this.id;
 };
 
 RoomSchema.methods.createRoom = function (dir) {
@@ -267,7 +265,7 @@ RoomSchema.methods.look = function (character, short) {
   //   output += `<span class="olive">Hidden items: ${hiddenItems}.</span>\n`;
   // }
 
-  let characterNames = this.charactersInRoom(this.id).filter(name => name !== character.name);
+  let characterNames = this.getCharacterNames(this.id).filter(name => name !== character.name);
 
   const mobNames = this.mobs.map(({ displayName, hp }) => `${displayName} ${hp}`);
   if (mobNames) { characterNames = characterNames.concat(mobNames); }
@@ -432,17 +430,13 @@ RoomSchema.methods.processPlayerCombatActions = function (now) {
 
 RoomSchema.methods.processMobCombatActions = function (now) {
   if (Array.isArray(this.mobs) && this.mobs.length > 0) {
-    const room = this;
     this.mobs.forEach(mob => {
       if (!mob.attack(now)) {
-        mob.selectTarget(room.id, mob);
-      }
-      else {
         mob.taunt(now);
       }
 
       // this mostly applies to NPCs (sparring dummy)
-      if (!mob.attackTarget) {
+      if (now > mob.lastAttack + mob.attackInterval) {
         mob.idle(now);
       }
     });

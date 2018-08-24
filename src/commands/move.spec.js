@@ -162,7 +162,7 @@ xdescribe('move', () => {
       let exitIndex = currentRoom.exits.findIndex(({ dir }) => dir === 'u');
       currentRoom.exits[exitIndex].closed = true;
       return sut.execute(socket.character, 'u').then(response => {
-        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `<span class="silver">${socket.character.name} runs into the closed door above.</span>` });
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `<span class="silver">${socket.character.name} runs into the closed door above.</span>`, exclude: [socket.character.id] });
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: '<span class="yellow">The door in that direction is not open!</span>' });
       });
 
@@ -172,7 +172,7 @@ xdescribe('move', () => {
       let exitIndex = currentRoom.exits.findIndex(({ dir }) => dir === 'd');
       currentRoom.exits[exitIndex].closed = true;
       return sut.execute(socket.character, 'd').then(response => {
-        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `<span class="silver">${socket.character.name} runs into the trapdoor on the floor.</span>` });
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `<span class="silver">${socket.character.name} runs into the trapdoor on the floor.</span>`, exclude: [socket.character.id] });
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: '<span class="yellow">The door in that direction is not open!</span>' });
       });
 
@@ -182,7 +182,7 @@ xdescribe('move', () => {
       let exitIndex = currentRoom.exits.findIndex(({ dir }) => dir === 'w');
       currentRoom.exits[exitIndex].closed = true;
       return sut.execute(socket.character, 'w').then(response => {
-        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `<span class="silver">${socket.character.name} runs into the door to the west.</span>` });
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `<span class="silver">${socket.character.name} runs into the door to the west.</span>`, exclude: [socket.character.id] });
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: '<span class="yellow">The door in that direction is not open!</span>' });
       });
 
@@ -195,8 +195,8 @@ xdescribe('move', () => {
       //expect(BreakCommand.execute).toBeCalledWith(socket);
 
       // enter/exit messages
-      expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} has gone above.` });
-      expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} has entered from below.` });
+      expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} has gone above.`, exclude: [socket.character.id] });
+      expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} has entered from below.`, exclude: [socket.character.id] });
 
       // current/target rooms should not get a movement message
       expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'You hear movement from below.' });

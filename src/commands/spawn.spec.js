@@ -27,7 +27,7 @@ describe('spawn', () => {
           expect(mockRoom.mobs).toHaveLength(1);
           expect(mockRoom.mobs[0].displayName.endsWith('kobold sentry')).toBeTruthy();
           expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Summoning successful.' });
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser waves his hand and a kobold sentry appears!'});
+          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser waves his hand and a kobold sentry appears!', exclude: [socket.character.id]});
           expect(mockRoom.save).not.toHaveBeenCalled();
         });
       });
@@ -45,7 +45,7 @@ describe('spawn', () => {
           expect(socket.character.inventory).toHaveLength(1);
           expect(socket.character.inventory[0].displayName).toBe('short sword');
           expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Item created.' });
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser emits a wave of energy!' });
+          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser emits a wave of energy!', exclude: [socket.character.id] });
           expect(socket.character.save).toHaveBeenCalled();
         });
       });

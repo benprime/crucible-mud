@@ -10,7 +10,9 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1]).then(commandResult => socketUtil.sendMessages(socket, commandResult));
+    this.execute(socket.character, match[1])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(response => socketUtil.output(socket, response));
   },
 
   execute(character, username) {

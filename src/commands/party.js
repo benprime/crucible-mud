@@ -9,7 +9,9 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket).then(output => socketUtil.output(socket, output));
+    this.execute(socket)
+      .then(output => socketUtil.output(socket, output))
+      .catch(response => socketUtil.output(socket, response));
   },
 
   execute(character) {

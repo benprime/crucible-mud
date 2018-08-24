@@ -92,7 +92,7 @@ describe('take', () => {
         expect(socket.character.inventory).toContainEqual(expect.objectContaining({ name: 'aItem' }));
         expect(socket.character.save).toHaveBeenCalled();
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `${item.displayName} taken.` });
-        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} takes ${item.displayName}.` });
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} takes ${item.displayName}.`, exclude: [socket.character.id] });
       });
 
     });

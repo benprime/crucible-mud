@@ -7,7 +7,8 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket.character).then(output => socket.emit('output', { message: output }));
+    this.execute(socket.character)
+      .then(output => socket.emit('output', { message: output }));
   },
 
   execute(character) {

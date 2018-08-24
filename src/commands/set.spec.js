@@ -34,7 +34,7 @@ describe('set', () => {
         return sut.execute(socket.character, 'room', 'name', 'new name value').then(response => {
           expect(mockRoom.name).toBe('new name value');
           expect(mockRoom.save).toHaveBeenCalled();
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser has altered the fabric of reality.' });
+          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser has altered the fabric of reality.', exclude: [socket.character.id] });
         });
 
       });

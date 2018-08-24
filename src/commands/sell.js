@@ -1,5 +1,6 @@
 import Shop from '../models/shop';
 import autocomplete from '../core/autocomplete';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'sell',
@@ -13,7 +14,9 @@ export default {
     if (match.length != 2) {
       this.help(socket);
     }
-    this.execute(socket.character, match[1]);
+    this.execute(socket.character, match[1])
+      .then(response => socketUtil.sendMessages(socket, response))
+      .catch(response => socketUtil.output(socket, response));
   },
 
   execute(character, itemName) {

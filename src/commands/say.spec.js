@@ -21,7 +21,7 @@ describe('say', () => {
       // act
       return sut.execute(socket.character, msg).then(response => {
         // assert
-        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser says "This is a message."' });
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser says "This is a message."', exclude: [socket.character.id] });
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You say "This is a message."' });
       });
 
@@ -37,7 +37,7 @@ describe('say', () => {
       // act
       return sut.execute(socket.character, msg).then(response => {
         // assert
-        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser says "&lt;Safety_First.com&gt;"' });
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser says "&lt;Safety_First.com&gt;"', exclude: [socket.character.id] });
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You say "&lt;Safety_First.com&gt;"' });
       });
 

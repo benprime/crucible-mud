@@ -59,7 +59,7 @@ class Mob {
   die() {
     const room = Room.getById(this.roomId);
     room.spawnTimer = new Date();
-    global.io.to(room.id).emit('output', { message: `The ${this.displayName} collapses.` });
+    global.io.to(room.id).emit('output', { message: `<span class="yellow">The ${this.displayName} collapses.</span>` });
     utils.removeItem(room.mobs, this);
     this.awardExperience();
   }
@@ -76,37 +76,18 @@ class Mob {
     });
   }
 
-  selectTarget(roomid) {
+  selectTarget() {
 
-    if(this.attackInterval === 0) return;
+    if (this.attackInterval === 0) return;
 
-    if (!roomid) return;
+    const room = Room.getById(this.roomId);
+    const charactersInRoom = room.getCharacters();
 
-    // if everyone has disconnected from a room (but mobs still there) the room will not be defined.
-    const ioRoom = global.io.sockets.adapter.rooms[roomid];
-
-    // if there is at least one player in the room
-    if (ioRoom) {
-
-      if (!this.attackTarget) {
-        // select random player to attack
-        const charactersInRoom = Object.values(ioRoom.sockets).map(s => s.character);
-        if (charactersInRoom.length == 0) return;
-        const targetIndex = dice.getRandomNumber(0, charactersInRoom.length);
-        
-        const targetCharacter = charactersInRoom[targetIndex];
-
-        // get player socket
-        // TODO: this will all go away..?
-        const socket = socketUtil.getSocketByCharacterId(targetCharacter.id);
-
-        this.attackTarget = targetCharacter.id;
-        const username = socket.character.name;
-
-        socket.broadcast.to(roomid).emit('output', { message: `The ${this.displayName} moves to attack ${username}!` });
-        socket.emit('output', { message: `The ${this.displayName} moves to attack you!` });
-      }
-    }
+    // select random player to attack
+    if (charactersInRoom.length == 0) return;
+    const targetIndex = dice.getRandomNumber(0, charactersInRoom.length);
+    const targetCharacter = charactersInRoom[targetIndex];
+    this.attackTarget = targetCharacter.id;
   }
 
   attackroll() {
@@ -123,7 +104,10 @@ class Mob {
       return false;
     }
 
-    if (!socketUtil.characterInRoom(this.roomId, this.attackTarget)) {
+    let character = socketUtil.getCharacterById(this.attackTarget);
+    if (!character) return false;
+
+    if (character.roomId !== this.roomId) {
       this.attackTarget = null;
       return false;
     }
@@ -132,9 +116,6 @@ class Mob {
     const dmg = 0;
     let playerMessage = '';
     let roomMessage = '';
-
-    let character = socketUtil.getCharacterById(this.attackTarget);
-    if (!character) return false;
 
     if (this.attackroll() == 1) {
       playerMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits you for ${dmg} damage!</span>`;
@@ -149,6 +130,8 @@ class Mob {
     socket.emit('output', { message: playerMessage });
     socketUtil.roomMessage(character.roomId, roomMessage, [character.id]);
 
+    this.attackTarget = null;
+
     return true;
   }
 
@@ -156,14 +139,16 @@ class Mob {
     if (!this.readyToTaunt(now)) return;
     this.lastTaunt = now;
 
+    this.selectTarget();
+
     if (!this.attackTarget) return;
 
-    const socket = global.io.sockets.connected[this.attackTarget];
+    const socket = socketUtil.getSocketByCharacterId(this.attackTarget);
     if (!socket) {
       return;
     }
 
-    if (!socketUtil.characterInRoom(this.roomId, this.attackTarget)) {
+    if (socket.character.roomId !== this.roomId) {
       this.attackTarget = null;
       return;
     }
@@ -189,11 +174,11 @@ class Mob {
   }
 
   readyToAttack(now) {
-    return !!this.attackInterval && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
+    return !!this.attackInterval && this.attackTarget && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
   }
 
   readyToTaunt(now) {
-    return !!this.tauntInterval && this.attackTarget && (!this.lastTaunt || this.lastTaunt + this.tauntInterval <= now);
+    return !!this.tauntInterval && (!this.lastTaunt || this.lastTaunt + this.tauntInterval <= now);
   }
 
   readyToIdle(now) {

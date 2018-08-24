@@ -17,7 +17,6 @@ export default {
     this.execute(socket.character, dieType)
       .then(output => socketUtil.output(socket, output))
       .catch(error => socket.emit('output', { message: error }));
-
   },
 
   execute(character, dieType) {

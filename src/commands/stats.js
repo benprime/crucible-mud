@@ -8,7 +8,8 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket.character).then(output => socketUtil.output(output));
+    this.execute(socket.character)
+      .then(output => socketUtil.output(output));
   },
 
   execute(character) {

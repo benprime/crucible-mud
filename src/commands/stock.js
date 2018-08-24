@@ -1,5 +1,6 @@
 import Shop from '../models/shop';
 import itemData from '../data/itemData';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'stock',
@@ -16,7 +17,9 @@ export default {
       return;
     }
 
-    this.execute(socket.character, match[1], match[2]);
+    this.execute(socket.character, match[1], match[2])
+      .then(response => socketUtil.output(socket, response))
+      .catch(response => socketUtil.output(socket, response));
   },
 
   execute(character, name, count) {

@@ -1,5 +1,6 @@
 import autocomplete from '../core/autocomplete';
 import utils from '../core/utilities';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'equip',
@@ -11,7 +12,9 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1], match[2]);
+    this.execute(socket.character, match[1], match[2])
+      .then(response => socketUtil.sendMessages(socket, response))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
   execute(character, itemName, hand) {

@@ -1,5 +1,5 @@
 import { mockGetRoomById } from '../models/room';
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteTypes, mockAutocompleteCharacter } from '../core/autocomplete';
 import { mockCharacterInRoom } from '../core/socketUtil';
 import mocks from '../../spec/mocks';
 import sut from './accept';
@@ -35,12 +35,13 @@ describe('accept', () => {
       offeredItem.name = 'aItem';
       offeredItem.displayName = 'aItem display name';
 
-      mockAutocompleteTypes.mockReturnValueOnce({ item: offeringSocket.user });
+      mockAutocompleteCharacter.mockReturnValueOnce(offeringSocket.character);
       mockCharacterInRoom.mockReturnValueOnce(offeringSocket.character);
 
       offeringSocket.character.name = 'aUser';
       offeringSocket.character.name = 'aUser';
       offeringSocket.character.inventory = [offeredItem];
+      offeringSocket.character.roomId = socket.character.roomId;
 
       socket.character.offers = [{
         fromUserName: offeringSocket.character.name,
@@ -48,7 +49,7 @@ describe('accept', () => {
         item: offeredItem,
       }];
 
-      return sut.execute(socket.character, 'aItem').then(response => {
+      return sut.execute(socket.character, 'aUser').then(response => {
         expect(socket.character.offers).toHaveLength(0);
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `You accept the ${offeredItem.displayName} from ${offeringSocket.character.name}.` });
         expect(socket.character.save).toHaveBeenCalled();

@@ -66,7 +66,8 @@ function getMockRoom(roomId) {
   room.getExit = jest.fn().mockName('getExit').mockImplementation((dir) => room.exits.find(r => r.dir === dir));
   room.save = jest.fn().mockName('save').mockImplementation(() => Promise.resolve(room));
   room.look = jest.fn().mockName('look').mockImplementation(() => Promise.resolve());
-  room.charactersInRoom = jest.fn().mockName('charactersInRoom');
+  room.getCharacters = jest.fn();
+  room.getCharacterNames = jest.fn().mockName('getCharacterNames');
   room.userInRoom = jest.fn().mockName('userInRoom');
   room.processPlayerCombatActions = jest.fn().mockName('processPlayerCombatActions');
   room.processMobCombatActions = jest.fn().mockName('processMobCombatActions');
@@ -78,7 +79,7 @@ function getMockRoom(roomId) {
     room.getExit.mockReset();
     room.save.mockReset();
     room.look.mockReset();
-    room.charactersInRoom.mockReset();
+    room.getCharacterNames.mockReset();
     if (room.mobs.remove && room.mobs.remove.calls) {
       room.mobs.remove.mockReset();
     }

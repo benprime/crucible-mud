@@ -1,4 +1,4 @@
-export const mockCharactersInRoom = jest.fn();
+export const mockgetCharacterNames = jest.fn();
 export const mockCharacterInRoom = jest.fn();
 export const mockRoomMessage = jest.fn();
 export const mockGetRoomSockets = jest.fn();
@@ -9,7 +9,7 @@ export const mockGetCharacterById = jest.fn();
 export const mockGetCharacterByName = jest.fn();
 
 const mock = {
-  charactersInRoom: mockCharactersInRoom,
+  getCharacterNames: mockgetCharacterNames,
   roomMessage: mockRoomMessage,
   getRoomSockets: mockGetRoomSockets,
   characterInRoom: mockCharacterInRoom,

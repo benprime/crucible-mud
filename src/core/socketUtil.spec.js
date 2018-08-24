@@ -73,7 +73,10 @@ describe('socketUtil', () => {
       const socketB = new mocks.SocketMock();
       const socketC = new mocks.SocketMock();
       const message = 'test message';
-      const exclude = [socketB.id.toString(), socketC.id.toString()];
+      const exclude = [
+        socketB.character.id.toString(),
+        socketC.character.id.toString(),
+      ];
       let sockets = {};
       sockets[socketA.id] = socketA;
       sockets[socketB.id] = socketB;

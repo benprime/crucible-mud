@@ -14,7 +14,7 @@ global.io = new mocks.IOMock();
 let mockRoom;
 let targetSocket;
 let bystanderSocket;
-let charactersInRoom = [];
+let getCharacterNames = [];
 
 describe('actionHandler', () => {
   let socket;
@@ -31,14 +31,14 @@ describe('actionHandler', () => {
       sockets[socket.id] = socket;
       socket.character.roomId = mockRoom.id;
 
-      charactersInRoom.push('aDifferentUser');
+      getCharacterNames.push('aDifferentUser');
       targetSocket = new mocks.SocketMock();
       targetSocket.character.name = 'aDifferentUser';
       targetSocket.character.roomId = mockRoom.id;
       when(mockGetSocketByCharacterId).calledWith(targetSocket.character.name).mockReturnValue(targetSocket);
       sockets[targetSocket.id] = targetSocket;
 
-      charactersInRoom.push('aThirdUser');
+      getCharacterNames.push('aThirdUser');
       bystanderSocket = new mocks.SocketMock();
       bystanderSocket.character.name = 'aThirdUser';
       bystanderSocket.character.roomId = mockRoom.id;
@@ -53,7 +53,7 @@ describe('actionHandler', () => {
 
     test('should output message when no socket is returned for the user', () => {
       // arrange
-      mockAutocompleteCharacter.mockReturnValueOnce(targetSocket);
+      mockAutocompleteCharacter.mockReturnValueOnce(targetSocket.character);
       //targetSocket = undefined;
 
       // act
@@ -71,9 +71,10 @@ describe('actionHandler', () => {
       // act
       return sut.actionDispatcher(socket.character, 'hug').then(response => {
         // assert
-        expect(response.charMessages).toHaveLength(3);
+        expect(response.charMessages).toHaveLength(1);
+        expect(response.roomMessages).toHaveLength(1);
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You hug yourself.' });
-        expect(response.charMessages).toContainEqual({ charId: bystanderSocket.character.id, message: `${socket.character.name} hugs himself.` });
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} hugs himself.`, exclude: [socket.character.id] });
       });
     });
 
@@ -88,17 +89,15 @@ describe('actionHandler', () => {
         // assert
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `You hug ${targetSocket.character.name} close!` });
         expect(response.charMessages).toContainEqual({ charId: targetSocket.character.id, message: `${socket.character.name} hugs you close!` });
-        expect(response.charMessages).toContainEqual({ charId: bystanderSocket.character.id, message: `${socket.character.name} hugs ${targetSocket.character.name} close!` });
-        //expect(global.io.to(bystanderSocket.id).emit).toBeCalledWith('output', { message: `${socket.character.name} hugs ${targetSocket.character.name} close!` });
-        //expect(targetSocket.emit).toBeCalledWith('output', { message: `${socket.character.name} hugs you close!` });
-
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} hugs ${targetSocket.character.name} close!`, exclude: [socket.character.id, targetSocket.character.id] });
       });
 
     });
 
     test('should return false when action is not found', () => {
+      mockAutocompleteCharacter.mockReturnValueOnce(targetSocket.character);
       return sut.actionDispatcher(socket.character, 'notAnAction', targetSocket.character.name).catch(response => {
-        expect(response).toBe('invalid action');
+        expect(response).toBe('No emote data found for emote: notAnAction!');
       });
     });
   });

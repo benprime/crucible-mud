@@ -103,7 +103,10 @@ export default {
     const prop = match[2];
     const value = match[3];
 
-    this.execute(socket.character, type, prop, value).then(() => lookCmd.execute(socket));
+    this.execute(socket.character, type, prop, value)
+      .then(response => socketUtil.sendMessages(socket, response))
+      .then(() => lookCmd.execute(socket))
+      .catch(response => socketUtil.output(socket, response));
   },
 
   execute(character, type, prop, value) {

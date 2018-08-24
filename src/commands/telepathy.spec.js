@@ -1,4 +1,4 @@
-import { mockGetSocketByUsername } from '../core/socketUtil';
+import { mockGetSocketByCharacterId } from '../core/socketUtil';
 import mocks from '../../spec/mocks';
 import sut from './telepathy';
 
@@ -27,7 +27,7 @@ describe('telepathy', () => {
     test('should output messages when user is invalid', () => {
       // arrange
       const msg = 'This is a telepath message!';
-      mockGetSocketByUsername.mockReturnValueOnce(null);
+      mockGetSocketByCharacterId.mockReturnValueOnce(null);
 
       // act
       return sut.execute(socket.character, 'Wrong', msg).catch(response => {
@@ -40,7 +40,7 @@ describe('telepathy', () => {
     test('should output messages when command is successful', () => {
       // arrange
       const msg = 'This is a telepath message!';
-      mockGetSocketByUsername.mockReturnValueOnce(otherSocket);
+      mockGetSocketByCharacterId.mockReturnValueOnce(otherSocket);
 
       // act
       return sut.execute(socket.character, otherSocket.character.name, msg).then(response => {

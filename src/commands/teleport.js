@@ -13,21 +13,20 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1]).then(() => lookCmd.execute(socket.character, false));
+    this.execute(socket.character, match[1])
+      .then(response => socketUtil.sendMessages(socket, response))
+      .then(() => lookCmd.execute(socket.character, false).then(output => socketUtil.sendMessages(socket, output)))
+      .catch(err => socketUtil.sendMessages(socket, err));
   },
 
   execute(character, teleportTo) {
     if (!teleportTo) return;
 
     let toRoomId = '';
-    
+
     // if the parameter is an object id or alias, we are definitely teleporting to a room.
     if (Room.roomCache[teleportTo]) {
       toRoomId = teleportTo;
-
-
-
-
       // otherwise, we are teleporting to a user
     } else {
 
@@ -39,8 +38,7 @@ export default {
       toRoomId = targetCharacter.roomId;
     }
 
-    character.teleport(toRoomId);
-    return Promise.resolve();
+    return character.teleport(toRoomId);
   },
 
   help(socket) {

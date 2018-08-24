@@ -80,7 +80,7 @@ export default {
           { charId: character.id, message: 'Summoning successful.' },
         ],
         roomMessages: [
-          { roomId: character.roomId, message: `${character.name} waves his hand and a ${createType.displayName} appears!` },
+          { roomId: character.roomId, message: `${character.name} waves his hand and a ${createType.displayName} appears!`, exclude: [character.id] },
         ],
       });
       
@@ -100,7 +100,7 @@ export default {
           { charId: character.id, message: 'Item created.' },
         ],
         roomMessages: [
-          { roomId: character.roomId, message: `${character.name} emits a wave of energy!` },
+          { roomId: character.roomId, message: `${character.name} emits a wave of energy!`, exclude: [character.id] },
         ],
       });
 

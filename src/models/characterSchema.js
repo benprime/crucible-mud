@@ -92,6 +92,15 @@ const CharacterSchema = new mongoose.Schema({
   },
 }, { usePushEach: true });
 
+CharacterSchema.statics.findByName = function (name) {
+  const userRegEx = new RegExp(`^${name}$`, 'i');
+  return this.findOne({ name: userRegEx }).populate('user');
+};
+
+CharacterSchema.statics.findByUser = function (user) {
+  return this.findOne({ user: user });
+};
+
 CharacterSchema.methods.nextExp = function () {
   const BASE_XP = 300;
   const BASE_RATE = 1;
@@ -168,6 +177,11 @@ CharacterSchema.methods.move = function (dir) {
     const toRoom = Room.getById(exit.roomId);
     this.break();
 
+    if (socket) {
+      const displayDir = Room.shortToLong(dir);
+      socket.emit('output', { message: `You move ${displayDir}...` });
+    }
+
     fromRoom.leave(this, dir, socket);
     const enterDir = Room.oppositeDirection(dir);
     toRoom.enter(this, enterDir, socket);
@@ -182,7 +196,7 @@ CharacterSchema.methods.move = function (dir) {
 };
 
 CharacterSchema.methods.teleport = function (roomId) {
-  if(this.roomId === roomId) {
+  if (this.roomId === roomId) {
     return Promise.reject('Character is already here.');
   }
 
@@ -192,25 +206,26 @@ CharacterSchema.methods.teleport = function (roomId) {
   const socket = socketUtil.getSocketByCharacterId(this.id);
 
   //socketUtil.roomMessage(socket, `${this.name} vanishes!`, [socket.id]);
-  if(socket) {
-    socket.leave(socket.character.roomId);
+  if (socket) {
+    socket.leave(this.roomId);
     socket.join(roomId);
   }
 
   this.roomId = roomId;
-  
+
   // npcs don't save to database on every move
-  if(socket) {
+  if (socket) {
     this.save(err => { if (err) throw err; });
   }
-  //socketUtil.roomMessage(socket, `${socket.character.name} appears out of thin air!`, [socket.id]);
-  //socketUtil.output(socket, 'You successfully teleport.');
-  return Promise.resolve();
+  return Promise.resolve({
+    charMessages: [{ charId: this.id, message: 'You teleport...\n' }],
+    roomMessages: [{ roomId: roomId, message: `<span class="yellow">${this.name} appears out of thin air!</span>`, exclude: [this.id] }],
+  });
 };
 
-CharacterSchema.output = function(msg) {
+CharacterSchema.output = function (msg) {
   const socket = socketUtil.getSocketByCharacterId(this.id);
-  socket.emit('output', {message: msg});
+  socket.emit('output', { message: msg });
 };
 
 

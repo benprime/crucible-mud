@@ -4,11 +4,11 @@ import utils from '../core/utilities';
 import autocomplete from '../core/autocomplete';
 
 export default {
+  isValidAction(action) {
+    return action.toLowerCase() in actionsData.actions;
+  },
+
   actionDispatcher(character, action, username) {
-
-    // validate action
-    if (!(action in actionsData.actions)) return Promise.reject('invalid action');
-
     // autocomplete username
     let targetCharacter = character;
     if (username) {
@@ -47,7 +47,8 @@ export default {
     if (messageSet.roomMessage) {
       const socketRoom = global.io.sockets.adapter.rooms[character.roomId];
 
-      for (let toChar of Object.values(socketRoom.sockets).map(s => s.character)) {
+      for (let socketId of Object.keys(socketRoom.sockets)) {
+        let toChar = global.io.sockets.connected[socketId].character;
         // if you have a sourceMessage, don't send "room message" to source socket
         if (messageSet.sourceMessage && character.id === toChar.id) {
           continue;

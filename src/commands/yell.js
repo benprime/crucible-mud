@@ -35,7 +35,7 @@ export default {
       roomMessages.push({ roomId: exit.roomId, message: surroundMsg });
     });
 
-    roomMessages.push({ roomId: room.id, message: `${character.name} yells '${message}'` });
+    roomMessages.push({ roomId: room.id, message: `${character.name} yells '${message}'`, exclude: [character.id] });
     const charMessages = [{ charId: character.id, message: `You yell '${message}'` }];
 
     return Promise.resolve({

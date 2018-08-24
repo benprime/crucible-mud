@@ -1,3 +1,5 @@
+import socketUtil from '../core/socketUtil';
+
 export default {
   roomMessage(roomId, message, exclude) {
     const ioRoom = global.io.sockets.adapter.rooms[roomId];
@@ -10,22 +12,44 @@ export default {
     }
   },
 
-  sendMessages(socket, commandResult) {
-    if (typeof commandResult === 'string' || commandResult instanceof String) {
-      socket.emit('output', { message: commandResult });
+  sendMessages(socket, output) {
+    if(!output) return;
+    if (typeof output === 'string' || output instanceof String) {
+      socket.emit('output', { message: output });
     }
     else {
-      if (Array.isArray(commandResult.charMessages)) {
-        for (let msg of commandResult.charMessages) {
+      if (Array.isArray(output.charMessages) && output.charMessages.length > 0) {
+        for (let msg of output.charMessages) {
           let charSocket = this.getSocketByCharacterId(msg.charId);
           if (!charSocket) continue;
           charSocket.emit('output', { message: msg.message });
         }
       }
 
-      if (Array.isArray(commandResult.roomMessages)) {
-        for (let msg of commandResult.roomMessages) {
-          global.io.to(socket.character.roomId).emit('output', { message: msg.message });
+      if (Array.isArray(output.roomMessages) && output.roomMessages.length > 0) {
+        for (let msg of output.roomMessages) {
+
+          // if there is only one character to exlude, use Socket.IO's
+          // built-in broadcast functionality.
+          // TODO: review this. Is it a good idea to broadcast from a
+          // player socket? What if they disconnect mid-processing?
+          if (Array.isArray(msg.exclude) && msg.exclude.length === 1) {
+            const charSocket = socketUtil.getSocketByCharacterId(msg.exclude[0]);
+            if (!charSocket) throw 'Invalid character id';
+            charSocket.to(msg.roomId).emit('output', { message: msg.message });
+          }
+          // if there are multiple characters being excluded,
+          // loop through the room sockets manually.
+          else if (Array.isArray(msg.exclude) && msg.exclude.length > 0) {
+            const socketRoom = global.io.sockets.adapter.rooms[msg.roomId];
+            for (let socketId of Object.keys(socketRoom.sockets)) {
+              let charSocket = global.io.sockets.connected[socketId];
+              if (msg.exclude.includes(charSocket.character.id)) continue;
+              charSocket.emit('output', { message: msg.message });
+            }
+          } else {
+            global.io.to(msg.roomId).emit('output', { message: msg.message });
+          }
         }
       }
     }
@@ -33,15 +57,6 @@ export default {
 
   output(socket, output) {
     socket.emit('output', { message: output });
-  },
-
-  getSocketByUsername(username) {
-    for (let socket of Object.values(global.io.sockets.connected)) {
-      if (socket.user && socket.character.name.toLowerCase() == username.toLowerCase()) {
-        return socket;
-      }
-    }
-    return null;
   },
 
   getSocketByUserId(userId) {
@@ -55,7 +70,7 @@ export default {
 
   getSocketByCharacterId(characterId) {
     for (let socket of Object.values(global.io.sockets.connected)) {
-      if (socket.user && socket.character.id == characterId) {
+      if (socket.user && socket.character.id === characterId) {
         return socket;
       }
     }

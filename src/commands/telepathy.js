@@ -19,7 +19,7 @@ export default {
   },
 
   execute(character, username, message) {
-    const userSocket = socketUtil.getSocketByUsername(username);
+    const userSocket = socketUtil.getSocketByCharacterId(username);
     if (!userSocket) {
       return Promise.reject('Invalid username.');
     }

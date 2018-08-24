@@ -57,7 +57,7 @@ export default {
         ],
         roomMessages: [
           // todo: is item type enough here? There may be adjectives on items
-          { roomId: character.roomId, message: `${character.name} sells ${itemType.displayName} to the shop.` },
+          { roomId: character.roomId, message: `${character.name} sells ${itemType.displayName} to the shop.`, exclude: [character.id] },
         ],
       });
     }

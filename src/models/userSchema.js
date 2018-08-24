@@ -17,9 +17,9 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-UserSchema.statics.findByName = function (name, cb) {
+UserSchema.statics.findByName = function (name) {
   const userRegEx = new RegExp(`^${name}$`, 'i');
-  return this.findOne({ username: userRegEx }, cb);
+  return this.findOne({ username: userRegEx });
 };
 
 export default UserSchema;

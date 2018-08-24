@@ -28,15 +28,12 @@ export default {
     let item = null;
 
     // autocomplete username
-    const acResult = autocomplete.autocompleteTypes(character, ['player'], userName);
-    if (!acResult) {
+    const toCharacter = autocomplete.character(character, userName);
+    if (!toCharacter) {
       return Promise.reject('Unknown user or user not connected.');
     }
-    const tocharacter = acResult.item;
 
-    // validate target user and get target user socket
-    let toCharacter = socketUtil.characterInRoom(character.roomId, tocharacter.name);
-    if (!toCharacter) {
+    if (toCharacter.roomId !== character.roomId) {
       return Promise.reject(`${userName} is not here!`);
     }
 

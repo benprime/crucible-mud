@@ -32,7 +32,7 @@ export default {
         { charId: character.id, message: '<span class="olive">*** Combat Engaged ***</span>' },
       ],
       roomMessages: [
-        { roomId: character.roomId, message: `${character.name} moves to attack ${target.displayName}!` },
+        { roomId: character.roomId, message: `${character.name} moves to attack ${target.displayName}!`, exclude: [character.id] },
       ],
     });
   },

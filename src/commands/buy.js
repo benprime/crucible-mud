@@ -42,7 +42,7 @@ export default {
           { charId: character.id, message: 'Item purchased.' },
         ],
         roomMessages: [
-          { roomId: character.roomId, message: `${character.name} buys ${item.displayName} from the shop.` },
+          { roomId: character.roomId, message: `${character.name} buys ${item.displayName} from the shop.`, exclude: [character.id] },
         ],
       });
     }

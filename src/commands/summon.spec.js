@@ -1,6 +1,6 @@
 import { mockGetRoomById } from '../models/room';
-import { mockGetSocketByUsername } from '../core/socketUtil';
-import { mockAutocompleteTypes, mockAutocompleteCharacter } from '../core/autocomplete';
+import { mockGetSocketByCharacterId } from '../core/socketUtil';
+import { mockAutocompleteCharacter } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './summon';
 
@@ -46,7 +46,7 @@ describe('summon', () => {
 
     xtest('should join target user to admin room and leave current room', () => {
       // arrange
-      mockGetSocketByUsername.mockReturnValueOnce(mockTargetSocket);
+      mockGetSocketByCharacterId.mockReturnValueOnce(mockTargetSocket);
       mockTargetSocket.character.roomId = otherRoom.id;
 
       // act

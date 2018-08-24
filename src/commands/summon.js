@@ -32,7 +32,7 @@ export default {
       return Promise.resolve({
         roomMessages: [
           { roomId: oldRoomId, message: `${targetCharacter.name} vanishes!` },
-          { roomId: character.roomId, message: `${targetCharacter.name} appears out of thin air!` },
+          { roomId: character.roomId, message: `${targetCharacter.name} appears out of thin air!`, exclude: [character.id] },
         ],
         charMessages: [{ charId: targetCharacter.id, message: `You were summoned to ${character.name}'s room!` }],
       });

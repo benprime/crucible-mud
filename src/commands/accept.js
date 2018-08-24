@@ -22,17 +22,15 @@ export default {
       .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(toCharacter, userName) {
+  execute(toCharacter, fromCharName) {
     // autocomplete username
-    const acResult = autocomplete.autocompleteTypes(toCharacter, ['player'], userName);
-    if (!acResult) {
-      return Promise.reject(`${userName} is not here!`);
-    }
-    const fromUser = acResult.item;
-
-    let fromCharacter = socketUtil.characterInRoom(toCharacter.roomId, fromUser.name);
+    const fromCharacter = autocomplete.character(toCharacter, fromCharName);
     if (!fromCharacter) {
-      return Promise.reject(`${userName} is not here!`);
+      return Promise.reject(`${fromCharName} is not here!`);
+    }
+
+    if (toCharacter.roomId !== fromCharacter.roomId) {
+      return Promise.reject(`${fromCharName} is not here!`);
     }
 
     const offer = toCharacter.offers.find(o => o.fromUserName === fromCharacter.name);

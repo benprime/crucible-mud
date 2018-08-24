@@ -54,7 +54,7 @@ const TypeConfig = Object.freeze({
         .filter(s => s.character && s.character != character.id)
         .map(s => s.character);
     },
-    propertyNames: ['username'],
+    propertyNames: ['name'],
   },
 });
 

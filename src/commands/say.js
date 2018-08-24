@@ -23,7 +23,7 @@ export default {
         { charId: character.id, message: `You say "${safeMessage}"` },
       ],
       roomMessages: [
-        { roomId: character.roomId, message: `${character.name} says "${safeMessage}"` },
+        { roomId: character.roomId, message: `${character.name} says "${safeMessage}"`, exclude: [character.id] },
       ],
     });
   },

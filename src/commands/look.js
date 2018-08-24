@@ -1,5 +1,6 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
+import socketUtil from '../core/socketUtil';
 
 function lookDir(character, { exits }, dir) {
   dir = Room.validDirectionInput(dir);
@@ -20,7 +21,7 @@ function lookDir(character, { exits }, dir) {
         { charId: character.id, message: actionOutput },
       ],
       roomMessages: [
-        { roomId: lookRoom.id, message: `<span class="yellow">${character.name} peaks in from the ${Room.shortToLong(Room.oppositeDirection(dir))}.</span>` },
+        { roomId: lookRoom.id, message: `<span class="yellow">${character.name} peaks in from the ${Room.shortToLong(Room.oppositeDirection(dir))}.</span>`, exclude: [character.id] },
       ],
     });
   });
@@ -55,7 +56,7 @@ export default {
     }
     const short = (match[0] === '');
     this.execute(socket.character, short, lookTarget)
-      .then(output => socket.emit('output', { message: output }))
+      .then(response => socketUtil.sendMessages(socket, response))
       .catch(error => socket.emit('output', { message: error }));
   },
 

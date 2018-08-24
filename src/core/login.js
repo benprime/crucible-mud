@@ -8,14 +8,16 @@ import Character from '../models/character';
 export default {
   LoginUsername(socket, { value }) {
     if (socket.state == config.STATES.LOGIN_USERNAME) {
-      User.findByName(value, (err, user) => {
-        if (!user) {
+      Character.findByName(value).then(character => {
+        if (!character) {
           socket.emit('output', { message: 'Unknown user, please try again.' });
         } else {
-          socket.tempUsername = character.name;
+          socket.tempEmail = character.user.email;
           socket.state = config.STATES.LOGIN_PASSWORD;
           socket.emit('output', { message: 'Enter password:' });
         }
+      }).catch(err => {
+        socket.emit('output', { message: `Error: ${err}` });
       });
     }
   },
@@ -23,7 +25,8 @@ export default {
   LoginPassword(socket, { value }, callback) {
     if (socket.state == config.STATES.LOGIN_PASSWORD) {
 
-      User.findOne({ username: socket.tempUsername, password: value })
+      User.findOne({ email: socket.tempEmail, password: value })
+        //.populate('user')
         .exec((err, user) => {
           if (err) return console.error(err);
 
@@ -32,56 +35,60 @@ export default {
             return;
           }
 
-          delete socket.tempUsername;
+          delete socket.tempEmail;
 
-          // if the user is logged in from another connection, disconnect it.
-          const existingSocket = socketUtil.getSocketByUsername(character.name);
-          if (existingSocket) {
-            existingSocket.emit('output', { message: 'You have logged in from another session.\n<span class="gray">*** Disconnected ***</span>' });
-            existingSocket.disconnect();
-          }
-          socket.user = user;
-
-          Character.findOne({ user: user }, (err, character) => {
-            if(err) throw(err);
-            if (!character) {
-              throw 'No character associated with this user.';
+          Character.findByUser(user).then(character => {
+            // if the user is logged in from another connection, disconnect it.
+            const existingSocket = socketUtil.getSocketByCharacterId(character.name);
+            if (existingSocket) {
+              existingSocket.emit('output', { message: 'You have logged in from another session.\n<span class="gray">*** Disconnected ***</span>' });
+              existingSocket.disconnect();
             }
+            socket.user = user;
 
-            socket.character = character;
-            socket.character.offers = [];
+            Character.findOne({ user: user }, (err, character) => {
+              if (err) throw (err);
+              if (!character) {
+                throw 'No character associated with this user.';
+              }
 
-            // format the subdocuments so we have actual object instances
-            // Note: tried a lean() query here, but that also stripped away the model
-            // instance methods.
-            // TODO: is this still necessary?
-            const objInventory = character.inventory.map(i => i.toObject());
-            character.inventory = objInventory;
+              socket.character = character;
+              socket.character.offers = [];
 
-            // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
-            socket.state = config.STATES.MUD;
+              // format the subdocuments so we have actual object instances
+              // Note: tried a lean() query here, but that also stripped away the model
+              // instance methods.
+              // TODO: is this still necessary?
+              const objInventory = character.inventory.map(i => i.toObject());
+              character.inventory = objInventory;
 
-            socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
+              // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
+              socket.state = config.STATES.MUD;
 
-            socket.join('realm');
-            socket.broadcast.to('realm').emit('output', { message: `${character.name} has entered the realm.` });
+              socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
 
-            socket.join('gossip');
+              socket.join('realm');
+              socket.broadcast.to('realm').emit('output', { message: `${character.name} has entered the realm.` });
 
-            hud.updateHUD(socket);
+              socket.join('gossip');
 
-            const currentRoom = Room.getById(character.roomId);
-            if (!currentRoom) {
-              Room.byCoords({ x: 0, y: 0, z: 0 }, (err, { id }) => {
-                character.roomId = id;
-                socket.join(id);
+              hud.updateHUD(socket);
+
+              const currentRoom = Room.getById(character.roomId);
+              if (!currentRoom) {
+                Room.byCoords({ x: 0, y: 0, z: 0 }, (err, { id }) => {
+                  character.roomId = id;
+                  socket.join(id);
+                  if (callback) callback();
+                });
+              } else {
+                socket.join(character.roomId);
                 if (callback) callback();
-              });
-            } else {
-              socket.join(character.roomId);
-              if (callback) callback();
-            }
+              }
+            });
+
           });
+
         });
     }
   },

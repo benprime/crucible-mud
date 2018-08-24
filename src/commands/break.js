@@ -20,7 +20,7 @@ export default {
 
     if(character.attackTarget) {
       charMessages.push({ charId: character.id, message: '<span class="olive">*** Combat Disengaged ***</span>' });
-      roomMessages.push({ roomId: character.roomId, message: `${character.name} breaks off his attack.` });
+      roomMessages.push({ roomId: character.roomId, message: `${character.name} breaks off his attack.`, exclude: [character.id] });
     }
 
     character.break();

@@ -99,7 +99,7 @@ describe('socketUtil', () => {
 
   });
 
-  describe('getSocketByUsername', () => {
+  describe('getSocketByCharacterId', () => {
     let socket;
 
     beforeEach(() => {
@@ -112,7 +112,7 @@ describe('socketUtil', () => {
       global.io.sockets.connected[socket.id] = socket;
 
       // act
-      const result = sut.getSocketByUsername(socket.character.name);
+      const result = sut.getSocketByCharacterId(socket.character.id);
 
       // assert
       expect(result).toBe(socket);
@@ -120,7 +120,7 @@ describe('socketUtil', () => {
 
     test('returns null when username not found in connected sockets', () => {
       // act
-      const result = sut.getSocketByUsername('unknown username');
+      const result = sut.getSocketByCharacterId('unknown username');
 
       // assert
       expect(result).toBeNull();

@@ -47,12 +47,7 @@ export default {
   },
 
   execute(character, dir) {
-    return character.move(dir).then(room => {
-      
-      expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} has left to the east.` });
-      expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} has entered from the west.` });
-      expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You move east...' });
-    })
+    return character.move(dir);
   },
 
   help(socket) {

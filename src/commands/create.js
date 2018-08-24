@@ -39,7 +39,7 @@ export default {
             { charId: character.id, message: 'Room created.' },
           ],
           roomMessages: [
-            { roomId: character.roomId, message: `${character.name} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!` },
+            { roomId: character.roomId, message: `${character.name} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!`, exclude: [character.id] },
           ],
         });
       });
@@ -64,7 +64,7 @@ export default {
           { charId: character.id, message: 'Door created.' },
         ],
         roomMessages: [
-          { roomId: character.roomId, message: `${character.name} waves his hand and a door appears to the ${Room.shortToLong(dir)}!` },
+          { roomId: character.roomId, message: `${character.name} waves his hand and a door appears to the ${Room.shortToLong(dir)}!`, exclude: [character.id] },
         ],
       });
     }

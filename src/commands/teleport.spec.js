@@ -1,5 +1,5 @@
 import { mockGetRoomById, mockRoomCache } from '../models/room';
-import { mockGetSocketByUsername, mockGetCharacterByName } from '../core/socketUtil';
+import { mockGetSocketByCharacterId } from '../core/socketUtil';
 import { mockAutocompleteCharacter } from '../core/autocomplete';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
@@ -40,7 +40,7 @@ describe('teleport', () => {
   });
 
   beforeEach(() => {
-    mockGetSocketByUsername.mockReset();
+    mockGetSocketByCharacterId.mockReset();
   });
 
   describe('execute', () => {

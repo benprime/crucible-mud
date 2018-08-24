@@ -1,5 +1,5 @@
 import { mockGetRoomById } from '../models/room';
-import { mockGetSocketByUsername } from '../core/socketUtil';
+import { mockGetSocketByCharacterId } from '../core/socketUtil';
 import { mockAutocompleteTypes, mockAutocompleteCharacter } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import { when } from 'jest-when';
@@ -27,7 +27,7 @@ describe('actionHandler', () => {
       mockGetRoomById.mockReturnValue(mockRoom);
 
       socket = new mocks.SocketMock();
-      when(mockGetSocketByUsername).calledWith(socket.character.name).mockReturnValue(socket);
+      when(mockGetSocketByCharacterId).calledWith(socket.character.name).mockReturnValue(socket);
       sockets[socket.id] = socket;
       socket.character.roomId = mockRoom.id;
 
@@ -35,14 +35,14 @@ describe('actionHandler', () => {
       targetSocket = new mocks.SocketMock();
       targetSocket.character.name = 'aDifferentUser';
       targetSocket.character.roomId = mockRoom.id;
-      when(mockGetSocketByUsername).calledWith(targetSocket.character.name).mockReturnValue(targetSocket);
+      when(mockGetSocketByCharacterId).calledWith(targetSocket.character.name).mockReturnValue(targetSocket);
       sockets[targetSocket.id] = targetSocket;
 
       charactersInRoom.push('aThirdUser');
       bystanderSocket = new mocks.SocketMock();
       bystanderSocket.character.name = 'aThirdUser';
       bystanderSocket.character.roomId = mockRoom.id;
-      when(mockGetSocketByUsername).calledWith(bystanderSocket.character.name).mockReturnValue(bystanderSocket);
+      when(mockGetSocketByCharacterId).calledWith(bystanderSocket.character.name).mockReturnValue(bystanderSocket);
       sockets[bystanderSocket.id] = bystanderSocket;
 
       global.io.sockets.adapter.rooms = {};

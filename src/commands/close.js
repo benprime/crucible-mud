@@ -37,7 +37,7 @@ export default {
         { charId: character.id, message: 'Door closed.' },
       ],
       roomMessages: [
-        { roomId: character.roomId, message: `${character.name} closes the door to the ${Room.shortToLong(d)}.`},
+        { roomId: character.roomId, message: `${character.name} closes the door to the ${Room.shortToLong(d)}.`, exclude: [character.id]},
       ],
     });
   },

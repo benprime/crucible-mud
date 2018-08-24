@@ -54,7 +54,7 @@ export default {
           { charId: character.id, message: `${roomItem.displayName} taken.` },
         ],
         roomMessages: [
-          { roomId: character.roomId, message: `${character.name} takes ${roomItem.displayName}.` },
+          { roomId: character.roomId, message: `${character.name} takes ${roomItem.displayName}.`, exclude: [character.id] },
         ],
       });
     }

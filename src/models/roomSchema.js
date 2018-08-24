@@ -397,23 +397,18 @@ RoomSchema.methods.leave = function (character, dir, socket) {
   }
 
   // leaving room message
-  const msg = this.getLeftMessages(character, dir);
+  const msg = this.getLeftMessages(dir, character.name);
   socketUtil.roomMessage(character.roomId, msg, exclude);
 };
 
 // todo: This may need a more descriptive name, it is for "entering by exit"
 // it updates games state, generates messages
 RoomSchema.methods.enter = function (character, dir, socket) {
-  if (socket) {
-    const displayDir = this.constructor.shortToLong(dir);
-    socket.emit('output', { message: `You move ${displayDir}...` });
-  }
-
   const exclude = socket ? [socket.id] : [];
-  const msg = this.getEnteredMessage(character, dir);
-  socketUtil.roomMessage(character.roomId, msg, exclude);
+  const msg = this.getEnteredMessage(dir, character.name);
 
   character.roomId = this.id;
+  socketUtil.roomMessage(character.roomId, msg, exclude);
 
   // todo: Review this. Not sure if we want to same state persistence for NPCs
   character.save(err => { if (err) throw err; });
@@ -516,24 +511,28 @@ RoomSchema.methods.sendMovementSoundsMessage = function (excludeDir) {
 
 RoomSchema.methods.getLeftMessages = function (dir, charName) {
   const displayDir = this.constructor.shortToLong(dir);
+  let output = '';
   if (dir === 'u') {
-    return `${charName} has gone above.`;
+    output = `${charName} has gone above.`;
   } else if (dir === 'd') {
-    return `${charName} has gone below.`;
+    output = `${charName} has gone below.`;
   } else {
-    return `${charName} has left to the ${displayDir}.`;
+    output = `${charName} has left to the ${displayDir}.`;
   }
+  return `<span class="yellow">${output}</span>`;
 };
 
 RoomSchema.methods.getEnteredMessage = function (dir, charName) {
   const displayDir = this.constructor.shortToLong(dir);
+  let output = '';
   if (dir === 'u') {
-    return `${charName} has entered from below.`;
+    output = `${charName} has entered from below.`;
   } else if (dir === 'd') {
-    return `${charName} has entered from above.`;
+    output = `${charName} has entered from above.`;
   } else {
-    return `${charName} has entered from the ${displayDir}.`;
+    output = `${charName} has entered from the ${displayDir}.`;
   }
+  return `<span class="yellow">${output}</span>`;
 };
 
 RoomSchema.methods.output = function (msg, exclude) {

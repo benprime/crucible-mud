@@ -65,7 +65,7 @@ function setRoom(character, prop, value) {
         { charId: character.id, message: `${character.name} has altered the fabric of reality.` },
       ],
       roomMessages: [
-        { roomId: character.roomId, message: `${character.name} has altered the fabric of reality.` },
+        { roomId: character.roomId, message: `${character.name} has altered the fabric of reality.`, exclude: [character.id] },
       ],
     });
   }

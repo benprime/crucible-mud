@@ -104,11 +104,12 @@ function processDispatch(socket, input) {
   if (match) {
     let action = match[1];
     let username = match[2];
-    const actionFound = actionHandler.actionDispatcher(socket, action, username);
-    if (actionFound) {
-      return;
+    if (actionHandler.isValidAction(action)) {
+      return actionHandler.actionDispatcher(socket.character, action, username)
+        .then(response => socketUtil.sendMessages(socket, response));
     }
   }
+
   // when a command is not found, it defaults to "say"
   defaultCommand.execute(socket.character, input)
     .then(commandResult => socketUtil.sendMessages(socket, commandResult))

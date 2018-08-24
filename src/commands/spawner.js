@@ -31,7 +31,7 @@ setInterval(() => {
       room.spawnTimer = now;
 
       room.mobs.push(mob);
-      global.io.to(room.id).emit('output', { message: `<span class="yellow">A ${mobType.displayName} appears!</span>` });
+      global.io.to(room.id).emit('output', { message: `<span class="yellow">A ${mob.displayName} appears!</span>` });
     }
 
   });

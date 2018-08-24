@@ -16,26 +16,26 @@ const TypeConfig = Object.freeze({
       const room = Room.getById(character.roomId);
       return room.mobs;
     },
-    propertyNames: ['displayName', 'name'],
+    propertyNames: ['adjective', 'name', 'class'],
   },
   inventory: {
     source(character) {
       return character.inventory;
     },
-    propertyNames: ['displayName', 'name'],
+    propertyNames: ['name', 'displayName'],
   },
   key: {
     source(character) {
       return character.keys;
     },
-    propertyNames: ['displayName', 'name'],
+    propertyNames: ['name', 'displayName'],
   },
   room: {
     source(character) {
       const room = Room.getById(character.roomId);
       return room.inventory;
     },
-    propertyNames: ['displayName', 'name'],
+    propertyNames: ['name', 'displayName'],
   },
   player: {
     source(character) {
@@ -121,6 +121,36 @@ export default {
    */
   character(character, fragment) {
     var result = this.autocompleteTypes(character, ['character'], fragment);
+    return result ? result.item : null;
+  },
+
+  mob(character, fragment) {
+    var result = this.autocompleteTypes(character, ['mob'], fragment);
+    return result ? result.item : null;
+  },
+
+  item(character, fragment) {
+    var result = this.autocompleteTypes(character, ['item'], fragment);
+    return result ? result.item : null;
+  },
+
+  inventory(character, fragment) {
+    var result = this.autocompleteTypes(character, ['inventory'], fragment);
+    return result ? result.item : null;
+  },
+
+  key(character, fragment) {
+    var result = this.autocompleteTypes(character, ['key'], fragment);
+    return result ? result.item : null;
+  },
+
+  room(character, fragment) {
+    var result = this.autocompleteTypes(character, ['room'], fragment);
+    return result ? result.item : null;
+  },
+
+  player(character, fragment) {
+    var result = this.autocompleteTypes(character, ['player'], fragment);
     return result ? result.item : null;
   },
 };

@@ -84,7 +84,7 @@ export default {
           { charId: character.id, message: 'Summoning successful.' },
         ],
         roomMessages: [
-          { roomId: character.roomId, message: `${character.name} waves his hand and a ${createType.displayName} appears!`, exclude: [character.id] },
+          { roomId: character.roomId, message: `${character.name} waves his hand and a ${mob.displayName} appears!`, exclude: [character.id] },
         ],
       });
 

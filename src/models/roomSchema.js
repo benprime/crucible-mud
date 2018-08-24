@@ -267,7 +267,7 @@ RoomSchema.methods.look = function (character, short) {
 
   let characterNames = this.getCharacterNames(this.id).filter(name => name !== character.name);
 
-  const mobNames = this.mobs.map(({ displayName, hp }) => `${displayName} ${hp}`);
+  const mobNames = this.mobs.map(({ displayName }) => `${displayName}`);
   if (mobNames) { characterNames = characterNames.concat(mobNames); }
   const displayNames = characterNames.join('<span class="mediumOrchid">, </span>');
 

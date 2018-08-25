@@ -62,7 +62,7 @@ describe('create', () => {
         const dir = 'n';
         mockValidDirectionInput.mockReturnValueOnce('n');
 
-        return sut.execute(socket.character, 'door', dir).then(response => {
+        return sut.execute(socket.character, 'door', dir).then(() => {
           expect(mockRoom.getExit).toBeCalledWith(dir);
           expect(mockRoom.exits.find(r => r.dir === 'n').closed).toBe(true);
           expect(mockRoom.save).toHaveBeenCalled();

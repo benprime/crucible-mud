@@ -1,4 +1,4 @@
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteMultiple } from '../core/autocomplete';
 import Item from '../models/item';
 import mocks from '../../spec/mocks';
 import sut from './unequip';
@@ -14,12 +14,12 @@ describe('unequip', () => {
   });
 
   beforeEach(() => {
-    mockAutocompleteTypes.mockClear();
+    mockAutocompleteMultiple.mockClear();
   });
 
   describe('execute', () => {
     test('should output message when item is not equipped', () => {
-      mockAutocompleteTypes.mockReturnValueOnce(null);
+      mockAutocompleteMultiple.mockReturnValueOnce(null);
 
       expect.assertions(1);
       return sut.execute(socket.character, 'monocle').catch(response => {
@@ -32,7 +32,7 @@ describe('unequip', () => {
       const ring = new Item();
       ring.equip = 'finger';
       ring.name = 'diamond';
-      mockAutocompleteTypes.mockReturnValueOnce({ item: ring });
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: ring });
 
       socket.character.equipSlots.fingerMain = ring;
 

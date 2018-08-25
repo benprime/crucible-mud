@@ -51,28 +51,14 @@ describe('mob model', () => {
 
   describe('look', () => {
 
-    xtest('should output mob description', () => {
+    test('should output mob description', () => {
       // arrange
       socket.user.admin = false;
 
       // act
-      mob.look(socket).then(response => {
+      return mob.look(socket).then(response => {
         // assert
-        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: mob.desc });
-        expect(socket.emit).not.toBeCalledWith('output', { message: `Mob ID: ${mob.id}` });
-      });
-
-    });
-
-    xtest('should output mob id if logged in user is admin', () => {
-      // arrange
-      socket.user.admin = true;
-
-      // act
-      mob.look(socket).then(response => {
-        // assert
-        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: mob.desc });
-        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `Mob ID: ${mob.id}` });
+        expect(response).toEqual(mob.desc);
       });
 
     });
@@ -287,7 +273,7 @@ describe('mob model', () => {
       mob.attack(new Date());
 
       // assert
-      expect(socket.emit).toBeCalledWith('output', { message: '<span class=\"firebrick\">The big kobold sentry hits you for 0 damage!</span>' });
+      expect(socket.emit).toBeCalledWith('output', { message: playerMessage });
       expect(mockRoomMessage).toBeCalledWith(socket.character.roomId, roomMessage, [socket.character.id]);
     });
 
@@ -330,7 +316,7 @@ describe('mob model', () => {
     test('should return if user has left room', () => {
       // arrange
       mockRoom.getCharacters.mockReturnValueOnce([]);
-      mockGetSocketByCharacterId.mockReturnValueOnce(socket.character);
+      mockGetSocketByCharacterId.mockReturnValueOnce(socket);
 
       // act
       mob.taunt(new Date());
@@ -344,9 +330,6 @@ describe('mob model', () => {
       mockRoom.getCharacters.mockReturnValueOnce([socket.character]);
       mockGetSocketByCharacterId.mockReturnValueOnce(socket);
       mockGetRandomNumber.mockReturnValue(0);
-
-      //global.io.sockets.connected[socket.id] = socket;
-      //mob.attackTarget = socket.id;
 
       // act
       mob.taunt(new Date());

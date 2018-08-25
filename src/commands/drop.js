@@ -22,7 +22,7 @@ export default {
 
   execute(character, itemName) {
     const room = Room.getById(character.roomId);
-    const result = autocomplete.autocompleteTypes(character, ['inventory', 'key'], itemName);
+    const result = autocomplete.multiple(character, ['inventory', 'key'], itemName);
     if (!result) {
       return Promise.reject('You don\'t seem to be carrying that.');
     }

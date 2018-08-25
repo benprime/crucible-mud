@@ -1,7 +1,6 @@
 import actionsData from '../data/actionData';
 import utils from '../core/utilities';
 import autocomplete from '../core/autocomplete';
-import sockUtil from '../core/socketUtil';
 
 export default {
   isValidAction(action) {

@@ -31,7 +31,7 @@ export default {
     const room = Room.getById(character.roomId);
     if (type === 'mob') {
       // look for mob in user's current room
-      const acResult = autocomplete.autocompleteTypes(character, ['mob'], name);
+      const acResult = autocomplete.multiple(character, ['mob'], name);
       if (!acResult) {
         return Promise.reject('Mob not found.');
       }
@@ -53,7 +53,7 @@ export default {
       }
     }
     else if (type === 'item') {
-      const acResult = autocomplete.autocompleteTypes(character, ['inventory'], name);
+      const acResult = autocomplete.multiple(character, ['inventory'], name);
       if (!acResult) {
         return Promise.reject('You don\'t seem to be carrying that item.');
       }

@@ -1,5 +1,5 @@
 
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteMultiple } from '../core/autocomplete';
 
 import Item from '../models/item';
 import mocks from '../../spec/mocks';
@@ -17,7 +17,7 @@ describe('equip', () => {
 
   describe('execute', () => {
     test('should do nothing when item is not in inventory', () => {
-      mockAutocompleteTypes.mockReturnValueOnce(null);
+      mockAutocompleteMultiple.mockReturnValueOnce(null);
 
       return sut.execute(socket.character, 'boot').catch(output => {
         expect(output).toBe('item is not in inventory.');
@@ -29,7 +29,7 @@ describe('equip', () => {
       const sword = new Item();
       sword.equip = null;
       sword.name = 'sword';
-      mockAutocompleteTypes.mockReturnValueOnce({ item: sword });
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: sword });
 
       return sut.execute(socket.character, 'sword').catch(output => {
         expect(output).toEqual('You cannot equip that!\n');
@@ -40,7 +40,7 @@ describe('equip', () => {
       const finger = new Item();
       finger.equip = 'nose';
       finger.name = 'finger';
-      mockAutocompleteTypes.mockReturnValueOnce({ item: finger });
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: finger });
 
       return sut.execute(socket.character, 'finger').catch(output => {
         expect(output).toEqual('Um, you want to put that where?!?!\n');
@@ -53,7 +53,7 @@ describe('equip', () => {
       const ring = new Item();
       ring.equip = 'finger';
       ring.name = 'mood';
-      mockAutocompleteTypes.mockReturnValueOnce({ item: ring });
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: ring });
 
       return sut.execute(socket.character, 'mood').catch(output => {
         expect(output).toEqual('Please specify which hand to equip the item\n');

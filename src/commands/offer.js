@@ -45,7 +45,7 @@ export default {
         return Promise.reject('You do not have enough money.');
       }
     } else {
-      const acResult = autocomplete.autocompleteTypes(character, ['inventory'], itemName);
+      const acResult = autocomplete.multiple(character, ['inventory'], itemName);
       if (!acResult) {
         return Promise.reject('You don\'t seem to be carrying that.');
       }

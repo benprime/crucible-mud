@@ -1,5 +1,5 @@
 import { mockGetRoomById, mockValidDirectionInput } from '../models/room';
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteMultiple } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './lock';
 
@@ -58,7 +58,7 @@ describe('lock', () => {
   test('should succeed on valid direction with door', () => {
     // arrange
     mockValidDirectionInput.mockReturnValueOnce('n');
-    mockAutocompleteTypes.mockReturnValueOnce({ item: { name: 'key', displayName: 'some key' } });
+    mockAutocompleteMultiple.mockReturnValueOnce({ item: { name: 'key', displayName: 'some key' } });
 
     // act
     return sut.execute(socket.character, 'n', 'some key').then(output => {

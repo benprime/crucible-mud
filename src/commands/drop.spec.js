@@ -1,5 +1,5 @@
 import { mockGetRoomById } from '../models/room';
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteMultiple } from '../core/autocomplete';
 import Item from '../models/item';
 import mocks from '../../spec/mocks';
 import sut from './drop';
@@ -68,9 +68,9 @@ describe('drop', () => {
 
     describe('when item.type is item', () => {
 
-      test('should output error message whmockAutocompleteTypes.mocken item is not found in user inventory', () => {
-        mockAutocompleteTypes.mockReturnValueOnce(null);
-        return sut.execute(socket.character, 'non-existent mockAutocompleteTypes.mockitem').catch(response => {
+      test('should output error message whmockAutocompleteMultiple.mocken item is not found in user inventory', () => {
+        mockAutocompleteMultiple.mockReturnValueOnce(null);
+        return sut.execute(socket.character, 'non-existent mockAutocompleteMultiple.mockitem').catch(response => {
           expect(socket.character.save).not.toHaveBeenCalled();
           expect(mockRoom.save).not.toHaveBeenCalled();
           expect(response).toBe('You don\'t seem to be carrying that.');
@@ -84,7 +84,7 @@ describe('drop', () => {
           type: 'item',
           item,
         };
-        mockAutocompleteTypes.mockReturnValueOnce(autocompleteResult);
+        mockAutocompleteMultiple.mockReturnValueOnce(autocompleteResult);
 
         return sut.execute(socket.character, 'dropItem').then(response => {
           expect(socket.character.save).toHaveBeenCalled();
@@ -105,7 +105,7 @@ describe('drop', () => {
           type: 'key',
           item: key,
         };
-        mockAutocompleteTypes.mockReturnValueOnce(autocompleteResult);
+        mockAutocompleteMultiple.mockReturnValueOnce(autocompleteResult);
         socket.character.keys = [autocompleteResult.item];
 
         return sut.execute(socket.character, 'dropKey').then(response => {

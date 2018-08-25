@@ -22,7 +22,7 @@ export default {
   execute(character, itemName) {
 
     // check if user has item
-    const acResult = autocomplete.autocompleteTypes(character, ['inventory'], itemName);
+    const acResult = autocomplete.multiple(character, ['inventory'], itemName);
     if (!acResult) {
       return Promise.reject('You don\'t seem to be carrying that.');
     }

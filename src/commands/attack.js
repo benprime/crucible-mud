@@ -16,7 +16,7 @@ export default {
   },
 
   execute(character, targetName) {
-    const acResult = autocomplete.autocompleteTypes(character, ['mob'], targetName);
+    const acResult = autocomplete.multiple(character, ['mob'], targetName);
     if (!acResult) {
       character.attackTarget = null;
       return Promise.reject('attack target not found');

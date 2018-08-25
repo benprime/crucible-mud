@@ -28,7 +28,7 @@ function setRoom(character, prop, value) {
 
 
   if (prop === 'area') {
-    const areas = autocomplete.autocompleteByProperty(Object.values(Area.areaCache), 'name', value);
+    const areas = autocomplete.byProperty(Object.values(Area.areaCache), 'name', value);
     if (areas.length > 1) {
       return Promise.reject(`Multiple areas match that param:\n${JSON.stringify(areas)}`);
     } else if (areas.length === 0) {

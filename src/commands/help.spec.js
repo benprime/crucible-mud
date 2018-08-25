@@ -16,28 +16,25 @@ describe('help', () => {
     sut.registerCommand(command);
   });
 
-  xdescribe('execute', () => {
+  // TODO: The heklp 
+  describe('execute', () => {
 
     test('should display general help with no parameters', () => {
-      return sut.execute(socket.character).then(response => {
-        expect(response).not.toBeNull();
-      });
+      sut.execute(socket);
 
+      expect(socket.emit).toHaveBeenCalled();
     });
 
     test('should display topic help with a parameter', () => {
-      return sut.execute(socket.character, 'gossip').then(response => {
-        expect(response).not.toBeNull();
-      });
+      sut.execute(socket, 'gossip');
 
-
+      expect(socket.emit).toHaveBeenCalled();
     });
 
     test('should display error message when topic is invalid', () => {
-      return sut.dispatch(socket, 'yourface').catch(response => {
-        //check output for bad command
-        expect(response).toEqual('No help for that topic.');
-      });
+      sut.execute(socket, 'yourface');
+      //check output for bad command
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No help for that topic.' });
 
     });
   });

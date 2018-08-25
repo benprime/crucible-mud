@@ -1,5 +1,5 @@
 import { mockGetRoomById } from '../models/room';
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteMultiple } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './take';
 
@@ -39,12 +39,12 @@ describe('take', () => {
     beforeEach(() => {
       socket.emit.mockReset();
       socket.character.save.mockReset();
-      mockAutocompleteTypes.mockReset();
+      mockAutocompleteMultiple.mockReset();
     });
 
     test('should output message when item is not found', () => {
       mockRoom.save.mockClear();
-      mockAutocompleteTypes.mockReturnValueOnce(null);
+      mockAutocompleteMultiple.mockReturnValueOnce(null);
 
       return sut.execute(socket.character, 'itemNotThere').catch(response => {
         expect(response).toEqual('You don\'t see that here!');
@@ -64,7 +64,7 @@ describe('take', () => {
         displayName: 'aItem display name',
         fixed: true,
       };
-      mockAutocompleteTypes.mockReturnValueOnce({ item: fixedItem });
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: fixedItem });
 
 
       return sut.execute(socket.character, 'aItem').catch(response => {
@@ -84,7 +84,7 @@ describe('take', () => {
         displayName: 'aItem display name',
       };
       mockRoom.inventory = [item];
-      mockAutocompleteTypes.mockReturnValueOnce({ item: item });
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
 
       return sut.execute(socket.character, 'aItem').then(response => {
         expect(mockRoom.inventory).not.toContain(item);

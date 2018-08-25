@@ -74,7 +74,7 @@ function topicHelp(socket, topic) {
     commandHandlers[topic].help(socket);
   }
   else {
-    return Promise.reject('No help for that topic.');
+    socket.emit('output', {message: 'No help for that topic.'});
   }
 }
 
@@ -90,24 +90,15 @@ export default {
 
   dispatch(socket, match) {
     const topic = match.length < 2 ? null : match[1];
-
-    if (topic) {
-      topicHelp(socket, topic);
-    } else {
-      generalHelp(socket);
-    }
-
-
     this.execute(socket.character, topic);
   },
 
   execute(character, topic) {
-    // This method does not update game state. It only prints to sockets.
-    // if (topic) {
-    //   topicHelp(character, topic);
-    // } else {
-    //   generalHelp(character);
-    // }
+    if (topic) {
+      topicHelp(character, topic);
+    } else {
+      generalHelp(character);
+    }
   },
 
   help(socket) {

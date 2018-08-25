@@ -37,7 +37,7 @@ export default {
       return Promise.reject('That door is not locked.');
     }
 
-    const acResult = autocomplete.autocompleteTypes(character, ['key'], keyName);
+    const acResult = autocomplete.multiple(character, ['key'], keyName);
     if (!acResult) {
       return Promise.reject('You don\'t seem to be carrying that key.');
     }

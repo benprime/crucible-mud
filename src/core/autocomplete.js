@@ -1,15 +1,10 @@
 import Room from '../models/room';
 
-//TODO: make this library use promises
-//TODO: change the names of the function here to be:
-// autocomplete.byTypes, autocomplete.player, etc.
-
-
-// -------------------------------------------------------------------
-// TypeConfigs objects:
-// - source: The array to search for objects.
-// - propertyNames: The properties to use for autocomplete (in order)
-// -------------------------------------------------------------------
+/**
+ * TypeConfigs - Holds configurations for doing common autocomplete operations.
+ * - source: The array to search for objects.
+ * - propertyNames: The properties to use for autocomplete (in order)
+ */
 const TypeConfig = Object.freeze({
   mob: {
     source(character) {
@@ -37,17 +32,6 @@ const TypeConfig = Object.freeze({
     },
     propertyNames: ['name', 'displayName'],
   },
-  player: {
-    source(character) {
-      return Object.values(global.io.sockets.connected)
-        .filter(s => s.character && s.character != character.id)
-        // TODO: This should probably return their character, not user.
-        // Character name needs to be used throughout the game instead of username.
-        .map(s => s.user);
-    },
-
-    propertyNames: ['username'],
-  },
   character: {
     source(character) {
       return Object.values(global.io.sockets.connected)
@@ -59,39 +43,60 @@ const TypeConfig = Object.freeze({
 });
 
 export default {
-  distinctByProperty(arr, property) {
+
+  /**
+   * Filters array of objects to first object found for each unique property value.
+   * @param {Array} objects - Array of object to filter.
+   * @param {String} propertyName - Property to filter with.
+   */
+  distinctByProperty(objects, propertyName) {
     const alreadyAdded = {};
-    return arr.filter(obj => {
-      if (alreadyAdded[obj[property]]) return false;
-      alreadyAdded[obj[property]] = true;
+    return objects.filter(obj => {
+      if (alreadyAdded[obj[propertyName]]) return false;
+      alreadyAdded[obj[propertyName]] = true;
       return true;
     });
   },
 
-  autocompleteByProperty(source, property, fragment) {
+  /**
+   * Get all objects in an enumerable that match the autocomplete filter.
+   * @param {*} source - Enumerable to find matching objects.
+   * @param {*} property - Property to use for pattern matching.
+   * @param {*} fragment - Search term for autocompleting property value.
+   */
+  byProperty(source, property, fragment) {
     const distinctSource = this.distinctByProperty(source, property);
     const re = new RegExp(`^${fragment}`, 'i');
     return distinctSource.filter(value => !!re.exec(value[property]));
   },
 
-  autocompleteByProperties(source, propertyNames, fragment) {
+  /**
+   * Get objects that match autocomplete filter for multiple properties.
+   * @param {*} source - Enumerable to find matching objects.
+   * @param {*} propertyNames - Properties to apply pattern matching to.
+   * @param {*} fragment - Search term to be used against all properties.
+   */
+  byProperties(source, propertyNames, fragment) {
     const resultArr = [];
     for (const prop of propertyNames) {
-      let results = this.autocompleteByProperty(source, prop, fragment);
+      let results = this.byProperty(source, prop, fragment);
       resultArr.push(results);
     }
 
+    // combine result arrays for each property
     const combArr = [].concat(...resultArr);
+
+    // dedupe (a single item could be found multiple times by different properties)
     return [...new Set(combArr)];
   },
 
   /**
    * Autocompletes a name fragment using multiple game object types and returns the object.
-   * @param {*} character - character performing this action.
-   * @param {*} types - types to include in the autocomplete operation.
+   * @param {*} character - Character performing this action.
+   * @param {*} types - Types to include in the autocomplete operation.
    * @param {*} fragment - Beginning portion of object name to autocomplete.
    */
-  autocompleteTypes(character, types, fragment) {
+  multiple(character, types, fragment) {
     for (const typeKey in types) {
       if (!types.hasOwnProperty(typeKey)) continue;
 
@@ -102,7 +107,7 @@ export default {
       }
 
       let source = typeConfig.source(character);
-      const results = this.autocompleteByProperties(source, typeConfig.propertyNames, fragment);
+      const results = this.byProperties(source, typeConfig.propertyNames, fragment);
       if (results.length > 0) {
         return {
           type,
@@ -110,7 +115,6 @@ export default {
         };
       }
     }
-    //return Promise.reject('You don\'t see that here.');
     return null;
   },
 
@@ -120,37 +124,47 @@ export default {
    * @param {*} fragment - Name fragment to autocomplete.
    */
   character(character, fragment) {
-    var result = this.autocompleteTypes(character, ['character'], fragment);
+    var result = this.multiple(character, ['character'], fragment);
     return result ? result.item : null;
   },
 
+  /**
+   * Autocomplete mob objects by name fragment.
+   * @param {*} character - Character performing this operation.
+   * @param {*} fragment - Name fragment to autocomplete.
+   */
   mob(character, fragment) {
-    var result = this.autocompleteTypes(character, ['mob'], fragment);
+    var result = this.multiple(character, ['mob'], fragment);
     return result ? result.item : null;
   },
 
-  item(character, fragment) {
-    var result = this.autocompleteTypes(character, ['item'], fragment);
-    return result ? result.item : null;
-  },
-
+  /**
+  * Autocomplete inventory objects by name fragment.
+  * @param {*} character - Character performing this operation.
+  * @param {*} fragment - Name fragment to autocomplete.
+  */
   inventory(character, fragment) {
-    var result = this.autocompleteTypes(character, ['inventory'], fragment);
+    var result = this.multiple(character, ['inventory'], fragment);
     return result ? result.item : null;
   },
 
+  /**
+  * Autocomplete key objects by name fragment.
+  * @param {*} character - Character performing this operation.
+  * @param {*} fragment - Name fragment to autocomplete.
+  */
   key(character, fragment) {
-    var result = this.autocompleteTypes(character, ['key'], fragment);
+    var result = this.multiple(character, ['key'], fragment);
     return result ? result.item : null;
   },
 
+  /**
+  * Autocomplete room inventory objects by name fragment.
+  * @param {*} character - Character performing this operation.
+  * @param {*} fragment - Name fragment to autocomplete.
+  */
   room(character, fragment) {
-    var result = this.autocompleteTypes(character, ['room'], fragment);
-    return result ? result.item : null;
-  },
-
-  player(character, fragment) {
-    var result = this.autocompleteTypes(character, ['player'], fragment);
+    var result = this.multiple(character, ['room'], fragment);
     return result ? result.item : null;
   },
 };

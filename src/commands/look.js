@@ -29,12 +29,11 @@ function lookDir(character, { exits }, dir) {
 
 // for items and mobs
 function lookItem(charater, itemName) {
-  const acResult = autocomplete.autocompleteTypes(charater, ['inventory', 'mob', 'room'], itemName);
+  const acResult = autocomplete.multiple(charater, ['inventory', 'mob', 'room'], itemName);
   if (!acResult || acResult.item.hidden) {
     return Promise.reject('You don\'t see that here.');
   }
-  const output = acResult.item.look(charater);
-  return Promise.resolve(output);
+  return acResult.item.look(charater);
 }
 
 export default {

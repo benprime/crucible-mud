@@ -16,7 +16,7 @@ function hideDir(socket, room, dir) {
 // for items
 function hideItem(character, room, itemName) {
 
-  const acResult = autocomplete.autocompleteTypes(character, ['inventory', 'room'], itemName);
+  const acResult = autocomplete.multiple(character, ['inventory', 'room'], itemName);
   if (!acResult) {
     return Promise.reject('Item does not exist in inventory or in room.<br />');
   }

@@ -37,7 +37,6 @@ export default {
         ],
         charMessages: [{ charId: targetCharacter.id, message: `You were summoned to ${character.name}'s room!` }],
       });
-
     });
   },
 

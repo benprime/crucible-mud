@@ -1,5 +1,5 @@
 import { mockGetRoomById } from '../models/room';
-import { mockAutocompleteTypes, mockAutocompleteCharacter } from '../core/autocomplete';
+import { mockAutocompleteMultiple, mockAutocompleteCharacter } from '../core/autocomplete';
 import { mockCharacterInRoom } from '../core/socketUtil';
 import mocks from '../../spec/mocks';
 import sut from './accept';
@@ -25,7 +25,7 @@ describe('accept', () => {
       socket.reset();
       socket.emit.mockReset();
       socket.character.save.mockReset();
-      mockAutocompleteTypes.mockReset();
+      mockAutocompleteMultiple.mockReset();
     });
 
     test('should update from/to inventory on successful offer/accept', () => {

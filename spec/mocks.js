@@ -166,7 +166,6 @@ class SocketMock {
     character.attack = jest.fn().mockName('userAttack');
     character.actionDie = '1d20';
     character.inventory = [];
-    //character.move = jest.fn(() => Promise.resolve());
     character.offers = [];
     character.partyInvites = [];
     

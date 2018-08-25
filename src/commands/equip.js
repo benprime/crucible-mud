@@ -19,7 +19,7 @@ export default {
 
   execute(character, itemName, hand) {
 
-    const acResult = autocomplete.autocompleteTypes(character, ['inventory'], itemName);
+    const acResult = autocomplete.multiple(character, ['inventory'], itemName);
     if (!acResult) {
       return Promise.reject('item is not in inventory.');
     }

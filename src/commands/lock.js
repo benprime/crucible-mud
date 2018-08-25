@@ -32,7 +32,7 @@ export default {
       return Promise.reject('No door in that direction.');
     }
 
-    const acResult = autocomplete.autocompleteTypes(character, ['key'], keyName);
+    const acResult = autocomplete.multiple(character, ['key'], keyName);
     if (!acResult) {
       return Promise.reject('Unknown key.');
     }

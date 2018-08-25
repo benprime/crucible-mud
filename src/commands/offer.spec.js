@@ -1,7 +1,7 @@
 import { mockGetRoomById } from '../models/room';
 import Item from '../models/item';
 import { mockCharacterInRoom, mockGetSocketByCharacterId } from '../core/socketUtil';
-import { mockAutocompleteTypes, mockAutocompleteCharacter } from '../core/autocomplete';
+import { mockAutocompleteMultiple, mockAutocompleteCharacter } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './offer';
 
@@ -58,7 +58,7 @@ describe('offer', () => {
 
     test('should return when item is not in inventory', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
-      mockAutocompleteTypes.mockReturnValueOnce(null);
+      mockAutocompleteMultiple.mockReturnValueOnce(null);
       mockCharacterInRoom.mockReturnValueOnce(mockTargetSocket.character);
 
       return sut.execute(socket.character, 'aItem', 'aUser').catch(response => {
@@ -69,7 +69,7 @@ describe('offer', () => {
 
     test('should output message when user is not in room', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
-      mockAutocompleteTypes.mockReturnValueOnce({ item: item });
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
       mockCharacterInRoom.mockReturnValueOnce(undefined);
 
       return sut.execute(socket.character, 'aItem', 'aUser').catch(response => {
@@ -79,7 +79,7 @@ describe('offer', () => {
     });
 
     test('should output message if user socket is not found', () => {
-      mockAutocompleteTypes.mockReturnValueOnce({ item: item }).mockReturnValueOnce(undefined);
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: item }).mockReturnValueOnce(undefined);
 
       return sut.execute(socket.character, 'aItem', 'aUser').catch(response => {
         expect(response).toBe('Unknown user or user not connected.');
@@ -89,7 +89,7 @@ describe('offer', () => {
 
     test('should add offer to other user socket offers collection if offers collection is empty', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
-      mockAutocompleteTypes.mockReturnValueOnce({ item: item });
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
       socket.character.inventory = [item];
       mockTargetSocket.character.offers = [];
       mockCharacterInRoom.mockReturnValueOnce(mockTargetSocket.character);
@@ -112,7 +112,7 @@ describe('offer', () => {
 
     test('should overwrite offer to other user socket offers collection if same offer item exists', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
-      mockAutocompleteTypes.mockReturnValueOnce({ item: item });
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
       mockCharacterInRoom.mockReturnValueOnce(mockTargetSocket.character);
 
       socket.user = {
@@ -154,7 +154,7 @@ describe('offer', () => {
 
   test('should add offer to other user socket offers collection if existing offers exist', () => {
     mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
-    mockAutocompleteTypes.mockReturnValueOnce({ item: item });
+    mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
     mockCharacterInRoom.mockReturnValueOnce(mockTargetSocket.character);
     mockGetSocketByCharacterId.mockReturnValueOnce(socket);
 
@@ -187,10 +187,9 @@ describe('offer', () => {
     });
   });
 
-
-
-  xtest('should remove offer if it is not taken before the timeout', () => {
-    mockAutocompleteTypes.mockReturnValueOnce({ item: item });
+  test('should remove offer if it is not taken before the timeout', () => {
+    mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
+    mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
     getCharacterNamesResult = ['TestUser', 'aUser'];
 
     socket.character.name = 'TestUser';

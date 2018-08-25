@@ -33,7 +33,7 @@ export default {
       character.save(err => { if (err) throw err; });
     }
 
-    const acResult = autocomplete.autocompleteTypes(character, ['room'], itemName);
+    const acResult = autocomplete.multiple(character, ['room'], itemName);
     if (acResult) {
       const roomItem = acResult.item;
 

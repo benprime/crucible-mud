@@ -10,7 +10,7 @@ describe('autocomplete', () => {
   let socket;
   let room;
 
-  describe('autocompleteByProperty', () => {
+  describe('byProperty', () => {
 
     beforeEach(() => {
       socket = new mocks.SocketMock();
@@ -29,7 +29,7 @@ describe('autocomplete', () => {
       socket.character.inventory = [testObj];
 
       // act
-      const result = sut.autocompleteByProperty(socket.character.inventory, 'displayName', 'tes');
+      const result = sut.byProperty(socket.character.inventory, 'displayName', 'tes');
 
       // assert
       expect(result).toHaveLength(1);
@@ -42,7 +42,7 @@ describe('autocomplete', () => {
       room.inventory.push({ displayName: 'bbb' });
 
       // act
-      const result = sut.autocompleteByProperty(socket.character.inventory, 'displayName', 'a');
+      const result = sut.byProperty(socket.character.inventory, 'displayName', 'a');
 
       // assert
       expect(result).toHaveLength(0);
@@ -54,7 +54,7 @@ describe('autocomplete', () => {
       socket.character.inventory.push(userInventoryItem);
 
       // act
-      const result = sut.autocompleteByProperty(socket.character.inventory, 'displayName', 'a');
+      const result = sut.byProperty(socket.character.inventory, 'displayName', 'a');
 
       // assert
       expect(result).toHaveLength(1);
@@ -84,7 +84,7 @@ describe('autocomplete', () => {
       room.inventory = [roomItem];
 
       // act
-      const result = sut.autocompleteTypes(socket.character, ['inventory', 'room'], 'd');
+      const result = sut.multiple(socket.character, ['inventory', 'room'], 'd');
 
       // assert
       expect(result.type).toBe('room');
@@ -100,7 +100,7 @@ describe('autocomplete', () => {
       room.inventory = [roomItem];
 
       // act
-      const result = sut.autocompleteTypes(socket.character, ['inventory', 'room'], 'a');
+      const result = sut.multiple(socket.character, ['inventory', 'room'], 'a');
 
       // assert
       expect(result.item.id).toBe(inventoryItem.id);
@@ -114,7 +114,7 @@ describe('autocomplete', () => {
       room.inventory = [roomItem];
 
       // act
-      const result = sut.autocompleteTypes(socket.character, ['inventory', 'room'], 'b');
+      const result = sut.multiple(socket.character, ['inventory', 'room'], 'b');
 
       // assert
       expect(result).toBeNull();

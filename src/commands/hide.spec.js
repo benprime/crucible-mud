@@ -1,5 +1,5 @@
 import { mockGetRoomById, mockValidDirectionInput } from '../models/room';
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteMultiple } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './hide';
 
@@ -56,7 +56,7 @@ describe('hide', () => {
   describe('items', () => {
 
     test('should output message when item is invalid', () => {
-      mockAutocompleteTypes.mockReturnValueOnce(null);
+      mockAutocompleteMultiple.mockReturnValueOnce(null);
       return sut.execute(socket.character, 'emu').catch(response => {
         expect(response).toEqual('Item does not exist in inventory or in room.<br />');
         expect(mockRoom.save).not.toHaveBeenCalled();
@@ -66,7 +66,7 @@ describe('hide', () => {
 
     test('should succeed on valid item', () => {
       const item = { id: 'clownId', name: 'clown', hidden: false };
-      mockAutocompleteTypes.mockReturnValueOnce({ item: item });
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
 
       return sut.execute(socket.character, 'clown').then(response => {
         expect(response).toEqual('clown has been concealed.<br />');

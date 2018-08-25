@@ -1,5 +1,5 @@
 import { mockGetRoomById, mockValidDirectionInput, mockShortToLong } from '../models/room';
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteMultiple } from '../core/autocomplete';
 import Item from '../models/item';
 import mocks from '../../spec/mocks';
 import sut from './unlock';
@@ -53,7 +53,7 @@ describe('unlock', () => {
 
   test('should output no messages when user is not carrying the key', () => {
     mockValidDirectionInput.mockReturnValueOnce('nw');
-    mockAutocompleteTypes.mockReturnValueOnce(null);
+    mockAutocompleteMultiple.mockReturnValueOnce(null);
 
     return sut.execute(socket.character, 'nw', 'some key').catch(response => {
       expect(response).toBe('You don\'t seem to be carrying that key.');
@@ -68,7 +68,7 @@ describe('unlock', () => {
     key.itemTypeEnum = 'key';
     key.name = 'Blue';
     mockValidDirectionInput.mockReturnValueOnce('ne');
-    mockAutocompleteTypes.mockReturnValueOnce({ item: key });
+    mockAutocompleteMultiple.mockReturnValueOnce({ item: key });
 
     return sut.execute(socket.character, 'ne', 'Blue').catch(response => {
       expect(response).toEqual('That key does not unlock that door.');
@@ -83,7 +83,7 @@ describe('unlock', () => {
     key.itemTypeEnum = 'key';
     key.name = 'Gold';
     mockValidDirectionInput.mockReturnValueOnce('w');
-    mockAutocompleteTypes.mockReturnValueOnce({ item: key });
+    mockAutocompleteMultiple.mockReturnValueOnce({ item: key });
 
     return sut.execute(socket.character, 'w', 'Gold').then(response => {
       expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Door unlocked.' });
@@ -102,7 +102,7 @@ describe('unlock', () => {
       key.name = 'Silver';
       mockValidDirectionInput.mockReturnValueOnce('nw');
       mockShortToLong.mockReturnValueOnce('northwest');
-      mockAutocompleteTypes.mockReturnValueOnce({ item: key });
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: key });
     });
 
     test('should automatically relock door after timeout', (done) => {

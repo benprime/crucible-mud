@@ -52,7 +52,7 @@ ShopSchema.methods.getItemTypeByAutocomplete = function (itemName) {
   const stockTypes = this.getStockTypes();
   const itemTypes = stockTypes.map(st => st.itemType);
 
-  const acResult = autocomplete.autocompleteByProperty(itemTypes, 'displayName', itemName);
+  const acResult = autocomplete.byProperty(itemTypes, 'displayName', itemName);
   if (Array.isArray(acResult) && acResult.length > 0) {
     return acResult[0];
   }

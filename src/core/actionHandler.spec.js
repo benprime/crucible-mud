@@ -1,6 +1,6 @@
 import { mockGetRoomById } from '../models/room';
 import { mockGetSocketByCharacterId } from '../core/socketUtil';
-import { mockAutocompleteTypes, mockAutocompleteCharacter } from '../core/autocomplete';
+import { mockAutocompleteMultiple, mockAutocompleteCharacter } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import { when } from 'jest-when';
 import sut from './actionHandler';
@@ -82,7 +82,7 @@ describe('actionHandler', () => {
       // arrange
       mockAutocompleteCharacter.mockReturnValueOnce(targetSocket.character);
       mockRoom.userInRoom.mockReturnValue(true);
-      mockAutocompleteTypes.mockReturnValueOnce({ item: targetSocket.user });
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: targetSocket.user });
 
       // act
       return sut.actionDispatcher(socket.character, 'hug', targetSocket.character.name).then(response => {

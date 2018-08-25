@@ -1,8 +1,8 @@
-export const mockAutocompleteTypes = jest.fn();
+export const mockAutocompleteMultiple = jest.fn();
 export const mockAutocompleteCharacter = jest.fn();
 
 const mock = {
-  autocompleteTypes: mockAutocompleteTypes,
+  multiple: mockAutocompleteMultiple,
   character: mockAutocompleteCharacter,
 };
 

@@ -1,5 +1,5 @@
 import { mockGetRoomById } from '../models/room';
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteMultiple } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './destroy';
 import Item from '../models/item';
@@ -30,7 +30,7 @@ describe('destroy', () => {
       test('should do nothing when mob is not found', () => {
         // arrange
         mockRoom.mobs = [{}];
-        mockAutocompleteTypes.mockReturnValueOnce(null);
+        mockAutocompleteMultiple.mockReturnValueOnce(null);
 
         // act
         return sut.execute(socket.character, 'mob', 'not found name').catch(response => {
@@ -44,7 +44,7 @@ describe('destroy', () => {
       test('should remove mob from room and output messages when successful', () => {
         // arrange
         const mob = mocks.getMockMob();
-        mockAutocompleteTypes.mockReturnValueOnce({ item: mob });
+        mockAutocompleteMultiple.mockReturnValueOnce({ item: mob });
         mockRoom.mobs = [mob];
 
         // act
@@ -70,7 +70,7 @@ describe('destroy', () => {
           name: 'item name',
         });
         socket.character.inventory.push(item);
-        mockAutocompleteTypes.mockReturnValueOnce(null);
+        mockAutocompleteMultiple.mockReturnValueOnce(null);
 
         // act
         return sut.execute(socket.character, 'item', 'non-existant item').catch(response => {
@@ -89,7 +89,7 @@ describe('destroy', () => {
           displayName: 'item name',
           name: 'item name',
         });
-        mockAutocompleteTypes.mockReturnValueOnce({ item: item });
+        mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
         socket.character.inventory.push(item);
 
         // act

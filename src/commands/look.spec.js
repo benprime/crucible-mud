@@ -1,5 +1,5 @@
 import { mockGetRoomById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection } from '../models/room';
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteMultiple } from '../core/autocomplete';
 import { mockGetSocketByCharacterId } from '../core/socketUtil';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
@@ -118,7 +118,7 @@ describe('look', () => {
 
       test('should do nothing when lookTarget is an invalid inventory item', () => {
         mockValidDirectionInput.mockReturnValue(null);
-        mockAutocompleteTypes.mockReturnValue(undefined);
+        mockAutocompleteMultiple.mockReturnValue(undefined);
 
         return sut.execute(socket.character, false, 'boot').catch(response => {
           expect(response).toBe('You don\'t see that here.');
@@ -131,7 +131,7 @@ describe('look', () => {
     describe('on mob', () => {
 
       test('should output description of mob', () => {
-        mockAutocompleteTypes.mockReturnValue({ item: new Item({ desc: 'a practice dummy' }) });
+        mockAutocompleteMultiple.mockReturnValue({ item: new Item({ desc: 'a practice dummy' }) });
         mockValidDirectionInput.mockReturnValue(false);
         mockGetSocketByCharacterId.mockReturnValue(socket);
 

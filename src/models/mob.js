@@ -8,7 +8,6 @@ const { ObjectId } = Types;
 
 import Room from '../models/room';
 import dice from '../core/dice';
-import { isRegExp } from 'util';
 
 class Mob {
   constructor(mobType, roomId, adjectiveIndex) {
@@ -43,34 +42,16 @@ class Mob {
 
     this.displayName = this.buildDisplayName();
 
-    // Object.defineProperty(instance, 'displayName', {
-    //   get() {
-    //     const displayFragments = [];
-    //     if (this.adjective) displayFragments.push(this.adjective);
-    //     if (this.type) displayFragments.push(this.type);
-    //     if (this.name) displayFragments.push(this.name);
-
-    //     return displayFragments.join(' ');
-    //   },
-    //   //set(newValue) { bValue = newValue; },
-    //   enumerable: false,
-    //   configurable: false,
-    // });
-
     return instance;
   }
 
   buildDisplayName() {
     const template = this.displayTemplate || '${this.adjective} ${this.name} ${this.class}';
     return new Function(`return \`${template}\`;`).call(this);
-    //const displayName = new Function("return `"+displayTemplate +"`;").call(this);
   }
 
-  look(socket) {
-    socket.emit('output', { message: this.desc });
-    if (socket.user.admin) {
-      socket.emit('output', { message: `Mob ID: ${this.id}` });
-    }
+  look() {
+    return Promise.resolve(this.desc);
   }
 
   takeDamage(damage) {
@@ -180,8 +161,8 @@ class Mob {
     const tauntIndex = dice.getRandomNumber(0, this.taunts.length);
     let taunt = this.taunts[tauntIndex];
     taunt = utils.formatMessage(taunt, this.displayName, 'you');
-    let username = socket.character.name;
-    let roomTaunt = utils.formatMessage(this.taunts[tauntIndex], this.displayName, username);
+    let charName = socket.character.name;
+    let roomTaunt = utils.formatMessage(this.taunts[tauntIndex], this.displayName, charName);
     socket.emit('output', { message: taunt });
     socket.broadcast.to(socket.character.roomId).emit('output', { message: roomTaunt });
   }

@@ -1,9 +1,9 @@
 import { mockGetRoomById } from '../models/room';
-import { mockGetSocketByCharacterId } from '../core/socketUtil';
-import { mockAutocompleteMultiple, mockAutocompleteCharacter } from '../core/autocomplete';
+import { mockGetSocketByCharacterId } from './socketUtil';
+import { mockAutocompleteMultiple, mockAutocompleteCharacter } from './autocomplete';
 import mocks from '../../spec/mocks';
 import { when } from 'jest-when';
-import sut from './actionHandler';
+import sut from './emoteHandler';
 
 
 jest.mock('../models/room');
@@ -16,7 +16,7 @@ let targetSocket;
 let bystanderSocket;
 let getCharacterNames = [];
 
-describe('actionHandler', () => {
+describe('emoteHandler', () => {
   let socket;
   let sockets = {};
 

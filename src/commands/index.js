@@ -106,7 +106,8 @@ function processDispatch(socket, input) {
     let username = match[2];
     if (actionHandler.isValidAction(action)) {
       return actionHandler.actionDispatcher(socket.character, action, username)
-        .then(response => socketUtil.sendMessages(socket, response));
+        .then(response => socketUtil.sendMessages(socket, response))
+        .catch(response => socketUtil.output(socket, response));
     }
   }
 

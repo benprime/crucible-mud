@@ -1,13 +1,13 @@
-import actionsData from '../data/actionData';
-import utils from '../core/utilities';
-import autocomplete from '../core/autocomplete';
+import emoteData from '../data/emoteData';
+import utils from './utilities';
+import autocomplete from './autocomplete';
 
 export default {
   isValidAction(action) {
-    return action.toLowerCase() in actionsData.actions;
+    return action.toLowerCase() in emoteData.emotes;
   },
 
-  actionDispatcher(character, action, username) {
+  actionDispatcher(character, emote, username) {
     // autocomplete username
     let targetCharacter = character;
     if (username) {
@@ -25,9 +25,9 @@ export default {
     const selfAction = targetCharacter.id === character.id;
 
     // determine message set to use
-    const actionMessages = actionsData.actions[action];
+    const actionMessages = emoteData.emotes[emote];
     if (!actionMessages) {
-      return Promise.reject(`No emote data found for emote: ${action}!`);
+      return Promise.reject(`No emote data found for emote: ${emote}!`);
     }
     const messageSet = selfAction ? actionMessages.solo : actionMessages.target;
 

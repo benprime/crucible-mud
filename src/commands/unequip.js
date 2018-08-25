@@ -10,7 +10,7 @@ export default {
 
   dispatch(socket, match) {
     this.execute(socket.character, match[1], match[2])
-      .then(output => socketUtil.output(output))
+      .then(output => socketUtil.output(socket, output))
       .catch(error => socket.emit('output', { message: error }));
   },
 

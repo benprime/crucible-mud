@@ -1,4 +1,4 @@
-import actionData from '../data/actionData';
+import emoteData from '../data/emoteData';
 
 let commandHandlers = {};
 
@@ -62,8 +62,8 @@ function generalHelp(socket) {
   output += '<span class="mediumOrchid">invite &lt;player name&gt;</span><br />';
   output += '<span class="mediumOrchid">offer &lt;player name&gt; &lt;item name&gt;</span><br /><br>';
 
-  output += '<span class="cyan">Actions:</span><br />';
-  output += `<span class="silver">${Object.keys(actionData.actions).sort().join('<span class="mediumOrchid">, </span>')}</span><br /></br />`;
+  output += '<span class="cyan">Emotes:</span><br />';
+  output += `<span class="silver">${Object.keys(emoteData.emotes).sort().join('<span class="mediumOrchid">, </span>')}</span><br /></br />`;
 
   socket.emit('output', { message: output });
 }
@@ -90,14 +90,14 @@ export default {
 
   dispatch(socket, match) {
     const topic = match.length < 2 ? null : match[1];
-    this.execute(socket.character, topic);
+    this.execute(socket, topic);
   },
 
-  execute(character, topic) {
+  execute(socket, topic) {
     if (topic) {
-      topicHelp(character, topic);
+      topicHelp(socket, topic);
     } else {
-      generalHelp(character);
+      generalHelp(socket);
     }
   },
 

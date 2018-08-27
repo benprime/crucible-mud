@@ -14,9 +14,10 @@ describe('stats', function () {
   describe('execute', function () {
 
     test('should display stat block', function () {
-      sut.execute(socket);
+      return sut.execute(socket.character).then((output) => {
+        expect(output).not.toBeNull();
+      });
 
-      expect(socket.emit).toHaveBeenCalled();
     });
 
   });

@@ -1,32 +1,39 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
+import socketUtil from '../core/socketUtil';
 
-function lookDir(socket, { exits }, dir) {
+function lookDir(character, { exits }, dir) {
   dir = Room.validDirectionInput(dir);
   const exit = exits.find(e => e.dir === dir);
   if (!exit || exit.hidden) {
-    socket.emit('output', { message: 'There is no exit in that direction!' });
-    return;
+    return Promise.reject('There is no exit in that direction!');
   }
 
   if (exit.closed) {
-    socket.emit('output', { message: 'The door in that direction is closed!' });
-    return;
+    return Promise.reject('The door in that direction is closed!');
   }
 
   const lookRoom = Room.getById(exit.roomId);
-  socket.emit('output', { message: `You look to the ${Room.shortToLong(dir)}...` });
-  socket.broadcast.to(lookRoom.id).emit('output', { message: `<span class="yellow">${socket.user.username} peaks in from the ${Room.shortToLong(Room.oppositeDirection(dir))}.</span>` });
-  lookRoom.look(socket, false);
+  return lookRoom.look(character, false).then(output => {
+    const actionOutput = `You look to the ${Room.shortToLong(dir)}...\n` + output;
+    return Promise.resolve({
+      charMessages: [
+        { charId: character.id, message: actionOutput },
+      ],
+      roomMessages: [
+        { roomId: lookRoom.id, message: `<span class="yellow">${character.name} peaks in from the ${Room.shortToLong(Room.oppositeDirection(dir))}.</span>`, exclude: [character.id] },
+      ],
+    });
+  });
 }
 
 // for items and mobs
-function lookItem(socket, itemName) {
-  const acResult = autocomplete.autocompleteTypes(socket, ['inventory', 'mob', 'room'], itemName);
+function lookItem(charater, itemName) {
+  const acResult = autocomplete.multiple(charater, ['inventory', 'mob', 'room'], itemName);
   if (!acResult || acResult.item.hidden) {
-    return;
+    return Promise.reject('You don\'t see that here.');
   }
-  acResult.item.look(socket);
+  return acResult.item.look(charater);
 }
 
 export default {
@@ -47,22 +54,24 @@ export default {
       lookTarget = match[1];
     }
     const short = (match[0] === '');
-    this.execute(socket, short, lookTarget);
+    this.execute(socket.character, short, lookTarget)
+      .then(response => socketUtil.sendMessages(socket, response))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, short, lookTarget) {
-    const room = Room.getById(socket.character.roomId);
+  execute(character, short, lookTarget) {
+    const room = Room.getById(character.roomId);
 
     if (lookTarget) {
       lookTarget = lookTarget.toLowerCase();
 
       if (Room.validDirectionInput(lookTarget)) {
-        lookDir(socket, room, lookTarget);
+        return lookDir(character, room, lookTarget);
       } else {
-        lookItem(socket, lookTarget);
+        return lookItem(character, lookTarget);
       }
     } else {
-      room.look(socket, short);
+      return room.look(character, short);
     }
   },
 

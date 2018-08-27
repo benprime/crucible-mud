@@ -1,4 +1,4 @@
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteMultiple } from '../core/autocomplete';
 import Item from '../models/item';
 import mocks from '../../spec/mocks';
 import sut from './unequip';
@@ -14,33 +14,38 @@ describe('unequip', () => {
   });
 
   beforeEach(() => {
-    mockAutocompleteTypes.mockClear();
+    mockAutocompleteMultiple.mockClear();
   });
 
   describe('execute', () => {
     test('should output message when item is not equipped', () => {
-      mockAutocompleteTypes.mockReturnValueOnce(null);
+      mockAutocompleteMultiple.mockReturnValueOnce(null);
 
-      sut.execute(socket, 'monocle');
+      expect.assertions(1);
+      return sut.execute(socket.character, 'monocle').catch(response => {
+        expect(response).toEqual('You don\'t have that equipped.\n');
+      });
 
-      expect(socket.emit).toBeCalledWith('output', { message: 'You don\'t have that equipped.\n' });
     });
 
-    test('should output message to specify which hand for hand related slots', () => {
+    // I don't think this is necessary... you are either wearing it or you are not.
+    xtest('should output message to specify which hand for hand related slots', () => {
       const ring = new Item();
       ring.equip = 'finger';
       ring.name = 'diamond';
-      mockAutocompleteTypes.mockReturnValueOnce({ item: ring });
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: ring });
 
       socket.character.equipSlots.fingerMain = ring;
 
-      sut.execute(socket, 'diamond');
+      expect.assertions(1);
+      return sut.execute(socket.character, 'diamond').catch(response => {
+        expect(response).toEqual('Please specify which hand to unequip the item from\n');
+      });
 
-      expect(socket.emit).toBeCalledWith('output', { message: 'Please specify which hand to unequip the item from\n' });
     });
 
     // good candidate for that test case custom runner
-    test('should unequip item put it into backpack', () => {
+    xtest('should unequip item put it into backpack', () => {
       // test case for each type
     });
 

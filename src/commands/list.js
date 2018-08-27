@@ -1,6 +1,7 @@
 import Shop from '../models/shop';
 import itemData from '../data/itemData';
 import AsciiTable from 'ascii-table';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'list',
@@ -10,20 +11,20 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket);
+    this.execute(socket.character)
+      .then(output => socket.emit('output', { message: output, pre: true }))
+      .catch(output => socketUtil.output(socket, output));
   },
 
-  execute(socket) {
+  execute(character) {
 
-    const shop = Shop.getById(socket.character.roomId);
+    const shop = Shop.getById(character.roomId);
     if (!shop) {
-      socket.emit('output', { message: 'This command can only be used in a shop.' });
-      return;
+      return Promise.reject('This command can only be used in a shop.');
     }
 
     if (!shop.stock || shop.stock.length === 0) {
-      socket.emit('output', { message: 'This shop currently has no items.' });
-      return;
+      return Promise.reject('This shop currently has no items.');
     }
 
     const stockTypes = shop.stock.map(s => {
@@ -36,7 +37,8 @@ export default {
     const table = new AsciiTable();
     table.setHeading('price', 'name', 'desc', 'quantity');
     stockTypes.forEach(st => table.addRow(st.itemType.price, st.itemType.displayName, st.itemType.desc, st.quantity));
-    socket.emit('output', { message: `<pre>${table.toString()}</pre>`, pre: true });
+
+    return Promise.resolve(`<pre>${table.toString()}</pre>`);
   },
 
   help(socket) {

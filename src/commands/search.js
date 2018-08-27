@@ -1,7 +1,6 @@
-'use strict';
-
 import Room from '../models/room';
 import dice from '../core/dice';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'search',
@@ -11,11 +10,13 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket);
+    this.execute(socket, socket.user.admin)
+      .then(response => socketUtil.output(socket, response))
+      .catch(response => socketUtil.output(socket, response));
   },
 
-  execute(socket) {
-    const room = Room.getById(socket.character.roomId);
+  execute(character, admin) {
+    const room = Room.getById(character.roomId);
     let hExits, hItems, totalHidden;
     let roomDC = 4; //base difficulty of rooms to reveal hidden things
 
@@ -24,23 +25,27 @@ export default {
     hItems = room.inventory.filter(i => i.hidden);
     totalHidden = hExits.length + hItems.length;
 
+    let output = '';
+
     //if admin, skip to reveal
-    if (!socket.user.admin) {
+    if (!admin) {
 
       //calculate player search skill
-      let searchRoll = socket.character.skills.search + dice.roll(socket.character.actionDie);
-      socket.emit('output', { message: `Search Roll: ${searchRoll}<br />` });
+      let diceResult = dice.roll(character.actionDie);
+      let searchRoll = diceResult + character.skills.search;
+
+      output += `Search Roll: ${searchRoll}<br />`;
 
       //if nothing is hidden, return "You find nothing special."
       if (hExits.length < 1 && hItems.length < 1) {
-        socket.emit('output', { message: 'You find nothing special.<br />' });
-        return;
+        output += 'You find nothing special.<br />';
+        return Promise.resolve(output);
       }
 
       //if skill+dice roll < all hidden DCs, return "You find nothing special.<br />"
       if (searchRoll < roomDC) {
-        socket.emit('output', { message: 'You find nothing special.<br />' });
-        return;
+        output += 'You find nothing special.<br />';
+        return Promise.resolve(output);
       }
 
       //cull lists down to only the hidden things with DC lower than skill roll
@@ -49,7 +54,6 @@ export default {
       }
 
     }
-    else socket.emit('output', { message: 'Search Roll: admin<br />' });
 
     //reveal remaining things
     hExits.forEach(element => element.hidden = false);
@@ -57,7 +61,8 @@ export default {
     room.save(err => { if (err) throw err; });
 
     //tell player that they found something
-    socket.emit('output', { message: 'You have spotted something!<br />' });
+    output += 'You have spotted something!<br />';
+    return Promise.resolve(output);
 
     //either set a reveal timer or make sure revealed things become hidden again after player leaves area
 

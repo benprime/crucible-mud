@@ -1,5 +1,5 @@
 import socketUtil from '../core/socketUtil';
-import breakCmd from './break';
+import autocomplete from '../core/autocomplete';
 import lookCmd from './look';
 import Room from '../models/room';
 
@@ -9,49 +9,55 @@ export default {
 
   patterns: [
     /^teleport\s+(\w+)$/i,
+    /^teleport\s+(\d+)\s(\d+)\s?(\d+)?$/i,
     /^tele\s+(\w+)$/i,
+    /^tele\s+(\d+)\s(\d+)\s?(\d+)?$/i,
   ],
 
   dispatch(socket, match) {
-    this.execute(socket, match[1]);
+    // teleport to room coordinates
+    let promise;
+    if (match.length >= 3) {
+      promise = this.execute(socket.character, {
+        x: match[1],
+        y: match[2],
+        z: match[3] || 0,
+      });
+
+    } else {
+      promise = this.execute(socket.character, match[1]);
+    }
+
+    promise
+      .then(response => socketUtil.sendMessages(socket, response))
+      .then(() => lookCmd.execute(socket.character, false).then(output => socketUtil.sendMessages(socket, output)))
+      .catch(err => socketUtil.sendMessages(socket, err));
   },
 
-  execute(socket, teleportTo) {
-    if(!teleportTo) return;
-    // if the parameter is an object id or alias, we are definitely teleporting to a room.
-    
-    
-    
+  execute(character, teleportTo) {
+    if (!teleportTo) return;
+
     let toRoomId = '';
-    if (Room.roomCache[teleportTo]) {
+    if (teleportTo.x && teleportTo.y) {
+      const room = Object.values(Room.roomCache).find(r => r.x == teleportTo.x && r.y == teleportTo.y && r.z == teleportTo.z);
+      if (!room) return Promise.reject('room not found in cache by coordinates');
+      toRoomId = room.id;
+
+      // if the parameter is an object id or alias, we are definitely teleporting to a room.
+    } else if (Room.roomCache[teleportTo]) {
       toRoomId = teleportTo;
-    } else {
       // otherwise, we are teleporting to a user
-      const userSocket = socketUtil.getSocketByUsername(teleportTo);
-      if (!userSocket) {
-        socket.emit('output', { message: 'Target not found.' });
-        return;
+    } else {
+
+      // autocomplete username
+      const targetCharacter = autocomplete.character(character, teleportTo);
+      if (!targetCharacter) {
+        return Promise.reject('Target not found.');
       }
-      toRoomId = userSocket.character.roomId;
+      toRoomId = targetCharacter.roomId;
     }
 
-    const room = Room.getById(toRoomId);
-    if (!room) {
-      // this should not currently be possible. The room cache has
-      // already been checkedin this method.
-      socket.emit('output', { message: 'Room not found.' });
-      return;
-    }
-    breakCmd.execute(socket);
-
-    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} vanishes!` });
-    socket.leave(socket.character.roomId);
-    socket.join(room.id);
-    socket.character.roomId = room.id;
-    socket.character.save(err => { if (err) throw err; });
-
-    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} appears out of thin air!` });
-    lookCmd.execute(socket);
+    return character.teleport(toRoomId);
   },
 
   help(socket) {

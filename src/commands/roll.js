@@ -1,4 +1,5 @@
 import dice from '../core/dice';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'roll',
@@ -13,23 +14,25 @@ export default {
     if (match.length > 1) {
       dieType = match[1];
     }
-    this.execute(socket, dieType);
+    this.execute(socket.character, dieType)
+      .then(output => socketUtil.output(socket, output))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, dieType) {
+  execute(character, dieType) {
     let rollValue = '';
     let output = '';
 
-    if(dieType) {
+    if (dieType) {
       rollValue = dice.roll(dieType);
       output = `${dieType} Roll Result:  ${rollValue}<br />`;
     }
     else {
-      rollValue = dice.roll(socket.character.actionDie);
+      rollValue = dice.roll(character.actionDie);
       output = `Action Die Roll Result:  ${rollValue}<br />`;
     }
 
-    socket.emit('output', { message: output });
+    return Promise.resolve(output);
   },
 
   help(socket) {

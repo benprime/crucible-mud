@@ -5,10 +5,6 @@ const UserSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
-  username: {
-    type: String,
-    unique: true,
-  },
   // todo: hash this
   password: {
     type: String,
@@ -16,11 +12,14 @@ const UserSchema = new mongoose.Schema({
   admin: {
     type: Boolean,
   },
+  debug: {
+    type: Boolean,
+  },
 });
 
-UserSchema.statics.findByName = function (name, cb) {
+UserSchema.statics.findByName = function (name) {
   const userRegEx = new RegExp(`^${name}$`, 'i');
-  return this.findOne({ username: userRegEx }, cb);
+  return this.findOne({ username: userRegEx });
 };
 
 export default UserSchema;

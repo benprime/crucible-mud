@@ -1,5 +1,6 @@
 import Shop from '../models/shop';
 import autocomplete from '../core/autocomplete';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'sell',
@@ -13,21 +14,22 @@ export default {
     if (match.length != 2) {
       this.help(socket);
     }
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1])
+      .then(response => socketUtil.sendMessages(socket, response))
+      .catch(response => socketUtil.output(socket, response));
   },
 
-  execute(socket, itemName) {
+  execute(character, itemName) {
 
     // check if user has item
-    const acResult = autocomplete.autocompleteTypes(socket, ['inventory'], itemName);
+    const acResult = autocomplete.multiple(character, ['inventory'], itemName);
     if (!acResult) {
-      return;
+      return Promise.reject('You don\'t seem to be carrying that.');
     }
 
-    const shop = Shop.getById(socket.character.roomId);
+    const shop = Shop.getById(character.roomId);
     if (!shop) {
-      socket.emit('output', { message: 'This command can only be used in a shop.' });
-      return;
+      return Promise.reject('This command can only be used in a shop.');
     }
 
     const itemType = shop.getItemTypeByAutocomplete(itemName);
@@ -35,28 +37,32 @@ export default {
     // check if shop carries this type of item
     const stockType = shop.stock.find(st => st.itemTypeName === itemType.name);
     if (!stockType) {
-      socket.emit('output', { message: 'This shop does not deal in those types of items.' });
-      return;
+      return Promise.reject('This shop does not deal in those types of items.');
     }
 
     // check if item can be sold
     if (!itemType.price) {
-      socket.emit('output', { message: 'You cannot sell this item.' });
-      return;
+      return Promise.reject('You cannot sell this item.');
     }
 
     const sellPrice = shop.getSellPrice(itemType);
 
     // check if shop has money
     if (shop.currency < sellPrice) {
-      socket.emit('output', { message: 'The shop cannot afford to buy that from you.' });
-      return;
+      return Promise.reject('The shop cannot afford to buy that from you.');
     }
 
-    shop.sell(socket.character, itemType);
+    shop.sell(character, itemType);
     if (sellPrice) {
-      socket.emit('output', { message: `You sold ${itemType.displayName} for ${sellPrice}.` });
-      socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} sells ${itemType.displayName} to the shop.` });
+      return Promise.resolve({
+        charMessages: [
+          { charId: character.id, message: `You sold ${itemType.displayName} for ${sellPrice}.` },
+        ],
+        roomMessages: [
+          // todo: is item type enough here? There may be adjectives on items
+          { roomId: character.roomId, message: `${character.name} sells ${itemType.displayName} to the shop.`, exclude: [character.id] },
+        ],
+      });
     }
   },
 

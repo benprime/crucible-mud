@@ -1,5 +1,6 @@
 import Room from '../models/room';
 import Area from '../models/area';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'create',
@@ -13,26 +14,34 @@ export default {
   ],
 
   dispatch(socket, match) {
-    if(match.length < 3) {
+    if (match.length < 3) {
       this.help(socket);
       return;
     }
     const type = match[1].toLowerCase();
     const param = match[2];
-    this.execute(socket, type, param);
+    this.execute(socket.character, type, param)
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, type, param) {
-    const room = Room.getById(socket.character.roomId);
+  execute(character, type, param) {
+    const room = Room.getById(character.roomId);
+    
     if (type === 'room') {
       const dir = Room.validDirectionInput(param.toLowerCase());
       if (!dir) {
-        socket.emit('output', { message: 'Invalid direction!' });
-        return;
+        return Promise.reject('Invalid direction!');
       }
-      room.createRoom(dir, () => {
-        socket.emit('output', { message: 'Room created.' });
-        socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!` });
+      return room.createRoom(dir).then(() => {
+        return Promise.resolve({
+          charMessages: [
+            { charId: character.id, message: 'Room created.' },
+          ],
+          roomMessages: [
+            { roomId: character.roomId, message: `${character.name} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!`, exclude: [character.id] },
+          ],
+        });
       });
     }
 
@@ -41,33 +50,36 @@ export default {
       const exit = room.getExit(dir);
 
       if (!exit) {
-        socket.emit('output', { message: 'Invalid direction.' });
-        return;
+        return Promise.reject('Invalid direction.');
       }
 
       if (exit.closed !== undefined) {
-        socket.emit('output', { message: 'Door already exists.' });
-        return;
+        return Promise.reject('Door already exists.');
       }
 
       exit.closed = true;
       room.save(err => { if (err) throw err; });
-      socket.emit('output', { message: 'Door created.' });
+      return Promise.resolve({
+        charMessages: [
+          { charId: character.id, message: 'Door created.' },
+        ],
+        roomMessages: [
+          { roomId: character.roomId, message: `${character.name} waves his hand and a door appears to the ${Room.shortToLong(dir)}!`, exclude: [character.id] },
+        ],
+      });
     }
 
     else if (type === 'area') {
       let area = Area.getByName(param);
       if (area) {
-        socket.emit('output', { message: `Area already exists: ${area.id}` });
-        return;
+        return Promise.reject(`Area already exists: ${area.id}`);
       }
       Area.addArea(param);
-      socket.emit('output', { message: 'Area created.' });
+      return Promise.resolve('Area created.');
     }
-    
+
     else {
-      socket.emit('output', { message: 'Invalid create type.' });
-      return;
+      return Promise.reject('Invalid create type.');
     }
   },
 

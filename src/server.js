@@ -4,10 +4,11 @@ import commands from './commands/';
 import config from './config';
 import welcome from './core/welcome';
 import loginUtil from './core/login';
-import look from './commands/look';
 import ioFactory from 'socket.io';
 import mongoose from 'mongoose';
 import './core/combat';
+import socketUtil from './core/socketUtil';
+import Room from './models/room';
 
 const app = express();
 const serve = http.createServer(app);
@@ -43,7 +44,7 @@ db.once('open', () => {
 
     socket.on('disconnect', () => {
       if (socket.character) {
-        socket.broadcast.emit('output', { message: `${socket.user.username} has left the realm.` });
+        socket.broadcast.emit('output', { message: `<span class="yellow">${socket.character.name} has left the realm.</span>` });
       }
     });
 
@@ -57,9 +58,12 @@ db.once('open', () => {
           loginUtil.LoginUsername(socket, data);
           break;
         case config.STATES.LOGIN_PASSWORD:
-          loginUtil.LoginPassword(socket, data, () => {
-            look.execute(socket);
-          });
+          loginUtil.LoginPassword(socket, data).then(() => {
+            const room = Room.getById(socket.character.roomId);
+            return room.look(socket.character, false).then(response => {
+              socketUtil.output(socket, response);
+            });
+          }).catch(err => socketUtil.output(socket, err));
           break;
       }
     });

@@ -1,5 +1,5 @@
 import { mockGetRoomById } from '../models/room';
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteMultiple } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './destroy';
 import Item from '../models/item';
@@ -30,30 +30,30 @@ describe('destroy', () => {
       test('should do nothing when mob is not found', () => {
         // arrange
         mockRoom.mobs = [{}];
-        mockAutocompleteTypes.mockReturnValueOnce(null);
+        mockAutocompleteMultiple.mockReturnValueOnce(null);
 
         // act
-        sut.execute(socket, 'mob', 'not found name');
+        return sut.execute(socket.character, 'mob', 'not found name').catch(response => {
+          // assert
+          expect(response).toBe('Mob not found.');
+        });
 
-        // assert
-        expect(socket.emit).not.toHaveBeenCalled();
 
-        expect(mockRoom.mobs).toHaveLength(1);
       });
 
       test('should remove mob from room and output messages when successful', () => {
         // arrange
         const mob = mocks.getMockMob();
-        mockAutocompleteTypes.mockReturnValueOnce({item: mob});
+        mockAutocompleteMultiple.mockReturnValueOnce({ item: mob });
         mockRoom.mobs = [mob];
 
         // act
-        sut.execute(socket, 'mob', 'mob name');
-
-        // assert
-        expect(socket.emit).toHaveBeenCalledTimes(1);
-        expect(socket.emit).toBeCalledWith('output', { message: 'Mob successfully destroyed.' });
-        expect(mockRoom.mobs).toHaveLength(0);
+        return sut.execute(socket.character, 'mob', 'mob name').then(response => {
+          // assert
+          expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Mob successfully destroyed.' });
+          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `TestUser erases ${mob.displayName} from existence!`, exclude: [socket.character.id] });
+          expect(mockRoom.mobs).toHaveLength(0);
+        });
       });
     });
 
@@ -70,15 +70,17 @@ describe('destroy', () => {
           name: 'item name',
         });
         socket.character.inventory.push(item);
-        mockAutocompleteTypes.mockReturnValueOnce(null);
+        mockAutocompleteMultiple.mockReturnValueOnce(null);
 
         // act
-        sut.execute(socket, 'item', 'non-existant item');
+        return sut.execute(socket.character, 'item', 'non-existant item').catch(response => {
 
-        // assert
-        expect(socket.emit).not.toHaveBeenCalled();
-        expect(socket.character.inventory).toHaveLength(1);
-        expect(socket.character.save).not.toHaveBeenCalled();
+          // assert
+          expect(response).toBe('You don\'t seem to be carrying that item.');
+          expect(socket.character.inventory).toHaveLength(1);
+          expect(socket.character.save).not.toHaveBeenCalled();
+        });
+
       });
 
       test('should remove item from inventory when successful', () => {
@@ -87,28 +89,31 @@ describe('destroy', () => {
           displayName: 'item name',
           name: 'item name',
         });
-        mockAutocompleteTypes.mockReturnValueOnce({item: item});
+        mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
         socket.character.inventory.push(item);
 
         // act
-        sut.execute(socket, 'item', 'item name');
+        return sut.execute(socket.character, 'item', 'item name').then(response => {
+          // assert
+          expect(response).toEqual('Item successfully destroyed.');
+          expect(socket.character.inventory).toHaveLength(0);
+          expect(socket.character.save).toHaveBeenCalledTimes(1);
+        });
 
-        // assert
-        expect(socket.emit).toBeCalledWith('output', { message: 'Item successfully destroyed.' });
-        expect(socket.character.inventory).toHaveLength(0);
-        expect(socket.character.save).toHaveBeenCalledTimes(1);
+
       });
     });
 
     test('should output error when type parameter is invalid', () => {
       // act
-      sut.execute(socket, 'invalid type', 'name of thing to destroy');
+      return sut.execute(socket.character, 'invalid type', 'name of thing to destroy').catch(response => {
+        // assert
+        expect(response).toEqual('Invalid destroy type.');
+        expect(socket.character.inventory).toHaveLength(0);
+        expect(socket.character.save).not.toHaveBeenCalled();
+      });
 
-      // assert
-      expect(socket.emit).toHaveBeenCalledTimes(1);
-      expect(socket.emit).toBeCalledWith('output', { message: 'Invalid destroy type.' });
-      expect(socket.character.inventory).toHaveLength(0);
-      expect(socket.character.save).not.toHaveBeenCalled();
+
     });
 
     test('should be an admin command', () => {

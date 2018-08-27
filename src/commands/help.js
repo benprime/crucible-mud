@@ -1,4 +1,4 @@
-import actionData from '../data/actionData';
+import emoteData from '../data/emoteData';
 
 let commandHandlers = {};
 
@@ -62,8 +62,8 @@ function generalHelp(socket) {
   output += '<span class="mediumOrchid">invite &lt;player name&gt;</span><br />';
   output += '<span class="mediumOrchid">offer &lt;player name&gt; &lt;item name&gt;</span><br /><br>';
 
-  output += '<span class="cyan">Actions:</span><br />';
-  output += `<span class="silver">${Object.keys(actionData.actions).sort().join('<span class="mediumOrchid">, </span>')}</span><br /></br />`;
+  output += '<span class="cyan">Emotes:</span><br />';
+  output += `<span class="silver">${Object.keys(emoteData.emotes).sort().join('<span class="mediumOrchid">, </span>')}</span><br /></br />`;
 
   socket.emit('output', { message: output });
 }
@@ -74,7 +74,7 @@ function topicHelp(socket, topic) {
     commandHandlers[topic].help(socket);
   }
   else {
-    socket.emit('output', { message: 'No help for that topic.' });
+    socket.emit('output', {message: 'No help for that topic.'});
   }
 }
 

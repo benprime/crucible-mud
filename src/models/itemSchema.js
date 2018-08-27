@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import socketUtil from '../core/socketUtil';
 
 const itemTypeEnum = [
   'item',
@@ -6,51 +7,30 @@ const itemTypeEnum = [
 ];
 
 const ItemSchema = new mongoose.Schema({
-  name: {
-    type: String,
-  },
-  displayName: {
-    type: String,
-  },
-  desc: {
-    type: String,
-  },
+  name: String,
+  displayName: String,
+  desc: String,
   type: {
     type: String,
     enum: itemTypeEnum,
   },
-  hidden: {
-    type: Boolean,
-  },
-  range: {
-    type: String,
-  },
-  fixed: {
-    type: Boolean,
-  },
-  equip: {
-    type: String,
-  },
-  damage: {
-    type: String,
-  },
-  damageType: {
-    type: String,
-  },
-  speed: {
-    type: String,
-  },
-  bonus: {
-    type: String,
-  },
+  hidden: Boolean,
+  range: String,
+  fixed: Boolean,
+  equipSlots: [String],
+  damage: String,
+  damageType: String,
+  speed: String,
+  bonus: String,
 });
 
-ItemSchema.methods.look = function (socket) {
+ItemSchema.methods.look = function (character) {
+  const socket = socketUtil.getSocketByCharacterId(character.id);
   let output = this.desc;
-  if(socket.user.admin) {
+  if (socket.user.debug) {
     output += `\nItem ID: ${this.id}`;
   }
-  socket.emit('output', { message: output });
+  return Promise.resolve(output);
 };
 
 export default ItemSchema;

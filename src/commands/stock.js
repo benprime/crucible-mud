@@ -1,5 +1,6 @@
 import Shop from '../models/shop';
 import itemData from '../data/itemData';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'stock',
@@ -8,6 +9,7 @@ export default {
   patterns: [
     /^stock\s+(\w+)\s+(\d+)$/i,
     /^stock\s.*$/i,
+    /^stock$/i,
   ],
 
   dispatch(socket, match) {
@@ -16,25 +18,25 @@ export default {
       return;
     }
 
-    this.execute(socket, match[1], match[2]);
+    this.execute(socket.character, match[1], match[2])
+      .then(response => socketUtil.output(socket, response))
+      .catch(response => socketUtil.output(socket, response));
   },
 
-  execute(socket, name, count) {
+  execute(character, name, count) {
 
-    const shop = Shop.getById(socket.character.roomId);
+    const shop = Shop.getById(character.roomId);
     if (!shop) {
-      socket.emit('output', { message: 'This command can only be used in a shop.' });
-      return;
+      return Promise.reject('This command can only be used in a shop.');
     }
 
     const createType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'item');
     if (!createType) {
-      socket.emit('output', { message: 'Unknown item type.' });
-      return;
+      return Promise.reject('Unknown item type.');
     }
 
     // see if the shop already carries this item
-    const stockType = shop.stock.find(st => st.itemName === createType.name);
+    const stockType = shop.stock.find(st => st.itemTypeName === createType.name);
     if (stockType) {
       stockType.quantity = count;
     } else {
@@ -44,14 +46,15 @@ export default {
       });
     }
 
-    shop.save((err) => {
+    return shop.save((err) => {
       if (err) throw err;
-      socket.emit('output', { message: 'Items created and added to shop.' });
+    }).then(() => {
+      return Promise.resolve('Items created and added to shop.');
     });
   },
 
   help(socket) {
-    const output = '<span class="mediumOrchid">stock </span><span class="purple">-</span> Creates items to stock stores with.<br />';
+    const output = '<span class="mediumOrchid">stock &lt;item type&gt; &lt;quantity&gt;</span><span class="purple">-</span> Creates items to stock stores with.<br />';
     socket.emit('output', { message: output });
   },
 };

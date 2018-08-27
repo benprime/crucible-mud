@@ -1,5 +1,6 @@
 import { mockGetRoomById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection } from '../models/room';
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteMultiple } from '../core/autocomplete';
+import { mockGetSocketByCharacterId } from '../core/socketUtil';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
 import sut from './look';
@@ -7,6 +8,7 @@ import Item from '../models/item';
 
 jest.mock('../models/room');
 jest.mock('../core/autocomplete');
+jest.mock('../core/socketUtil');
 
 describe('look', () => {
   let socket;
@@ -15,6 +17,7 @@ describe('look', () => {
   let targetRoomSouth;
 
   beforeAll(() => {
+    global.io = new mocks.IOMock();
     socket = new mocks.SocketMock();
     targetRoomNorth = mocks.getMockRoom();
     currentRoom = mocks.getMockRoom(socket.character.roomId);
@@ -43,14 +46,14 @@ describe('look', () => {
     test('on short pattern', () => {
       sut.dispatch(socket, ['']);
 
-      expect(executeSpy).toBeCalledWith(socket, true, null);
+      expect(executeSpy).toBeCalledWith(socket.character, true, null);
     });
 
     test('on long pattern', () => {
       let lookTarget = 'look_target';
       sut.dispatch(socket, ['l', lookTarget]);
 
-      expect(executeSpy).toBeCalledWith(socket, false, lookTarget);
+      expect(executeSpy).toBeCalledWith(socket.character, false, lookTarget);
     });
 
     afterAll(() => {
@@ -67,15 +70,17 @@ describe('look', () => {
     describe('on room', () => {
 
       test('should output short room look when short param is true', () => {
-        sut.execute(socket, true);
+        return sut.execute(socket.character, true).then(() => {
+          expect(currentRoom.look).toBeCalledWith(socket.character, true);
+        });
 
-        expect(currentRoom.look).toBeCalledWith(socket, true);
       });
 
       test('should output room look when lookTarget is not passed', () => {
-        sut.execute(socket, false);
+        return sut.execute(socket.character, false).then(() => {
+          expect(currentRoom.look).toBeCalledWith(socket.character, false);
+        });
 
-        expect(currentRoom.look).toBeCalledWith(socket, false);
       });
 
       test('should output room look when lookTarget is a direction', () => {
@@ -84,12 +89,13 @@ describe('look', () => {
         mockShortToLong.mockReturnValueOnce('south').mockReturnValueOnce('north');
 
         // act
-        sut.execute(socket, false, 's');
+        return sut.execute(socket.character, false, 's').then(response => {
 
-        // assert
-        expect(socket.emit).toBeCalledWith('output', { message: 'You look to the south...' });
-        expect(socket.broadcast.to(targetRoomSouth.id).emit).toBeCalledWith('output', { message: `<span class="yellow">${socket.user.username} peaks in from the north.</span>` });
-        expect(targetRoomSouth.look).toBeCalledWith(socket, false);
+          // assert
+          expect(response.charMessages[0].message).toContain('You look to the south...');
+          expect(response.roomMessages).toContainEqual({ roomId: targetRoomSouth.id, message: `<span class="yellow">${socket.character.name} peaks in from the north.</span>`, exclude: [socket.character.id] });
+          expect(targetRoomSouth.look).toBeCalledWith(socket.character, false);
+        });
       });
 
       test('should output a message when lookTarget is a direction with a closed door', () => {
@@ -99,10 +105,11 @@ describe('look', () => {
         mockShortToLong.mockReturnValue('south');
 
         // act
-        sut.execute(socket, false, 'n');
+        return sut.execute(socket.character, false, 'n').catch(response => {
+          // assert
+          expect(response).toEqual('The door in that direction is closed!');
+        });
 
-        // assert
-        expect(socket.emit).toBeCalledWith('output', { message: 'The door in that direction is closed!' });
       });
     });
 
@@ -111,11 +118,12 @@ describe('look', () => {
 
       test('should do nothing when lookTarget is an invalid inventory item', () => {
         mockValidDirectionInput.mockReturnValue(null);
-        mockAutocompleteTypes.mockReturnValue(undefined);
+        mockAutocompleteMultiple.mockReturnValue(undefined);
 
-        sut.execute(socket, false, 'boot');
+        return sut.execute(socket.character, false, 'boot').catch(response => {
+          expect(response).toBe('You don\'t see that here.');
+        });
 
-        expect(socket.emit).not.toHaveBeenCalled();
       });
 
     });
@@ -123,12 +131,14 @@ describe('look', () => {
     describe('on mob', () => {
 
       test('should output description of mob', () => {
-        mockAutocompleteTypes.mockReturnValue({item: new Item({desc: 'a practice dummy'})});
+        mockAutocompleteMultiple.mockReturnValue({ item: new Item({ desc: 'a practice dummy' }) });
         mockValidDirectionInput.mockReturnValue(false);
+        mockGetSocketByCharacterId.mockReturnValue(socket);
 
-        sut.execute(socket, false, 'dummy');
+        return sut.execute(socket.character, false, 'dummy').then(response => {
+          expect(response).toContain('a practice dummy');
+        });
 
-        expect(socket.emit).toHaveBeenCalledWith('output', { message: 'a practice dummy' });
       });
     });
 
@@ -141,6 +151,6 @@ describe('look', () => {
     output += '<span class="mediumOrchid">l <span class="purple">|</span> look </span><span class="purple">-</span> Display info about current room.<br />';
     output += '<span class="mediumOrchid">look &lt;item/mob name&gt; </span><span class="purple">-</span> Display detailed info about &lt;item/mob&gt;.<br />';
 
-    expect(socket.emit).toBeCalledWith('output', { message: output });
+    expect(socket.emit).toHaveBeenCalledWith('output', { message: output });
   });
 });

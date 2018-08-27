@@ -57,8 +57,7 @@ describe('catalog', () => {
       sut.execute(socket, mobCatalog, 'mob');
 
       // assert
-      expect(socket.emit.mock.calls[0][0]).toBe('output');
-      expect(socket.emit.mock.calls[0][1].message).toContain(expectedString, `message did not contain: ${expectedString}`);
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: expectedString });
     });
 
     test('should lists item catalog', () => {
@@ -69,8 +68,7 @@ describe('catalog', () => {
       sut.execute(socket, itemCatalog, 'item');
 
       // assert
-      expect(socket.emit.mock.calls[0][0]).toBe('output');
-      expect(socket.emit.mock.calls[0][1].message).toContain(expectedString, `message did not contain: ${expectedString}`);
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: expectedString });
     });
 
     test('should list key catalog', () => {
@@ -81,8 +79,7 @@ describe('catalog', () => {
       sut.execute(socket, itemCatalog, 'key');
 
       // assert
-      expect(socket.emit.mock.calls[0][0]).toBe('output');
-      expect(socket.emit.mock.calls[0][1].message).toContain(expectedString, `message did not contain: ${expectedString}`);
+      expect(socket.emit).toHaveBeenCalledWith('output', { message: expectedString });
     });
 
   });

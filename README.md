@@ -34,11 +34,11 @@ An example command object:
     }
 
     // call the command
-    module.exports.execute(socket, match[1]);
+    module.exports.execute(socket.character, match[1]);
   },
 
   // core logic of command
-  execute(socket, message) {
+  execute(character, message) {
     socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} is screaming his head off!`});
   },
 

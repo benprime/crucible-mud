@@ -40,18 +40,20 @@ describe('create', () => {
         mockValidDirectionInput.mockReturnValueOnce('n');
         mockShortToLong.mockReturnValueOnce('north');
 
-        sut.execute(socket, 'room', 'n');
+        return sut.execute(socket.character, 'room', 'n').then(response => {
+          expect(mockRoom.createRoom).toBeCalledWith('n');
+          expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Room created.' });
+          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} waves his hand and an exit appears to the ${longDir}!`, exclude: [socket.character.id] });
+        });
 
-        expect(mockRoom.createRoom).toBeCalledWith('n', jasmine.any(Function));
-        expect(socket.emit).toBeCalledWith('output', { message: 'Room created.' });
-        expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: `${socket.user.username} waves his hand and an exit appears to the ${longDir}!` });
       });
 
       test('should output error message when direction in invalid', () => {
         let dir = 'invalid dir';
-        sut.execute(socket, 'room', dir);
+        return sut.execute(socket.character, 'room', dir).catch(response => {
+          expect(response).toEqual('Invalid direction!');
+        });
 
-        expect(socket.emit).toBeCalledWith('output', { message: 'Invalid direction!' });
       });
     });
 
@@ -59,12 +61,12 @@ describe('create', () => {
       test('should accept valid direction input', () => {
         const dir = 'n';
         mockValidDirectionInput.mockReturnValueOnce('n');
-        
-        sut.execute(socket, 'door', dir);
 
-        expect(mockRoom.getExit).toBeCalledWith(dir);
-        expect(mockRoom.exits.find(r => r.dir === 'n').closed).toBe(true);
-        expect(mockRoom.save).toHaveBeenCalled();
+        return sut.execute(socket.character, 'door', dir).then(() => {
+          expect(mockRoom.getExit).toBeCalledWith(dir);
+          expect(mockRoom.exits.find(r => r.dir === 'n').closed).toBe(true);
+          expect(mockRoom.save).toHaveBeenCalled();
+        });
       });
 
       test('should output error message when direction in invalid', () => {
@@ -72,18 +74,22 @@ describe('create', () => {
         mockValidDirectionInput.mockReturnValueOnce('n');
         mockRoom.getExit.mockReturnValueOnce(null);
 
-        sut.execute(socket, 'door', dir);
+        return sut.execute(socket.character, 'door', dir).catch(response => {
+          expect(mockRoom.getExit).toBeCalledWith(dir);
+          expect(mockRoom.save).not.toHaveBeenCalled();
+          expect(response).toEqual('Invalid direction.');
+        });
 
-        expect(mockRoom.getExit).toBeCalledWith(dir);
-        expect(mockRoom.save).not.toHaveBeenCalled();
-        expect(socket.emit).toBeCalledWith('output', { message: 'Invalid direction.' });
+
       });
     });
 
     test('should output error when create type is invalid', () => {
-      sut.execute(socket, 'other', 'n');
+      return sut.execute(socket.character, 'other', 'n').catch(response => {
+        expect(response).toEqual('Invalid create type.');
+      });
 
-      expect(socket.emit).toBeCalledWith('output', { message: 'Invalid create type.' });
+
     });
 
     test('should be an admin command', () => {

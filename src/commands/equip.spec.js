@@ -1,12 +1,12 @@
 
-import { mockAutocompleteTypes } from '../core/autocomplete';
+import { mockAutocompleteMultiple } from '../core/autocomplete';
 
 import Item from '../models/item';
 import mocks from '../../spec/mocks';
 import sut from './equip';
 
-//jest.mock('../models/room');
 jest.mock('../core/autocomplete');
+global.io = new mocks.IOMock();
 
 describe('equip', () => {
   let socket;
@@ -17,44 +17,23 @@ describe('equip', () => {
 
   describe('execute', () => {
     test('should do nothing when item is not in inventory', () => {
-      mockAutocompleteTypes.mockReturnValueOnce(null);
+      mockAutocompleteMultiple.mockReturnValueOnce(null);
 
-      sut.execute(socket, 'boot');
+      return sut.execute(socket.character, 'boot').catch(output => {
+        expect(output).toBe('item is not in inventory.');
+      });
 
-      expect(socket.emit).not.toHaveBeenCalled();
     });
 
     test('should output message when item is not equipable', () => {
       const sword = new Item();
       sword.equip = null;
       sword.name = 'sword';
-      mockAutocompleteTypes.mockReturnValueOnce({item: sword});
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: sword });
 
-      sut.execute(socket, 'sword');
-
-      expect(socket.emit).toBeCalledWith('output', { message: 'You cannot equip that!\n' });
-    });
-
-    test('should output message when item has invalid slot listing', () => {
-      const finger = new Item();
-      finger.equip = 'nose';
-      finger.name = 'finger';
-      mockAutocompleteTypes.mockReturnValueOnce({item: finger});
-
-      sut.execute(socket, 'finger');
-
-      expect(socket.emit).toBeCalledWith('output', { message: 'Um, you want to put that where?!?!\n' });
-    });
-
-    test('should output message to specify which hand for hand related slots', () => {
-      const ring = new Item();
-      ring.equip = 'finger';
-      ring.name = 'mood';
-      mockAutocompleteTypes.mockReturnValueOnce({item: ring});
-
-      sut.execute(socket, 'mood');
-
-      expect(socket.emit).toBeCalledWith('output', { message: 'Please specify which hand to equip the item\n' });
+      return sut.execute(socket.character, 'sword').catch(output => {
+        expect(output).toEqual('You cannot equip that!\n');
+      });
     });
 
     // good candidate for that test case custom runner

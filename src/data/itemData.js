@@ -8,7 +8,20 @@ export default {
       price: 10,
       type: 'item',
       range: 'melee',
-      equip: 'mainHand',  //mainHand/offHand/bothHand/eitherHand, head, etc
+      equipSlots: ['weaponMain'],
+      damage: '1d6 0',  //die roll + modifier
+      damageType: 'slashing',  //piercing, slashing, bludgeoning
+      speed: 0,  //scale from -1(slowest) to 1(fastest)
+      bonus: 'damage + 0', //stat + modifier
+    },
+    {
+      name: 'greatsword',
+      displayName: 'great sword',
+      desc: 'a huge sword requiring both hands to wield',
+      price: 10,
+      type: 'item',
+      range: 'melee',
+      equipSlots: ['weaponMain', 'weaponOff'],
       damage: '1d6 0',  //die roll + modifier
       damageType: 'slashing',  //piercing, slashing, bludgeoning
       speed: 0,  //scale from -1(slowest) to 1(fastest)
@@ -28,7 +41,7 @@ export default {
       price: 10,
       type: 'item',
       range: 'melee',
-      equip: 'offHand',  //mainHand/offHand/bothHand/eitherHand, head, non, etc
+      equipSlots: ['weaponOff'],  //mainHand/offHand/bothHand/eitherHand, head, non, etc
       damage: '1d2 0',  //die roll (+/-)modifier
       damageType: 'bludgeoning',  //piercing, slashing, bludgeoning
       speed: -.5,  //scale from -1(slowest) to 1(fastest)

@@ -10,33 +10,40 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(response => socketUtil.output(socket, response));
   },
 
-  execute(socket, username) {
-    const invitingSocket = socketUtil.validUserInRoom(socket, username);
-    if (!invitingSocket) {
+  execute(character, username) {
+    const invitingCharacter = socketUtil.characterInRoom(character, username);
+    if (!invitingCharacter) {
       return;
     }
 
-    if (!Array.isArray(socket.partyInvites) || !socket.partyInvites.includes(invitingSocket.character.id)) {
-      socket.emit('output', { message: 'You must be invited.' });
-      return;
+    if (!Array.isArray(character.partyInvites) || !character.partyInvites.includes(invitingCharacter.id)) {
+      return Promise.reject('You must be invited.');
     }
 
-    socket.leader = invitingSocket.character.id;
+    character.leader = invitingCharacter.id;
+
+    const charMessages = [];
 
     // re-assign following sockets to new leader
-    let followingSockets = socketUtil.getFollowingSockets(socket.character.id);
-    followingSockets.forEach(s => {
-      s.leader = invitingSocket.character.id;
-      s.emit('output', { message: `<span class="yellow">Now following ${invitingSocket.user.username}</span>` });
+    let followers = socketUtil.getFollowingCharacters(character.id);
+    followers.forEach(c => {
+      c.leader = invitingCharacter.id;
+      charMessages.push({ charId: c.id, message: `<span class="yellow">Now following ${invitingCharacter.name}</span>` });
     });
 
-    utils.removeItem(socket.partyInvites, invitingSocket.character.id);
+    utils.removeItem(character.partyInvites, invitingCharacter.id);
 
-    socket.emit('output', { message: `You are now following ${username}.` });
-    invitingSocket.emit('output', { message: `${socket.user.username} has started following you.` });
+    charMessages.push({ charId: character.id, message: `You are now following ${username}.` });
+    charMessages.push({ charId: invitingCharacter.id, message: `${character.name} has started following you.` });
+
+    return Promise.resolve({
+      charMessages: charMessages,
+    });
   },
 
   help(socket) {

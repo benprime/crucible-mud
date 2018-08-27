@@ -1,4 +1,5 @@
 import actionHandler from '../core/actionHandler';
+import socketUtil from '../core/socketUtil';
 import helpHandler from './help';
 import config from '../config';
 
@@ -81,8 +82,8 @@ function matches({ patterns }, input) {
 function processDispatch(socket, input) {
   input = input.trim();
 
-  if(input) {
-    socket.emit('output', { message: `\n<span class="silver">&gt; ${input}</span>` });
+  if (input) {
+    socket.emit('output', { message: `\n<span class="silver">&gt; ${input}</span>\n` });
   }
 
   // check if input string matches any of our matching patterns.
@@ -103,13 +104,17 @@ function processDispatch(socket, input) {
   if (match) {
     let action = match[1];
     let username = match[2];
-    const actionFound = actionHandler.actionDispatcher(socket, action, username);
-    if (actionFound) {
-      return;
+    if (actionHandler.isValidAction(action)) {
+      return actionHandler.actionDispatcher(socket.character, action, username)
+        .then(response => socketUtil.sendMessages(socket, response))
+        .catch(response => socketUtil.output(socket, response));
     }
   }
+
   // when a command is not found, it defaults to "say"
-  defaultCommand.execute(socket, input);
+  defaultCommand.execute(socket.character, input)
+    .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+    .catch(error => socket.emit('output', { message: error }));
 }
 
 export default {

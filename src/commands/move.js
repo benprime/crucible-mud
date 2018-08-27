@@ -1,70 +1,4 @@
-import Room from '../models/room';
-import socketUtil from '../core/socketUtil';
-import breakCommand from './break';
 import lookCommand from './look';
-
-function Feedback(dir) {
-  const d = Room.validDirectionInput(dir);
-  if(!d) {
-    // should never happen, but just in case
-    throw `invalid input directions passed to feedback method: ${dir}`;
-  }
-  const displayDir = Room.shortToLong(d);
-  return `You move ${displayDir}...`;
-}
-
-function HitWall(socket, dir) {
-  let message = '';
-
-  // send message to everyone in current room that player is running into stuff.
-  if (dir === 'u') {
-    message = `${socket.user.username} runs into the ceiling.`;
-  } else if (dir === 'd') {
-    message = `${socket.user.username} runs into the floor.`;
-  } else {
-    message = `${socket.user.username} runs into the wall to the ${Room.shortToLong(dir)}.`;
-  }
-  socket.broadcast.to(socket.character.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
-  socket.emit('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
-}
-
-function HitDoor(socket, dir) {
-  let message = '';
-
-  // send message to everyone in current room that player is running into stuff.
-  if (dir === 'u') {
-    message = `${socket.user.username} runs into the closed door above.`;
-  } else if (dir === 'd') {
-    message = `${socket.user.username} runs into the trapdoor on the floor.`;
-  } else {
-    message = `${socket.user.username} runs into the door to the ${Room.shortToLong(dir)}.`;
-  }
-  socket.broadcast.to(socket.character.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
-  socket.emit('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
-}
-
-// emits "You hear movement to the <dir>" to all adjacent rooms
-function MovementSounds({broadcast}, {exits}, excludeDir) {
-
-  // fromRoomId is your current room (before move)
-  for(let exit of exits) {
-    if (excludeDir && exit.dir === excludeDir) {
-      continue;
-    }
-
-    let message = '';
-    if (exit.dir === 'u') {
-      message = 'You hear movement from below.';
-    } else if (exit.dir === 'd') {
-      message = 'You hear movement from above.';
-    } else {
-      const oppDir = Room.shortToLong(Room.oppositeDirection(exit.dir));
-      message = `You hear movement to the ${oppDir}.`;
-    }
-
-    broadcast.to(exit.roomId).emit('output', { message });
-  }
-}
 
 const commands = [
   /^go\s+(\w+)$/i,
@@ -102,95 +36,18 @@ export default {
 
   dispatch(socket, match) {
     // anytime you move on your own, you are leaving a party
-    socket.leader = null;
+    socket.character.leader = null;
 
     // Multiple in the array means this matched to a command and not a direction
     let direction = match.length > 1 ? match[1] : match[0];
-    this.execute(socket, direction);
+    this.execute(socket.character, direction).then(() => {
+      // todo: I don't think we want to have commands call other commands...
+      return lookCommand.execute(socket.character).then(output => socket.emit('output', { message: output }));
+    });
   },
 
-  execute(socket, dir) {
-    const validDir = Room.validDirectionInput(dir.toLowerCase());
-    const sourceRoom = Room.getById(socket.character.roomId);
-    if(!sourceRoom) {
-      throw 'Could not fetch room that user is currently in';
-    }
-
-    if(!validDir) {
-      socket.emit('output', { message: '<span class="yellow">That is not a valid direction!</span>' });
-      HitWall(socket, dir);
-      return;
-    }
-
-    // valid exit in that direction?
-    const exit = sourceRoom.exits.find(e => e.dir === validDir);
-    if (!exit) {
-      HitWall(socket, validDir);
-      return;
-    }
-
-    if(exit.disabledMessage) {
-      socket.emit('output', { message: `<span class="yellow">${exit.disabledMessage}</span>` });
-      return;
-    }
-
-    // general public cannot enter hidden rooms
-    if (exit.hidden && !socket.user.admin) {
-      HitWall(socket, dir);
-      return;
-    }
-
-    if (exit.closed) {
-      HitDoor(socket, validDir);
-      return;
-    }
-
-    // SUCCESSFUL MOVE
-    let message = '';
-    const username = socket.user.username;
-
-    breakCommand.execute(socket);
-
-    // send message to everyone in old room that player is leaving
-    if (validDir === 'u') {
-      message = `${username} has gone above.`;
-    } else if (validDir === 'd') {
-      message = `${username} has gone below.`;
-    } else {
-      message = `${username} has left to the ${Room.shortToLong(validDir)}.`;
-    }
-    socket.broadcast.to(sourceRoom.id).emit('output', { message });
-    MovementSounds(socket, sourceRoom, validDir);
-    socket.leave(sourceRoom.id);
-
-    // update user session
-    socket.character.roomId = exit.roomId;
-    socket.character.save(err => { if (err) throw err; });
-    socket.join(exit.roomId);
-
-    const targetRoom = Room.getById(socket.character.roomId);
-    const oppDir = Room.oppositeDirection(validDir);
-    MovementSounds(socket, targetRoom, oppDir);
-
-    // send message to everyone is new room that player has arrived
-    if (validDir === 'u') {
-      message = `${username} has entered from below.`;
-    } else if (validDir === 'd') {
-      message = `${username} has entered from above.`;
-    } else {
-      message = `${username} has entered from the ${Room.shortToLong(oppDir)}.`;
-    }
-    socket.broadcast.to(exit.roomId).emit('output', { message });
-
-    // You have moved south...
-    socket.emit('output', { message: Feedback(dir) });
-
-    let followingSockets = socketUtil.getFollowingSockets(socket.character.id);
-    followingSockets.forEach(s => {
-      this.execute(s, dir);
-    });
-
-    lookCommand.execute(socket);
+  execute(character, dir) {
+    return character.move(dir);
   },
 
   help(socket) {

@@ -15,6 +15,7 @@ export default {
     /^cat (keys)$/i,
     /^catalog (areas)$/i,
     /^cat (areas)$/i,
+    /^catalog$/i,
     /^catalog\s.*$/i,
     /^cat$/i,
   ],
@@ -40,7 +41,6 @@ export default {
       socket.emit('output', { message: 'Unknown catalog: {types}' });
       return;
     }
-
   },
 
   execute(socket, data, type) {
@@ -48,7 +48,7 @@ export default {
     let catalog;
     if (type) {
       catalog = data.catalog.filter(item => item.type === type);
-    } else if(data.catalog) {
+    } else if (data.catalog) {
       catalog = data.catalog;
     } else {
       catalog = data;
@@ -57,7 +57,7 @@ export default {
 
     let output = '<table><tr><th>Name</th><th>Display Name</th></tr>';
 
-    const listTable = catalog.map(({name, displayName}) => `<tr><td>${name}</td><td>${displayName}</td></tr>`).join('\n');
+    const listTable = catalog.map(({ name, displayName }) => `<tr><td>${name}</td><td>${displayName}</td></tr>`).join('\n');
     output += listTable;
 
     output += '</table>';
@@ -69,6 +69,7 @@ export default {
     let output = '';
     output += '<span class="mediumOrchid">[catalog|cat] mobs </span><span class="purple">-</span> Display info table of all valid mobs<br />';
     output += '<span class="mediumOrchid">[catalog|cat] items </span><span class="purple">-</span> Display info table of all valid items<br />';
+    output += '<span class="mediumOrchid">[catalog|cat] keys </span><span class="purple">-</span> Display info table of all valid keys<br />';
     output += '<span class="mediumOrchid">[catalog|cat] areas </span><span class="purple">-</span> Display info table of all valid areas<br />';
     socket.emit('output', { message: output });
   },

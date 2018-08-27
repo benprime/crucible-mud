@@ -1,4 +1,4 @@
-import { mockGetSocketByUsername } from '../core/socketUtil';
+import { mockGetSocketByCharacterId } from '../core/socketUtil';
 import mocks from '../../spec/mocks';
 import sut from './telepathy';
 
@@ -27,26 +27,29 @@ describe('telepathy', () => {
     test('should output messages when user is invalid', () => {
       // arrange
       const msg = 'This is a telepath message!';
-      mockGetSocketByUsername.mockReturnValueOnce(null);
+      mockGetSocketByCharacterId.mockReturnValueOnce(null);
 
       // act
-      sut.execute(socket, 'Wrong', msg);
+      return sut.execute(socket.character, 'Wrong', msg).catch(response => {
+        // assert
+        expect(response).toEqual('Invalid username.');
+      });
 
-      // assert
-      expect(socket.emit).toBeCalledWith('output', { message: 'Invalid username.' });
     });
 
     test('should output messages when command is successful', () => {
       // arrange
       const msg = 'This is a telepath message!';
-      mockGetSocketByUsername.mockReturnValueOnce(otherSocket);
+      mockGetSocketByCharacterId.mockReturnValueOnce(otherSocket);
 
       // act
-      sut.execute(socket, otherSocket.username, msg);
+      return sut.execute(socket.character, otherSocket.character.name, msg).then(response => {
+        // assert
+        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `Telepath to ${otherSocket.character.name}: This is a telepath message!` });
+        expect(response.charMessages).toContainEqual({ charId: otherSocket.character.id, message: `${socket.character.name} telepaths: This is a telepath message!` });
+      });
 
-      // assert
-      expect(socket.emit).toBeCalledWith('output', { message: 'Telepath to OtherUser: This is a telepath message!' });
-      expect(otherSocket.emit).toBeCalledWith('output', { message: 'TestUser telepaths: This is a telepath message!' });
+
     });
 
   });

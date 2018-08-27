@@ -51,7 +51,6 @@ describe('inventory', () => {
           socket.character.equipped[slot] = equippedItem.id;
         }
 
-
         // act
         return sut.execute(socket.character).then(response => {
           // assert

@@ -1,4 +1,4 @@
-import actionHandler from '../core/actionHandler';
+import emoteHandler from '../core/emoteHandler';
 import socketUtil from '../core/socketUtil';
 import helpHandler from './help';
 import config from '../config';
@@ -104,8 +104,8 @@ function processDispatch(socket, input) {
   if (match) {
     let action = match[1];
     let username = match[2];
-    if (actionHandler.isValidAction(action)) {
-      return actionHandler.actionDispatcher(socket.character, action, username)
+    if (emoteHandler.isValidAction(action)) {
+      return emoteHandler.actionDispatcher(socket.character, action, username)
         .then(response => socketUtil.sendMessages(socket, response))
         .catch(response => socketUtil.output(socket, response));
     }

@@ -6,6 +6,7 @@ export default {
 
   patterns: [
     /^open\s+(\w+)$/i,
+    /^op\s+(\w+)$/i,
   ],
 
   dispatch(socket, match) {

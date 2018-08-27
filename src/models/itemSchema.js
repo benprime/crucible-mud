@@ -29,9 +29,7 @@ const ItemSchema = new mongoose.Schema({
   fixed: {
     type: Boolean,
   },
-  equip: {
-    type: String,
-  },
+  equip: [{ type: String }],
   damage: {
     type: String,
   },
@@ -49,7 +47,7 @@ const ItemSchema = new mongoose.Schema({
 ItemSchema.methods.look = function (character) {
   const socket = socketUtil.getSocketByCharacterId(character.id);
   let output = this.desc;
-  if(socket.user.debug) {
+  if (socket.user.debug) {
     output += `\nItem ID: ${this.id}`;
   }
   return Promise.resolve(output);

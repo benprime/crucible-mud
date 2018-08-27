@@ -1,8 +1,12 @@
-export const currencyToString = (totalCurr) => {
-  if (totalCurr < 0) return 'You are in debt';
-  if (totalCurr == 0) return '0 copper';
+/**
+ * Builds a human readable string of a currency value.
+ * @param {Number} currencyValue 
+ */
+export const currencyToString = (currencyValue) => {
+  if (currencyValue < 0) return 'You are in debt';
+  if (currencyValue == 0) return '0 copper';
 
-  let t = totalCurr;
+  let t = currencyValue;
 
   let pp = Math.floor(t / 1000);
   t -= pp * 1000;
@@ -22,6 +26,9 @@ export const currencyToString = (totalCurr) => {
   return currencyArr.join(', ');
 };
 
+/**
+ * Patterns used to parse human readable denominations into copper count.
+ */
 export const currencyPatterns = [
   /^(\d+)$/i, // if the whole string is just a number, assume copper
   /(\d+)\s?(c)/i, // cp or copper
@@ -30,6 +37,9 @@ export const currencyPatterns = [
   /(\d+)\s?(p)/i, // pp or platinum
 ];
 
+/**
+ * Conversion (to copper) of all currency denominations.
+ */
 export const currencyScale = {
   'c': 1,
   's': 10,
@@ -37,10 +47,14 @@ export const currencyScale = {
   'p': 1000,
 };
 
-export const currencyToInt = (currStr) => {
+/**
+ * 
+ * @param {*} currencyString 
+ */
+export const currencyToInt = (currencyString) => {
   let copperVal = 0;
   for (let pattern of currencyPatterns) {
-    let match = currStr.match(pattern);
+    let match = currencyString.match(pattern);
     if (match) {
       // only convert non-copper
       let value = match[1];

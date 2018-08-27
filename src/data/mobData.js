@@ -12,6 +12,7 @@ export default {
     name: 'kobold',
     class: 'sentry',
     desc: 'an ugly kobold',
+    displayTemplate: '${this.adjective} ${this.name} ${this.class}',
     adjectives: [
       {
         name: 'big',
@@ -206,7 +207,6 @@ export default {
   {
     name: 'hellhound',
     desc: 'a hellhound',
-    displayName: 'hellhound',
     adjectives: [
       {
         name: 'flaming',
@@ -248,7 +248,6 @@ export default {
   {
     name: 'dummy',
     desc: 'a sparring dummy',
-    displayName: 'enchanted sparring dummy',
     attackInterval: 0, // no attacks
     hp: 20,
     xp: 20,

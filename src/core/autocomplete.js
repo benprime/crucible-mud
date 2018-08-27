@@ -42,39 +42,46 @@ const TypeConfig = Object.freeze({
   },
 });
 
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
+/**
+ * Filters array of objects to first object found for each unique property value.
+ * @param {Array} objects - Array of object to filter.
+ * @param {String} propertyName - Property to filter with.
+ * @returns {Array} Array of objects such that each property value is unique.
+ */
+function distinctByProperty(objects, propertyName) {
+  const alreadyAdded = {};
+  return objects.filter(obj => {
+    if (alreadyAdded[obj[propertyName]]) return false;
+    alreadyAdded[obj[propertyName]] = true;
+    return true;
+  });
+}
+
 export default {
 
   /**
-   * Filters array of objects to first object found for each unique property value.
-   * @param {Array} objects - Array of object to filter.
-   * @param {String} propertyName - Property to filter with.
-   */
-  distinctByProperty(objects, propertyName) {
-    const alreadyAdded = {};
-    return objects.filter(obj => {
-      if (alreadyAdded[obj[propertyName]]) return false;
-      alreadyAdded[obj[propertyName]] = true;
-      return true;
-    });
-  },
-
-  /**
    * Get all objects in an enumerable that match the autocomplete filter.
-   * @param {*} source - Enumerable to find matching objects.
-   * @param {*} property - Property to use for pattern matching.
-   * @param {*} fragment - Search term for autocompleting property value.
+   * @param {Array} source - Enumerable to find matching objects.
+   * @param {String} propertyName - Property name to use for pattern matching.
+   * @param {String} fragment - Search term for autocompleting property value.
+   * @returns {Array} - Array of objects that matches the property value filter.
    */
-  byProperty(source, property, fragment) {
-    const distinctSource = this.distinctByProperty(source, property);
-    const re = new RegExp(`^${fragment}`, 'i');
-    return distinctSource.filter(value => !!re.exec(value[property]));
+  byProperty(source, propertyName, fragment) {
+    const distinctSource = distinctByProperty(source, propertyName);
+    const re = new RegExp(`^${escapeRegExp(fragment)}`, 'i');
+    return distinctSource.filter(value => !!re.exec(value[propertyName]));
   },
 
   /**
    * Get objects that match autocomplete filter for multiple properties.
-   * @param {*} source - Enumerable to find matching objects.
-   * @param {*} propertyNames - Properties to apply pattern matching to.
-   * @param {*} fragment - Search term to be used against all properties.
+   * @param {Array} source - Enumerable to find matching objects.
+   * @param {Array} propertyNames - Properties to apply pattern matching to.
+   * @param {String} fragment - Search term to be used against all properties.
+   * @returns {Array} - Array of objects where any of the properties matched the filter.
    */
   byProperties(source, propertyNames, fragment) {
     const resultArr = [];
@@ -92,9 +99,10 @@ export default {
 
   /**
    * Autocompletes a name fragment using multiple game object types and returns the object.
-   * @param {*} character - Character performing this action.
-   * @param {*} types - Types to include in the autocomplete operation.
-   * @param {*} fragment - Beginning portion of object name to autocomplete.
+   * @param {Character} character - Character performing this action.
+   * @param {Array} types - Types to include in the autocomplete operation.
+   * @param {String} fragment - Beginning portion of object name to autocomplete.
+   * @returns {Array} - First result that matched using the type matching configs.
    */
   multiple(character, types, fragment) {
     for (const typeKey in types) {
@@ -120,8 +128,8 @@ export default {
 
   /**
    * Autocomplete character objects by name fragment.
-   * @param {*} character - Character performing this operation.
-   * @param {*} fragment - Name fragment to autocomplete.
+   * @param {Character} character - Character performing this operation.
+   * @param {String} fragment - Name fragment to autocomplete.
    */
   character(character, fragment) {
     var result = this.multiple(character, ['character'], fragment);
@@ -130,8 +138,8 @@ export default {
 
   /**
    * Autocomplete mob objects by name fragment.
-   * @param {*} character - Character performing this operation.
-   * @param {*} fragment - Name fragment to autocomplete.
+   * @param {Character} character - Character performing this operation.
+   * @param {String} fragment - Name fragment to autocomplete.
    */
   mob(character, fragment) {
     var result = this.multiple(character, ['mob'], fragment);
@@ -139,30 +147,30 @@ export default {
   },
 
   /**
-  * Autocomplete inventory objects by name fragment.
-  * @param {*} character - Character performing this operation.
-  * @param {*} fragment - Name fragment to autocomplete.
-  */
+   * Autocomplete inventory objects by name fragment.
+   * @param {Character} character - Character performing this operation.
+   * @param {String} fragment - Name fragment to autocomplete.
+   */
   inventory(character, fragment) {
     var result = this.multiple(character, ['inventory'], fragment);
     return result ? result.item : null;
   },
 
   /**
-  * Autocomplete key objects by name fragment.
-  * @param {*} character - Character performing this operation.
-  * @param {*} fragment - Name fragment to autocomplete.
-  */
+   * Autocomplete key objects by name fragment.
+   * @param {Character} character - Character performing this operation.
+   * @param {String} fragment - Name fragment to autocomplete.
+   */
   key(character, fragment) {
     var result = this.multiple(character, ['key'], fragment);
     return result ? result.item : null;
   },
 
   /**
-  * Autocomplete room inventory objects by name fragment.
-  * @param {*} character - Character performing this operation.
-  * @param {*} fragment - Name fragment to autocomplete.
-  */
+   * Autocomplete room inventory objects by name fragment.
+   * @param {Character} character - Character performing this operation.
+   * @param {String} fragment - Name fragment to autocomplete.
+   */
   room(character, fragment) {
     var result = this.multiple(character, ['room'], fragment);
     return result ? result.item : null;

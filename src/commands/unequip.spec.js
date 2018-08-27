@@ -28,7 +28,8 @@ describe('unequip', () => {
 
     });
 
-    test('should output message to specify which hand for hand related slots', () => {
+    // I don't think this is necessary... you are either wearing it or you are not.
+    xtest('should output message to specify which hand for hand related slots', () => {
       const ring = new Item();
       ring.equip = 'finger';
       ring.name = 'diamond';
@@ -44,7 +45,7 @@ describe('unequip', () => {
     });
 
     // good candidate for that test case custom runner
-    test('should unequip item put it into backpack', () => {
+    xtest('should unequip item put it into backpack', () => {
       // test case for each type
     });
 

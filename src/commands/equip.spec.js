@@ -5,8 +5,8 @@ import Item from '../models/item';
 import mocks from '../../spec/mocks';
 import sut from './equip';
 
-//jest.mock('../models/room');
 jest.mock('../core/autocomplete');
+global.io = new mocks.IOMock();
 
 describe('equip', () => {
   let socket;

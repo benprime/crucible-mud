@@ -3,10 +3,21 @@ import utils from './utilities';
 import autocomplete from './autocomplete';
 
 export default {
-  isValidAction(action) {
-    return action.toLowerCase() in emoteData.emotes;
+
+  /**
+   * Checks if emote name has messages configured in emote data.
+   * @param {*} emoteName 
+   */
+  isValidAction(emoteName) {
+    return emoteName.toLowerCase() in emoteData.emotes;
   },
 
+  /**
+   * Validate and execute emote action.
+   * @param {Character} character - Character performing emote.
+   * @param {String} emote - Emote name to perform.
+   * @param {String} [username] - Username that is the target of the emote action.
+   */
   actionDispatcher(character, emote, username) {
     // autocomplete username
     let targetCharacter = character;

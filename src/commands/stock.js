@@ -9,6 +9,7 @@ export default {
   patterns: [
     /^stock\s+(\w+)\s+(\d+)$/i,
     /^stock\s.*$/i,
+    /^stock$/i,
   ],
 
   dispatch(socket, match) {
@@ -35,7 +36,7 @@ export default {
     }
 
     // see if the shop already carries this item
-    const stockType = shop.stock.find(st => st.itemName === createType.name);
+    const stockType = shop.stock.find(st => st.itemTypeName === createType.name);
     if (stockType) {
       stockType.quantity = count;
     } else {
@@ -45,14 +46,15 @@ export default {
       });
     }
 
-    shop.save((err) => {
+    return shop.save((err) => {
       if (err) throw err;
+    }).then(() => {
       return Promise.resolve('Items created and added to shop.');
     });
   },
 
   help(socket) {
-    const output = '<span class="mediumOrchid">stock </span><span class="purple">-</span> Creates items to stock stores with.<br />';
+    const output = '<span class="mediumOrchid">stock &lt;item type&gt; &lt;quantity&gt;</span><span class="purple">-</span> Creates items to stock stores with.<br />';
     socket.emit('output', { message: output });
   },
 };

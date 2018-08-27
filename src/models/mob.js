@@ -46,7 +46,8 @@ class Mob {
   }
 
   buildDisplayName() {
-    const template = this.displayTemplate || '${this.adjective} ${this.name} ${this.class}';
+    //const template = this.displayTemplate || '${this.adjective} ${this.name} ${this.class}';
+    const template = this.displayTemplate || '${this.name}';
     return new Function(`return \`${template}\`;`).call(this);
   }
 

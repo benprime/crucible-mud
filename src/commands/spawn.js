@@ -12,7 +12,7 @@ export const spawn = (itemType) => {
     displayName: itemType.displayName,
     type: itemType.type,
     fixed: itemType.fixed,
-    equip: itemType.equip,
+    equipSlots: itemType.equipSlots,
     damage: itemType.damage,
     damageType: itemType.damageType,
     speed: itemType.speed,

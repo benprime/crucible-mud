@@ -243,10 +243,10 @@ describe('room model', () => {
           room.save = jest.fn(() => Promise.resolve(room));
           const resultRoom = mocks.getMockRoom();
           resultRoom.save = jest.fn(() => Promise.resolve(resultRoom));
-          sutModel.create = jest.fn().mockReturnValue(resultRoom);
+          sutModel.instantiate = jest.fn().mockReturnValue(resultRoom);
         });
         afterEach(() => {
-          sutModel.create.mockRestore();
+          sutModel.instantiate.mockRestore();
         });
 
         test('should create a new room if room does not already exist in target direction', () => {

@@ -12,18 +12,10 @@ const roomCache = {};
 // Room Schema
 //============================================================================
 const RoomSchema = new mongoose.Schema({
-  name: {
-    type: String,
-  },
-  desc: {
-    type: String,
-  },
-  alias: {
-    type: String,
-  },
-  areaId: {
-    type: String,
-  },
+  name: String,
+  desc: String,
+  alias: String,
+  areaId: String,
   x: {
     type: Number,
     default: 0,
@@ -140,7 +132,7 @@ RoomSchema.statics.populateRoomCache = function () {
 /**
  * Factory method to make it possible to mock the constructor.
  */
-RoomSchema.statics.create = function (obj) {
+RoomSchema.statics.instantiate = function (obj) {
   return new this(obj);
 };
 
@@ -151,18 +143,22 @@ RoomSchema.statics.create = function (obj) {
 /**
  * Returns a list of usernames of other connected players in your room.
  */
-RoomSchema.methods.getCharacterNames = function () {
-  return this.getCharacters().map(c => c.name);
+RoomSchema.methods.getCharacterNames = function (excludeSneaking) {
+  return this.getCharacters(excludeSneaking).map(c => c.name);
 };
 
-RoomSchema.methods.getCharacters = function () {
+RoomSchema.methods.getCharacters = function (excludeSneaking) {
   const ioRoom = global.io.sockets.adapter.rooms[this.id];
   if (!ioRoom) {
     return [];
   }
 
-  const otherUsers = Object.keys(ioRoom.sockets);
-  return otherUsers.map(socketId => global.io.sockets.connected[socketId].character);
+  const otherSocketIds = Object.keys(ioRoom.sockets);
+  let otherCharacters = otherSocketIds.map(socketId => global.io.sockets.connected[socketId].character);
+  if(excludeSneaking) {
+    otherCharacters = otherCharacters.filter(c => !c.sneakMode);
+  }
+  return otherCharacters;
 };
 
 RoomSchema.methods.userInRoom = function (username) {
@@ -206,7 +202,7 @@ RoomSchema.methods.createRoom = function (dir) {
   } else {
     // if room does not exist, create a new room
     // with an exit to this room
-    targetRoom = this.constructor.create({
+    targetRoom = this.constructor.instantiate({
       name: 'Default Room Name',
       desc: 'Room Description',
       x: targetCoords.x,
@@ -265,9 +261,9 @@ RoomSchema.methods.look = function (character, short) {
   //   output += `<span class="olive">Hidden items: ${hiddenItems}.</span>\n`;
   // }
 
-  let characterNames = this.getCharacterNames(this.id).filter(name => name !== character.name);
+  let characterNames = this.getCharacterNames(this.id, true).filter(name => name !== character.name);
 
-  const mobNames = this.mobs.map(({ displayName }) => `${displayName}`);
+  const mobNames = this.mobs.map(m => m.displayName);
   if (mobNames) { characterNames = characterNames.concat(mobNames); }
   const displayNames = characterNames.join('<span class="mediumOrchid">, </span>');
 
@@ -386,7 +382,9 @@ RoomSchema.methods.IsExitPassable = function (character, dir) {
 RoomSchema.methods.leave = function (character, dir, socket) {
   const exclude = socket ? [socket.id] : [];
 
-  this.sendMovementSoundsMessage(dir);
+  if (!character.sneakMode) {
+    this.sendMovementSoundsMessage(dir);
+  }
 
   // if this is a player
   if (socket) {
@@ -395,24 +393,31 @@ RoomSchema.methods.leave = function (character, dir, socket) {
   }
 
   // leaving room message
-  const msg = this.getLeftMessages(dir, character.name);
-  socketUtil.roomMessage(character.roomId, msg, exclude);
+  if (!character.sneakMode) {
+    const msg = this.getLeftMessages(dir, character.name);
+    socketUtil.roomMessage(character.roomId, msg, exclude);
+  }
 };
 
 // todo: This may need a more descriptive name, it is for "entering by exit"
 // it updates games state, generates messages
 RoomSchema.methods.enter = function (character, dir, socket) {
-  const exclude = socket ? [socket.id] : [];
-  const msg = this.getEnteredMessage(dir, character.name);
-
-  character.roomId = this.id;
-  socketUtil.roomMessage(character.roomId, msg, exclude);
+  if (!character.sneakMode) {
+    const exclude = socket ? [socket.id] : [];
+    const msg = this.getEnteredMessage(dir, character.name);
+    socketUtil.roomMessage(character.roomId, msg, exclude);
+  }
 
   // todo: Review this. Not sure if we want to same state persistence for NPCs
+  character.roomId = this.id;
   character.save(err => { if (err) throw err; });
-  socket.join(this.id);
+  if (socket) {
+    socket.join(this.id);
+  }
 
-  this.sendMovementSoundsMessage(dir);
+  if (!character.sneakMode) {
+    this.sendMovementSoundsMessage(dir);
+  }
 };
 
 //============================================================================

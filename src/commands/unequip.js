@@ -23,7 +23,7 @@ export default {
       return Promise.reject('You don\'t have that equipped.\n');
     }
 
-    character.unequip(item);
+    character.equipped.unequip(item);
     character.save(err => { if (err) throw err; });
 
     return Promise.resolve();

@@ -36,31 +36,6 @@ describe('equip', () => {
       });
     });
 
-    test('should output message when item has invalid slot listing', () => {
-      const finger = new Item();
-      finger.equip = 'nose';
-      finger.name = 'finger';
-      mockAutocompleteMultiple.mockReturnValueOnce({ item: finger });
-
-      return sut.execute(socket.character, 'finger').catch(output => {
-        expect(output).toEqual('Um, you want to put that where?!?!\n');
-
-      });
-
-    });
-
-    test('should output message to specify which hand for hand related slots', () => {
-      const ring = new Item();
-      ring.equip = 'finger';
-      ring.name = 'mood';
-      mockAutocompleteMultiple.mockReturnValueOnce({ item: ring });
-
-      return sut.execute(socket.character, 'mood').catch(output => {
-        expect(output).toEqual('Please specify which hand to equip the item\n');
-      });
-
-    });
-
     // good candidate for that test case custom runner
     test('should equip item of equip type and remove from backpack', () => {
       // test case for each type

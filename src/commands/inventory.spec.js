@@ -16,38 +16,41 @@ describe('inventory', () => {
 
   describe('execute', () => {
     beforeEach(() => {
-      socket.character.equipSlots.weaponMain = null;
-      socket.character.equipSlots.weaponOff = null;
-      socket.character.equipSlots.body = null;
-      socket.character.equipSlots.back = null;
-      socket.character.equipSlots.legs = null;
-      socket.character.equipSlots.feet = null;
-      socket.character.equipSlots.arms = null;
-      socket.character.equipSlots.hands = null;
-      socket.character.equipSlots.head = null;
-      socket.character.equipSlots.neck = null;
-      socket.character.equipSlots.fingerMain = null;
-      socket.character.equipSlots.fingerOff = null;
+      socket.character.equipped.weaponMain = null;
+      socket.character.equipped.weaponOff = null;
+      socket.character.equipped.body = null;
+      socket.character.equipped.back = null;
+      socket.character.equipped.legs = null;
+      socket.character.equipped.feet = null;
+      socket.character.equipped.arms = null;
+      socket.character.equipped.hands = null;
+      socket.character.equipped.head = null;
+      socket.character.equipped.neck = null;
+      socket.character.equipped.fingerMain = null;
+      socket.character.equipped.fingerOff = null;
     });
 
     describe('inventory display of equipped items', () => {
       each([
-        [new Item({ displayName: 'testEquippedItem', equip: 'weaponMain' }), 'Main Weapon'],
-        [new Item({ displayName: 'testEquippedItem', equip: 'weaponOff' }), 'Offhand Weapon'],
-        [new Item({ displayName: 'testEquippedItem', equip: 'head' }), 'Head'],
-        [new Item({ displayName: 'testEquippedItem', equip: 'body' }), 'Body'],
-        [new Item({ displayName: 'testEquippedItem', equip: 'back' }), 'Back'],
-        [new Item({ displayName: 'testEquippedItem', equip: 'legs' }), 'Legs'],
-        [new Item({ displayName: 'testEquippedItem', equip: 'feet' }), 'Feet'],
-        [new Item({ displayName: 'testEquippedItem', equip: 'arms' }), 'Arms'],
-        [new Item({ displayName: 'testEquippedItem', equip: 'hands' }), 'Hands'],
-        [new Item({ displayName: 'testEquippedItem', equip: 'neck' }), 'Neck'],
-        [new Item({ displayName: 'testEquippedItem', equip: 'fingerMain' }), 'Main Hand Finger'],
-        [new Item({ displayName: 'testEquippedItem', equip: 'fingerOff' }), 'Off Hand Finger'],
+        [new Item({ displayName: 'testEquippedItem', equipSlots: ['weaponMain'] }), 'Main Weapon'],
+        [new Item({ displayName: 'testEquippedItem', equipSlots: ['weaponOff'] }), 'Offhand Weapon'],
+        [new Item({ displayName: 'testEquippedItem', equipSlots: ['head'] }), 'Head'],
+        [new Item({ displayName: 'testEquippedItem', equipSlots: ['body'] }), 'Body'],
+        [new Item({ displayName: 'testEquippedItem', equipSlots: ['back'] }), 'Back'],
+        [new Item({ displayName: 'testEquippedItem', equipSlots: ['legs'] }), 'Legs'],
+        [new Item({ displayName: 'testEquippedItem', equipSlots: ['feet'] }), 'Feet'],
+        [new Item({ displayName: 'testEquippedItem', equipSlots: ['arms'] }), 'Arms'],
+        [new Item({ displayName: 'testEquippedItem', equipSlots: ['hands'] }), 'Hands'],
+        [new Item({ displayName: 'testEquippedItem', equipSlots: ['neck'] }), 'Neck'],
+        [new Item({ displayName: 'testEquippedItem', equipSlots: ['fingerMain'] }), 'Main Hand Finger'],
+        [new Item({ displayName: 'testEquippedItem', equipSlots: ['fingerOff'] }), 'Off Hand Finger'],
       ]).test('should print equipped item on %s equip slot', (equippedItem, slotDisplayString) => {
         // arrange
         socket.character.inventory = [equippedItem];
-        socket.character.equipSlots[equippedItem.equip] = equippedItem.id;
+        for (let slot of equippedItem.equipSlots) {
+          socket.character.equipped[slot] = equippedItem.id;
+        }
+
 
         // act
         return sut.execute(socket.character).then(response => {

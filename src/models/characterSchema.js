@@ -4,6 +4,7 @@ import ItemSchema from './itemSchema';
 import Room from './room';
 import dice from '../core/dice';
 import socketUtil from '../core/socketUtil';
+import CharacterEquipSchema from './characterEquipSchema';
 
 const CharacterSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -13,23 +14,9 @@ const CharacterSchema = new mongoose.Schema({
   inventory: [ItemSchema],
   keys: [ItemSchema],
   currency: { type: Number, default: 0 },
-  equipSlots: {
-    // Weapons
-    weaponMain: String,
-    weaponOff: String,
 
-    // Armor/Gear
-    head: String,
-    body: String,
-    back: String,
-    legs: String,
-    feet: String,
-    arms: String,
-    hands: String,
-    neck: String,
-    fingerMain: String,
-    fingerOff: String,
-  },
+  equipped: { type: CharacterEquipSchema },
+
   armorRating: { type: Number },
 
   xp: { type: Number },
@@ -229,87 +216,5 @@ CharacterSchema.methods.output = function (msg) {
     socket.emit('output', { message: msg });
   }
 };
-
-
-
-
-
-
-
-//==============================================
-// Inventory manager?
-//==============================================
-
-const equipSlots = Object.freeze([
-  'weaponMain',
-  'weaponOff',
-  'head',
-  'body',
-  'back',
-  'legs',
-  'feet',
-  'arms',
-  'hands',
-  'neck',
-  'fingerMain',
-  'fingerOff',
-]);
-
-CharacterSchema.methods.unequip = function (item) {
-  let unequipItemIds = this.unequipSlotsForItem(item);
-  if (unequipItemIds.length === 0) {
-    this.output('You don\'t have that item equipped.');
-  }
-};
-
-CharacterSchema.methods.unequipSlotsForItem = function (item) {
-  const itemIds = [];
-  item.equip.forEach(slot => {
-    let equippedItemId = this.equipSlots[slot];
-    if (equippedItemId) {
-      this.unequipItemById(equippedItemId);
-      itemIds.push(equippedItemId);
-    }
-  });
-
-  itemIds.forEach(itemId => {
-    let itemName = this.inventory.find(i => i.id === itemId).displayName;
-    this.output(`${itemName} unequipped.`);
-  });
-
-  return itemIds;
-};
-
-CharacterSchema.methods.unequipItemById = function (itemId) {
-  equipSlots.forEach(key => {
-    if (this.equipSlots[key] === itemId) {
-      this.equipSlots[key] = null;
-    }
-  });
-};
-
-CharacterSchema.methods.equipped = function (item) {
-  for (let slot of equipSlots) {
-    if (this.equipSlots[slot] === item.id) {
-      return true;
-    }
-  }
-  return false;
-};
-
-CharacterSchema.methods.equip = function (item) {
-
-  if (this.equipped(item)) {
-    this.output(`${item.displayName} already equipped.`);
-    return;
-  }
-
-  this.unequipSlotsForItem(item);
-
-  item.equip.forEach(slot => this.equipSlots[slot] = item.id);
-
-  this.output(`${item.displayName} equipped.`);
-};
-
 
 export default CharacterSchema;

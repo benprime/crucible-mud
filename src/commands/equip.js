@@ -25,11 +25,11 @@ export default {
     const item = acResult.item;
 
     // check if item is equipable or return
-    if (!item.equip || item.equip.length === 0) {
+    if (!item.equipSlots || item.equipSlots.length === 0) {
       return Promise.reject('You cannot equip that!\n');
     }
 
-    character.equip(item);
+    character.equipped.equip(item);
     character.save(err => { if (err) throw err; });
 
     return Promise.resolve(); // output taken care of in character model

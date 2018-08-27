@@ -7,41 +7,21 @@ const itemTypeEnum = [
 ];
 
 const ItemSchema = new mongoose.Schema({
-  name: {
-    type: String,
-  },
-  displayName: {
-    type: String,
-  },
-  desc: {
-    type: String,
-  },
+  name: String,
+  displayName: String,
+  desc: String,
   type: {
     type: String,
     enum: itemTypeEnum,
   },
-  hidden: {
-    type: Boolean,
-  },
-  range: {
-    type: String,
-  },
-  fixed: {
-    type: Boolean,
-  },
-  equip: [{ type: String }],
-  damage: {
-    type: String,
-  },
-  damageType: {
-    type: String,
-  },
-  speed: {
-    type: String,
-  },
-  bonus: {
-    type: String,
-  },
+  hidden: Boolean,
+  range: String,
+  fixed: Boolean,
+  equipSlots: [String],
+  damage: String,
+  damageType: String,
+  speed: String,
+  bonus: String,
 });
 
 ItemSchema.methods.look = function (character) {

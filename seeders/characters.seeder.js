@@ -10,7 +10,7 @@ const data = [
     "inventory": [],
     "keys": [],
     "currency": 10.0,
-    "equipSlots": {
+    "equipped": {
       "weaponMain": null,
       "weaponOff": null,
       "head": null,
@@ -72,7 +72,7 @@ const data = [
     "inventory": [],
     "keys": [],
     "currency": 10.0,
-    "equipSlots": {
+    "equipped": {
       "weaponMain": null,
       "weaponOff": null,
       "head": null,
@@ -133,7 +133,7 @@ const data = [
     "inventory": [],
     "keys": [],
     "currency": 10.0,
-    "equipSlots": {
+    "equipped": {
       "weaponMain": null,
       "weaponOff": null,
       "head": null,
@@ -194,7 +194,7 @@ const data = [
     "inventory": [],
     "keys": [],
     "currency": 10.0,
-    "equipSlots": {
+    "equipped": {
       "weaponMain": null,
       "weaponOff": null,
       "head": null,
@@ -255,7 +255,7 @@ const data = [
     "inventory": [],
     "keys": [],
     "currency": 10.0,
-    "equipSlots": {
+    "equipped": {
       "weaponMain": null,
       "weaponOff": null,
       "head": null,

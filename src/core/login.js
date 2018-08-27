@@ -22,74 +22,68 @@ export default {
     }
   },
 
-  LoginPassword(socket, { value }, callback) {
+  LoginPassword(socket, { value }) {
     if (socket.state == config.STATES.LOGIN_PASSWORD) {
 
-      User.findOne({ email: socket.tempEmail, password: value })
-        //.populate('user')
-        .exec((err, user) => {
-          if (err) return console.error(err);
+      return User.findOne({ email: socket.tempEmail, password: value }).then(user => {
+        if (!user) {
+          return Promise.reject('Wrong password, please try again.');
+        }
 
-          if (!user) {
-            socket.emit('output', { message: 'Wrong password, please try again.' });
-            return;
+        delete socket.tempEmail;
+
+        return Character.findByUser(user).then(character => {
+          // if the user is logged in from another connection, disconnect it.
+          const existingSocket = socketUtil.getSocketByCharacterId(character.name);
+          if (existingSocket) {
+            existingSocket.emit('output', { message: 'You have logged in from another session.\n<span class="gray">*** Disconnected ***</span>' });
+            existingSocket.disconnect();
           }
+          socket.user = user;
 
-          delete socket.tempEmail;
-
-          Character.findByUser(user).then(character => {
-            // if the user is logged in from another connection, disconnect it.
-            const existingSocket = socketUtil.getSocketByCharacterId(character.name);
-            if (existingSocket) {
-              existingSocket.emit('output', { message: 'You have logged in from another session.\n<span class="gray">*** Disconnected ***</span>' });
-              existingSocket.disconnect();
+          return Character.findOne({ user: user }).then(character => {
+            if (!character) {
+              return Promise.reject('No character associated with this user.');
             }
-            socket.user = user;
 
-            Character.findOne({ user: user }, (err, character) => {
-              if (err) throw (err);
-              if (!character) {
-                throw 'No character associated with this user.';
-              }
+            socket.character = character;
+            socket.character.offers = [];
 
-              socket.character = character;
-              socket.character.offers = [];
+            // format the subdocuments so we have actual object instances
+            // Note: tried a lean() query here, but that also stripped away the model
+            // instance methods.
+            // TODO: is this still necessary?
+            const objInventory = character.inventory.map(i => i.toObject());
+            character.inventory = objInventory;
 
-              // format the subdocuments so we have actual object instances
-              // Note: tried a lean() query here, but that also stripped away the model
-              // instance methods.
-              // TODO: is this still necessary?
-              const objInventory = character.inventory.map(i => i.toObject());
-              character.inventory = objInventory;
+            // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
+            socket.state = config.STATES.MUD;
 
-              // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
-              socket.state = config.STATES.MUD;
+            socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
 
-              socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
+            socket.join('realm');
+            socket.broadcast.to('realm').emit('output', { message: `${character.name} has entered the realm.` });
 
-              socket.join('realm');
-              socket.broadcast.to('realm').emit('output', { message: `${character.name} has entered the realm.` });
+            socket.join('gossip');
 
-              socket.join('gossip');
+            hud.updateHUD(socket);
 
-              hud.updateHUD(socket);
-
-              const currentRoom = Room.getById(character.roomId);
-              if (!currentRoom) {
-                Room.byCoords({ x: 0, y: 0, z: 0 }, (err, { id }) => {
-                  character.roomId = id;
-                  socket.join(id);
-                  if (callback) callback();
-                });
-              } else {
-                socket.join(character.roomId);
-                if (callback) callback();
-              }
-            });
-
+            const currentRoom = Room.getById(character.roomId);
+            if (!currentRoom) {
+              return Room.byCoords({ x: 0, y: 0, z: 0 }).then(room => {
+                character.roomId = room.id;
+                socket.join(room.id);
+                return Promise.resolve();
+              });
+            } else {
+              socket.join(character.roomId);
+              return Promise.resolve();
+            }
           });
 
         });
+
+      });
     }
   },
 };

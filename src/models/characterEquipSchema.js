@@ -23,10 +23,11 @@ CharacterEquipSchema.statics.slotNames = function () {
 };
 
 CharacterEquipSchema.methods.unequip = function (item) {
-  let unequipItemIds = this.unequipSlotsForItem(item);
-  if (unequipItemIds.length === 0) {
-    this.output('You don\'t have that item equipped.');
+  if(!this.isEquipped(item)) {
+    this.$parent.output('You don\'t have that item equipped.');
   }
+
+  this.unequipSlotsForItem(item);
 };
 
 CharacterEquipSchema.methods.unequipSlotsForItem = function (item) {
@@ -43,8 +44,7 @@ CharacterEquipSchema.methods.unequipSlotsForItem = function (item) {
     let itemName = this.$parent.inventory.find(i => i.id === itemId).displayName;
     this.$parent.output(`${itemName} unequipped.`);
   });
-
-  return itemIds;
+  //return itemIds;
 };
 
 CharacterEquipSchema.methods.unequipItemById = function (itemId) {

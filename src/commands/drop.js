@@ -29,6 +29,9 @@ export default {
 
     // remove item from users inventory or key ring
     if (result.item.type === 'item') {
+      if(character.equipped.isEquipped(result.item)) {
+        character.equipped.unequip(result.item);
+      }
       character.inventory.remove(result.item);
     } else if (result.item.type === 'key') {
       character.keys.remove(result.item);

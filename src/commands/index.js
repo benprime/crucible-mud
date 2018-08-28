@@ -22,6 +22,7 @@ let commandModules = [
   'inventory.js',
   'invite.js',
   'keys.js',
+  'kick.js',
   'list.js',
   'lock.js',
   'look.js',

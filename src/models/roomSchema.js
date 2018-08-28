@@ -5,6 +5,7 @@ import Exit from './exit';
 import Area from './area';
 import SpawnerSchema from './spawnerSchema';
 import socketUtil from '../core/socketUtil';
+import { indefiniteArticle } from '../core/language';
 
 const roomCache = {};
 
@@ -233,6 +234,34 @@ RoomSchema.methods.createRoom = function (dir) {
   }
 };
 
+RoomSchema.methods.kick = function (character, item, dir) {
+  const exit = this.getExit(dir);
+  if (!exit) {
+    return Promise.reject('There is no exit in that direction!');
+  }
+
+  const targetRoom = this.constructor.getById(exit.roomId);
+  this.inventory.id(item.id).remove();
+  this.save(err => { if (err) throw err; });
+  targetRoom.inventory.push(item);
+  targetRoom.save(err => { if (err) throw err; });
+
+  const dirName = this.constructor.shortToLong(dir);
+  const msg = `<span class="yellow">${character.name} kicks the ${item.name} to the ${dirName}</span>`;
+  socketUtil.roomMessage(this.id, msg);
+
+  const targetDirName = this.constructor.shortToLong(this.constructor.oppositeDirection(dir));
+
+  // language, determining A or An
+  let article = indefiniteArticle(item.name);
+  article = article.replace(/^\w/, c => c.toUpperCase());
+
+  const targetMsg = `<span class="yellow">${article} ${item.name} enters from the ${targetDirName}.</yellow>`;
+  socketUtil.roomMessage(targetRoom.id, targetMsg);
+
+  return Promise.resolve(item);
+};
+
 RoomSchema.methods.look = function (character, short) {
 
   const socket = socketUtil.getSocketByCharacterId(character.id);
@@ -384,6 +413,12 @@ RoomSchema.methods.IsExitPassable = function (character, dir) {
 RoomSchema.methods.leave = function (character, dir, socket) {
   const exclude = socket ? [socket.id] : [];
 
+  if (character.roomId !== this.id) {
+    // TODO: investigate this. This is only possible because of data duplication that we
+    // may be able to get rid of.
+    throw 'Character leave was called when the character was not assigned the room';
+  }
+
   if (!character.sneakMode) {
     this.sendMovementSoundsMessage(dir);
   }
@@ -391,13 +426,13 @@ RoomSchema.methods.leave = function (character, dir, socket) {
   // if this is a player
   if (socket) {
     // unsubscribe from Socket.IO room
-    socket.leave(character.roomId);
+    socket.leave(this.id);
   }
 
   // leaving room message
   if (!character.sneakMode) {
     const msg = this.getLeftMessages(dir, character.name);
-    socketUtil.roomMessage(character.roomId, msg, exclude);
+    socketUtil.roomMessage(this.id, msg, exclude);
   }
 };
 

@@ -13,6 +13,7 @@ describe('updateHUD', () => {
     expect(socket.emit).toBeCalledWith('hud', {
       currentHP: socket.character.currentHP,
       maxHP: socket.character.maxHP,
+      dayPhase: 'early morning',
     });
   });
 });

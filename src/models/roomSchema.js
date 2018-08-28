@@ -246,6 +246,7 @@ RoomSchema.methods.look = function (character, short) {
   output += '</span>\n';
 
   if (!short) {
+    //output += `<span class="teal">Time of day: </span><span class="silver">${dayPhase}</span>\n`;
     output += `<span class="silver">${this.desc}</span>\n`;
   }
 
@@ -536,7 +537,5 @@ RoomSchema.methods.getEnteredMessage = function (dir, charName) {
 RoomSchema.methods.output = function (msg, exclude) {
   socketUtil.roomMessage(this.id, msg, exclude);
 };
-
-
 
 export default RoomSchema;

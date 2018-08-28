@@ -7,6 +7,7 @@ import loginUtil from './core/login';
 import ioFactory from 'socket.io';
 import mongoose from 'mongoose';
 import './core/combat';
+import './core/dayCycle';
 import socketUtil from './core/socketUtil';
 import Room from './models/room';
 

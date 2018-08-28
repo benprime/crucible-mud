@@ -155,7 +155,7 @@ RoomSchema.methods.getCharacters = function (excludeSneaking) {
 
   const otherSocketIds = Object.keys(ioRoom.sockets);
   let otherCharacters = otherSocketIds.map(socketId => global.io.sockets.connected[socketId].character);
-  if(excludeSneaking) {
+  if (excludeSneaking) {
     otherCharacters = otherCharacters.filter(c => !c.sneakMode);
   }
   return otherCharacters;
@@ -238,8 +238,8 @@ RoomSchema.methods.look = function (character, short) {
   const debug = socket.user.debug;
   let output = `<span class="cyan">${this.name}`;
 
-  if (this.area) {
-    output += `, ${Area.getById(this.area).name}`;
+  if (this.areaId) {
+    output += `, ${Area.getById(this.areaId).name}`;
   }
 
   output += '</span>\n';

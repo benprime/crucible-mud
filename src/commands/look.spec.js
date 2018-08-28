@@ -86,7 +86,7 @@ describe('look', () => {
       test('should output room look when lookTarget is a direction', () => {
         // arrange
         mockValidDirectionInput.mockReturnValue('s');
-        mockShortToLong.mockReturnValueOnce('south').mockReturnValueOnce('north');
+        mockShortToLong.mockReturnValueOnce('south').mockReturnValueOnce('south').mockReturnValueOnce('north');
 
         // act
         return sut.execute(socket.character, false, 's').then(response => {

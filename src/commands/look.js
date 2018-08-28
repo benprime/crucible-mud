@@ -15,12 +15,14 @@ function lookDir(character, { exits }, dir) {
 
   const lookRoom = Room.getById(exit.roomId);
   return lookRoom.look(character, false).then(output => {
-    const actionOutput = `You look to the ${Room.shortToLong(dir)}...\n` + output;
+    const charOuput = `You look to the ${Room.shortToLong(dir)}...\n` + output;
+    const roomOutput = `${character.name} looks to the ${Room.shortToLong(dir)}.\n`;
     return Promise.resolve({
       charMessages: [
-        { charId: character.id, message: actionOutput },
+        { charId: character.id, message: charOuput },
       ],
       roomMessages: [
+        { roomId: character.roomId, message: roomOutput, exclude: [character.id] },
         { roomId: lookRoom.id, message: `<span class="yellow">${character.name} peaks in from the ${Room.shortToLong(Room.oppositeDirection(dir))}.</span>`, exclude: [character.id] },
       ],
     });

@@ -182,8 +182,15 @@ CharacterSchema.methods.move = function (dir) {
   });
 };
 
-CharacterSchema.methods.teleport = function (roomId) {
-  if (this.roomId === roomId) {
+CharacterSchema.methods.teleport = function (roomTarget) {
+  
+  // get by id or alias
+  const room = Room.getById(roomTarget);
+  if(!room) {
+    return Promise.reject('Invalid roomId');
+  }
+
+  if (this.roomId === room.id) {
     return Promise.reject('Character is already here.');
   }
 
@@ -195,10 +202,10 @@ CharacterSchema.methods.teleport = function (roomId) {
   //socketUtil.roomMessage(socket, `${this.name} vanishes!`, [socket.id]);
   if (socket) {
     socket.leave(this.roomId);
-    socket.join(roomId);
+    socket.join(room.id);
   }
 
-  this.roomId = roomId;
+  this.roomId = room.id;
 
   // npcs don't save to database on every move
   if (socket) {
@@ -206,7 +213,7 @@ CharacterSchema.methods.teleport = function (roomId) {
   }
   return Promise.resolve({
     charMessages: [{ charId: this.id, message: 'You teleport...\n' }],
-    roomMessages: [{ roomId: roomId, message: `<span class="yellow">${this.name} appears out of thin air!</span>`, exclude: [this.id] }],
+    roomMessages: [{ roomId: roomTarget, message: `<span class="yellow">${this.name} appears out of thin air!</span>`, exclude: [this.id] }],
   });
 };
 

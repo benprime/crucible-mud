@@ -86,6 +86,7 @@ const oppositeDir = {
 //============================================================================
 RoomSchema.statics.roomCache = roomCache;
 
+// Todo: this needs to be renamed. It is getByIdOrAlias
 RoomSchema.statics.getById = roomId => {
   const room = roomCache[roomId];
   return room;
@@ -402,22 +403,20 @@ RoomSchema.methods.leave = function (character, dir, socket) {
 // todo: This may need a more descriptive name, it is for "entering by exit"
 // it updates games state, generates messages
 RoomSchema.methods.enter = function (character, dir, socket) {
+  character.roomId = this.id;
+
   if (!character.sneakMode) {
     const exclude = socket ? [socket.id] : [];
     const msg = this.getEnteredMessage(dir, character.name);
     socketUtil.roomMessage(character.roomId, msg, exclude);
+    this.sendMovementSoundsMessage(dir);
   }
 
-  // todo: Review this. Not sure if we want to same state persistence for NPCs
-  character.roomId = this.id;
   character.save(err => { if (err) throw err; });
   if (socket) {
     socket.join(this.id);
   }
 
-  if (!character.sneakMode) {
-    this.sendMovementSoundsMessage(dir);
-  }
 };
 
 //============================================================================

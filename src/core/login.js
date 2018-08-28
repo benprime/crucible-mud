@@ -34,7 +34,7 @@ export default {
 
         return Character.findByUser(user).then(character => {
           // if the user is logged in from another connection, disconnect it.
-          const existingSocket = socketUtil.getSocketByCharacterId(character.name);
+          const existingSocket = socketUtil.getSocketByCharacterId(character.id);
           if (existingSocket) {
             existingSocket.emit('output', { message: 'You have logged in from another session.\n<span class="gray">*** Disconnected ***</span>' });
             existingSocket.disconnect();

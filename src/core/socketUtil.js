@@ -118,6 +118,11 @@ export default {
     return Object.keys(ioRoom.sockets).map((socketId) => global.io.sockets.connected[socketId]);
   },
 
+  getAllSockets() {
+    return Object.values(global.io.sockets.connected).filter(s => s.user);
+  },
+
+
   // method for validating a valid username and that the user is in the current room
   characterInRoom(roomId, name) {
     const character = this.getCharacterByName(name);

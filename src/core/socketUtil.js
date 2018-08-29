@@ -97,12 +97,11 @@ export default {
     return null;
   },
 
-
   getFollowingCharacters(characterId) {
     const followers = [];
     for (let socket of Object.values(global.io.sockets.connected)) {
-      if (socket.character && socket.leader === characterId) {
-        followers.push(socket);
+      if (socket.character && socket.character.leader === characterId) {
+        followers.push(socket.character);
       }
     }
     return followers;
@@ -121,22 +120,6 @@ export default {
   getAllSockets() {
     return Object.values(global.io.sockets.connected).filter(s => s.user);
   },
-
-
-  // method for validating a valid username and that the user is in the current room
-  characterInRoom(roomId, name) {
-    const character = this.getCharacterByName(name);
-    if (!character) {
-      return false;
-    }
-
-    if (character.roomId !== roomId) {
-      return false;
-    }
-
-    return character;
-  },
-
 
 };
 

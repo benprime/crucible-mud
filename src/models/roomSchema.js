@@ -170,11 +170,6 @@ RoomSchema.methods.userInRoom = function (username) {
   return usernames.includes(username.toLowerCase());
 };
 
-RoomSchema.methods.characterInRoom = function (characterId) {
-  const character = socketUtil.getCharacterById(characterId);
-  return character.roomId === this.id;
-};
-
 RoomSchema.methods.createRoom = function (dir) {
   const currentRoom = this;
   if (!this.constructor.validDirectionInput(dir)) {

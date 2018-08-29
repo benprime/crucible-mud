@@ -1,10 +1,10 @@
-import { mockCharacterInRoom } from '../core/socketUtil';
+import { mockAutocompleteCharacter } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './invite';
 
-
 jest.mock('../models/room');
 jest.mock('../core/socketUtil');
+jest.mock('../core/autocomplete');
 
 global.io = new mocks.IOMock();
 let mockTargetSocket = new mocks.SocketMock();
@@ -24,6 +24,7 @@ describe('invite', () => {
 
     beforeEach(() => {
       mockTargetSocket.character.name = 'TargetUser';
+      mockTargetSocket.character.roomId = socket.character.roomId;
 
       global.io.addCharacterToIORoom(mockRoom.id, mockTargetSocket);
 
@@ -36,7 +37,6 @@ describe('invite', () => {
     test('users following a party leader may not invite followers', () => {
       socket.character.leader = 'aLeader';
       let username = 'TargetUser';
-      mockCharacterInRoom.mockReturnValueOnce(mockTargetSocket.character);
 
       return sut.execute(socket.character, username).catch(response => {
         expect(response).toEqual('Only the party leader may invite followers.');
@@ -48,7 +48,7 @@ describe('invite', () => {
     test('adds invite to socket tracking variable of recipient socket', () => {
       socket.character.leader = undefined;
       let username = 'TargetUser';
-      mockCharacterInRoom.mockReturnValueOnce(mockTargetSocket.character);
+      mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
 
       return sut.execute(socket.character, username).then(commandResult => {
         expect(commandResult.charMessages).toHaveLength(2);

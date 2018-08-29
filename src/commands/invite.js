@@ -1,4 +1,5 @@
 import socketUtil from '../core/socketUtil';
+import autocomplete from '../core/autocomplete';
 
 export default {
   name: 'invite',
@@ -25,9 +26,13 @@ export default {
       return Promise.reject('Only the party leader may invite followers.');
     }
 
-    const targetCharacter = socketUtil.characterInRoom(character, username);
+    const targetCharacter = autocomplete.character(character, username);
     if (!targetCharacter) {
-      return;
+      return Promise.reject('unknown player');
+    }
+
+    if (character.roomId !== targetCharacter.roomId) {
+      return Promise.reject('That player does not appear to be in the room.');
     }
 
     if (!targetCharacter.partyInvites) {

@@ -1,5 +1,6 @@
 import socketUtil from '../core/socketUtil';
 import utils from '../core/utilities';
+import autocomplete from '../core/autocomplete';
 
 export default {
   name: 'follow',
@@ -8,6 +9,8 @@ export default {
   patterns: [
     /^follow\s+(\w+)$/i,
     /^follow\s.+$/i,
+    /^join\s+(\w+)$/i,
+    /^join\s.+$/i,
   ],
 
   dispatch(socket, match) {
@@ -17,9 +20,13 @@ export default {
   },
 
   execute(character, username) {
-    const invitingCharacter = socketUtil.characterInRoom(character, username);
+    const invitingCharacter = autocomplete.character(character, username);
     if (!invitingCharacter) {
-      return;
+      return Promise.reject('unknown player.');
+    }
+
+    if (invitingCharacter.roomId !== character.roomId) {
+      return Promise.reject('That player doesn\'t appear to be in the room.');
     }
 
     if (!Array.isArray(character.partyInvites) || !character.partyInvites.includes(invitingCharacter.id)) {
@@ -48,7 +55,7 @@ export default {
   },
 
   help(socket) {
-    const output = '<span class="mediumOrchid">invite &lt;player&gt; </span><span class="purple">-</span> Invite a player to follow you.<br />';
+    const output = '<span class="mediumOrchid">follow <span class="purple">|</span> join &lt;player&gt; </span><span class="purple">-</span> Invite a player to follow you.<br />';
     socket.emit('output', { message: output });
   },
 };

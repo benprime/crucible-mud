@@ -202,9 +202,9 @@ describe('socketUtil', () => {
       const follower2 = new mocks.SocketMock('follower2');
       const follower3 = new mocks.SocketMock('follower3');
 
-      follower1.leader = leaderId;
-      follower2.leader = leaderId;
-      follower3.leader = leaderId;
+      follower1.character.leader = leaderId;
+      follower2.character.leader = leaderId;
+      follower3.character.leader = leaderId;
 
       const nonFollower1 = new mocks.SocketMock('nonFollower1');
       const nonFollower2 = new mocks.SocketMock('nonFollower2');
@@ -222,130 +222,9 @@ describe('socketUtil', () => {
 
       // assert
       expect(result).toHaveLength(3);
-      expect(result[0]).toBe(follower1);
-      expect(result[1]).toBe(follower2);
-      expect(result[2]).toBe(follower3);
-    });
-  });
-
-  describe('characterInRoom', () => {
-    let socket;
-
-    beforeEach(() => {
-      global.io.sockets.adapter.rooms = {};
-      global.io.reset();
-    });
-
-    test('returns false for invalid roomId', () => {
-      // act
-      const result = sut.characterInRoom('invalidRoomId', 'socketId');
-
-      // arrange
-      expect(result).toBe(false);
-    });
-
-    test('returns true when socket exists in the room', () => {
-      // arrange
-      let socket = new mocks.SocketMock();
-      let sockets = {};
-      sockets[socket.id] = socket;
-      global.io.sockets.connected = sockets;
-
-      // act
-      const result = sut.characterInRoom(socket.character.roomId, socket.character.name);
-
-      // arrange
-      expect(result).toBe(socket.character);
-    });
-
-    test('returns false when socket does not exist in the room', () => {
-      // arrange
-      global.io.sockets.adapter.rooms = {};
-      global.io.sockets.adapter.rooms['testroom'] = {
-        sockets: {},
-      };
-
-      // act
-      const result = sut.characterInRoom('testroom', 'unknownSocketId');
-
-      // arrange
-      expect(result).toBe(false);
-    });
-
-
-    test('should return false if user is not logged in', () => {
-      // arrange
-      const roomId = new ObjectId().valueOf();
-
-      // acting user
-      socket = new mocks.SocketMock();
-      socket.character.roomId = roomId;
-
-      // target user
-      let targetSocket = new mocks.SocketMock();
-      targetSocket.character.name = 'TargetUser';
-      targetSocket.character.roomId = roomId;
-
-      // act
-      let result = sut.characterInRoom(socket, targetSocket.character.username);
-
-      // assert
-      expect(result).toBe(false);
-    });
-
-    test('should return false if user is not in the room', () => {
-      // arrange
-      const roomId = new ObjectId().valueOf();
-
-      // acting user
-      socket = new mocks.SocketMock();
-      socket.character.roomId = roomId;
-
-      // target user
-      let targetSocket = new mocks.SocketMock();
-      targetSocket.character.name = 'TargetUser';
-      targetSocket.character.roomId = roomId;
-
-      // log the user in
-      global.io.sockets.connected[targetSocket.id] = targetSocket;
-
-      // act
-      let result = sut.characterInRoom(socket, targetSocket.character.name);
-
-      // assert
-      expect(result).toBe(false);
-    });
-
-    test('should return character when player is in the room', () => {
-      // arrange
-      const roomId = new ObjectId().toString();
-
-      // acting user
-      socket = new mocks.SocketMock();
-      socket.character.roomId = roomId;
-
-      // target user
-      let targetSocket = new mocks.SocketMock();
-      targetSocket.character.name = 'TargetUser';
-      targetSocket.character.roomId = roomId;
-
-      // log the user in
-      global.io.sockets.connected[targetSocket.id] = targetSocket;
-
-      // place the user in the room
-      let sockets = {};
-      sockets[targetSocket.id] = {};
-      global.io.sockets.adapter.rooms = {};
-      global.io.sockets.adapter.rooms[roomId] = {
-        sockets,
-      };
-
-      // act
-      let result = sut.characterInRoom(socket.character.roomId, targetSocket.character.name);
-
-      // assert
-      expect(result.name).toBe(targetSocket.character.name);
-      expect(result.id).toBe(targetSocket.character.id);
+      expect(result[0]).toBe(follower1.character);
+      expect(result[1]).toBe(follower2.character);
+      expect(result[2]).toBe(follower3.character);
     });
   });
 

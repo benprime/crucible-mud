@@ -1,6 +1,5 @@
 import { mockGetRoomById } from '../models/room';
 import { mockAutocompleteMultiple, mockAutocompleteCharacter } from '../core/autocomplete';
-import { mockCharacterInRoom } from '../core/socketUtil';
 import mocks from '../../spec/mocks';
 import sut from './accept';
 import Item from '../models/item';
@@ -35,7 +34,6 @@ describe('accept', () => {
       offeredItem.name = 'aItem';
 
       mockAutocompleteCharacter.mockReturnValueOnce(offeringSocket.character);
-      mockCharacterInRoom.mockReturnValueOnce(offeringSocket.character);
 
       offeringSocket.character.name = 'aUser';
       offeringSocket.character.name = 'aUser';

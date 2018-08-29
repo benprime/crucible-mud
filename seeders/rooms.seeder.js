@@ -12,7 +12,7 @@ const data = [
     "y": -1,
     "z": 0,
     "__v": 0,
-    "area": "5b74b9ca62976d41dae0c288",
+    "areaId": "5b74b9ca62976d41dae0c288",
     "inventory": [],
     "exits": [
         {
@@ -37,7 +37,7 @@ const data = [
     "y": -2,
     "z": 0,
     "__v": 0,
-    "area": "5b74b9ca62976d41dae0c288",
+    "areaId": "5b74b9ca62976d41dae0c288",
     "inventory": [],
     "exits": [
         {
@@ -89,7 +89,7 @@ const data = [
 },
 {
     "_id": Types.ObjectId("5b74bbfc959cbe4520536871"),
-    "area": "5b74b9ca62976d41dae0c288",
+    "areaId": "5b74b9ca62976d41dae0c288",
     "name": "Dead End",
     "desc": "An empty cave with scratches on the walls.",
     "x": 1,
@@ -107,7 +107,7 @@ const data = [
 },
 {
     "_id": Types.ObjectId("5b74be6a959cbe4520536874"),
-    "area": "5b74b9ca62976d41dae0c288",
+    "areaId": "5b74b9ca62976d41dae0c288",
     "name": "Passage",
     "desc": "Screams are carried on the air from the south.",
     "x": 0,
@@ -130,7 +130,7 @@ const data = [
 },
 {
     "_id": Types.ObjectId("5b74bed4959cbe452053687a"),
-    "area": "5b74b9ca62976d41dae0c288",
+    "areaId": "5b74b9ca62976d41dae0c288",
     "name": "Summoning Pit",
     "desc": "Unholy drawings and splattered blood cover the floor.",
     "x": 0,
@@ -156,7 +156,7 @@ const data = [
 },
 {
     "_id": Types.ObjectId("5b74beab959cbe4520536877"),
-    "area": "5b74b9ca62976d41dae0c288",
+    "areaId": "5b74b9ca62976d41dae0c288",
     "name": "Dark Altar",
     "desc": "An altar and pews are arranged around a staircase leading below.",
     "x": 0,
@@ -234,11 +234,11 @@ const data = [
         }
     ],
     "__v": 2,
-    "area": "5b779e8971dfb628458e4d36"
+    "areaId": "5b779e8971dfb628458e4d36"
 },
 {
     "_id": Types.ObjectId("5b779f15f25fe128bd016f64"),
-    "area": "5b779e8971dfb628458e4d36",
+    "areaId": "5b779e8971dfb628458e4d36",
     "name": "Merchant Street",
     "desc": "A muddy road.",
     "x": 3,
@@ -261,7 +261,7 @@ const data = [
 },
 {
     "_id": Types.ObjectId("5b779f4af25fe128bd016f67"),
-    "area": "5b779e8971dfb628458e4d36",
+    "areaId": "5b779e8971dfb628458e4d36",
     "name": "Town Square",
     "desc": "The center of town.",
     "x": 4,
@@ -284,7 +284,7 @@ const data = [
 },
 {
     "_id": Types.ObjectId("5b779f58f25fe128bd016f6a"),
-    "area": "5b779e8971dfb628458e4d36",
+    "areaId": "5b779e8971dfb628458e4d36",
     "name": "Merchant Street, east end",
     "desc": "A muddy road.",
     "x": 5,
@@ -307,7 +307,7 @@ const data = [
 },
 {
     "_id": Types.ObjectId("5b779f69f25fe128bd016f6d"),
-    "area": "5b779e8971dfb628458e4d36",
+    "areaId": "5b779e8971dfb628458e4d36",
     "name": "Default Room Name",
     "desc": "Room Description",
     "x": 6,
@@ -325,7 +325,7 @@ const data = [
 },
 {
     "_id": Types.ObjectId("5b779fd3f25fe128bd016f70"),
-    "area": "5b779e8971dfb628458e4d36",
+    "areaId": "5b779e8971dfb628458e4d36",
     "name": "General Store",
     "desc": "The general store is lined with goods.",
     "x": 2,

@@ -47,7 +47,7 @@ export default {
             { charId: character.id, message: 'Mob successfully destroyed.' },
           ],
           roomMessages: [
-            { roomId: character.roomId, message: `${character.name} erases ${mob.displayName} from existence!`, exclude: [character.id] },
+            { roomId: character.roomId, message: `${character.name} erases ${mob.name} from existence!`, exclude: [character.id] },
           ],
         });
       }

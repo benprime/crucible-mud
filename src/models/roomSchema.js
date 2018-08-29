@@ -124,6 +124,7 @@ RoomSchema.statics.populateRoomCache = function () {
 
     result.forEach(room => {
       room.mobs = [];
+      room.tracks = {};
       roomCache[room.id.toString()] = room;
       if (room.alias)
         roomCache[room.alias] = room;
@@ -246,6 +247,12 @@ RoomSchema.methods.kick = function (character, item, dir) {
   targetRoom.inventory.push(item);
   targetRoom.save(err => { if (err) throw err; });
 
+  // for scripting
+  this.tracks[item.id] = {
+    dir: dir,
+    timestamp: new Date().getTime(),
+  };
+
   const dirName = this.constructor.shortToLong(dir);
   const msg = `<span class="yellow">${character.name} kicks the ${item.name} to the ${dirName}</span>`;
   socketUtil.roomMessage(this.id, msg);
@@ -282,8 +289,8 @@ RoomSchema.methods.look = function (character, short) {
   let notHiddenItems = '';
   //let hiddenItems = '';
   if (this.inventory) {
-    notHiddenItems = this.inventory.filter(({ hidden }) => !hidden).map(({ displayName }) => displayName).join(', ');
-    //hiddenItems = this.inventory.filter(({ hidden }) => hidden).map(({ displayName }) => displayName).join(', ');
+    notHiddenItems = this.inventory.filter(({ hidden }) => !hidden).map(({ name }) => name).join(', ');
+    //hiddenItems = this.inventory.filter(({ hidden }) => hidden).map(({ name }) => name).join(', ');
   }
   if (notHiddenItems != '') {
     output += `<span class="darkcyan">You notice: ${notHiddenItems}.</span>\n`;
@@ -296,10 +303,10 @@ RoomSchema.methods.look = function (character, short) {
 
   const mobNames = this.mobs.map(m => m.displayName);
   if (mobNames) { characterNames = characterNames.concat(mobNames); }
-  const displayNames = characterNames.join('<span class="mediumOrchid">, </span>');
+  const formattedNames = characterNames.join('<span class="mediumOrchid">, </span>');
 
-  if (displayNames) {
-    output += `<span class="purple">Also here: <span class="teal">${displayNames}</span>.</span>\n`;
+  if (formattedNames) {
+    output += `<span class="purple">Also here: <span class="teal">${formattedNames}</span>.</span>\n`;
   }
 
   let notHiddenExits = '';
@@ -428,6 +435,12 @@ RoomSchema.methods.leave = function (character, dir, socket) {
     // unsubscribe from Socket.IO room
     socket.leave(this.id);
   }
+
+  // whenever you leave a room, you leave tracks (for tracking command and scripting options)
+  this.tracks[character.id] = {
+    dir: dir,
+    timestamp: new Date().getTime(),
+  };
 
   // leaving room message
   if (!character.sneakMode) {

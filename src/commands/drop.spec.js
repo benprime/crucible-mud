@@ -47,17 +47,17 @@ describe('drop', () => {
     item = new Item();
     item.name = 'dummyItem';
     item.type = 'item';
-    item.displayName = 'dropItem';
+    item.name = 'dropItem';
 
     key = new Item();
     key.name = 'dummyKey';
     key.type = 'key';
-    key.displayName = 'dropKey';
+    key.name = 'dropKey';
 
     invalidItem = new Item();
     invalidItem.name = 'invalidItem';
     invalidItem.type = 'InvalidType';
-    invalidItem.displayName = 'invalidDisplayName';
+    invalidItem.name = 'invalidname';
 
     socket.character.inventory = [item];
     socket.character.keys = [key];

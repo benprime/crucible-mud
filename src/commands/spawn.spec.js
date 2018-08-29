@@ -41,9 +41,9 @@ describe('spawn', () => {
       });
 
       test('should create instance of item in user inventory', () => {
-        return sut.execute(socket.character, 'item', 'shortsword').then(response => {
+        return sut.execute(socket.character, 'item', 'short sword').then(response => {
           expect(socket.character.inventory).toHaveLength(1);
-          expect(socket.character.inventory[0].displayName).toBe('short sword');
+          expect(socket.character.inventory[0].name).toBe('short sword');
           expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Item created.' });
           expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser emits a wave of energy!', exclude: [socket.character.id] });
           expect(socket.character.save).toHaveBeenCalled();
@@ -60,9 +60,9 @@ describe('spawn', () => {
       });
 
       test('should create instance of key in user keys', () => {
-        return sut.execute(socket.character, 'key', 'jadekey').then(response => {
+        return sut.execute(socket.character, 'key', 'jade key').then(response => {
           expect(socket.character.keys).toHaveLength(1);
-          expect(socket.character.keys[0].displayName).toBe('jade key');
+          expect(socket.character.keys[0].name).toBe('jade key');
           expect(response).toBe('Key created.');
           expect(socket.character.save).toHaveBeenCalled();
         });

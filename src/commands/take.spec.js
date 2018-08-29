@@ -61,7 +61,6 @@ describe('take', () => {
       const fixedItem = {
         id: 'aItemId',
         name: 'aItem',
-        displayName: 'aItem display name',
         fixed: true,
       };
       mockAutocompleteMultiple.mockReturnValueOnce({ item: fixedItem });
@@ -81,7 +80,6 @@ describe('take', () => {
       const item = {
         id: 'aItemId',
         name: 'aItem',
-        displayName: 'aItem display name',
       };
       mockRoom.inventory = [item];
       mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
@@ -91,8 +89,8 @@ describe('take', () => {
         // THIS IS RAD
         expect(socket.character.inventory).toContainEqual(expect.objectContaining({ name: 'aItem' }));
         expect(socket.character.save).toHaveBeenCalled();
-        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `${item.displayName} taken.` });
-        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} takes ${item.displayName}.`, exclude: [socket.character.id] });
+        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `${item.name} taken.` });
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} takes ${item.name}.`, exclude: [socket.character.id] });
       });
 
     });

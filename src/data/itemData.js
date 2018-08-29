@@ -2,8 +2,7 @@
 export default {
   catalog: [
     {
-      name: 'shortsword',
-      displayName: 'short sword',
+      name: 'short sword',
       desc: 'an iron short sword',
       price: 10,
       type: 'item',
@@ -15,28 +14,25 @@ export default {
       bonus: 'damage + 0', //stat + modifier
     },
     {
-      name: 'greatsword',
-      displayName: 'great sword',
+      name: 'great sword',
       desc: 'a huge sword requiring both hands to wield',
       price: 10,
       type: 'item',
       range: 'melee',
       equipSlots: ['weaponMain', 'weaponOff'],
-      damage: '1d6 0',  //die roll + modifier
+      damage: '1d6+3',  //die roll + modifier
       damageType: 'slashing',  //piercing, slashing, bludgeoning
       speed: 0,  //scale from -1(slowest) to 1(fastest)
       bonus: 'damage + 0', //stat + modifier
     },
     {
-      name: 'jadekey',
-      displayName: 'jade key',
+      name: 'jade key',
       desc: 'a key made out of jade',
       price: 10,
       type: 'key',
     },
     {
       name: 'torch',
-      displayName: 'torch',
       desc: 'a flaming stick',
       price: 10,
       type: 'item',
@@ -50,7 +46,6 @@ export default {
     {
       name: 'sign',
       fixed: true,
-      displayName: 'sign',
       desc: 'The sign reads \'Hi, I\'m a sign.\'',
       type: 'item',
     },

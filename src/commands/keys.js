@@ -15,7 +15,7 @@ export default {
 
   execute(character) {
     const keys = character.keys || [];
-    let keyOutput = keys.map(({ displayName }) => displayName).join(', ');
+    let keyOutput = keys.map(({ name }) => name).join(', ');
     if (!keyOutput) {
       keyOutput = 'None.';
     }

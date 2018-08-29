@@ -25,24 +25,24 @@ describe('autocomplete', () => {
 
     test('returns object when only one target type has a match', () => {
       // arrange
-      const testObj = { name: 'test name', displayName: 'test displayName' };
+      const testObj = { name: 'test name', name: 'test name' };
       socket.character.inventory = [testObj];
 
       // act
-      const result = sut.byProperty(socket.character.inventory, 'displayName', 'tes');
+      const result = sut.byProperty(socket.character.inventory, 'name', 'tes');
 
       // assert
       expect(result).toHaveLength(1);
-      expect(result[0].displayName).toBe('test displayName');
+      expect(result[0].name).toBe('test name');
     });
 
     test('returns empty array when no object matches', () => {
       // arrange
-      socket.character.inventory.push({ displayName: 'bbb' });
-      room.inventory.push({ displayName: 'bbb' });
+      socket.character.inventory.push({ name: 'bbb' });
+      room.inventory.push({ name: 'bbb' });
 
       // act
-      const result = sut.byProperty(socket.character.inventory, 'displayName', 'a');
+      const result = sut.byProperty(socket.character.inventory, 'name', 'a');
 
       // assert
       expect(result).toHaveLength(0);
@@ -50,15 +50,15 @@ describe('autocomplete', () => {
 
     test('returns array containing all matching objects when more than one target type matches', () => {
       // arrange
-      const userInventoryItem = { displayName: 'aaa' };
+      const userInventoryItem = { name: 'aaa' };
       socket.character.inventory.push(userInventoryItem);
 
       // act
-      const result = sut.byProperty(socket.character.inventory, 'displayName', 'a');
+      const result = sut.byProperty(socket.character.inventory, 'name', 'a');
 
       // assert
       expect(result).toHaveLength(1);
-      expect(result.find(({matchedValue, target}) => matchedValue === userInventoryItem.displayName
+      expect(result.find(({ matchedValue, target }) => matchedValue === userInventoryItem.name
         && target === 'inventory')).not.toBeNull();
     });
   });
@@ -76,11 +76,11 @@ describe('autocomplete', () => {
       mockGetRoomById.mockReturnValue(room);
     });
 
-    test('should return object if only displayName has a matching object', () => {
+    test('should return object if only name has a matching object', () => {
       // arrange
-      const inventoryItem = { name: 'aaa', displayName: 'bbb' };
+      const inventoryItem = { name: 'aaa', name: 'bbb' };
       socket.character.inventory = [inventoryItem];
-      const roomItem = { name: 'ccc', displayName: 'ddd' };
+      const roomItem = { name: 'ccc', name: 'ddd' };
       room.inventory = [roomItem];
 
       // act
@@ -89,14 +89,14 @@ describe('autocomplete', () => {
       // assert
       expect(result.type).toBe('room');
       expect(result.item.name).toBe(roomItem.name);
-      expect(result.item.displayName).toBe(roomItem.displayName);
+      expect(result.item.name).toBe(roomItem.name);
     });
 
     test('should return object if only name has a matching object', () => {
       // arrange
-      const inventoryItem = new Item({ name: 'aaa', displayName: 'bbb' });
+      const inventoryItem = new Item({ name: 'aaa'});
       socket.character.inventory = [inventoryItem];
-      const roomItem = new Item({ name: 'ccc', displayName: 'ddd' });
+      const roomItem = new Item({ name: 'bbb' });
       room.inventory = [roomItem];
 
       // act
@@ -106,11 +106,11 @@ describe('autocomplete', () => {
       expect(result.item.id).toBe(inventoryItem.id);
     });
 
-    test('should return null if neither name or displayName have matching object', () => {
+    test('should return null if neither name or name have matching object', () => {
       // arrange
-      const inventoryItem = { name: 'aaa', displayName: 'aaa' };
+      const inventoryItem = { name: 'aaa', name: 'aaa' };
       socket.character.inventory = [inventoryItem];
-      const roomItem = { name: 'aaa', displayName: 'aaa' };
+      const roomItem = { name: 'aaa', name: 'aaa' };
       room.inventory = [roomItem];
 
       // act

@@ -66,7 +66,7 @@ describe('destroy', () => {
       test('should do nothing when inventory does not contain item', () => {
         // arrange
         let item = new Item({
-          displayName: 'item name',
+          name: 'item name',
           name: 'item name',
         });
         socket.character.inventory.push(item);
@@ -86,7 +86,7 @@ describe('destroy', () => {
       test('should remove item from inventory when successful', () => {
         // arrange
         let item = new Item({
-          displayName: 'item name',
+          name: 'item name',
           name: 'item name',
         });
         mockAutocompleteMultiple.mockReturnValueOnce({ item: item });

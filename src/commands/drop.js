@@ -52,7 +52,7 @@ export default {
         { charId: character.id, message: 'Dropped.' },
       ],
       roomMessages: [
-        { roomId: character.roomId, message: `${character.name} drops ${result.item.displayName}.`, exclude: [character.id] },
+        { roomId: character.roomId, message: `${character.name} drops ${result.item.name}.`, exclude: [character.id] },
       ],
     });
   },

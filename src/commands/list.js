@@ -36,7 +36,7 @@ export default {
 
     const table = new AsciiTable();
     table.setHeading('price', 'name', 'desc', 'quantity');
-    stockTypes.forEach(st => table.addRow(st.itemType.price, st.itemType.displayName, st.itemType.desc, st.quantity));
+    stockTypes.forEach(st => table.addRow(st.itemType.price, st.itemType.name, st.itemType.desc, st.quantity));
 
     return Promise.resolve(`<pre>${table.toString()}</pre>`);
   },

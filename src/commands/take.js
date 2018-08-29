@@ -54,10 +54,10 @@ export default {
 
       return Promise.resolve({
         charMessages: [
-          { charId: character.id, message: `${roomItem.displayName} taken.` },
+          { charId: character.id, message: `${roomItem.name} taken.` },
         ],
         roomMessages: [
-          { roomId: character.roomId, message: `${character.name} takes ${roomItem.displayName}.`, exclude: [character.id] },
+          { roomId: character.roomId, message: `${character.name} takes ${roomItem.name}.`, exclude: [character.id] },
         ],
       });
     }

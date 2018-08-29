@@ -17,20 +17,20 @@ const TypeConfig = Object.freeze({
     source(character) {
       return character.inventory;
     },
-    propertyNames: ['name', 'displayName'],
+    propertyNames: ['name', 'name'],
   },
   key: {
     source(character) {
       return character.keys;
     },
-    propertyNames: ['name', 'displayName'],
+    propertyNames: ['name', 'name'],
   },
   room: {
     source(character) {
       const room = Room.getById(character.roomId);
       return room.inventory;
     },
-    propertyNames: ['name', 'displayName'],
+    propertyNames: ['name', 'name'],
   },
   character: {
     source(character) {
@@ -71,9 +71,19 @@ export default {
    * @returns {Array} - Array of objects that matches the property value filter.
    */
   byProperty(source, propertyName, fragment) {
+    // if multiple items have the exact same value for a particular property
+    // then we only consider the first object found with that value.
     const distinctSource = distinctByProperty(source, propertyName);
     const re = new RegExp(`^${escapeRegExp(fragment)}`, 'i');
-    return distinctSource.filter(value => !!re.exec(value[propertyName]));
+
+    return distinctSource.filter(obj => {
+      if (!obj[propertyName]) return false;
+      if (!typeof obj[propertyName] === 'string' && !(obj[propertyName] instanceof String)) return false;
+
+      // if there are spaces in the property value, then we consider each word.
+      const propValueArr = obj[propertyName].split(/\s+/);
+      return propValueArr.some(v => !!re.exec(v));
+    });
   },
 
   /**
@@ -97,6 +107,30 @@ export default {
     return [...new Set(combArr)];
   },
 
+  match(character, types, fragment) {
+    const results = [];
+
+    for (const typeKey in types) {
+      if (!types.hasOwnProperty(typeKey)) continue;
+
+      let type = types[typeKey];
+      let typeConfig = TypeConfig[type];
+      if (!typeConfig) {
+        throw `Invalid type: ${type}`;
+      }
+
+      let source = typeConfig.source(character);
+      let typeResult = this.byProperties(source, typeConfig.propertyNames, fragment);
+
+      results.push({
+        type: type,
+        items: typeResult,
+      });
+    }
+
+    return results;
+  },
+
   /**
    * Autocompletes a name fragment using multiple game object types and returns the object.
    * @param {Character} character - Character performing this action.
@@ -116,6 +150,8 @@ export default {
 
       let source = typeConfig.source(character);
       const results = this.byProperties(source, typeConfig.propertyNames, fragment);
+
+      // always returning the first one found
       if (results.length > 0) {
         return {
           type,

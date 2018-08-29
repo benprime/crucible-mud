@@ -294,7 +294,7 @@ describe('room model', () => {
       });
 
       test('should include inventory in output when inventory length is not zero', () => {
-        room.inventory = [{ displayName: 'An Item' }];
+        room.inventory = [{ name: 'An Item' }];
         return room.look(socket).then(output => {
           expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="darkcyan">You notice: An Item.</span>\n');
         });

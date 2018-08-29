@@ -30,7 +30,7 @@ describe('attack', () => {
       const autocompleteResult = {
         item: {
           id: 123,
-          displayName: 'a thing!',
+          name: 'a thing!',
         },
         type: 'mob',
       };

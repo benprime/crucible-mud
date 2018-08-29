@@ -217,7 +217,6 @@ class SocketMock {
 const mobType = {
   name: 'kobold',
   desc: 'an ugly kobold',
-  displayName: 'kobold sentry',
   adjectives: [
     {
       name: 'big',

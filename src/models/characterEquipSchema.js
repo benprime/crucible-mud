@@ -41,7 +41,7 @@ CharacterEquipSchema.methods.unequipSlotsForItem = function (item) {
   });
 
   itemIds.forEach(itemId => {
-    let itemName = this.$parent.inventory.find(i => i.id === itemId).displayName;
+    let itemName = this.$parent.inventory.find(i => i.id === itemId).name;
     this.$parent.output(`${itemName} unequipped.`);
   });
   //return itemIds;
@@ -67,13 +67,13 @@ CharacterEquipSchema.methods.isEquipped = function (item) {
 CharacterEquipSchema.methods.equip = function (item, inventory) {
 
   if (this.isEquipped(item)) {
-    this.$parent.output(`${item.displayName} already equipped.`);
+    this.$parent.output(`${item.name} already equipped.`);
     return;
   }
 
   this.unequipSlotsForItem(item, inventory);
   item.equipSlots.forEach(slot => this[slot] = item.id);
-  this.$parent.output(`${item.displayName} equipped.`);
+  this.$parent.output(`${item.name} equipped.`);
 };
 
 export default CharacterEquipSchema;

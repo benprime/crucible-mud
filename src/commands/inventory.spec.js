@@ -32,18 +32,18 @@ describe('inventory', () => {
 
     describe('inventory display of equipped items', () => {
       each([
-        [new Item({ displayName: 'testEquippedItem', equipSlots: ['weaponMain'] }), 'Main Weapon'],
-        [new Item({ displayName: 'testEquippedItem', equipSlots: ['weaponOff'] }), 'Offhand Weapon'],
-        [new Item({ displayName: 'testEquippedItem', equipSlots: ['head'] }), 'Head'],
-        [new Item({ displayName: 'testEquippedItem', equipSlots: ['body'] }), 'Body'],
-        [new Item({ displayName: 'testEquippedItem', equipSlots: ['back'] }), 'Back'],
-        [new Item({ displayName: 'testEquippedItem', equipSlots: ['legs'] }), 'Legs'],
-        [new Item({ displayName: 'testEquippedItem', equipSlots: ['feet'] }), 'Feet'],
-        [new Item({ displayName: 'testEquippedItem', equipSlots: ['arms'] }), 'Arms'],
-        [new Item({ displayName: 'testEquippedItem', equipSlots: ['hands'] }), 'Hands'],
-        [new Item({ displayName: 'testEquippedItem', equipSlots: ['neck'] }), 'Neck'],
-        [new Item({ displayName: 'testEquippedItem', equipSlots: ['fingerMain'] }), 'Main Hand Finger'],
-        [new Item({ displayName: 'testEquippedItem', equipSlots: ['fingerOff'] }), 'Off Hand Finger'],
+        [new Item({ name: 'testEquippedItem', equipSlots: ['weaponMain'] }), 'Main Weapon'],
+        [new Item({ name: 'testEquippedItem', equipSlots: ['weaponOff'] }), 'Offhand Weapon'],
+        [new Item({ name: 'testEquippedItem', equipSlots: ['head'] }), 'Head'],
+        [new Item({ name: 'testEquippedItem', equipSlots: ['body'] }), 'Body'],
+        [new Item({ name: 'testEquippedItem', equipSlots: ['back'] }), 'Back'],
+        [new Item({ name: 'testEquippedItem', equipSlots: ['legs'] }), 'Legs'],
+        [new Item({ name: 'testEquippedItem', equipSlots: ['feet'] }), 'Feet'],
+        [new Item({ name: 'testEquippedItem', equipSlots: ['arms'] }), 'Arms'],
+        [new Item({ name: 'testEquippedItem', equipSlots: ['hands'] }), 'Hands'],
+        [new Item({ name: 'testEquippedItem', equipSlots: ['neck'] }), 'Neck'],
+        [new Item({ name: 'testEquippedItem', equipSlots: ['fingerMain'] }), 'Main Hand Finger'],
+        [new Item({ name: 'testEquippedItem', equipSlots: ['fingerOff'] }), 'Off Hand Finger'],
       ]).test('should print equipped item on %s equip slot', (equippedItem, slotDisplayString) => {
         // arrange
         socket.character.inventory = [equippedItem];
@@ -54,7 +54,7 @@ describe('inventory', () => {
         // act
         return sut.execute(socket.character).then(response => {
           // assert
-          let expectedString = `${slotDisplayString}: </span><span class="silver">${equippedItem.displayName}</span>`;
+          let expectedString = `${slotDisplayString}: </span><span class="silver">${equippedItem.name}</span>`;
           expect(response).toContain(expectedString);
         });
 
@@ -64,9 +64,9 @@ describe('inventory', () => {
     test('should display backpack items', () => {
       // arrange
       socket.character.inventory = [
-        { displayName: 'ItemOne' },
-        { displayName: 'ItemTwo' },
-        { displayName: 'ItemThree' },
+        { name: 'ItemOne' },
+        { name: 'ItemTwo' },
+        { name: 'ItemThree' },
       ];
       const expectedString = '<span class="cyan">Backpack: </span><span class="silver">ItemOne, ItemTwo, ItemThree</span>';
 
@@ -81,9 +81,9 @@ describe('inventory', () => {
     test('should display key items', () => {
       // arrange
       socket.character.keys = [
-        { displayName: 'KeyOne' },
-        { displayName: 'KeyTwo' },
-        { displayName: 'KeyThree' },
+        { name: 'KeyOne' },
+        { name: 'KeyTwo' },
+        { name: 'KeyThree' },
       ];
       const expectedString = '<span class="cyan">Keys: </span><span class="silver">KeyOne, KeyTwo, KeyThree</span>';
 

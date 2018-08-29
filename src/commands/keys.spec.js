@@ -26,9 +26,9 @@ describe('keys', () => {
     test('should display user keys when user has keys', () => {
       // arrange
       socket.character.keys = [
-        { displayName: 'KeyOne' },
-        { displayName: 'KeyTwo' },
-        { displayName: 'KeyThree' },
+        { name: 'KeyOne' },
+        { name: 'KeyTwo' },
+        { name: 'KeyThree' },
       ];
       const expectedString = '<span class=\'cyan\'>Key ring: </span><span class=\'silver\'>KeyOne, KeyTwo, KeyThree</span>';
 

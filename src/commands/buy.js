@@ -25,27 +25,24 @@ export default {
       return Promise.reject('This command can only be used in a shop.');
     }
 
-    const itemType = shop.getItemTypeByAutocomplete(itemName);
-    if (!itemType) {
-      return Promise.reject('This shop does not deal in those types of items.');
-    }
+    return shop.getItemTypeByAutocomplete(itemName).then(itemType => {
+      // check if user has money
+      if (character.currency < itemType.price) {
+        return Promise.reject('You cannot afford that.');
+      }
 
-    // check if user has money
-    if (character.currency < itemType.price) {
-      return Promise.reject('You cannot afford that.');
-    }
-
-    const item = shop.buy(character, itemType);
-    if (item) {
-      return Promise.resolve({
-        charMessages: [
-          { charId: character.id, message: 'Item purchased.' },
-        ],
-        roomMessages: [
-          { roomId: character.roomId, message: `${character.name} buys ${item.displayName} from the shop.`, exclude: [character.id] },
-        ],
-      });
-    }
+      const item = shop.buy(character, itemType);
+      if (item) {
+        return Promise.resolve({
+          charMessages: [
+            { charId: character.id, message: 'Item purchased.' },
+          ],
+          roomMessages: [
+            { roomId: character.roomId, message: `${character.name} buys ${item.name} from the shop.`, exclude: [character.id] },
+          ],
+        });
+      }
+    });
   },
 
   help(socket) {

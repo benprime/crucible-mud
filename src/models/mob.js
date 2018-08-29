@@ -34,8 +34,6 @@ class Mob {
       instance.maxDamage += adjective.modifiers.maxDamage;
       instance.hitDice += adjective.modifiers.hitDice;
       instance.attackInterval += adjective.modifiers.attackInterval;
-
-      instance.displayName = `${adjective.name} ${instance.displayName}`;
     }
 
     instance.roomId = roomId;

@@ -52,9 +52,18 @@ ShopSchema.methods.getItemTypeByAutocomplete = function (itemName) {
   const stockTypes = this.getStockTypes();
   const itemTypes = stockTypes.map(st => st.itemType);
 
-  const acResult = autocomplete.byProperty(itemTypes, 'displayName', itemName);
-  if (Array.isArray(acResult) && acResult.length > 0) {
-    return acResult[0];
+  const acResult = autocomplete.byProperty(itemTypes, 'name', itemName);
+  if (Array.isArray(acResult) && acResult.length > 1) {
+    const names = acResult.map(i => i.name);
+    return Promise.reject(`Which ${itemName} did you mean?\n` + names.join('\n'));
+  }
+
+  if (Array.isArray(acResult) && acResult.length === 1) {
+    return Promise.resolve(acResult[0]);
+  }
+
+  if (Array.isArray(acResult) && acResult.length === 0) {
+    return Promise.reject('This shop does not deal in those types of items.');
   }
 };
 

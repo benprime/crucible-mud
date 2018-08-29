@@ -8,7 +8,6 @@ const itemTypeEnum = [
 
 const ItemSchema = new mongoose.Schema({
   name: String,
-  displayName: String,
   desc: String,
   type: {
     type: String,

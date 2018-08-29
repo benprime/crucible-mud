@@ -33,7 +33,6 @@ describe('accept', () => {
       let offeredItem = new Item();
       offeredItem._id = new ObjectId();
       offeredItem.name = 'aItem';
-      offeredItem.displayName = 'aItem display name';
 
       mockAutocompleteCharacter.mockReturnValueOnce(offeringSocket.character);
       mockCharacterInRoom.mockReturnValueOnce(offeringSocket.character);
@@ -51,12 +50,12 @@ describe('accept', () => {
 
       return sut.execute(socket.character, 'aUser').then(response => {
         expect(socket.character.offers).toHaveLength(0);
-        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `You accept the ${offeredItem.displayName} from ${offeringSocket.character.name}.` });
+        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `You accept the ${offeredItem.name} from ${offeringSocket.character.name}.` });
         expect(socket.character.save).toHaveBeenCalled();
         expect(socket.character.inventory).toHaveLength(1);
         expect(socket.character.inventory[0].name).toEqual('aItem');
 
-        expect(response.charMessages).toContainEqual({ charId: offeringSocket.character.id, message: `${socket.character.name} accepts the ${offeredItem.displayName}.` });
+        expect(response.charMessages).toContainEqual({ charId: offeringSocket.character.id, message: `${socket.character.name} accepts the ${offeredItem.name}.` });
         expect(offeringSocket.character.save).toHaveBeenCalled();
         expect(offeringSocket.character.inventory).toHaveLength(0);
       });

@@ -135,11 +135,11 @@ CharacterSchema.methods.attack = function (socket, mob, now) {
   let attackResult = this.attackroll();
 
   if (attackResult == 2) {
-    actorMessage = `<span class="${config.DMG_COLOR}">You hit ${mob.displayName} for ${playerDmg} damage!</span>`;
-    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} hits ${mob.displayName} for ${playerDmg} damage!</span>`;
+    actorMessage = `<span class="${config.DMG_COLOR}">You hit ${mob.name} for ${playerDmg} damage!</span>`;
+    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} hits ${mob.name} for ${playerDmg} damage!</span>`;
   } else {
-    actorMessage = `<span class="${config.MSG_COLOR}">You swing at the ${mob.displayName} but miss!</span>`;
-    roomMessage = `<span class="${config.MSG_COLOR}">${this.username} swings at the ${mob.displayName} but misses!</span>`;
+    actorMessage = `<span class="${config.MSG_COLOR}">You swing at the ${mob.name} but miss!</span>`;
+    roomMessage = `<span class="${config.MSG_COLOR}">${this.username} swings at the ${mob.name} but misses!</span>`;
   }
 
   socket.emit('output', { message: actorMessage });

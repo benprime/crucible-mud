@@ -56,11 +56,11 @@ export default {
     if (sellPrice) {
       return Promise.resolve({
         charMessages: [
-          { charId: character.id, message: `You sold ${itemType.displayName} for ${sellPrice}.` },
+          { charId: character.id, message: `You sold ${itemType.name} for ${sellPrice}.` },
         ],
         roomMessages: [
           // todo: is item type enough here? There may be adjectives on items
-          { roomId: character.roomId, message: `${character.name} sells ${itemType.displayName} to the shop.`, exclude: [character.id] },
+          { roomId: character.roomId, message: `${character.name} sells ${itemType.name} to the shop.`, exclude: [character.id] },
         ],
       });
     }

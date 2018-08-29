@@ -45,7 +45,7 @@ db.once('open', () => {
 
     socket.on('disconnect', () => {
       if (socket.character) {
-        socket.broadcast.emit('output', { message: `<span class="yellow">${socket.character.name} has left the realm.</span>` });
+        socketUtil.getAllSockets().forEach(s => socketUtil.output(s, `<span class="yellow">${socket.character.name} has left the realm.</span>`));
       }
     });
 

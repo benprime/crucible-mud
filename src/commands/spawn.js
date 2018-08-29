@@ -9,7 +9,7 @@ export const spawn = (itemType) => {
   return new Item({
     name: itemType.name,
     desc: itemType.desc,
-    displayName: itemType.displayName,
+    name: itemType.name,
     type: itemType.type,
     fixed: itemType.fixed,
     equipSlots: itemType.equipSlots,
@@ -120,7 +120,7 @@ export default {
       let key = new Item({
         name: keyType.name,
         desc: keyType.desc,
-        displayName: keyType.displayName,
+        name: keyType.name,
         type: 'key',
       });
 

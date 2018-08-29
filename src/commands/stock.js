@@ -7,7 +7,7 @@ export default {
   admin: true,
 
   patterns: [
-    /^stock\s+(\w+)\s+(\d+)$/i,
+    /^stock\s+(.+)\s+(\d+)$/i,
     /^stock\s.*$/i,
     /^stock$/i,
   ],
@@ -30,6 +30,7 @@ export default {
       return Promise.reject('This command can only be used in a shop.');
     }
 
+    // this does not yet use autocomplate, because catalog data will be moved to the database
     const createType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'item');
     if (!createType) {
       return Promise.reject('Unknown item type.');

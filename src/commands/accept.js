@@ -67,8 +67,8 @@ export default {
       fromCharacterMessage = `${toCharacter.name} accepts your offer of ${currencyToString(offer.currency)}.`;
       toCharacterMessage = `You accept the offer of ${currencyToString(offer.currency)} from ${fromCharacter.name}.`;
     } else {
-      fromCharacterMessage = `${toCharacter.name} accepts the ${offer.item.displayName}.`;
-      toCharacterMessage = `You accept the ${offer.item.displayName} from ${fromCharacter.name}.`;
+      fromCharacterMessage = `${toCharacter.name} accepts the ${offer.item.name}.`;
+      toCharacterMessage = `You accept the ${offer.item.name} from ${fromCharacter.name}.`;
     }
 
     return Promise.resolve({

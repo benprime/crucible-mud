@@ -54,10 +54,9 @@ export default {
       catalog = data;
     }
 
+    let output = '<table><tr><th>Name</th></tr>';
 
-    let output = '<table><tr><th>Name</th><th>Display Name</th></tr>';
-
-    const listTable = catalog.map(({ name, displayName }) => `<tr><td>${name}</td><td>${displayName}</td></tr>`).join('\n');
+    const listTable = catalog.map(({ name }) => `<tr><td>${name}</td></tr>`).join('\n');
     output += listTable;
 
     output += '</table>';

@@ -2,6 +2,7 @@ import { currencyToString } from '../core/currency';
 
 export default {
   name: 'inventory',
+  desc: 'list the items you are currently carrying',
 
   patterns: [
     /^i$/i,

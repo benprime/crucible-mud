@@ -223,8 +223,7 @@ const mobType = {
       modifiers: {
         hp: 10,
         xp: 0,
-        minDamage: 0,
-        maxDamage: 0,
+        damage: '1d2',
         hitDice: 0,
         attackInterval: 250,
       },

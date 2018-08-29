@@ -4,6 +4,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'drop',
+  desc: 'drop an inventory item on the ground',
 
   patterns: [
     /^dr\s+(.+)$/i,

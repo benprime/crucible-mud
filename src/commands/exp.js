@@ -1,7 +1,9 @@
 export default {
   name: 'experience',
+  desc: 'show you currency experience level',
 
   patterns: [
+    /^experience$/i,
     /^exp$/i,
     /^xp$/i,
   ],

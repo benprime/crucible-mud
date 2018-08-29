@@ -5,6 +5,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'list',
+  desc: 'list item available for purchase in a shop',
 
   patterns: [
     /^list$/i,

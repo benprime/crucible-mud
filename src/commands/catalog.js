@@ -4,6 +4,7 @@ import Area from '../models/area';
 
 export default {
   name: 'catalog',
+  desc: 'list catalog of item types for use with spawn command',
   admin: true,
 
   patterns: [

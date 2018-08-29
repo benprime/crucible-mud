@@ -2,6 +2,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'invite',
+  desc: 'invite another player to follow you',
 
   patterns: [
     /^invite\s+(\w+)$/i,

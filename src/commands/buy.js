@@ -3,6 +3,7 @@ import Shop from '../models/shop';
 
 export default {
   name: 'buy',
+  desc: 'buy item from a shop',
 
   patterns: [
     /^buy\s+(.+)$/i,

@@ -3,6 +3,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'yell',
+  desc: 'shout a message to current and all adjacent rooms',
 
   patterns: [
     /^"(.+)"?/,

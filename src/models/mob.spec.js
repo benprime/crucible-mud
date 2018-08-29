@@ -264,10 +264,10 @@ describe('mob model', () => {
       // arrange
       mockGetCharacterById.mockReturnValueOnce(socket.character);
       mockGetSocketByCharacterId.mockReturnValueOnce(socket);
-      mockRoll.mockReturnValueOnce(1);
+      mockRoll.mockReturnValueOnce(1).mockReturnValueOnce(1);
       mob.attackTarget = socket.character.id;
-      const playerMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits you for 0 damage!</span>`;
-      const roomMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits ${socket.character.name} for 0 damage!</span>`;
+      const playerMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits you for 1 damage!</span>`;
+      const roomMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits ${socket.character.name} for 1 damage!</span>`;
 
       // act
       mob.attack(new Date());

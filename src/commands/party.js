@@ -2,6 +2,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'party',
+  desc: 'list the members of your current party',
 
   patterns: [
     /^party$/i,

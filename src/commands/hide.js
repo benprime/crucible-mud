@@ -36,6 +36,7 @@ function hideItem(character, room, itemName) {
 
 export default {
   name: 'hide',
+  desc: 'hide an item in your current room',
 
   patterns: [
     /^hide$/i,

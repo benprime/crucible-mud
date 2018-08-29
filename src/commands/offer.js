@@ -4,6 +4,7 @@ import { currencyToInt, currencyToString } from '../core/currency';
 
 export default {
   name: 'offer',
+  desc: 'offer an item to another player',
 
   patterns: [
     /^offer\s+(.+)\s+to\s+(.+)$/i,

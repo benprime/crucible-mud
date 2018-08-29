@@ -3,6 +3,7 @@ import autocomplete from '../core/autocomplete';
 
 export default {
   name: 'unequip',
+  desc: 'stop wielding or wearing an item your are currently using',
 
   patterns: [
     /^uneq\s+(.+)$/i,

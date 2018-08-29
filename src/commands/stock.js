@@ -4,6 +4,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'stock',
+  desc: 'add item types to an existing shop',
   admin: true,
 
   patterns: [

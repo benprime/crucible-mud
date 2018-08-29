@@ -2,6 +2,7 @@ import autocomplete from '../core/autocomplete';
 
 export default {
   name: 'equip',
+  desc: 'wield a weapon or wear armor you are currently carrying',
 
   patterns: [
     /^eq\s+(.+)$/i,

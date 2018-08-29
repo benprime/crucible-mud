@@ -78,6 +78,7 @@ function setRoom(character, prop, value) {
 
 export default {
   name: 'set',
+  desc: 'set game object properties',
   admin: true,
 
   patterns: [

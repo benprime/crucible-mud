@@ -2,9 +2,11 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'stats',
+  desc: 'view your character status and abilities',
 
   patterns: [
     /^stats$/i,
+    /^stat$/i,
   ],
 
   dispatch(socket) {

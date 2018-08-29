@@ -1,6 +1,7 @@
 import socketUtil from '../core/socketUtil';
 export default {
   name: 'break',
+  desc: 'break off combat',
 
   patterns: [
     /^br$/i,

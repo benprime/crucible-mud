@@ -5,6 +5,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'take',
+  desc: 'take an item',
 
   patterns: [
     /^take\s+(.+)$/i,

@@ -4,6 +4,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'search',
+  desc: 'search the current room for hidden objects',
 
   patterns: [
     /^search$/i,

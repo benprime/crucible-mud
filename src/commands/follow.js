@@ -3,6 +3,7 @@ import utils from '../core/utilities';
 
 export default {
   name: 'follow',
+  desc: 'accept an invite to follow another player',
 
   patterns: [
     /^follow\s+(\w+)$/i,

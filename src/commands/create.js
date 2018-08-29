@@ -4,6 +4,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'create',
+  desc: 'create a room or door',
   admin: true,
 
   patterns: [

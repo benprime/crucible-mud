@@ -3,6 +3,7 @@ import Room from '../models/room';
 
 export default {
   name: 'kick',
+  desc: 'kick an item in a particular direction',
 
   patterns: [
     /^kick\s+(.+)\s+(\w+)$/i,

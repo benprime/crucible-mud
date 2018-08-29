@@ -2,6 +2,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'keys',
+  desc: 'list the keys your are currently carrying',
 
   patterns: [
     /^keys$/i,

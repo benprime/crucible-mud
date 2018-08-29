@@ -117,7 +117,7 @@ class Mob {
     }
 
     this.lastAttack = now;
-    const dmg = 0;
+    const dmg = dice.roll('1d2');
     let playerMessage = '';
     let roomMessage = '';
 

@@ -3,6 +3,7 @@ import autocomplete from '../core/autocomplete';
 
 export default {
   name: 'attack',
+  desc: 'attack a monster',
 
   patterns: [
     /^a\s+(.+)$/i,

@@ -39,43 +39,35 @@ const CharacterSchema = new mongoose.Schema({
   },
 
   skills: {
-    // ability to not be seen/heard (DEX)
-    stealth: { type: Number },
-    // open non-magical locks (DEX)
-    lockpick: { type: Number },
-    // steal from others (DEX)
-    pickpocket: { type: Number },
-    // visual (hidden door, trap, etc) (INT)
-    search: { type: Number },
-    // magical (active spell, illusion, etc) (INT/WIL)
-    detect: { type: Number },
-    // auditory (sounds beyond door, wind outside cave entrance, etc) (INT)
-    listen: { type: Number },
-    // determine hidden qualities of objects (INT)
-    identify: { type: Number },
-    // eliminate traps (DEX)
-    disable: { type: Number },
-    // make deals with others (CHA)
-    negotiate: { type: Number },
-    // mislead/swindle others (CHA)
-    bluff: { type: Number },
-    // force others to comply through fear (STR/CHA)
-    intimidate: { type: Number },
-    // affinity/skill with magic (INT/WIL)
-    magic: { type: Number },
-    // affinity/skill with weapons (STR/DEX)
-    weapons: { type: Number },
-    // subweapon skills? (dual, ranged, one hand, two hand, pierce, slash, bludge)
-    // hide objects (DEX)
-    conceal: { type: Number },
-    // minor self heal (CON)
-    heal: { type: Number },
-    // minor self revitalization of energy (WIL)
-    refresh: { type: Number },
-    // survive what others cannot (resist poison, no KO, etc) (CON)
-    endure: { type: Number },
-    // shield from magic (resist spell, see through illusion/charm, etc) (WIL)
-    resist: { type: Number },
+    
+    stealth: { type: Number }, // ability to not be seen/heard (DEX)
+    lockpick: { type: Number }, // open non-magical locks (DEX)
+    pickpocket: { type: Number }, // steal from others (DEX)
+    
+    
+    // combine to perception
+    search: { type: Number }, // visual (hidden door, trap, etc) (INT)
+    listen: { type: Number }, // auditory (sounds beyond door, wind outside cave entrance, etc) (INT)
+    detect: { type: Number }, // magical (active spell, illusion, etc) (INT/WIL)
+
+    //unarmed?
+
+    identify: { type: Number }, // determine hidden qualities of objects (INT)
+    disable: { type: Number }, // eliminate traps (DEX)
+    negotiate: { type: Number }, // make deals with others (CHA)
+    bluff: { type: Number }, // mislead/swindle others (CHA)
+    intimidate: { type: Number }, // force others to comply through fear (STR/CHA)
+    magic: { type: Number }, // affinity/skill with magic (INT/WIL)
+    weapons: { type: Number }, // affinity/skill with weapons (STR/DEX) // subweapon skills? (dual, ranged, one hand, two hand, pierce, slash, bludge)
+    
+    conceal: { type: Number }, // hide objects (DEX)
+    heal: { type: Number }, // minor self heal (CON)
+    
+    refresh: { type: Number }, // minor self revitalization of energy (WIL)
+
+    endure: { type: Number }, // survive what others cannot (resist poison, no KO, etc) (CON)
+
+    resist: { type: Number }, // shield from magic (resist spell, see through illusion/charm, etc) (WIL)
   },
 }, { usePushEach: true });
 

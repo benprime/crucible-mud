@@ -58,7 +58,7 @@ describe('lock', () => {
   test('should succeed on valid direction with door', () => {
     // arrange
     mockValidDirectionInput.mockReturnValueOnce('n');
-    mockAutocompleteMultiple.mockReturnValueOnce({ item: { name: 'key', name: 'some key' } });
+    mockAutocompleteMultiple.mockReturnValueOnce({ item: { name: 'some key' } });
 
     // act
     return sut.execute(socket.character, 'n', 'some key').then(output => {

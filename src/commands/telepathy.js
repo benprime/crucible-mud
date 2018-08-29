@@ -2,6 +2,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'telepathy',
+  desc: 'communicate directly to a single user',
 
   patterns: [
     /^\/(\w+)\s+(.*)$/,

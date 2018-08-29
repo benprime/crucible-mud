@@ -4,6 +4,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'who',
+  desc: 'display the other players currently online',
 
   patterns: [
     /^who$/i,

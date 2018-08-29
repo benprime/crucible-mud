@@ -5,6 +5,7 @@ import Room from '../models/room';
 
 export default {
   name: 'unlock',
+  desc: 'unlock a door with a key',
 
   patterns: [
     /^unlock\s+(\w+)\s+with\s+(.+)$/i,

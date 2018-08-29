@@ -4,6 +4,7 @@ import { currencyToString } from '../core/currency';
 
 export default {
   name: 'accept',
+  desc: 'accept offered currency or item from another player',
 
   patterns: [
     /^accept\s+offer\s+(\w+)$/i,

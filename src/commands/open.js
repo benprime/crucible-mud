@@ -3,6 +3,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'open',
+  desc: 'open a door',
 
   patterns: [
     /^open\s+(\w+)$/i,

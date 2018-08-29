@@ -3,6 +3,7 @@ import Room from '../models/room';
 
 export default {
   name: 'close',
+  desc: 'close a door',
 
   patterns: [
     /^close\s+(\w+)$/i,

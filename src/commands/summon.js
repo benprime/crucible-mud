@@ -4,6 +4,7 @@ import lookCmd from './look';
 
 export default {
   name: 'summon',
+  desc: 'teleport another player to your location',
   admin: true,
 
   patterns: [

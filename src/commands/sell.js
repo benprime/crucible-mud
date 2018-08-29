@@ -4,6 +4,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'sell',
+  desc: 'sell your items at a shop',
 
   patterns: [
     /^sell\s+(.+)$/i,

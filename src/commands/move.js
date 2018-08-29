@@ -31,6 +31,7 @@ const directions = [
 
 export default {
   name: 'move',
+  desc: 'move from room to room',
 
   patterns: commands.concat(directions),
 

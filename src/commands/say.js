@@ -2,6 +2,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'say',
+  desc: 'communicate with players in the current room',
 
   patterns: [
     /^\.(.+)/,

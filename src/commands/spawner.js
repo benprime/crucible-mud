@@ -39,6 +39,7 @@ setInterval(() => {
 
 export default {
   name: 'spawner',
+  desc: 'create and set mob spawner in the current room',
   admin: true,
 
   patterns: [

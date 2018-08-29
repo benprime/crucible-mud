@@ -3,6 +3,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'roll',
+  desc: 'roll a dice',
 
   patterns: [
     /^roll$/i,

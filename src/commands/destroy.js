@@ -5,6 +5,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'destroy',
+  desc: 'destroy an item or mob instance',
   admin: true,
 
   patterns: [

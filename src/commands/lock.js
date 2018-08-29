@@ -4,6 +4,7 @@ import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'lock',
+  desc: 'lock a door',
   admin: true,
 
   patterns: [

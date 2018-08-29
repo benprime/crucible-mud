@@ -9,7 +9,6 @@ export const spawn = (itemType) => {
   return new Item({
     name: itemType.name,
     desc: itemType.desc,
-    name: itemType.name,
     type: itemType.type,
     fixed: itemType.fixed,
     equipSlots: itemType.equipSlots,
@@ -34,6 +33,7 @@ export const spawnAndGive = (character, itemType, cb) => {
 
 export default {
   name: 'spawn',
+  desc: 'create mob and item instances of the catalog types',
   admin: true,
 
   targets: ['mob', 'player', 'inventoryItem', 'roomItem'],
@@ -58,7 +58,6 @@ export default {
   },
 
   execute(character, type, name) {
-
 
     // Mob
     //---------------------
@@ -120,7 +119,6 @@ export default {
       let key = new Item({
         name: keyType.name,
         desc: keyType.desc,
-        name: keyType.name,
         type: 'key',
       });
 

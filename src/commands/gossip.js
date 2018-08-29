@@ -1,5 +1,6 @@
 export default Object.freeze({
   name: 'gossip',
+  desc: 'chat in a global channel, visible to all rooms',
 
   patterns: [
     /^gossip\s+?(.+)/i,

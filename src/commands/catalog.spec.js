@@ -13,22 +13,18 @@ describe('catalog', () => {
       catalog: [
         {
           type: 'key',
-          name: 'key 1 display name',
           name: 'key 1',
         },
         {
           type: 'key',
-          name: 'key 2 display name',
           name: 'key 2',
         },
         {
           type: 'item',
-          name: 'item 1 display name',
           name: 'item 1',
         },
         {
           type: 'item',
-          name: 'item 2 display name',
           name: 'item 2',
         },
       ],
@@ -37,7 +33,6 @@ describe('catalog', () => {
       catalog: [
         {
           type: 'mob',
-          name: 'mob 1 display name',
           name: 'mob 1',
         },
       ],

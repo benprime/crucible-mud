@@ -21,7 +21,7 @@ describe('look', () => {
     socket = new mocks.SocketMock();
     targetRoomNorth = mocks.getMockRoom();
     currentRoom = mocks.getMockRoom(socket.character.roomId);
-    currentRoom.mobs = [{ name: 'dummy', name: 'dummy', desc: 'a dummy!' }];
+    currentRoom.mobs = [{ name: 'dummy', desc: 'a dummy!' }];
     const nExit = currentRoom.exits.find(e => e.dir === 'n');
     nExit.roomId = targetRoomNorth.id;
     nExit.closed = true;

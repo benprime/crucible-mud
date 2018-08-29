@@ -11,11 +11,13 @@ const CharacterSchema = new mongoose.Schema({
   name: { type: String },
   roomId: { type: String },
 
+  gender: { type: String, enum: ['male', 'female'], default: 'male' },
+
   inventory: [ItemSchema],
   keys: [ItemSchema],
   currency: { type: Number, default: 0 },
 
-  equipped: { type: CharacterEquipSchema },
+  equipped: { type: CharacterEquipSchema, default: CharacterEquipSchema},
 
   armorRating: { type: Number },
 
@@ -39,12 +41,12 @@ const CharacterSchema = new mongoose.Schema({
   },
 
   skills: {
-    
+
     stealth: { type: Number }, // ability to not be seen/heard (DEX)
     lockpick: { type: Number }, // open non-magical locks (DEX)
     pickpocket: { type: Number }, // steal from others (DEX)
-    
-    
+
+
     // combine to perception
     search: { type: Number }, // visual (hidden door, trap, etc) (INT)
     listen: { type: Number }, // auditory (sounds beyond door, wind outside cave entrance, etc) (INT)
@@ -59,10 +61,10 @@ const CharacterSchema = new mongoose.Schema({
     intimidate: { type: Number }, // force others to comply through fear (STR/CHA)
     magic: { type: Number }, // affinity/skill with magic (INT/WIL)
     weapons: { type: Number }, // affinity/skill with weapons (STR/DEX) // subweapon skills? (dual, ranged, one hand, two hand, pierce, slash, bludge)
-    
+
     conceal: { type: Number }, // hide objects (DEX)
     heal: { type: Number }, // minor self heal (CON)
-    
+
     refresh: { type: Number }, // minor self revitalization of energy (WIL)
 
     endure: { type: Number }, // survive what others cannot (resist poison, no KO, etc) (CON)
@@ -71,6 +73,9 @@ const CharacterSchema = new mongoose.Schema({
   },
 }, { usePushEach: true });
 
+//============================================================================
+// Statics
+//============================================================================
 CharacterSchema.statics.findByName = function (name) {
   const userRegEx = new RegExp(`^${name}$`, 'i');
   return this.findOne({ name: userRegEx }).populate('user');
@@ -78,6 +83,15 @@ CharacterSchema.statics.findByName = function (name) {
 
 CharacterSchema.statics.findByUser = function (user) {
   return this.findOne({ user: user });
+};
+
+
+//============================================================================
+// Instance methods
+//============================================================================
+CharacterSchema.methods.getDesc = function () {
+  // todo: Add character specific detaisl. Currently only returning the description of equipped items.
+  return this.equipped.getDesc();
 };
 
 CharacterSchema.methods.nextExp = function () {
@@ -175,10 +189,10 @@ CharacterSchema.methods.move = function (dir) {
 };
 
 CharacterSchema.methods.teleport = function (roomTarget) {
-  
+
   // get by id or alias
   const room = Room.getById(roomTarget);
-  if(!room) {
+  if (!room) {
     return Promise.reject('Invalid roomId');
   }
 
@@ -215,5 +229,13 @@ CharacterSchema.methods.output = function (msg) {
     socket.emit('output', { message: msg });
   }
 };
+
+CharacterSchema.methods.toRoom = function (msg) {
+  const socket = socketUtil.getSocketByCharacterId(this.id);
+  if (socket) {
+    socket.to(this.roomId).emit('output', { message: msg });
+  }
+};
+
 
 export default CharacterSchema;

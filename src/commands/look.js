@@ -31,11 +31,7 @@ function lookDir(character, { exits }, dir) {
 
 // for items and mobs
 function lookItem(charater, itemName) {
-  const acResult = autocomplete.multiple(charater, ['inventory', 'mob', 'room'], itemName);
-  if (!acResult || acResult.item.hidden) {
-    return Promise.reject('You don\'t see that here.');
-  }
-  return acResult.item.getDesc(charater);
+
 }
 
 export default {
@@ -65,17 +61,19 @@ export default {
   execute(character, short, lookTarget) {
     const room = Room.getById(character.roomId);
 
-    if (lookTarget) {
-      lookTarget = lookTarget.toLowerCase();
+    if (!lookTarget) return room.getDesc(character, short);
 
-      if (Room.validDirectionInput(lookTarget)) {
-        return lookDir(character, room, lookTarget);
-      } else {
-        return lookItem(character, lookTarget);
-      }
-    } else {
-      return room.getDesc(character, short);
+    lookTarget = lookTarget.toLowerCase();
+
+    if (Room.validDirectionInput(lookTarget)) {
+      return lookDir(character, room, lookTarget);
     }
+
+    const acResult = autocomplete.multiple(character, ['inventory', 'mob', 'room', 'character'], lookTarget);
+    if (!acResult || acResult.item.hidden) {
+      return Promise.reject('You don\'t see that here.');
+    }
+    return acResult.item.getDesc(character);
   },
 
   help(socket) {

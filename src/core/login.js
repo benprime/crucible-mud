@@ -47,6 +47,7 @@ export default {
             }
 
             socket.character = character;
+            socket.character.user = user;
             socket.character.offers = [];
 
             // format the subdocuments so we have actual object instances
@@ -59,10 +60,10 @@ export default {
             // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
             socket.state = config.STATES.MUD;
 
-            socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
+            socket.emit('output', { message: '<br><span class="mediumOrchid">Welcome to CrucibleMUD!</span><br>' });
 
             socket.join('realm');
-            socket.broadcast.to('realm').emit('output', { message: `${character.name} has entered the realm.` });
+            socket.broadcast.to('realm').emit('output', { message: `<span class="mediumOrchid">${character.name} has entered the realm.</span>\n` });
 
             socket.join('gossip');
 

@@ -21,10 +21,10 @@ export default {
 
     return Promise.resolve({
       charMessages: [
-        { charId: character.id, message: `You say "${safeMessage}"` },
+        { charId: character.id, message: `You say "<span class="silver">${safeMessage}</span>"` },
       ],
       roomMessages: [
-        { roomId: character.roomId, message: `${character.name} says "${safeMessage}"`, exclude: [character.id] },
+        { roomId: character.roomId, message: `${character.name} says "<span class="silver">${safeMessage}</span>"`, exclude: [character.id] },
       ],
     });
   },

@@ -1,4 +1,5 @@
 import socketUtil from '../core/socketUtil';
+import autocomplete from '../core/autocomplete';
 
 export default {
   name: 'telepathy',
@@ -20,17 +21,16 @@ export default {
   },
 
   execute(character, username, message) {
-    const userSocket = socketUtil.getSocketByCharacterId(username);
-    if (!userSocket) {
+
+    const targetCharacter = autocomplete.character(character, username);
+    if (!targetCharacter) {
       return Promise.reject('Invalid username.');
     }
-    username = userSocket.character.name;
-    const sender = character.name;
 
     return Promise.resolve({
       charMessages: [
-        { charId: userSocket.character.id, message: `${sender} telepaths: ${message}` },
-        { charId: character.id, message: `Telepath to ${username}: ${message}` },
+        { charId: targetCharacter.id, message: `${character.name} telepaths: <span class="silver">${message}</span>` },
+        { charId: character.id, message: `Telepath to ${targetCharacter.name}: <span class="silver">${message}</span>` },
       ],
     });
   },

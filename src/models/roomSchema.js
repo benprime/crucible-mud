@@ -301,7 +301,7 @@ RoomSchema.methods.look = function (character, short) {
   const formattedNames = characterNames.join('<span class="mediumOrchid">, </span>');
 
   if (formattedNames) {
-    output += `<span class="purple">Also here: <span class="teal">${formattedNames}</span>.</span>\n`;
+    output += `<span class="mediumOrchid">Also here: <span class="teal">${formattedNames}</span>.</span>\n`;
   }
 
   let notHiddenExits = '';

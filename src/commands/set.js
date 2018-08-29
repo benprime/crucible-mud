@@ -13,9 +13,8 @@ function setCurrency(character, amount) {
 }
 
 function setDebug(character, value) {
-  const socket = socketUtil.getSocketByCharacterId(character.id);
-  socket.user.debug = value.toLowerCase() === 'on';
-  return socket.user.save(err => {
+  character.user.debug = value.toLowerCase() === 'on';
+  return character.user.save(err => {
     if (err) throw err;
   });
 }

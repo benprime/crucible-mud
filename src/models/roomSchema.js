@@ -264,7 +264,7 @@ RoomSchema.methods.kick = function (character, item, dir) {
   return Promise.resolve(item);
 };
 
-RoomSchema.methods.look = function (character, short) {
+RoomSchema.methods.getDesc = function (character, short) {
 
   const socket = socketUtil.getSocketByCharacterId(character.id);
   const debug = socket.user.debug;
@@ -277,7 +277,6 @@ RoomSchema.methods.look = function (character, short) {
   output += '</span>\n';
 
   if (!short) {
-    //output += `<span class="teal">Time of day: </span><span class="silver">${dayPhase}</span>\n`;
     output += `<span class="silver">${this.desc}</span>\n`;
   }
 

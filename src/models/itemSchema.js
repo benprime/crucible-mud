@@ -23,7 +23,7 @@ const ItemSchema = new mongoose.Schema({
   bonus: String,
 });
 
-ItemSchema.methods.look = function (character) {
+ItemSchema.methods.getDesc = function (character) {
   const socket = socketUtil.getSocketByCharacterId(character.id);
   let output = this.desc;
   if (socket.user.debug) {

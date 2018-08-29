@@ -49,14 +49,14 @@ describe('mob model', () => {
     });
   });
 
-  describe('look', () => {
+  describe('getDesc', () => {
 
     test('should output mob description', () => {
       // arrange
       socket.user.admin = false;
 
       // act
-      return mob.look(socket).then(response => {
+      return mob.getDesc(socket).then(response => {
         // assert
         expect(response).toEqual(mob.desc);
       });

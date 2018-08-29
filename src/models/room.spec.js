@@ -271,7 +271,7 @@ describe('room model', () => {
       });
     });
 
-    describe('look', () => {
+    describe('getDesc', () => {
 
       let socket;
 
@@ -281,21 +281,21 @@ describe('room model', () => {
       });
 
       test('should build output string with just title and exits when short parameter is passed', () => {
-        return room.look(socket, true).then(output => {
+        return room.getDesc(socket, true).then(output => {
           expect(output).toEqual('<span class="cyan">Test sutModel</span>\n');
         });
 
       });
 
       test('should build output string with description when short parameter is false', () => {
-        return room.look(socket, false).then(output => {
+        return room.getDesc(socket, false).then(output => {
           expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n');
         });
       });
 
       test('should include inventory in output when inventory length is not zero', () => {
         room.inventory = [{ name: 'An Item' }];
-        return room.look(socket).then(output => {
+        return room.getDesc(socket).then(output => {
           expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="darkcyan">You notice: An Item.</span>\n');
         });
 
@@ -313,14 +313,14 @@ describe('room model', () => {
         };
         global.io.sockets.connected = sockets;
 
-        return room.look(socket).then(output => {
+        return room.getDesc(socket).then(output => {
           expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="mediumOrchid">Also here: <span class="teal">TestUser1<span class="mediumOrchid">, </span>TestUser2</span>.</span>\n');
         });
       });
 
       test('should include exits when there is at least one exit in the room', () => {
         room.exits = [{ dir: 'n' }];
-        return room.look(socket).then(output => {
+        return room.getDesc(socket).then(output => {
           expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="green">Exits: north</span>\n');
         });
 
@@ -328,7 +328,7 @@ describe('room model', () => {
 
       test('should display room id when user is an admin', () => {
         socket.user.debug = true;
-        return room.look(socket).then(output => {
+        return room.getDesc(socket).then(output => {
           expect(output).toEqual(`<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="gray">Room ID: ${room.id}</span>\n<span class="gray">Room coords: ${room.x}, ${room.y}</span>\n`);
         });
 

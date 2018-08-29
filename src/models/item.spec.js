@@ -20,7 +20,7 @@ describe('item model', () => {
 
     test('should display item description', () => {
       socket.user.debug = false;
-      return item.look(socket.character).then(response => {
+      return item.getDesc(socket.character).then(response => {
         expect(response).toEqual('Item Description');
       });
 
@@ -28,7 +28,7 @@ describe('item model', () => {
 
     test('should display item id if user is admin', () => {
       socket.user.debug = true;
-      return item.look(socket.character).then(response => {
+      return item.getDesc(socket.character).then(response => {
         expect(response).toEqual(`Item Description\nItem ID: ${item.id}`);
       });
 

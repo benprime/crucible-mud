@@ -49,7 +49,7 @@ class Mob {
     return new Function(`return \`${template}\`;`).call(this);
   }
 
-  look() {
+  getDesc() {
     return Promise.resolve(this.desc);
   }
 

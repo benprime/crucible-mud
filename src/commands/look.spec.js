@@ -71,14 +71,14 @@ describe('look', () => {
 
       test('should output short room look when short param is true', () => {
         return sut.execute(socket.character, true).then(() => {
-          expect(currentRoom.look).toBeCalledWith(socket.character, true);
+          expect(currentRoom.getDesc).toBeCalledWith(socket.character, true);
         });
 
       });
 
       test('should output room look when lookTarget is not passed', () => {
         return sut.execute(socket.character, false).then(() => {
-          expect(currentRoom.look).toBeCalledWith(socket.character, false);
+          expect(currentRoom.getDesc).toBeCalledWith(socket.character, false);
         });
 
       });
@@ -94,7 +94,7 @@ describe('look', () => {
           // assert
           expect(response.charMessages[0].message).toContain('You look to the south...');
           expect(response.roomMessages).toContainEqual({ roomId: targetRoomSouth.id, message: `<span class="yellow">${socket.character.name} peaks in from the north.</span>`, exclude: [socket.character.id] });
-          expect(targetRoomSouth.look).toBeCalledWith(socket.character, false);
+          expect(targetRoomSouth.getDesc).toBeCalledWith(socket.character, false);
         });
       });
 

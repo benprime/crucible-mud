@@ -14,7 +14,7 @@ function lookDir(character, { exits }, dir) {
   }
 
   const lookRoom = Room.getById(exit.roomId);
-  return lookRoom.look(character, false).then(output => {
+  return lookRoom.getDesc(character, false).then(output => {
     const charOuput = `You look to the ${Room.shortToLong(dir)}...\n` + output;
     const roomOutput = `${character.name} looks to the ${Room.shortToLong(dir)}.\n`;
     return Promise.resolve({
@@ -35,7 +35,7 @@ function lookItem(charater, itemName) {
   if (!acResult || acResult.item.hidden) {
     return Promise.reject('You don\'t see that here.');
   }
-  return acResult.item.look(charater);
+  return acResult.item.getDesc(charater);
 }
 
 export default {
@@ -74,7 +74,7 @@ export default {
         return lookItem(character, lookTarget);
       }
     } else {
-      return room.look(character, short);
+      return room.getDesc(character, short);
     }
   },
 

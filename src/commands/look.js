@@ -29,11 +29,6 @@ function lookDir(character, { exits }, dir) {
   });
 }
 
-// for items and mobs
-function lookItem(charater, itemName) {
-
-}
-
 export default {
   name: 'look',
   desc: 'look around you or examine an item, mob, or player',

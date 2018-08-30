@@ -179,8 +179,7 @@ describe('room model', () => {
       });
 
       test('should return empty array when no users in room', () => {
-        global.io.sockets.adapter.rooms[room.id] = {};
-        global.io.sockets.adapter.rooms[room.id].sockets = {};
+        mockGetRoomSockets.mockReturnValueOnce([]);
 
         const result = room.getCharacterNames(socket.id);
 
@@ -188,17 +187,12 @@ describe('room model', () => {
         expect(result).toHaveLength(0);
       });
 
-      test('should return array of names when users in room', () => {
-        const sockets = {};
-        sockets[socket.id] = new mocks.SocketMock();
-        sockets[socket.id].character.name = 'TestUser1';
-        sockets['socket2'] = new mocks.SocketMock();
-        sockets['socket2'].character.name = 'TestUser2';
-
-        global.io.sockets.adapter.rooms[room.id] = {
-          sockets,
-        };
-        global.io.sockets.connected = sockets;
+      test('should return a users when users in room', () => {
+        const socket1 = new mocks.SocketMock();
+        socket1.character.name = 'TestUser1';
+        const socket2 = new mocks.SocketMock();
+        socket2.character.name = 'TestUser2';
+        mockGetRoomSockets.mockReturnValueOnce([socket1, socket2]);
 
         const result = room.getCharacterNames(socket.id);
 
@@ -281,54 +275,54 @@ describe('room model', () => {
       });
 
       test('should build output string with just title and exits when short parameter is passed', () => {
-        return room.getDesc(socket, true).then(output => {
+        mockGetRoomSockets.mockReturnValueOnce([]);
+        return room.getDesc(socket.character, true).then(output => {
           expect(output).toEqual('<span class="cyan">Test sutModel</span>\n');
         });
 
       });
 
       test('should build output string with description when short parameter is false', () => {
-        return room.getDesc(socket, false).then(output => {
+        mockGetRoomSockets.mockReturnValueOnce([]);
+        return room.getDesc(socket.character, false).then(output => {
           expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n');
         });
       });
 
       test('should include inventory in output when inventory length is not zero', () => {
+        mockGetRoomSockets.mockReturnValueOnce([]);
         room.inventory = [{ name: 'An Item' }];
-        return room.getDesc(socket).then(output => {
+        return room.getDesc(socket.character).then(output => {
           expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="darkcyan">You notice: An Item.</span>\n');
         });
 
       });
 
       test('should include users in room when the user is not the only user in room', () => {
-        const sockets = {};
-        sockets[socket.id] = new mocks.SocketMock();
-        sockets[socket.id].character.name = 'TestUser1';
-        sockets['socket2'] = new mocks.SocketMock();
-        sockets['socket2'].character.name = 'TestUser2';
+        const socket1 = new mocks.SocketMock();
+        socket1.character.name = 'TestUser1';
+        const socket2 = new mocks.SocketMock();
+        socket2.character.name = 'TestUser2';
+        mockGetRoomSockets.mockReturnValueOnce([socket1, socket2]);
 
-        global.io.sockets.adapter.rooms[room.id] = {
-          sockets,
-        };
-        global.io.sockets.connected = sockets;
-
-        return room.getDesc(socket).then(output => {
+        return room.getDesc(socket.character).then(output => {
           expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="mediumOrchid">Also here: <span class="teal">TestUser1<span class="mediumOrchid">, </span>TestUser2</span>.</span>\n');
         });
       });
 
       test('should include exits when there is at least one exit in the room', () => {
+        mockGetRoomSockets.mockReturnValueOnce([]);
         room.exits = [{ dir: 'n' }];
-        return room.getDesc(socket).then(output => {
+        return room.getDesc(socket.character).then(output => {
           expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="green">Exits: north</span>\n');
         });
 
       });
 
       test('should display room id when user is an admin', () => {
+        mockGetRoomSockets.mockReturnValueOnce([]);
         socket.user.debug = true;
-        return room.getDesc(socket).then(output => {
+        return room.getDesc(socket.character).then(output => {
           expect(output).toEqual(`<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="gray">Room ID: ${room.id}</span>\n<span class="gray">Room coords: ${room.x}, ${room.y}</span>\n`);
         });
 

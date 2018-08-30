@@ -164,6 +164,8 @@ class SocketMock {
     character.save = jest.fn().mockName('userSave');
     character.addExp = jest.fn().mockName('addExp');
     character.attack = jest.fn().mockName('userAttack');
+    character.output = jest.fn().mockName('toRoom');
+    character.toRoom = jest.fn().mockName('toRoom');
     character.actionDie = '1d20';
     character.equipped = {};
     character.inventory = [];

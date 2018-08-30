@@ -117,7 +117,7 @@ class Mob {
     let playerMessage = '';
     let roomMessage = '';
 
-    if (this.attackroll() == 1) {
+    if (this.attackroll() === 1) {
       character.takeDamage(dmg);
       playerMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits you for ${dmg} damage!</span>`;
       roomMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits ${character.name} for ${dmg} damage!</span>`;
@@ -126,12 +126,8 @@ class Mob {
       roomMessage = `<span class="${config.MSG_COLOR}">The ${this.displayName} swings at ${character.name}, but misses!</span>`;
     }
 
-    
-
-    const socket = socketUtil.getSocketByCharacterId(character.id);
-
-    socket.emit('output', { message: playerMessage });
-    socketUtil.roomMessage(character.roomId, roomMessage, [character.id]);
+    character.output(playerMessage);
+    character.toRoom(roomMessage);
 
     this.attackTarget = null;
 

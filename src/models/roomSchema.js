@@ -151,17 +151,12 @@ RoomSchema.methods.getCharacterNames = function (excludeSneaking) {
 };
 
 RoomSchema.methods.getCharacters = function (excludeSneaking) {
-  const ioRoom = global.io.sockets.adapter.rooms[this.id];
-  if (!ioRoom) {
-    return [];
-  }
-
-  const otherSocketIds = Object.keys(ioRoom.sockets);
-  let otherCharacters = otherSocketIds.map(socketId => global.io.sockets.connected[socketId].character);
+  const sockets = socketUtil.getRoomSockets(this.id);
+  let characters = sockets.map(s => s.character);
   if (excludeSneaking) {
-    otherCharacters = otherCharacters.filter(c => !c.sneakMode);
+    characters = characters.filter(c => !c.sneakMode);
   }
-  return otherCharacters;
+  return characters;
 };
 
 RoomSchema.methods.userInRoom = function (username) {
@@ -294,7 +289,7 @@ RoomSchema.methods.getDesc = function (character, short) {
   //   output += `<span class="olive">Hidden items: ${hiddenItems}.</span>\n`;
   // }
 
-  let characterNames = this.getCharacterNames(this.id, true).filter(name => name !== character.name);
+  let characterNames = this.getCharacterNames(true).filter(name => name !== character.name);
 
   const mobNames = this.mobs.map(m => m.displayName);
   if (mobNames) { characterNames = characterNames.concat(mobNames); }

@@ -184,7 +184,8 @@ CharacterSchema.methods.die = function () {
     this.teleport(room.id);
     this.currentHP = this.maxHP;
     this.bleeding = false;
-    this.output('You have died!\nYou have been resurrected.');
+    this.output('\n<span class="red">You have died!</span>\n');
+    this.output('<span class="yellow">You have been resurrected.</span>\n');
     const socket = socketUtil.getSocketByCharacterId(this.id);
     updateHUD(socket);
   });

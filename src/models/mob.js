@@ -6,7 +6,6 @@ import dice from '../core/dice';
 import { Types } from 'mongoose';
 const { ObjectId } = Types;
 
-
 class Mob {
   constructor(mobType, roomId, adjectiveIndex) {
 
@@ -29,7 +28,12 @@ class Mob {
       instance.hp += adjective.modifiers.hp;
       instance.xp += adjective.modifiers.xp;
       instance.hitDice += adjective.modifiers.hitDice;
-      instance.attackInterval += adjective.modifiers.attackInterval;
+      instance.attacksPerRound += adjective.modifiers.attacksPerRound;
+      instance.tauntsPerRound += adjective.modifiers.tauntsPerRound;
+
+      // state variables
+      instance.attackInterval = instance.attacksPerRound * config.ROUND_DURATION;
+      instance.tauntInterval = instance.tauntsPerRound * config.ROUND_DURATION;
     }
 
     instance.roomId = roomId;

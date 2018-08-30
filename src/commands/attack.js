@@ -1,5 +1,6 @@
 import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
+import config from '../config';
 
 export default {
   name: 'attack',
@@ -31,7 +32,7 @@ export default {
     const target = acResult.item;
 
     character.attackTarget = target.id;
-    character.attackInterval = 4000;
+    character.attackInterval = this.attacksPerRound * config.ROUND_DURATION;
 
     return Promise.resolve({
       charMessages: [

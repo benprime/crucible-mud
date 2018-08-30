@@ -20,12 +20,12 @@ export default {
 
       //calculate player stealth skill
       let stealthRoll = socket.user.stealth + dice.roll(socket.user.actionDie);
-      socket.user.sneak = stealthRoll;
+      socket.character.sneakMode = stealthRoll;
       socket.emit('output', { message: `Sneak Roll: ${stealthRoll}<br />` });
 
     }
     else {
-      socket.user.sneak = 100;
+      socket.character.sneakMode = 100;
       socket.emit('output', { message: 'Sneak Roll: admin<br />' });
     }
 

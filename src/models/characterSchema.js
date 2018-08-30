@@ -70,11 +70,6 @@ const CharacterSchema = new mongoose.Schema({
     endure: { type: Number }, // survive what others cannot (resist poison, no KO, etc) (CON)
 
     resist: { type: Number }, // shield from magic (resist spell, see through illusion/charm, etc) (WIL)
-
-    //conditional bonuses/flags
-    sneak: { //Boosted stealth stats if player is actively sneaking
-      type: Number,
-    },
   },
 }, { usePushEach: true });
 

@@ -77,17 +77,6 @@ export default {
     return null;
   },
 
-  // not sure this belongs here. We're trying to make is so that game code has no knowledge of sockets.
-  // game code uses this all the time and has to include the socketUtil library to do it. Perhaps move this?
-  getCharacterByName(name) {
-    for (let socket of Object.values(global.io.sockets.connected)) {
-      if (socket.user && socket.character.name == name) {
-        return socket.character;
-      }
-    }
-    return null;
-  },
-
   getCharacterById(characterId) {
     for (let socket of Object.values(global.io.sockets.connected)) {
       if (socket.character && socket.character.id == characterId) {
@@ -97,7 +86,7 @@ export default {
     return null;
   },
 
-  getFollowingCharacters(characterId) {
+  getFollowers(characterId) {
     const followers = [];
     for (let socket of Object.values(global.io.sockets.connected)) {
       if (socket.character && socket.character.leader === characterId) {

@@ -250,7 +250,7 @@ CharacterSchema.methods.move = function (dir) {
     const enterDir = Room.oppositeDirection(dir);
     toRoom.enter(this, enterDir, socket);
 
-    let followers = socketUtil.getFollowingCharacters(socket.character.id);
+    let followers = socketUtil.getFollowers(socket.character.id);
     followers.forEach(c => {
       c.move(dir);
     });
@@ -306,6 +306,30 @@ CharacterSchema.methods.toRoom = function (msg) {
   if (socket) {
     socket.to(this.roomId).emit('output', { message: msg });
   }
+};
+
+CharacterSchema.methods.getFollowers = function () {
+  return socketUtil.getFollowers(this.id);
+};
+
+CharacterSchema.methods.getPartyCharacters = function () {
+  let followers = [];
+  if (this.leader) {
+    const leader = socketUtil.getCharacterById(this.leader);
+    followers.push(leader);
+    followers = followers.concat(leader.getFollowers());
+  } else {
+    followers.push(this);
+    followers = followers.concat(this.getFollowers());
+  }
+  return Promise.resolve(followers);
+};
+
+CharacterSchema.methods.toParty = function (msg) {
+  return this.getPartyCharacters().then(characters => {
+    characters.forEach(c => c.output(msg));
+    return Promise.resolve();
+  });
 };
 
 CharacterSchema.methods.status = function () {

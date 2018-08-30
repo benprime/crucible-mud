@@ -38,7 +38,7 @@ export default {
     const charMessages = [];
 
     // re-assign following sockets to new leader
-    let followers = socketUtil.getFollowingCharacters(character.id);
+    let followers = socketUtil.getFollowers(character.id);
     followers.forEach(c => {
       c.leader = invitingCharacter.id;
       charMessages.push({ charId: c.id, message: `<span class="yellow">Now following ${invitingCharacter.name}</span>` });

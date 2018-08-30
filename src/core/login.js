@@ -58,6 +58,7 @@ export default {
             socket.character.lastAttack = undefined;
             socket.character.attackTarget = undefined;
             socket.character.leader = null;
+            socket.character.partyInvites = [];
 
             // once character is loaded, we freeze the ability to add new properties.
             // this forces "state properties" to be added here, explicitly.

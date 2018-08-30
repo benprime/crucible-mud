@@ -1,6 +1,6 @@
 import mocks from '../../spec/mocks';
 import sut from './follow';
-import { mockGetFollowingCharacters, } from '../core/socketUtil';
+import { mockGetFollowers, } from '../core/socketUtil';
 import { mockAutocompleteCharacter } from '../core/autocomplete';
 
 jest.mock('../models/room');
@@ -28,7 +28,7 @@ describe('follow', () => {
     });
 
     test('sets socket leader tracking variable and clears follow invite when user follows user', () => {
-      mockGetFollowingCharacters.mockReturnValueOnce([]);
+      mockGetFollowers.mockReturnValueOnce([]);
       mockAutocompleteCharacter.mockReturnValueOnce(mockInvitingSocket.character);
 
       return sut.execute(socket.character, mockInvitingSocket.character.name).then(() => {
@@ -42,7 +42,7 @@ describe('follow', () => {
       const follower1 = new mocks.SocketMock();
       const follower2 = new mocks.SocketMock();
       const follower3 = new mocks.SocketMock();
-      mockGetFollowingCharacters.mockReturnValueOnce([follower1, follower2, follower3]);
+      mockGetFollowers.mockReturnValueOnce([follower1, follower2, follower3]);
       mockAutocompleteCharacter.mockReturnValueOnce(mockInvitingSocket.character);
 
       return sut.execute(socket.character, mockInvitingSocket.character.name).then(() => {

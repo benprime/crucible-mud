@@ -1,7 +1,6 @@
 /** @module core/autocomplete
  * 
- * @type {import('../models/character')} Character
-*/
+ */
 import Room from '../models/room';
 
 /**
@@ -167,7 +166,7 @@ export default {
   },
 
   /**
-   * Autocomplete character objects by name fragment.
+   * Autocomplete character objects by name fragment.@typedef {(number|string)} NumberLike
    * @param {Character} character - Character performing this operation.
    * @param {String} fragment - Name fragment to autocomplete.
    */

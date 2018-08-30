@@ -10,35 +10,30 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket)
+    this.execute(socket.character)
       .then(output => socketUtil.output(socket, output))
       .catch(response => socketUtil.output(socket, response));
   },
 
   execute(character) {
     const leadCharacterId = character.leader ? character.leader : character.id;
-    const followers = socketUtil.getFollowingCharacters(leadCharacterId);
-    if (followers.length === 0) {
-      return Promise.reject('You are not in a party.');
-    }
-
-    if (leadCharacterId == character.id) {
-      followers.push(character);
-    } else {
-      let leaderSocket = socketUtil.getSocket(leadCharacterId);
-      followers.push(leaderSocket);
-    }
-
-    let output = 'The following people are in your party:\n';
-    followers.forEach(follower => {
-      output += `${follower.name}`;
-      if (follower.id === leadCharacterId) {
-        output += ' (Leader)';
+    return character.getPartyCharacters().then(followers => {
+      if (followers.length === 1) {
+        return Promise.reject('You are not in a party.');
       }
-      output += '\n';
-    });
 
-    return Promise.resolve(output);
+      let output = 'The following people are in your party:\n';
+      followers.forEach(follower => {
+        output += `${follower.name}`;
+        if (follower.id === leadCharacterId) {
+          output += ' (Leader)';
+        }
+        output += '\n';
+      });
+
+      return Promise.resolve(output);
+
+    });
   },
 
   help(socket) {

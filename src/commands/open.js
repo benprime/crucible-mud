@@ -1,45 +1,53 @@
 import Room from '../models/room';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'open',
+  desc: 'open a door',
 
   patterns: [
     /^open\s+(\w+)$/i,
+    /^op\s+(\w+)$/i,
   ],
 
   dispatch(socket, match) {
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, dir) {
+  execute(character, dir) {
     const d = Room.validDirectionInput(dir.toLowerCase());
-    const room = Room.getById(socket.character.roomId);
+    const room = Room.getById(character.roomId);
 
     // valid exit in that direction?
     const exit = room.exits.find(e => e.dir === d);
     if (!exit) {
-      socket.emit('output', { message: 'There is no exit in that direction!' });
-      return;
+      return Promise.reject('There is no exit in that direction!');
     }
 
     if (exit.closed === undefined) {
-      socket.emit('output', { message: 'There is no door in that direction!' });
-      return;
+      return Promise.reject('There is no door in that direction!');
     }
 
     if (exit.locked) {
-      socket.emit('output', { message: 'That door is locked.' });
-      return;
+      return Promise.reject('That door is locked.');
     }
 
     if (exit.closed === false) {
-      socket.emit('output', { message: 'That door is already open.' });
-      return;
+      return Promise.reject('That door is already open.');
     }
 
     exit.closed = false;
-    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} opens the door to the ${Room.shortToLong(d)}.` });
-    socket.emit('output', { message: 'Door opened.' });
+
+    return Promise.resolve({
+      charMessages: [
+        { charId: character.id, message: 'Door opened.' },
+      ],
+      roomMessages: [
+        { roomId: character.roomId, message: `${character.name} opens the door to the ${Room.shortToLong(d)}.`, exclude: [character.id] },
+      ],
+    });
   },
 
   help(socket) {

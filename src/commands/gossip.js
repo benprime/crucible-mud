@@ -1,5 +1,6 @@
 export default Object.freeze({
   name: 'gossip',
+  desc: 'chat in a global channel, visible to all rooms',
 
   patterns: [
     /^gossip\s+?(.+)/i,
@@ -7,15 +8,15 @@ export default Object.freeze({
   ],
 
   dispatch(socket, match) {
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1]);
   },
 
-  execute({user}, message) {
+  execute(character, message) {
 
     let safeMessage = message.replace(/</g, '&lt;');
     safeMessage = safeMessage.replace(/>/g, '&gt;');
 
-    const output = `<span class="silver">${user.username} gossips: </span><span class="mediumOrchid">${safeMessage}</span>`;
+    const output = `<span class="silver">${character.name} gossips: </span><span class="mediumOrchid">${safeMessage}</span>`;
     global.io.to('gossip').emit('output', { message: output });
   },
 

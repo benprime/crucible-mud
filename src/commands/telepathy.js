@@ -1,7 +1,9 @@
 import socketUtil from '../core/socketUtil';
+import autocomplete from '../core/autocomplete';
 
 export default {
   name: 'telepathy',
+  desc: 'communicate directly to a single user',
 
   patterns: [
     /^\/(\w+)\s+(.*)$/,
@@ -9,24 +11,28 @@ export default {
   ],
 
   dispatch(socket, match) {
-    if(match.length != 3) {
+    if (match.length != 3) {
       this.help(socket);
       return;
     }
-    this.execute(socket, match[1], match[2]);
+    this.execute(socket.character, match[1], match[2])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, username, message) {
-    const userSocket = socketUtil.getSocketByUsername(username);
-    if (!userSocket) {
-      socket.emit('output', { message: 'Invalid username.' });
-      return;
-    }
-    username = userSocket.user.username;
-    const sender = socket.user.username;
+  execute(character, username, message) {
 
-    userSocket.emit('output', { message: `${sender} telepaths: ${message}` });
-    socket.emit('output', { message: `Telepath to ${username}: ${message}` });
+    const targetCharacter = autocomplete.character(character, username);
+    if (!targetCharacter) {
+      return Promise.reject('Invalid username.');
+    }
+
+    return Promise.resolve({
+      charMessages: [
+        { charId: targetCharacter.id, message: `${character.name} telepaths: <span class="silver">${message}</span>` },
+        { charId: character.id, message: `Telepath to ${targetCharacter.name}: <span class="silver">${message}</span>` },
+      ],
+    });
   },
 
   help(socket) {

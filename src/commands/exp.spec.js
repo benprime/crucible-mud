@@ -12,9 +12,10 @@ describe('exp', () => {
 
   describe('execute', () => {
     test('should display the current experience level, xp, and next level', () => {
-      sut.execute(socket);
+      return sut.execute(socket.character).then(response => {
+        expect(response).toContain('<span class=\'cyan\'>XP: </span><span class=\'silver\'>undefined</span>\n<span class=\'cyan\'>Level: </span><span class=\'silver\'>undefined</span>\n<span class=\'cyan\'>Next: </span><span class=\'silver\'>NaN</span>\n');
+      });
 
-      expect(socket.emit).toBeCalledWith('output', { message: '<span class=\'cyan\'>XP: </span><span class=\'silver\'>undefined</span>\n<span class=\'cyan\'>Level: </span><span class=\'silver\'>undefined</span>\n<span class=\'cyan\'>Next: </span><span class=\'silver\'>NaN</span>\n' });
     });
   });
 

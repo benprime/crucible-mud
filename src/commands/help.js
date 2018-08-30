@@ -1,8 +1,17 @@
-import actionData from '../data/actionData';
+import emoteData from '../data/emoteData';
 
 let commandHandlers = {};
 
-function generalHelp(socket) {
+function commandListHelp(socket) {
+  let output = '<span class="mediumOrchid">For specific help on any of these commands: </span><span class="silver">help &lt;command name&gt;</span><br /><br />';
+
+  for (let command of Object.values(commandHandlers).filter(c => !c.admin)) {
+    output += `<span class="mediumOrchid">${command.name}</span><span class="purple"> | </span>${command.desc}<br />`;
+  }
+  socket.emit('output', { message: output });
+}
+
+function basicHelp(socket) {
   let output = '';
   output += '<span class="cyan">Movement:</span><br>';
   output += '<span class="mediumOrchid">n<span class="purple"> | </span>north</span> <span class="purple">-</span> Move north.<br />';
@@ -14,10 +23,10 @@ function generalHelp(socket) {
   output += '<span class="mediumOrchid">nw<span class="purple"> | </span>northwest</span> <span class="purple">-</span> Move northwest.<br />';
   output += '<span class="mediumOrchid">sw<span class="purple"> | </span>southwest</span> <span class="purple">-</span> Move southwest.<br />';
   output += '<span class="mediumOrchid">u<span class="purple"> | </span>up</span> <span class="purple">-</span> Move up.<br />';
-  output += '<span class="mediumOrchid">d<span class="purple"> | </span>down</span> <span class="purple">-</span> Move down.<br />';
-  output += '<span class="mediumOrchid">open</span><br />';
-  output += '<span class="mediumOrchid">close</span><br />';
-  output += '<span class="mediumOrchid">unlock</span><br /><br>';
+  output += '<span class="mediumOrchid">d<span class="purple"> | </span>down</span> <span class="purple">-</span> Move down.<br /><br />';
+  // output += '<span class="mediumOrchid">open</span><br />';
+  // output += '<span class="mediumOrchid">close</span><br />';
+  // output += '<span class="mediumOrchid">unlock</span><br /><br>';
 
   output += '<span class="cyan">Character Info:</span><br>';
   output += '<span class="mediumOrchid">stats</span><br />';
@@ -38,21 +47,21 @@ function generalHelp(socket) {
   output += '<span class="mediumOrchid">unequip &lt;item name&gt;</span> <span class="purple"><br /><br>';
 
   output += '<span class="cyan">Combat:</span><br>';
-  output += '<span class="mediumOrchid">attack &lt;mob name&gt; </span><span class="purple">|</span><span class="mediumOrchid"> a</span> <span class="purple">-</span> Begin combat attacking &lt;target&gt.<br />';
+  output += '<span class="mediumOrchid">attack &lt;mob name&gt; </span><span class="purple">|</span><span class="mediumOrchid"> a</span> <span class="purple">-</span> Begin combat attacking &lt;mob name&gt.<br />';
   output += '<span class="mediumOrchid">break </span><span class="purple">|</span><span><span class="mediumOrchid"> br</span> <span class="purple">-</span> End combat.<br /><br>';
 
-  if (socket.user.admin) {
-    output += '<span class="cyan">Admin commands:</span><br />';
-    output += '<span class="mediumOrchid">create room</span><br />';
-    output += '<span class="mediumOrchid">set room</span><br />';
-    output += '<span class="mediumOrchid">teleport</span><br />';
-    output += '<span class="mediumOrchid">summon</span><br />';
-    output += '<span class="mediumOrchid">list</span><br />';
-    output += '<span class="mediumOrchid">spawn mob</span><br />';
-    output += '<span class="mediumOrchid">spawn item</span><br />';
-    output += '<span class="mediumOrchid">destroy</span><br />';
-    output += '<span class="mediumOrchid">lock</span><br /><br>';
-  }
+  // if (socket.user.admin) {
+  //   output += '<span class="cyan">Admin commands:</span><br />';
+  //   output += '<span class="mediumOrchid">create room</span><br />';
+  //   output += '<span class="mediumOrchid">set room</span><br />';
+  //   output += '<span class="mediumOrchid">teleport</span><br />';
+  //   output += '<span class="mediumOrchid">summon</span><br />';
+  //   output += '<span class="mediumOrchid">list</span><br />';
+  //   output += '<span class="mediumOrchid">spawn mob</span><br />';
+  //   output += '<span class="mediumOrchid">spawn item</span><br />';
+  //   output += '<span class="mediumOrchid">destroy</span><br />';
+  //   output += '<span class="mediumOrchid">lock</span><br /><br>';
+  // }
 
   output += '<span class="cyan">Communication:</span><br>';
   output += '<span class="mediumOrchid">.<message></span> <span class="purple">-</span> Start command with . to speak to users in current room.<br />';
@@ -62,13 +71,13 @@ function generalHelp(socket) {
   output += '<span class="mediumOrchid">invite &lt;player name&gt;</span><br />';
   output += '<span class="mediumOrchid">offer &lt;player name&gt; &lt;item name&gt;</span><br /><br>';
 
-  output += '<span class="cyan">Actions:</span><br />';
-  output += `<span class="silver">${Object.keys(actionData.actions).sort().join('<span class="mediumOrchid">, </span>')}</span><br /></br />`;
+  output += '<span class="cyan">Emotes:</span><br />';
+  output += `<span class="silver">${Object.keys(emoteData.emotes).sort().join('<span class="mediumOrchid">, </span>')}</span><br /></br />`;
 
   socket.emit('output', { message: output });
 }
 
-function topicHelp(socket, topic) {
+function commandHelp(socket, topic) {
   topic = topic.toLowerCase();
   if (Object.keys(commandHandlers).includes(topic)) {
     commandHandlers[topic].help(socket);
@@ -80,6 +89,7 @@ function topicHelp(socket, topic) {
 
 export default {
   name: 'help',
+  desc: 'help system',
 
   patterns: [
     /^help$/i,
@@ -94,16 +104,24 @@ export default {
   },
 
   execute(socket, topic) {
-    if (topic) {
-      topicHelp(socket, topic);
+    if (topic === 'basic') {
+      basicHelp(socket);
+    }
+    else if (topic === 'commands') {
+      commandListHelp(socket);
+    }
+    else if (topic) {
+      commandHelp(socket, topic);
     } else {
-      generalHelp(socket);
+      this.help(socket);
+      //basicHelp(socket);
     }
   },
 
   help(socket) {
     let output = '';
-    output += '<span class="mediumOrchid">help</span> <span class="purple">-</span> Display general list of usable commands.<br />';
+    output += '<span class="mediumOrchid">help basic</span> <span class="purple">-</span> Display basic help for playing CrucibleMUD.<br />';
+    output += '<span class="mediumOrchid">help commands</span> <span class="purple">-</span> Display list of available commands.<br />';
     output += '<span class="mediumOrchid">help &lt;command&gt</span> <span class="purple">-</span> Display detailed help for specified command.<br />';
     socket.emit('output', { message: output });
   },

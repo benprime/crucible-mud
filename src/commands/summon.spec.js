@@ -1,8 +1,8 @@
 import { mockGetRoomById } from '../models/room';
-import { mockGetSocketByUsername } from '../core/socketUtil';
+import { mockGetSocketByCharacterId } from '../core/socketUtil';
+import { mockAutocompleteCharacter } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './summon';
-
 
 jest.mock('../models/room');
 jest.mock('../core/autocomplete');
@@ -24,59 +24,48 @@ describe('summon', () => {
 
     // acting admin socket
     socket = new mocks.SocketMock();
-    socket.character.roomId = mockRoom.id;
-    socket.user.username = 'TestUser';
+    socket.character.name = 'TestUser';
 
     // target user socket
     mockTargetSocket = new mocks.SocketMock();
-    mockTargetSocket.character.roomId = otherRoom.id;
-    mockTargetSocket.user.username = 'OtherUser';
+    mockTargetSocket.character.name = 'OtherUser';
 
   });
 
   describe('execute', () => {
     test('should output message when user is not found', () => {
-      mockTargetSocket = null;
-      sut.execute(socket, 'Wrong');
+      return sut.execute(socket.character, 'Wrong').catch(response => {
+        expect(response).toEqual('Player not found.');
+      });
 
-      expect(socket.emit).toBeCalledWith('output', { message: 'Player not found.' });
     });
 
     test('should join target user to admin room and leave current room', () => {
       // arrange
-      mockGetSocketByUsername.mockReturnValueOnce(mockTargetSocket);
+      mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
+      mockGetSocketByCharacterId.mockReturnValueOnce(mockTargetSocket);
       mockTargetSocket.character.roomId = otherRoom.id;
 
       // act
-      sut.execute(socket, 'OtherUser');
+      return sut.execute(socket.character, 'OtherUser').then(() => {
+        // assert
+        expect(mockTargetSocket.character.teleport).toHaveBeenCalledWith(socket.character.roomId);
+      });
 
-      // assert
-      expect(mockTargetSocket.leave).toBeCalledWith(otherRoom.id);
-      expect(mockTargetSocket.join).toBeCalledWith(mockRoom.id);
-    });
-
-    test('should update target user room id and save user to database', () => {
-      // arrange
-      mockGetSocketByUsername.mockReturnValueOnce(mockTargetSocket);
-      mockTargetSocket.character.roomId = otherRoom.id;
-
-      // act
-      sut.execute(socket, 'OtherUser');
-
-      // assert
-      expect(mockTargetSocket.character.roomId).toEqual(mockRoom.id);
-      expect(mockTargetSocket.character.save).toHaveBeenCalled();
     });
 
     test('should output messages when command successful', () => {
-      mockGetSocketByUsername.mockReturnValueOnce(mockTargetSocket);
+      mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
+      const oldRoomId = mockTargetSocket.character.roomId = 'oldRoomId';
 
       // act
-      sut.execute(socket, 'OtherUser');
+      return sut.execute(socket.character, 'OtherUser').then(response => {
+        // assert
+        expect(response.charMessages).toContainEqual({ charId: mockTargetSocket.character.id, message: 'You were summoned to TestUser\'s room!' });
+        expect(response.roomMessages).toContainEqual({ roomId: oldRoomId, message: 'OtherUser vanishes!' });
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'OtherUser appears out of thin air!', exclude: [mockTargetSocket.character.id] });
+      });
 
-      // assert
-      expect(mockTargetSocket.emit).toBeCalledWith('output', { message: 'You were summoned to TestUser\'s room!' });
-      expect(mockTargetSocket.broadcast.to(mockTargetSocket.character.roomId).emit).toBeCalledWith('output', { message: 'OtherUser appears out of thin air!' });
     });
 
     test('should be an admin command', () => {

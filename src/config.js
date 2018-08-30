@@ -8,8 +8,9 @@ export default {
   COMBAT_INTERVAL: 500, // how often combat logic is run
   ROUND_DURATION: 4000, // how long a round is considered to be
   SPAWNER_INTERVAL: 500,
-  DOOR_CLOSE_TIMER: 10000,
+  DOOR_CLOSE_TIMER: 60 * 1000,
   DEFAULT_ROOM_MOB_MAX: 4,
+  DAY_LENGTH: 10 * 60 * 1000, // ten minutes
 
   // todo: remove this when login functionality exists
   STATES: {

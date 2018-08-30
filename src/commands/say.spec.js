@@ -19,12 +19,13 @@ describe('say', () => {
       const msg = 'This is a message.';
 
       // act
-      sut.execute(socket, msg);
+      return sut.execute(socket.character, msg).then(response => {
+        // assert
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser says "<span class="silver">This is a message.</span>"', exclude: [socket.character.id] });
+        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You say "<span class="silver">This is a message.</span>"' });
+      });
 
-      // assert
-      expect(socket.broadcast.to).toBeCalledWith(socket.character.roomId);
-      expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: 'TestUser says "This is a message."' });
-      expect(socket.emit).toBeCalledWith('output', { message: 'You say "This is a message."' });
+
 
     });
 
@@ -34,12 +35,13 @@ describe('say', () => {
       const msg = '<Safety_First.com>';
 
       // act
-      sut.execute(socket, msg);
+      return sut.execute(socket.character, msg).then(response => {
+        // assert
+        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser says "<span class="silver">&lt;Safety_First.com&gt;</span>"', exclude: [socket.character.id] });
+        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You say "<span class="silver">&lt;Safety_First.com&gt;</span>"' });
+      });
 
-      // assert
-      expect(socket.broadcast.to).toBeCalledWith(socket.character.roomId);
-      expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: 'TestUser says "&lt;Safety_First.com&gt;"' });
-      expect(socket.emit).toBeCalledWith('output', { message: 'You say "&lt;Safety_First.com&gt;"' });
+
 
     });
 

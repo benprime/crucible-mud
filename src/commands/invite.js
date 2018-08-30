@@ -1,7 +1,9 @@
 import socketUtil from '../core/socketUtil';
+import autocomplete from '../core/autocomplete';
 
 export default {
   name: 'invite',
+  desc: 'invite another player to follow you',
 
   patterns: [
     /^invite\s+(\w+)$/i,
@@ -13,37 +15,46 @@ export default {
       this.help(socket);
       return;
     }
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, username) {
+  execute(character, username) {
 
-    if (socket.leader) {
-      socket.emit('output', { message: 'Only the party leader may invite followers.' });
-      return;
+    if (character.leader) {
+      return Promise.reject('Only the party leader may invite followers.');
     }
 
-    const targetSocket = socketUtil.validUserInRoom(socket, username);
-    if (!targetSocket) {
-      return;
+    const targetCharacter = autocomplete.character(character, username);
+    if (!targetCharacter) {
+      return Promise.reject('unknown player');
     }
 
-    if (!targetSocket.partyInvites) {
-      targetSocket.partyInvites = [];
+    if (character.roomId !== targetCharacter.roomId) {
+      return Promise.reject('That player does not appear to be in the room.');
     }
 
-    if (!targetSocket.partyInvites.includes(socket.character.id)) {
-      targetSocket.partyInvites.push(socket.character.id);
+    if (!targetCharacter.partyInvites) {
+      targetCharacter.partyInvites = [];
     }
 
-    targetSocket.emit('output', { message: `${socket.user.username} has invited you to join a party.` });
-    socket.emit('output', { message: `You have invited ${targetSocket.user.username} to join your party.` });
+    if (!targetCharacter.partyInvites.includes(character.id)) {
+      targetCharacter.partyInvites.push(character.id);
+    }
+
+    return Promise.resolve({
+      charMessages: [
+        { charId: targetCharacter.id, message: `${character.name} has invited you to join a party.` },
+        { charId: character.id, message: `You have invited ${targetCharacter.name} to join your party.` },
+      ],
+    });
 
     // TODO: make party invites timeout
     // setTimeout(() => {
-    //   let itemIndex = toUserSocket.offers.findIndex(o => o.item.id === item.id);
+    //   let itemIndex = toUserSocket.character.offers.findIndex(o => o.item.id === item.id);
     //   if (itemIndex !== -1) {
-    //     toUserSocket.offers.splice(itemIndex, 1);
+    //     toUserSocket.character.offers.splice(itemIndex, 1);
     //   }
     //   if (cb) cb();
     // }, 60000);

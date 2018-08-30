@@ -1,8 +1,10 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'drop',
+  desc: 'drop an inventory item on the ground',
 
   patterns: [
     /^dr\s+(.+)$/i,
@@ -12,28 +14,31 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 2) {
-      socket.emit('output', { message: 'What do you want to drop?' });
-      return;
+      return Promise.reject('What do you want to drop?');
     }
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, itemName) {
-    const room = Room.getById(socket.character.roomId);
-    const result = autocomplete.autocompleteTypes(socket, ['inventory', 'key'], itemName);
+  execute(character, itemName) {
+    const room = Room.getById(character.roomId);
+    const result = autocomplete.multiple(character, ['inventory', 'key'], itemName);
     if (!result) {
-      return;
+      return Promise.reject('You don\'t seem to be carrying that.');
     }
 
     // remove item from users inventory or key ring
     if (result.item.type === 'item') {
-      socket.character.inventory.remove(result.item);
+      if(character.equipped.isEquipped(result.item)) {
+        character.equipped.unequip(result.item);
+      }
+      character.inventory.remove(result.item);
     } else if (result.item.type === 'key') {
-      socket.character.keys.remove(result.item);
+      character.keys.remove(result.item);
     } else {
       // just a catch for bad data
-      socket.emit('output', { message: 'Unknown item type!' });
-      return;
+      return Promise.reject('Unknown item type!');
     }
 
     // and place it in the room
@@ -41,10 +46,16 @@ export default {
 
     // save both
     room.save(err => { if (err) throw err; });
-    socket.character.save(err => { if (err) throw err; });
+    character.save(err => { if (err) throw err; });
 
-    socket.emit('output', { message: 'Dropped.' });
-    socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} drops ${result.item.displayName}.` });
+    return Promise.resolve({
+      charMessages: [
+        { charId: character.id, message: 'Dropped.' },
+      ],
+      roomMessages: [
+        { roomId: character.roomId, message: `${character.name} drops ${result.item.name}.`, exclude: [character.id] },
+      ],
+    });
   },
 
   help(socket) {

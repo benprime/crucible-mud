@@ -1,6 +1,5 @@
 import { mockGetRoomById } from '../models/room';
-import { mockAutocompleteTypes } from '../core/autocomplete';
-import { mockValidUserInRoom } from '../core/socketUtil';
+import { mockAutocompleteMultiple, mockAutocompleteCharacter } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './accept';
 import Item from '../models/item';
@@ -25,7 +24,7 @@ describe('accept', () => {
       socket.reset();
       socket.emit.mockReset();
       socket.character.save.mockReset();
-      mockAutocompleteTypes.mockReset();
+      mockAutocompleteMultiple.mockReset();
     });
 
     test('should update from/to inventory on successful offer/accept', () => {
@@ -33,33 +32,33 @@ describe('accept', () => {
       let offeredItem = new Item();
       offeredItem._id = new ObjectId();
       offeredItem.name = 'aItem';
-      offeredItem.displayName = 'aItem display name';
 
-      mockAutocompleteTypes.mockReturnValueOnce({item: offeringSocket.user});
-      //mockReturnValueOnce({ item: offeredItem })
-      //mockGetSocketByUsername.mockReturnValueOnce(offeringSocket);
-      mockValidUserInRoom.mockReturnValueOnce(offeringSocket);
+      mockAutocompleteCharacter.mockReturnValueOnce(offeringSocket.character);
 
-      offeringSocket.user.username = 'aUser';
+      offeringSocket.character.name = 'aUser';
+      offeringSocket.character.name = 'aUser';
       offeringSocket.character.inventory = [offeredItem];
+      offeringSocket.character.roomId = socket.character.roomId;
 
-      socket.offers = [{
-        fromUserName: offeringSocket.user.username,
-        toUserName: socket.user.username,
+      socket.character.offers = [{
+        fromUserName: offeringSocket.character.name,
+        toUserName: socket.character.name,
         item: offeredItem,
       }];
 
-      sut.execute(socket, 'aItem');
+      return sut.execute(socket.character, 'aUser').then(response => {
+        expect(socket.character.offers).toHaveLength(0);
+        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `You accept the ${offeredItem.name} from ${offeringSocket.character.name}.` });
+        expect(socket.character.save).toHaveBeenCalled();
+        expect(socket.character.inventory).toHaveLength(1);
+        expect(socket.character.inventory[0].name).toEqual('aItem');
 
-      expect(socket.offers).toHaveLength(0);
-      expect(socket.emit).toBeCalledWith('output', { message: `You accept the ${offeredItem.displayName} from ${offeringSocket.user.username}.` });
-      expect(socket.character.save).toHaveBeenCalled();
-      expect(socket.character.inventory).toHaveLength(1);
-      expect(socket.character.inventory[0].name).toEqual('aItem');
+        expect(response.charMessages).toContainEqual({ charId: offeringSocket.character.id, message: `${socket.character.name} accepts the ${offeredItem.name}.` });
+        expect(offeringSocket.character.save).toHaveBeenCalled();
+        expect(offeringSocket.character.inventory).toHaveLength(0);
+      });
 
-      expect(offeringSocket.emit).toBeCalledWith('output', { message: `${socket.user.username} accepts the ${offeredItem.displayName}.` });
-      expect(offeringSocket.character.save).toHaveBeenCalled();
-      expect(offeringSocket.character.inventory).toHaveLength(0);
+
     });
   });
 });

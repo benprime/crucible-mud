@@ -4,22 +4,22 @@ import { Types } from 'mongoose';
 
 const data = [
   {
-    "_id": Types.ObjectId("5b77bd754d2d7858611e1293"),
+    "_id": Types.ObjectId("5b8633b66c920f0c416d0357"),
     "roomId": "5b779fd3f25fe128bd016f70",
+    "currency": 0,
     "stock": [
       {
-        "itemTypeName": "shortsword",
+        "itemTypeName": "short sword",
         "quantity": 10,
-        "_id": Types.ObjectId("5b77be4b492a2f5a3654f909")
+        "_id": Types.ObjectId("5b8633c96c920f0c416d035a")
       },
       {
-        "itemTypeName": "torch",
-        "quantity": 20,
-        "_id": Types.ObjectId("5b77c667422dac6893dfb922")
+        "itemTypeName": "great sword",
+        "quantity": 10,
+        "_id": Types.ObjectId("5b8633ce6c920f0c416d035b")
       }
     ],
-    "__v": 2,
-    "currency": 32
+    "__v": 2
   }
 ];
 

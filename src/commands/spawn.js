@@ -3,15 +3,15 @@ import mobData from '../data/mobData';
 import Mob from '../models/mob';
 import itemData from '../data/itemData';
 import Item from '../models/item';
+import socketUtil from '../core/socketUtil';
 
 export const spawn = (itemType) => {
   return new Item({
     name: itemType.name,
     desc: itemType.desc,
-    displayName: itemType.displayName,
     type: itemType.type,
     fixed: itemType.fixed,
-    equip: itemType.equip,
+    equipSlots: itemType.equipSlots,
     damage: itemType.damage,
     damageType: itemType.damageType,
     speed: itemType.speed,
@@ -33,6 +33,7 @@ export const spawnAndGive = (character, itemType, cb) => {
 
 export default {
   name: 'spawn',
+  desc: 'create mob and item instances of the catalog types',
   admin: true,
 
   targets: ['mob', 'player', 'inventoryItem', 'roomItem'],
@@ -46,16 +47,17 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      socket.emit('output', { message: 'Invalid spawn usage.' });
-      return;
+      return Promise.reject('Invalid spawn usage.');
     }
     let typeName = match[1];
     let itemTypeName = match[2];
-    this.execute(socket, typeName, itemTypeName);
+    this.execute(socket.character, typeName, itemTypeName)
+      .then(response => socketUtil.sendMessages(socket, response))
+      .catch(response => socketUtil.output(socket, response));
+
   },
 
-  execute(socket, type, name) {
-
+  execute(character, type, name) {
 
     // Mob
     //---------------------
@@ -63,21 +65,27 @@ export default {
       const createType = mobData.catalog.find(mob => mob.name.toLowerCase() === name.toLowerCase());
 
       if (!createType) {
-        socket.emit('output', { message: 'Unknown mob type.' });
-        return;
+        return Promise.reject('Unknown mob type.');
       }
 
-      const room = Room.getById(socket.character.roomId);
+      const room = Room.getById(character.roomId);
       if (!room) {
-        throw `no room found for current user room: ${socket.character.roomId}`;
+        return Promise.reject(`no room found for current user room: ${character.roomId}`);
       }
 
       // clone the create type and give it an id
       let mob = new Mob(createType, room.id);
 
       room.mobs.push(mob);
-      socket.emit('output', { message: 'Summoning successful.' });
-      socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} waves his hand and a ${createType.displayName} appears!` });
+
+      return Promise.resolve({
+        charMessages: [
+          { charId: character.id, message: 'Summoning successful.' },
+        ],
+        roomMessages: [
+          { roomId: character.roomId, message: `${character.name} waves his hand and a ${mob.displayName} appears!`, exclude: [character.id] },
+        ],
+      });
 
       // Item
       //---------------------
@@ -85,13 +93,19 @@ export default {
 
       const itemType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'item');
       if (!itemType) {
-        socket.emit('output', { message: `Attempted to spawn unknown item type: ${name}` });
-        return;
+        return Promise.reject(`Attempted to spawn unknown item type: ${name}`);
       }
 
-      spawnAndGive(socket.character, itemType);
-      socket.emit('output', { message: 'Item created.' });
-      socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} emits a wave of energy!` });
+      spawnAndGive(character, itemType);
+
+      return Promise.resolve({
+        charMessages: [
+          { charId: character.id, message: 'Item created.' },
+        ],
+        roomMessages: [
+          { roomId: character.roomId, message: `${character.name} emits a wave of energy!`, exclude: [character.id] },
+        ],
+      });
 
       // Key
       //---------------------
@@ -99,27 +113,24 @@ export default {
       const keyType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'key');
 
       if (!keyType) {
-        socket.emit('output', { message: 'Unknown key type.' });
-        return;
+        return Promise.reject('Unknown key type.');
       }
 
       let key = new Item({
         name: keyType.name,
         desc: keyType.desc,
-        displayName: keyType.displayName,
         type: 'key',
       });
 
-      socket.character.keys.push(key);
-      socket.character.save(err => { if (err) throw err; });
-      socket.emit('output', { message: 'Key created.' });
+      character.keys.push(key);
+      character.save(err => { if (err) throw err; });
+      return Promise.resolve('Key created.');
     }
 
     // Invalid
     //---------------------
     else {
-      socket.emit('output', { message: 'Unknown object type.' });
-      return;
+      return Promise.reject('Unknown object type.');
     }
   },
 

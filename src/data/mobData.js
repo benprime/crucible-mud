@@ -10,8 +10,9 @@ export default {
   // will have stats.
   catalog: [{
     name: 'kobold',
+    class: 'sentry',
     desc: 'an ugly kobold',
-    displayName: 'kobold sentry',
+    displayTemplate: '${this.adjective} ${this.name} ${this.class}',
     adjectives: [
       {
         name: 'big',
@@ -21,7 +22,8 @@ export default {
           minDamage: 0,
           maxDamage: 0,
           hitDice: 0,
-          attackInterval: 250,
+          attackInterval: 1000,
+          tauntInterval: 1000,
         },
       },
       {
@@ -32,7 +34,8 @@ export default {
           minDamage: 4,
           maxDamage: 0,
           hitDice: 0,
-          attackInterval: 0,
+          attackInterval: 1000,
+          tauntInterval: 1000,
         },
       },
       {
@@ -44,6 +47,7 @@ export default {
           maxDamage: 0,
           hitDice: 0,
           attackInterval: -1000,
+          tauntInterval: -1000,
         },
       },
       {
@@ -55,6 +59,7 @@ export default {
           maxDamage: 0,
           hitDice: 0,
           attackInterval: -500,
+          tauntInterval: -500,
         },
       },
       {
@@ -65,7 +70,8 @@ export default {
           minDamage: 0,
           maxDamage: 0,
           hitDice: 0,
-          attackInterval: 0,
+          attackInterval: -250,
+          tauntInterval: -250,
         },
       },
       {
@@ -76,7 +82,8 @@ export default {
           minDamage: 0,
           maxDamage: 0,
           hitDice: 0,
-          attackInterval: 0,
+          attackInterval: 250,
+          tauntInterval: 250,
         },
       },
       {
@@ -87,7 +94,8 @@ export default {
           minDamage: 2,
           maxDamage: 2,
           hitDice: 1,
-          attackInterval: 0,
+          attackInterval: 750,
+          tauntInterval: 750,
         },
       },
     ],
@@ -107,8 +115,9 @@ export default {
   },
   {
     name: 'cultist',
+    class: 'robed',
     desc: 'a robed cultist',
-    displayName: 'robed cultist',
+    displayTemplate: '${this.adjective} ${this.class} ${this.name}',
     adjectives: [
       {
         name: 'big',
@@ -118,7 +127,8 @@ export default {
           minDamage: 0,
           maxDamage: 0,
           hitDice: 0,
-          attackInterval: 250,
+          attackInterval: 1000,
+          tauntInterval: 1000,
         },
       },
       {
@@ -129,7 +139,8 @@ export default {
           minDamage: 4,
           maxDamage: 0,
           hitDice: 0,
-          attackInterval: 0,
+          attackInterval: 1000,
+          tauntInterval: 1000,
         },
       },
       {
@@ -140,7 +151,8 @@ export default {
           minDamage: -2,
           maxDamage: 0,
           hitDice: 0,
-          attackInterval: -500,
+          attackInterval: -1000,
+          tauntInterval: -1000,
         },
       },
       {
@@ -151,7 +163,8 @@ export default {
           minDamage: 0,
           maxDamage: 0,
           hitDice: 0,
-          attackInterval: -250,
+          attackInterval: -500,
+          tauntInterval: -500,
         },
       },
       {
@@ -162,115 +175,20 @@ export default {
           minDamage: 0,
           maxDamage: 0,
           hitDice: 0,
-          attackInterval: 0,
+          attackInterval: -250,
+          tauntInterval: -250,
         },
       },
       {
         name: 'tall',
         modifiers: {
           hp: 0,
-          xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
-          hitDice: 0,
-          attackInterval: 0,
-        },
-      },
-      {
-        name: 'ferocious',
-        modifiers: {
-          hp: 0,
-          xp: 50,
-          minDamage: 2,
-          maxDamage: 2,
-          hitDice: 1,
-          attackInterval: 0,
-        },
-      },
-    ],
-    attackInterval: 4000,
-    hitDice: '1d4',
-    hp: 10,
-    xp: 20,
-    minDamage: 1,
-    maxDamage: 3,
-    tauntInterval: 12000, // every 3 rounds
-    deathMessage: 'The {0} crumbles to dust.',
-    taunts: [
-      'The {0} growls at {1} aggressively!',
-      'The {0} circles {1}, looking for an opening!',
-      'The {0} bellows a challenge!',
-    ],
-  },
-  {
-    name: 'kobold',
-    desc: 'an ugly kobold',
-    displayName: 'kobold sentry',
-    adjectives: [
-      {
-        name: 'big',
-        modifiers: {
-          hp: 10,
           xp: 0,
           minDamage: 0,
           maxDamage: 0,
           hitDice: 0,
           attackInterval: 250,
-        },
-      },
-      {
-        name: 'strong',
-        modifiers: {
-          hp: 5,
-          xp: 30,
-          minDamage: 4,
-          maxDamage: 0,
-          hitDice: 0,
-          attackInterval: 0,
-        },
-      },
-      {
-        name: 'quick',
-        modifiers: {
-          hp: 0,
-          xp: 0,
-          minDamage: -2,
-          maxDamage: 0,
-          hitDice: 0,
-          attackInterval: -500,
-        },
-      },
-      {
-        name: 'small',
-        modifiers: {
-          hp: -5,
-          xp: -5,
-          minDamage: 0,
-          maxDamage: 0,
-          hitDice: 0,
-          attackInterval: -250,
-        },
-      },
-      {
-        name: 'short',
-        modifiers: {
-          hp: 0,
-          xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
-          hitDice: 0,
-          attackInterval: 0,
-        },
-      },
-      {
-        name: 'tall',
-        modifiers: {
-          hp: 0,
-          xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
-          hitDice: 0,
-          attackInterval: 0,
+          tauntInterval: 250,
         },
       },
       {
@@ -281,10 +199,12 @@ export default {
           minDamage: 2,
           maxDamage: 2,
           hitDice: 1,
-          attackInterval: 0,
+          attackInterval: 750,
+          tauntInterval: 750,
         },
       },
     ],
+
     attackInterval: 4000,
     hitDice: '1d4',
     hp: 10,
@@ -302,10 +222,20 @@ export default {
   {
     name: 'hellhound',
     desc: 'a hellhound',
-    displayName: 'hellhound',
     adjectives: [
       {
         name: 'flaming',
+        modifiers: {
+          hp: 10,
+          xp: 0,
+          minDamage: 0,
+          maxDamage: 0,
+          hitDice: 0,
+          attackInterval: 250,
+        },
+      },
+      {
+        name: 'smoldering',
         modifiers: {
           hp: 10,
           xp: 0,
@@ -333,7 +263,6 @@ export default {
   {
     name: 'dummy',
     desc: 'a sparring dummy',
-    displayName: 'enchanted sparring dummy',
     attackInterval: 0, // no attacks
     hp: 20,
     xp: 20,

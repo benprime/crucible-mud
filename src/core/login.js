@@ -8,48 +8,47 @@ import Character from '../models/character';
 export default {
   LoginUsername(socket, { value }) {
     if (socket.state == config.STATES.LOGIN_USERNAME) {
-      User.findByName(value, (err, user) => {
-        if (!user) {
+      Character.findByName(value).then(character => {
+        if (!character) {
           socket.emit('output', { message: 'Unknown user, please try again.' });
         } else {
-          socket.tempUsername = user.username;
+          socket.tempEmail = character.user.email;
           socket.state = config.STATES.LOGIN_PASSWORD;
           socket.emit('output', { message: 'Enter password:' });
         }
+      }).catch(err => {
+        socket.emit('output', { message: `Error: ${err}` });
       });
     }
   },
 
-  LoginPassword(socket, { value }, callback) {
+  LoginPassword(socket, { value }) {
     if (socket.state == config.STATES.LOGIN_PASSWORD) {
 
-      User.findOne({ username: socket.tempUsername, password: value })
-        .exec((err, user) => {
-          if (err) return console.error(err);
+      return User.findOne({ email: socket.tempEmail, password: value }).then(user => {
+        if (!user) {
+          return Promise.reject('Wrong password, please try again.');
+        }
 
-          if (!user) {
-            socket.emit('output', { message: 'Wrong password, please try again.' });
-            return;
-          }
+        delete socket.tempEmail;
 
-          delete socket.tempUsername;
-
+        return Character.findByUser(user).then(character => {
           // if the user is logged in from another connection, disconnect it.
-          const existingSocket = socketUtil.getSocketByUsername(user.username);
+          const existingSocket = socketUtil.getSocketByCharacterId(character.id);
           if (existingSocket) {
             existingSocket.emit('output', { message: 'You have logged in from another session.\n<span class="gray">*** Disconnected ***</span>' });
             existingSocket.disconnect();
           }
           socket.user = user;
 
-          Character.findOne({ user: user }, (err, character) => {
-            if(err) throw(err);
+          return Character.findOne({ user: user }).then(character => {
             if (!character) {
-              throw 'No character associated with this user.';
+              return Promise.reject('No character associated with this user.');
             }
 
             socket.character = character;
-            socket.offers = [];
+            socket.character.user = user;
+            socket.character.offers = [];
 
             // format the subdocuments so we have actual object instances
             // Note: tried a lean() query here, but that also stripped away the model
@@ -61,10 +60,10 @@ export default {
             // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
             socket.state = config.STATES.MUD;
 
-            socket.emit('output', { message: '<br>Welcome to CrucibleMUD!<br>' });
+            socket.emit('output', { message: '<br><span class="mediumOrchid">Welcome to CrucibleMUD!</span><br>' });
 
             socket.join('realm');
-            socket.broadcast.to('realm').emit('output', { message: `${user.username} has entered the realm.` });
+            socket.broadcast.to('realm').emit('output', { message: `<span class="mediumOrchid">${character.name} has entered the realm.</span>\n` });
 
             socket.join('gossip');
 
@@ -72,17 +71,20 @@ export default {
 
             const currentRoom = Room.getById(character.roomId);
             if (!currentRoom) {
-              Room.byCoords({ x: 0, y: 0, z: 0 }, (err, { id }) => {
-                character.roomId = id;
-                socket.join(id);
-                if (callback) callback();
+              return Room.byCoords({ x: 0, y: 0, z: 0 }).then(room => {
+                character.roomId = room.id;
+                socket.join(room.id);
+                return Promise.resolve();
               });
             } else {
               socket.join(character.roomId);
-              if (callback) callback();
+              return Promise.resolve();
             }
           });
+
         });
+
+      });
     }
   },
 };

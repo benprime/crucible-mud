@@ -1,30 +1,62 @@
-export default {
-  // used by mob prototype
-  socketInRoom(roomId, socketId) {
-    const ioRoom = global.io.sockets.adapter.rooms[roomId];
-    return !!(ioRoom && socketId in ioRoom.sockets);
-  },
+import socketUtil from '../core/socketUtil';
 
-  // method for sending a message to all players in a room, except one.
-  // using the receiver's socket instead of relying on the "sender" socket.
+export default {
   roomMessage(roomId, message, exclude) {
     const ioRoom = global.io.sockets.adapter.rooms[roomId];
     if (!ioRoom) return;
     for (let socketId in ioRoom.sockets) {
       let socket = global.io.sockets.connected[socketId];
-      if (Array.isArray(exclude) && exclude.includes(socket.id)) continue;
+      if (Array.isArray(exclude) && exclude.includes(socket.character.id)) continue;
       if (!socket) continue;
       socket.emit('output', { message });
     }
   },
 
-  getSocketByUsername(username) {
-    for (let socket of Object.values(global.io.sockets.connected)) {
-      if (socket.user && socket.user.username.toLowerCase() == username.toLowerCase()) {
-        return socket;
+  sendMessages(socket, output) {
+    if(!output) return;
+    if (typeof output === 'string' || output instanceof String) {
+      socket.emit('output', { message: output });
+    }
+    else {
+      if (Array.isArray(output.charMessages) && output.charMessages.length > 0) {
+        for (let msg of output.charMessages) {
+          let charSocket = this.getSocketByCharacterId(msg.charId);
+          if (!charSocket) continue;
+          charSocket.emit('output', { message: msg.message });
+        }
+      }
+
+      if (Array.isArray(output.roomMessages) && output.roomMessages.length > 0) {
+        for (let msg of output.roomMessages) {
+
+          // if there is only one character to exlude, use Socket.IO's
+          // built-in broadcast functionality.
+          // TODO: review this. Is it a good idea to broadcast from a
+          // player socket? What if they disconnect mid-processing?
+          if (Array.isArray(msg.exclude) && msg.exclude.length === 1) {
+            const charSocket = socketUtil.getSocketByCharacterId(msg.exclude[0]);
+            if (!charSocket) throw 'Invalid character id';
+            charSocket.to(msg.roomId).emit('output', { message: msg.message });
+          }
+          // if there are multiple characters being excluded,
+          // loop through the room sockets manually.
+          else if (Array.isArray(msg.exclude) && msg.exclude.length > 0) {
+            const socketRoom = global.io.sockets.adapter.rooms[msg.roomId];
+            for (let socketId of Object.keys(socketRoom.sockets)) {
+              let charSocket = global.io.sockets.connected[socketId];
+              if (msg.exclude.includes(charSocket.character.id)) continue;
+              charSocket.emit('output', { message: msg.message });
+            }
+          } else {
+            global.io.to(msg.roomId).emit('output', { message: msg.message });
+          }
+        }
       }
     }
-    return null;
+  },
+
+  output(socket, output) {
+    socket.emit('output', { message: output });
   },
 
   getSocketByUserId(userId) {
@@ -36,14 +68,43 @@ export default {
     return null;
   },
 
-  getFollowingSockets(characterId) {
-    const followingSockets = [];
+  getSocketByCharacterId(characterId) {
     for (let socket of Object.values(global.io.sockets.connected)) {
-      if (socket.character && socket.leader === characterId) {
-        followingSockets.push(socket);
+      if (socket.user && socket.character.id === characterId) {
+        return socket;
       }
     }
-    return followingSockets;
+    return null;
+  },
+
+  // not sure this belongs here. We're trying to make is so that game code has no knowledge of sockets.
+  // game code uses this all the time and has to include the socketUtil library to do it. Perhaps move this?
+  getCharacterByName(name) {
+    for (let socket of Object.values(global.io.sockets.connected)) {
+      if (socket.user && socket.character.name == name) {
+        return socket.character;
+      }
+    }
+    return null;
+  },
+
+  getCharacterById(characterId) {
+    for (let socket of Object.values(global.io.sockets.connected)) {
+      if (socket.character && socket.character.id == characterId) {
+        return socket.character;
+      }
+    }
+    return null;
+  },
+
+  getFollowingCharacters(characterId) {
+    const followers = [];
+    for (let socket of Object.values(global.io.sockets.connected)) {
+      if (socket.character && socket.character.leader === characterId) {
+        followers.push(socket.character);
+      }
+    }
+    return followers;
   },
 
   getSocket(socketId) {
@@ -56,21 +117,10 @@ export default {
     return Object.keys(ioRoom.sockets).map((socketId) => global.io.sockets.connected[socketId]);
   },
 
-  // method for validating a valid username and that the user is in the current room
-  validUserInRoom(socket, username) {
-    const userSocket = this.getSocketByUsername(username);
-    if (!userSocket) {
-      socket.emit('output', { message: 'Unknown user' });
-      return false;
-    }
-
-    if (!this.socketInRoom(socket.character.roomId, userSocket.id)) {
-      socket.emit('output', { message: `You don't see ${username} here.` });
-      return false;
-    }
-
-    return userSocket;
+  getAllSockets() {
+    return Object.values(global.io.sockets.connected).filter(s => s.user);
   },
+
 };
 
 

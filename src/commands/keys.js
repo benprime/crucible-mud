@@ -1,17 +1,22 @@
+import socketUtil from '../core/socketUtil';
+
 export default {
   name: 'keys',
+  desc: 'list the keys your are currently carrying',
 
   patterns: [
     /^keys$/i,
   ],
 
   dispatch(socket) {
-    this.execute(socket);
+    this.execute(socket)
+      .then(output => socketUtil.output(socket, output))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket) {
-    const keys = socket.character.keys || [];
-    let keyOutput = keys.map(({displayName}) => displayName).join(', ');
+  execute(character) {
+    const keys = character.keys || [];
+    let keyOutput = keys.map(({ name }) => name).join(', ');
     if (!keyOutput) {
       keyOutput = 'None.';
     }
@@ -20,7 +25,8 @@ export default {
     output += '<span class=\'silver\'>';
     output += keyOutput;
     output += '</span>';
-    socket.emit('output', { message: output });
+
+    return Promise.resolve(output);
   },
 
   help(socket) {

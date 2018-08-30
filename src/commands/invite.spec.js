@@ -1,10 +1,10 @@
-import { mockValidUserInRoom } from '../core/socketUtil';
+import { mockAutocompleteCharacter } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './invite';
 
-
 jest.mock('../models/room');
 jest.mock('../core/socketUtil');
+jest.mock('../core/autocomplete');
 
 global.io = new mocks.IOMock();
 let mockTargetSocket = new mocks.SocketMock();
@@ -23,34 +23,38 @@ describe('invite', () => {
   describe('execute', () => {
 
     beforeEach(() => {
-      mockTargetSocket.user.username = 'TargetUser';
+      mockTargetSocket.character.name = 'TargetUser';
+      mockTargetSocket.character.roomId = socket.character.roomId;
 
       global.io.addCharacterToIORoom(mockRoom.id, mockTargetSocket);
 
       socket.character.inventory = [{ id: 'aItemId', name: 'aItem' }];
-      socket.user.username = 'TestUser';
-      socket.partyInvites = [];
+      socket.character.name = 'TestUser';
+      socket.character.partyInvites = [];
       socket.emit.mockClear();
     });
 
     test('users following a party leader may not invite followers', () => {
-      socket.leader = 'aLeader';
+      socket.character.leader = 'aLeader';
       let username = 'TargetUser';
-      mockValidUserInRoom.mockReturnValueOnce(mockTargetSocket);
 
-      sut.execute(socket, username);
+      return sut.execute(socket.character, username).catch(response => {
+        expect(response).toEqual('Only the party leader may invite followers.');
+        expect(mockTargetSocket.character.partyInvites).toHaveLength(0);
+      });
 
-      expect(mockTargetSocket.partyInvites).not.toContain(socket.character.id);
     });
 
     test('adds invite to socket tracking variable of recipient socket', () => {
-      socket.leader = undefined;
+      socket.character.leader = undefined;
       let username = 'TargetUser';
-      mockValidUserInRoom.mockReturnValueOnce(mockTargetSocket);
+      mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
 
-      sut.execute(socket, username);
+      return sut.execute(socket.character, username).then(commandResult => {
+        expect(commandResult.charMessages).toHaveLength(2);
+        expect(mockTargetSocket.character.partyInvites).toContain(socket.character.id);
+      });
 
-      expect(mockTargetSocket.partyInvites).toContain(socket.character.id);
     });
 
   });

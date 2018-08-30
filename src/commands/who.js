@@ -1,26 +1,28 @@
 import Area from '../models/area';
 import Room from '../models/room';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'who',
+  desc: 'display the other players currently online',
 
   patterns: [
     /^who$/i,
   ],
 
   dispatch(socket) {
-    this.execute(socket);
+    this.execute().then(output => socketUtil.output(socket, output));
   },
 
-  execute(socket) {
-    const sockets = Object.values(global.io.sockets.connected)
-      .filter(s => s.user);
+  execute() {
+    const characters = Object.values(global.io.sockets.connected)
+      .filter(s => s.character).map(s => s.character);
 
-    const whoUsers = sockets.map(s => {
-      const room = Room.getById(s.character.roomId);
+    const whoUsers = characters.map(c => {
+      const room = Room.getById(c.roomId);
       const areaName = room.areaId ? Area.getById(room.areaId).name : null;
       return {
-        username: s.user.username,
+        username: c.name,
         areaName: areaName,
       };
     });
@@ -32,7 +34,7 @@ export default {
       output += `${wu.username}${areaName}<br />`;
     });
     output += '</div>';
-    socket.emit('output', { message: output });
+    return Promise.resolve(output);
   },
 
   help(socket) {

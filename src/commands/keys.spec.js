@@ -15,27 +15,29 @@ describe('keys', () => {
       const expectedString = '<span class=\'cyan\'>Key ring: </span><span class=\'silver\'>None.</span>';
 
       // act
-      sut.execute(socket);
+      return sut.execute(socket.character).then(response => {
 
-      // assert
-      expect(socket.emit).toHaveBeenCalledWith('output', {message: expectedString});
+        // assert
+        expect(response).toContain(expectedString);
+      });
+
     });
 
     test('should display user keys when user has keys', () => {
       // arrange
       socket.character.keys = [
-        { displayName: 'KeyOne' },
-        { displayName: 'KeyTwo' },
-        { displayName: 'KeyThree' },
+        { name: 'KeyOne' },
+        { name: 'KeyTwo' },
+        { name: 'KeyThree' },
       ];
       const expectedString = '<span class=\'cyan\'>Key ring: </span><span class=\'silver\'>KeyOne, KeyTwo, KeyThree</span>';
 
       // act
-      sut.execute(socket);
+      return sut.execute(socket.character).then(response => {
+        // assert
+        expect(response).toContain(expectedString);
+      });
 
-      // assert
-      expect(socket.emit).toHaveBeenCalledWith('output', {message: expectedString});
     });
   });
-
 });

@@ -5,11 +5,12 @@ import { Types } from 'mongoose';
 const data = [
   {
     "user": Types.ObjectId("5b74b95c7bf1c641880250fb"),
+    "name": "Ben",
 
     "inventory": [],
     "keys": [],
     "currency": 10.0,
-    "equipSlots": {
+    "equipped": {
       "weaponMain": null,
       "weaponOff": null,
       "head": null,
@@ -66,11 +67,12 @@ const data = [
 
   {
     "user": Types.ObjectId("5b74b95c7bf1c641880250fc"),
+    "name": "Jeff",
 
     "inventory": [],
     "keys": [],
     "currency": 10.0,
-    "equipSlots": {
+    "equipped": {
       "weaponMain": null,
       "weaponOff": null,
       "head": null,
@@ -126,10 +128,12 @@ const data = [
   },
   {
     "user": Types.ObjectId("5b74b95c7bf1c641880250fd"),
+    "name": "Nich",
+
     "inventory": [],
     "keys": [],
     "currency": 10.0,
-    "equipSlots": {
+    "equipped": {
       "weaponMain": null,
       "weaponOff": null,
       "head": null,
@@ -185,10 +189,12 @@ const data = [
   },
   {
     "user": Types.ObjectId("5b74c2fbc87903b6cc0c5577"),
+    "name": "Evan",
+
     "inventory": [],
     "keys": [],
     "currency": 10.0,
-    "equipSlots": {
+    "equipped": {
       "weaponMain": null,
       "weaponOff": null,
       "head": null,
@@ -244,10 +250,12 @@ const data = [
   },
   {
     "user": Types.ObjectId("5b74c31bc87903b6cc0c558d"),
+    "name": "Nicholas",
+
     "inventory": [],
     "keys": [],
     "currency": 10.0,
-    "equipSlots": {
+    "equipped": {
       "weaponMain": null,
       "weaponOff": null,
       "head": null,

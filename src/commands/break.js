@@ -1,5 +1,7 @@
+import socketUtil from '../core/socketUtil';
 export default {
   name: 'break',
+  desc: 'break off combat',
 
   patterns: [
     /^br$/i,
@@ -7,18 +9,27 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket);
+    this.execute(socket.character)
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket) {
-    if (socket.character.attackTarget) {
-      socket.character.attackInterval = undefined;
-      socket.character.lastAttack = undefined;
-      socket.character.attackTarget = undefined;
+  execute(character) {
 
-      socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} breaks off his attack.` });
-      socket.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
+    const charMessages = [];
+    const roomMessages = [];
+
+    if(character.attackTarget) {
+      charMessages.push({ charId: character.id, message: '<span class="olive">*** Combat Disengaged ***</span>' });
+      roomMessages.push({ roomId: character.roomId, message: `${character.name} breaks off his attack.`, exclude: [character.id] });
     }
+
+    character.break();
+
+    return Promise.resolve({
+      charMessages: charMessages,
+      roomMessages: roomMessages,
+    });
   },
 
   help(socket) {

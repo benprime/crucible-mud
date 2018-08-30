@@ -1,46 +1,61 @@
 import socketUtil from '../core/socketUtil';
 import utils from '../core/utilities';
+import autocomplete from '../core/autocomplete';
 
 export default {
   name: 'follow',
+  desc: 'accept an invite to follow another player',
 
   patterns: [
     /^follow\s+(\w+)$/i,
     /^follow\s.+$/i,
+    /^join\s+(\w+)$/i,
+    /^join\s.+$/i,
   ],
 
   dispatch(socket, match) {
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(response => socketUtil.output(socket, response));
   },
 
-  execute(socket, username) {
-    const invitingSocket = socketUtil.validUserInRoom(socket, username);
-    if (!invitingSocket) {
-      return;
+  execute(character, username) {
+    const invitingCharacter = autocomplete.character(character, username);
+    if (!invitingCharacter) {
+      return Promise.reject('unknown player.');
     }
 
-    if (!Array.isArray(socket.partyInvites) || !socket.partyInvites.includes(invitingSocket.character.id)) {
-      socket.emit('output', { message: 'You must be invited.' });
-      return;
+    if (invitingCharacter.roomId !== character.roomId) {
+      return Promise.reject('That player doesn\'t appear to be in the room.');
     }
 
-    socket.leader = invitingSocket.character.id;
+    if (!Array.isArray(character.partyInvites) || !character.partyInvites.includes(invitingCharacter.id)) {
+      return Promise.reject('You must be invited.');
+    }
+
+    character.leader = invitingCharacter.id;
+
+    const charMessages = [];
 
     // re-assign following sockets to new leader
-    let followingSockets = socketUtil.getFollowingSockets(socket.character.id);
-    followingSockets.forEach(s => {
-      s.leader = invitingSocket.character.id;
-      s.emit('output', { message: `<span class="yellow">Now following ${invitingSocket.user.username}</span>` });
+    let followers = socketUtil.getFollowingCharacters(character.id);
+    followers.forEach(c => {
+      c.leader = invitingCharacter.id;
+      charMessages.push({ charId: c.id, message: `<span class="yellow">Now following ${invitingCharacter.name}</span>` });
     });
 
-    utils.removeItem(socket.partyInvites, invitingSocket.character.id);
+    utils.removeItem(character.partyInvites, invitingCharacter.id);
 
-    socket.emit('output', { message: `You are now following ${username}.` });
-    invitingSocket.emit('output', { message: `${socket.user.username} has started following you.` });
+    charMessages.push({ charId: character.id, message: `You are now following ${username}.` });
+    charMessages.push({ charId: invitingCharacter.id, message: `${character.name} has started following you.` });
+
+    return Promise.resolve({
+      charMessages: charMessages,
+    });
   },
 
   help(socket) {
-    const output = '<span class="mediumOrchid">invite &lt;player&gt; </span><span class="purple">-</span> Invite a player to follow you.<br />';
+    const output = '<span class="mediumOrchid">follow <span class="purple">|</span> join &lt;player&gt; </span><span class="purple">-</span> Invite a player to follow you.<br />';
     socket.emit('output', { message: output });
   },
 };

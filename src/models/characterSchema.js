@@ -1,32 +1,24 @@
 import mongoose from 'mongoose';
 import config from '../config';
 import ItemSchema from './itemSchema';
+import Room from './room';
 import dice from '../core/dice';
+import socketUtil from '../core/socketUtil';
+import CharacterEquipSchema from './characterEquipSchema';
 
 const CharacterSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  name: { type: String },
   roomId: { type: String },
+
+  gender: { type: String, enum: ['male', 'female'], default: 'male' },
 
   inventory: [ItemSchema],
   keys: [ItemSchema],
-  currency: { type: Number },
-  equipSlots: {
-    // Weapons
-    weaponMain: ItemSchema,
-    weaponOff: ItemSchema,
+  currency: { type: Number, default: 0 },
 
-    // Armor/Gear
-    head: ItemSchema,
-    body: ItemSchema,
-    back: ItemSchema,
-    legs: ItemSchema,
-    feet: ItemSchema,
-    arms: ItemSchema,
-    hands: ItemSchema,
-    neck: ItemSchema,
-    fingerMain: ItemSchema,
-    fingerOff: ItemSchema,
-  },
+  equipped: { type: CharacterEquipSchema, default: CharacterEquipSchema},
+
   armorRating: { type: Number },
 
   xp: { type: Number },
@@ -40,52 +32,44 @@ const CharacterSchema = new mongoose.Schema({
   },
 
   stats: {
-    strength: { type: Number },
-    intelligence: { type: Number },
-    dexterity: { type: Number },
-    charisma: { type: Number },
-    constitution: { type: Number },
-    willpower: { type: Number },
+    strength: { type: Number, default: 10 },
+    intelligence: { type: Number, default: 10 },
+    dexterity: { type: Number, default: 10 },
+    charisma: { type: Number, default: 10 },
+    constitution: { type: Number, default: 10 },
+    willpower: { type: Number, default: 10 },
   },
 
   skills: {
-    // ability to not be seen/heard (DEX)
-    stealth: { type: Number },
-    // open non-magical locks (DEX)
-    lockpick: { type: Number },
-    // steal from others (DEX)
-    pickpocket: { type: Number },
-    // visual (hidden door, trap, etc) (INT)
-    search: { type: Number },
-    // magical (active spell, illusion, etc) (INT/WIL)
-    detect: { type: Number },
-    // auditory (sounds beyond door, wind outside cave entrance, etc) (INT)
-    listen: { type: Number },
-    // determine hidden qualities of objects (INT)
-    identify: { type: Number },
-    // eliminate traps (DEX)
-    disable: { type: Number },
-    // make deals with others (CHA)
-    negotiate: { type: Number },
-    // mislead/swindle others (CHA)
-    bluff: { type: Number },
-    // force others to comply through fear (STR/CHA)
-    intimidate: { type: Number },
-    // affinity/skill with magic (INT/WIL)
-    magic: { type: Number },
-    // affinity/skill with weapons (STR/DEX)
-    weapons: { type: Number },
-    // subweapon skills? (dual, ranged, one hand, two hand, pierce, slash, bludge)
-    // hide objects (DEX)
-    conceal: { type: Number },
-    // minor self heal (CON)
-    heal: { type: Number },
-    // minor self revitalization of energy (WIL)
-    refresh: { type: Number },
-    // survive what others cannot (resist poison, no KO, etc) (CON)
-    endure: { type: Number },
-    // shield from magic (resist spell, see through illusion/charm, etc) (WIL)
-    resist: { type: Number },
+
+    stealth: { type: Number }, // ability to not be seen/heard (DEX)
+    lockpick: { type: Number }, // open non-magical locks (DEX)
+    pickpocket: { type: Number }, // steal from others (DEX)
+
+
+    // combine to perception
+    search: { type: Number }, // visual (hidden door, trap, etc) (INT)
+    listen: { type: Number }, // auditory (sounds beyond door, wind outside cave entrance, etc) (INT)
+    detect: { type: Number }, // magical (active spell, illusion, etc) (INT/WIL)
+
+    //unarmed?
+
+    identify: { type: Number }, // determine hidden qualities of objects (INT)
+    disable: { type: Number }, // eliminate traps (DEX)
+    negotiate: { type: Number }, // make deals with others (CHA)
+    bluff: { type: Number }, // mislead/swindle others (CHA)
+    intimidate: { type: Number }, // force others to comply through fear (STR/CHA)
+    magic: { type: Number }, // affinity/skill with magic (INT/WIL)
+    weapons: { type: Number }, // affinity/skill with weapons (STR/DEX) // subweapon skills? (dual, ranged, one hand, two hand, pierce, slash, bludge)
+
+    conceal: { type: Number }, // hide objects (DEX)
+    heal: { type: Number }, // minor self heal (CON)
+
+    refresh: { type: Number }, // minor self revitalization of energy (WIL)
+
+    endure: { type: Number }, // survive what others cannot (resist poison, no KO, etc) (CON)
+
+    resist: { type: Number }, // shield from magic (resist spell, see through illusion/charm, etc) (WIL)
 
     //conditional bonuses/flags
     sneak: { //Boosted stealth stats if player is actively sneaking
@@ -94,9 +78,25 @@ const CharacterSchema = new mongoose.Schema({
   },
 }, { usePushEach: true });
 
-let sneakyCommands = ['break','exp','follow','gossip','help','hide','inventory','invite','keys','list','look','party','roll','search','set','sneak','stats','telepathy','who'];
-CharacterSchema.methods.resetActiveBonuses = function (command) {
-  if(!sneakyCommands.includes(command)) this.sneak = 0;
+//============================================================================
+// Statics
+//============================================================================
+CharacterSchema.statics.findByName = function (name) {
+  const userRegEx = new RegExp(`^${name}$`, 'i');
+  return this.findOne({ name: userRegEx }).populate('user');
+};
+
+CharacterSchema.statics.findByUser = function (user) {
+  return this.findOne({ user: user });
+};
+
+
+//============================================================================
+// Instance methods
+//============================================================================
+CharacterSchema.methods.getDesc = function () {
+  // todo: Add character specific detaisl. Currently only returning the description of equipped items.
+  return this.equipped.getDesc();
 };
 
 CharacterSchema.methods.nextExp = function () {
@@ -146,11 +146,11 @@ CharacterSchema.methods.attack = function (socket, mob, now) {
   let attackResult = this.attackroll();
 
   if (attackResult == 2) {
-    actorMessage = `<span class="${config.DMG_COLOR}">You hit ${mob.displayName} for ${playerDmg} damage!</span>`;
-    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} hits ${mob.displayName} for ${playerDmg} damage!</span>`;
+    actorMessage = `<span class="${config.DMG_COLOR}">You hit ${mob.name} for ${playerDmg} damage!</span>`;
+    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} hits ${mob.name} for ${playerDmg} damage!</span>`;
   } else {
-    actorMessage = `<span class="${config.MSG_COLOR}">You swing at the ${mob.displayName} but miss!</span>`;
-    roomMessage = `<span class="${config.MSG_COLOR}">${this.username} swings at the ${mob.displayName} but misses!</span>`;
+    actorMessage = `<span class="${config.MSG_COLOR}">You swing at the ${mob.name} but miss!</span>`;
+    roomMessage = `<span class="${config.MSG_COLOR}">${this.username} swings at the ${mob.name} but misses!</span>`;
   }
 
   socket.emit('output', { message: actorMessage });
@@ -160,5 +160,93 @@ CharacterSchema.methods.attack = function (socket, mob, now) {
     mob.takeDamage(playerDmg);
   }
 };
+
+CharacterSchema.methods.break = function () {
+  this.attackInterval = undefined;
+  this.lastAttack = undefined;
+  this.attackTarget = undefined;
+};
+
+CharacterSchema.methods.move = function (dir) {
+  const fromRoom = Room.getById(this.roomId);
+  const socket = socketUtil.getSocketByCharacterId(this.id);
+
+  return fromRoom.IsExitPassable(this, dir).then((exit) => {
+    const toRoom = Room.getById(exit.roomId);
+    this.break();
+
+    if (socket) {
+      const displayDir = Room.shortToLong(dir);
+      socket.emit('output', { message: `You move ${displayDir}...` });
+    }
+
+    fromRoom.leave(this, dir, socket);
+    const enterDir = Room.oppositeDirection(dir);
+    toRoom.enter(this, enterDir, socket);
+
+    let followers = socketUtil.getFollowingCharacters(socket.character.id);
+    followers.forEach(c => {
+      c.move(dir);
+    });
+
+    return Promise.resolve(toRoom);
+  });
+};
+
+CharacterSchema.methods.teleport = function (roomTarget) {
+
+  // get by id or alias
+  const room = Room.getById(roomTarget);
+  if (!room) {
+    return Promise.reject('Invalid roomId');
+  }
+
+  if (this.roomId === room.id) {
+    return Promise.reject('Character is already here.');
+  }
+
+  // todo: remove the socket writes, as this method could be used
+  // for different reasons, not all of which is an actual teleport.
+  this.break();
+  const socket = socketUtil.getSocketByCharacterId(this.id);
+
+  //socketUtil.roomMessage(socket, `${this.name} vanishes!`, [socket.id]);
+  if (socket) {
+    socket.leave(this.roomId);
+    socket.join(room.id);
+  }
+
+  this.roomId = room.id;
+
+  // npcs don't save to database on every move
+  if (socket) {
+    this.save(err => { if (err) throw err; });
+  }
+  return Promise.resolve({
+    charMessages: [{ charId: this.id, message: 'You teleport...\n' }],
+    roomMessages: [{ roomId: roomTarget, message: `<span class="yellow">${this.name} appears out of thin air!</span>`, exclude: [this.id] }],
+  });
+};
+
+CharacterSchema.methods.output = function (msg) {
+  const socket = socketUtil.getSocketByCharacterId(this.id);
+  if (socket) {
+    socket.emit('output', { message: msg });
+  }
+};
+
+CharacterSchema.methods.toRoom = function (msg) {
+  const socket = socketUtil.getSocketByCharacterId(this.id);
+  if (socket) {
+    socket.to(this.roomId).emit('output', { message: msg });
+  }
+};
+
+//list of commands that shouldn't reset sneak
+let sneakyCommands = ['break','exp','follow','gossip','help','hide','inventory','invite','keys','list','look','party','roll','search','set','sneak','stats','telepathy','who'];
+CharacterSchema.methods.resetActiveBonuses = function (command) {
+  if(!sneakyCommands.includes(command)) this.sneak = 0;
+};
+
 
 export default CharacterSchema;

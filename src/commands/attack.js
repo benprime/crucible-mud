@@ -1,8 +1,9 @@
-import Room from '../models/room';
+import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 
 export default {
   name: 'attack',
+  desc: 'attack a monster',
 
   patterns: [
     /^a\s+(.+)$/i,
@@ -10,24 +11,31 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, targetName) {
-    const room = Room.getById(socket.character.roomId);
-    const acResult = autocomplete.autocompleteTypes(socket, ['mob'], targetName);
+  execute(character, targetName) {
+    const acResult = autocomplete.multiple(character, ['mob'], targetName);
     if (!acResult) {
-      socket.character.attackTarget = null;
-      return;
+      character.attackTarget = null;
+      return Promise.reject('attack target not found');
     }
 
     const target = acResult.item;
 
-    socket.character.attackTarget = target.id;
-    socket.character.attackInterval = 4000;
+    character.attackTarget = target.id;
+    character.attackInterval = 4000;
 
-    socket.emit('output', { message: '<span class="olive">*** Combat Engaged ***</span>' });
-    socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} moves to attack ${target.displayName}!` });
+    return Promise.resolve({
+      charMessages: [
+        { charId: character.id, message: '<span class="olive">*** Combat Engaged ***</span>' },
+      ],
+      roomMessages: [
+        { roomId: character.roomId, message: `${character.name} moves to attack ${target.displayName}!`, exclude: [character.id] },
+      ],
+    });
   },
 
   help(socket) {

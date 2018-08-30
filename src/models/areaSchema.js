@@ -4,9 +4,8 @@ import mongoose from 'mongoose';
 const areaCache = {};
 
 const AreaSchema = new mongoose.Schema({
-  name: {
-    type: String,
-  },
+  name: { type: String },
+  parentId: { type: String },
 });
 
 AreaSchema.statics.areaCache = areaCache;

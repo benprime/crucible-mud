@@ -1,7 +1,9 @@
+import socketUtil from '../core/socketUtil';
 import Shop from '../models/shop';
 
 export default {
   name: 'buy',
+  desc: 'buy item from a shop',
 
   patterns: [
     /^buy\s+(.+)$/i,
@@ -12,34 +14,36 @@ export default {
     if (match.length != 2) {
       this.help(socket);
     }
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, itemName) {
+  execute(character, itemName) {
 
-    const shop = Shop.getById(socket.character.roomId);
+    const shop = Shop.getById(character.roomId);
     if (!shop) {
-      socket.emit('output', { message: 'This command can only be used in a shop.' });
-      return;
+      return Promise.reject('This command can only be used in a shop.');
     }
 
-    const itemType = shop.getItemTypeByAutocomplete(itemName);
-    if(!itemType) {
-      socket.emit('output', { message: 'This shop does not deal in those types of items.' });
-      return;
-    }
+    return shop.getItemTypeByAutocomplete(itemName).then(itemType => {
+      // check if user has money
+      if (character.currency < itemType.price) {
+        return Promise.reject('You cannot afford that.');
+      }
 
-    // check if user has money
-    if (socket.character.currency < itemType.price) {
-      socket.emit('output', { message: 'You cannot afford that.' });
-      return;
-    }
-
-    const item = shop.buy(socket.character, itemType);
-    if (item) {
-      socket.emit('output', { message: 'Item purchased.' });
-      socket.broadcast.to(socket.character.roomId).emit('output', { message: `${socket.user.username} buys ${item.displayName} from the shop.` });
-    }
+      const item = shop.buy(character, itemType);
+      if (item) {
+        return Promise.resolve({
+          charMessages: [
+            { charId: character.id, message: 'Item purchased.' },
+          ],
+          roomMessages: [
+            { roomId: character.roomId, message: `${character.name} buys ${item.name} from the shop.`, exclude: [character.id] },
+          ],
+        });
+      }
+    });
   },
 
   help(socket) {

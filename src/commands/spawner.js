@@ -3,6 +3,7 @@ import Mob from '../models/mob';
 import config from '../config';
 import mobData from '../data/mobData';
 import dice from '../core/dice';
+import socketUtil from '../core/socketUtil';
 
 // Not sure if the global server code should really be living with
 // the command, but it's okay here for now.
@@ -11,7 +12,7 @@ setInterval(() => {
   const now = Date.now();
 
   // loop through rooms that contain spawners...
-  const roomsWithSpawners = Object.values(Room.roomCache).filter(({spawner}) => spawner && spawner.timeout);
+  const roomsWithSpawners = Object.values(Room.roomCache).filter(({ spawner }) => spawner && spawner.timeout);
   roomsWithSpawners.forEach(room => {
     let max = room.spawner.max ? room.spawner.max : config.DEFAULT_ROOM_MOB_MAX;
     let timeout = room.spawner.timeout ? room.spawner.timeout : config.ROUND_DURATION;
@@ -23,14 +24,14 @@ setInterval(() => {
     if (room.mobs.length < max && now - room.spawnTimer >= timeout && room.spawner.mobTypes.length > 0) {
       let mobTypeIndex = dice.getRandomNumber(0, room.spawner.mobTypes.length);
       let mobTypeName = room.spawner.mobTypes[mobTypeIndex];
-      let mobType = mobData.catalog.find(({name}) => name.toLowerCase() === mobTypeName.toLowerCase());
+      let mobType = mobData.catalog.find(({ name }) => name.toLowerCase() === mobTypeName.toLowerCase());
       let mob = new Mob(mobType, room.id);
 
       // update time whenever we spawn a mob
       room.spawnTimer = now;
 
       room.mobs.push(mob);
-      global.io.to(room.id).emit('output', { message: `<span class="yellow">A ${mobType.displayName} appears!</span>` });
+      global.io.to(room.id).emit('output', { message: `<span class="yellow">A ${mob.displayName} appears!</span>` });
     }
 
   });
@@ -38,6 +39,7 @@ setInterval(() => {
 
 export default {
   name: 'spawner',
+  desc: 'create and set mob spawner in the current room',
   admin: true,
 
   patterns: [
@@ -53,11 +55,13 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket, match[1], match[2]);
+    this.execute(socket.character, match[1], match[2])
+      .then(response => socketUtil.output(socket, response))
+      .catch(response => socketUtil.output(socket, response));
   },
 
-  execute(socket, action, param) {
-    const room = Room.getById(socket.character.roomId);
+  execute(character, action, param) {
+    const room = Room.getById(character.roomId);
     action = action ? action.toLowerCase() : null;
 
     if (!room.spawner) {
@@ -73,68 +77,56 @@ export default {
 
     switch (action) {
       case 'add':
-        addMobType = mobData.catalog.find(({name}) => name.toLowerCase() === param.toLowerCase());
-        if(!addMobType) {
-          socket.emit('output', { message: 'Invalid mobType.' });
-          break;
+        addMobType = mobData.catalog.find(({ name }) => name.toLowerCase() === param.toLowerCase());
+        if (!addMobType) {
+          return Promise.reject('Invalid mobType.');
         }
         room.spawner.mobTypes.push(addMobType.name);
         room.save(err => { if (err) throw err; });
-        socket.emit('output', { message: 'Creature added to spawner.' });
-        break;
+        return Promise.resolve('Creature added to spawner.');
       case 'remove':
-        removeMobType = mobData.catalog.find(({name}) => name.toLowerCase() === param.toLowerCase());
-        if(!removeMobType) {
-          socket.emit('output', { message: 'Invalid mobType.' });
-          break;
+        removeMobType = mobData.catalog.find(({ name }) => name.toLowerCase() === param.toLowerCase());
+        if (!removeMobType) {
+          return Promise.reject('Invalid mobType.');
         }
         index = room.spawner.mobTypes.indexOf(removeMobType.name);
         if (index !== -1) {
           room.spawner.mobTypes.splice(index);
           room.save(err => { if (err) throw err; });
-          socket.emit('output', { message: 'Creature removed from spawner.' });
+          return Promise.resolve('Creature removed from spawner.');
         } else {
-          socket.emit('output', { message: 'Creature not found on spawner.' });
+          return Promise.reject('Creature not found on spawner.');
         }
-        break;
       case 'max':
         maxVal = parseInt(param);
-        if(isNaN(maxVal)) {
-          socket.emit('output', { message: 'Invalid max value - must be an integer.' });
-          break;
+        if (isNaN(maxVal)) {
+          return Promise.reject('Invalid max value - must be an integer.');
         }
         room.spawner.max = maxVal;
         room.save(err => { if (err) throw err; });
-        socket.emit('output', { message: `Max creatures updated to ${maxVal}.` });
-        break;
+        return Promise.resolve(`Max creatures updated to ${maxVal}.`);
       case 'timeout':
         timeoutVal = parseInt(param);
-        if(isNaN(timeoutVal)) {
-          socket.emit('output', { message: 'Invalid max value - must be an integer.' });
-          break;
+        if (isNaN(timeoutVal)) {
+          return Promise.reject('Invalid max value - must be an integer.');
         }
         room.spawner.timeout = timeoutVal;
         room.save(err => { if (err) throw err; });
-        socket.emit('output', { message: `Timeout updated to ${timeoutVal}.` });
-        break;
+        return Promise.resolve(`Timeout updated to ${timeoutVal}.`);
       case 'clear':
         room.spawner = null;
         room.save(err => { if (err) throw err; });
-        socket.emit('output', { message: 'Spawner cleared.' });
-        break;
+        return Promise.resolve('Spawner cleared.');
       case 'copy':
-        socket.character.spawnerClipboard = room.spawner;
-        socket.emit('output', { message: 'Spawner copied.' });
-        break;
+        character.spawnerClipboard = room.spawner;
+        return Promise.resolve('Spawner copied.');
       case 'paste':
-        room.spawner = socket.character.spawnerClipboard;
-        socket.emit('output', { message: 'Spawner pasted.' });
-        break;
+        room.spawner = character.spawnerClipboard;
+        return Promise.resolve('Spawner pasted.');
       default:
         desc = room.spawner ? room.spawner.toString() : 'None.';
-        socket.emit('output', { message: desc });
+        return Promise.resolve(desc);
     }
-
   },
 
   help(socket) {

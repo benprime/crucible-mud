@@ -1,8 +1,10 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'lock',
+  desc: 'lock a door',
   admin: true,
 
   patterns: [
@@ -18,22 +20,22 @@ export default {
     }
     const dir = match[1].toLowerCase();
     const keyName = match[2];
-    this.execute(socket, dir, keyName);
+    this.execute(socket.character, dir, keyName)
+      .then(output => socketUtil.output(socket, output))
+      .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(socket, dir, keyName) {
-    const room = Room.getById(socket.character.roomId);
-    dir = Room.validDirectionInput(dir);
-    let exit = room.getExit(dir);
+  execute(character, dir, keyName) {
+    const room = Room.getById(character.roomId);
+    const validDir = Room.validDirectionInput(dir);
+    let exit = room.getExit(validDir);
     if (!exit || !('closed' in exit)) {
-      socket.emit('output', { message: 'No door in that direction.' });
-      return;
+      return Promise.reject('No door in that direction.');
     }
 
-    const acResult = autocomplete.autocompleteTypes(socket, ['key'], keyName);
+    const acResult = autocomplete.multiple(character, ['key'], keyName);
     if (!acResult) {
-      socket.emit('output', { message: 'Unknown key.' });
-      return;
+      return Promise.reject('Unknown key.');
     }
 
     let key = acResult.item;
@@ -42,7 +44,7 @@ export default {
     exit.keyName = key.name;
     exit.locked = true;
     room.save(err => { if (err) throw err; });
-    socket.emit('output', { message: 'Door locked.' });
+    return Promise.resolve('Door locked.');
   },
 
   help(socket) {

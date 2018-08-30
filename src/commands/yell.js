@@ -1,7 +1,9 @@
 import Room from '../models/room';
+import socketUtil from '../core/socketUtil';
 
 export default {
   name: 'yell',
+  desc: 'shout a message to current and all adjacent rooms',
 
   patterns: [
     /^"(.+)"?/,
@@ -9,30 +11,37 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket, match[1]);
+    this.execute(socket.character, match[1])
+      .then(commandResult => socketUtil.sendMessages(socket, commandResult));
   },
 
-  execute(socket, message) {
+  execute(character, message) {
 
-    const room = Room.getById(socket.character.roomId);
+    const room = Room.getById(character.roomId);
+
+    const roomMessages = [];
 
     // send message to all adjacent exits
-    room.exits.forEach(({dir, roomId}) => {
+    room.exits.forEach(exit => {
       let preMsg = '';
-      if (dir === 'u') {
+      if (exit.dir === 'u') {
         preMsg = 'Someone yells from below ';
-      } else if (dir === 'd') {
+      } else if (exit.dir === 'd') {
         preMsg = 'Someone yells from above ';
       } else {
-        preMsg = `Someone yells from the ${Room.shortToLong(Room.oppositeDirection(dir))} `;
+        preMsg = `Someone yells from the ${Room.shortToLong(Room.oppositeDirection(exit.dir))} `;
       }
       const surroundMsg = `${preMsg} '${message}'`;
-      socket.broadcast.to(roomId).emit('output', { message: surroundMsg });
+      roomMessages.push({ roomId: exit.roomId, message: surroundMsg });
     });
 
-    // send message to current room
-    socket.emit('output', { message: `You yell '${message}'` });
-    socket.broadcast.to(room.id).emit('output', { message: `${socket.user.username} yells '${message}'` });
+    roomMessages.push({ roomId: room.id, message: `${character.name} yells '${message}'`, exclude: [character.id] });
+    const charMessages = [{ charId: character.id, message: `You yell '${message}'` }];
+
+    return Promise.resolve({
+      roomMessages: roomMessages,
+      charMessages: charMessages,
+    });
   },
 
   help(socket) {

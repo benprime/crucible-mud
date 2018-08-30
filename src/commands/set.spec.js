@@ -23,25 +23,28 @@ describe('set', () => {
 
     describe('when type is room', () => {
       test('should return error when property not in allowed properties list', () => {
-        sut.execute(socket, 'room', 'bad property', 'new value');
+        return sut.execute(socket.character, 'room', 'bad property', 'new value').catch(response => {
+          expect(response).toEqual('Invalid property.');
+        });
 
-        expect(socket.emit).toBeCalledWith('output', { message: 'Invalid property.' });
       });
 
       test('should update room in room cache and room database object on success', () => {
 
-        sut.execute(socket, 'room', 'name', 'new name value');
+        return sut.execute(socket.character, 'room', 'name', 'new name value').then(response => {
+          expect(mockRoom.name).toBe('new name value');
+          expect(mockRoom.save).toHaveBeenCalled();
+          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser has altered the fabric of reality.', exclude: [socket.character.id] });
+        });
 
-        expect(mockRoom.name).toBe('new name value');
-        expect(mockRoom.save).toHaveBeenCalled();
-        expect(socket.broadcast.to(socket.character.roomId).emit).toBeCalledWith('output', { message: 'TestUser has altered the fabric of reality.' });
       });
     });
 
     test('should return error when type is not room', () => {
-      sut.execute(socket, 'bad type', 'some property', 'new value');
+      return sut.execute(socket.character, 'bad type', 'some property', 'new value').catch(response => {
+        expect(response).toEqual('Invalid type.');
+      });
 
-      expect(socket.emit).toBeCalledWith('output', { message: 'Invalid type.' });
     });
   });
 

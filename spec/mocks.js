@@ -32,6 +32,9 @@ function getMockRoom(roomId) {
   room.id = roomId || room._id.toString();
   room.mobs = [];
   room.inventory = [];
+  room.x = 10;
+  room.y = 10;
+  room.z = 10;
 
   room.roomIds = {
     u: ObjectId().toString(),
@@ -59,20 +62,24 @@ function getMockRoom(roomId) {
     { dir: 'sw', roomId: room.roomIds.sw },
   ];
 
-  room.createRoom = jest.fn((dir, cb) => cb());
+  room.createRoom = jest.fn(() => Promise.resolve({}));
   room.getExit = jest.fn().mockName('getExit').mockImplementation((dir) => room.exits.find(r => r.dir === dir));
-  room.save = jest.fn().mockName('save');
-  room.look = jest.fn().mockName('look');
-  room.usersInRoom = jest.fn().mockName('usersInRoom');
+  room.save = jest.fn().mockName('save').mockImplementation(() => Promise.resolve(room));
+  room.getDesc = jest.fn().mockName('getDesc').mockImplementation(() => Promise.resolve());
+  room.getCharacters = jest.fn();
+  room.getCharacterNames = jest.fn().mockName('getCharacterNames');
   room.userInRoom = jest.fn().mockName('userInRoom');
   room.processPlayerCombatActions = jest.fn().mockName('processPlayerCombatActions');
   room.processMobCombatActions = jest.fn().mockName('processMobCombatActions');
+  room.enter = jest.fn().mockName('enterRoom');
+  room.leave = jest.fn().mockName('leaveRoom');
+  room.IsExitPassable = jest.fn().mockImplementation(() => Promise.resolve({}));
 
   room.reset = function () {
     room.getExit.mockReset();
     room.save.mockReset();
-    room.look.mockReset();
-    room.usersInRoom.mockReset();
+    room.getDesc.mockReset();
+    room.getCharacterNames.mockReset();
     if (room.mobs.remove && room.mobs.remove.calls) {
       room.mobs.remove.mockReset();
     }
@@ -147,22 +154,56 @@ class SocketMock {
       to: this.to,
     };
     const user = new User();
-    user.username = username ? username : 'TestUser';
     user.id = ObjectId().toString();
     this.user = user;
 
     const character = new Character();
+    character.break = jest.fn();
+    character.name = username ? username : 'TestUser';
     character.roomId = ObjectId().toString();
     character.save = jest.fn().mockName('userSave');
     character.addExp = jest.fn().mockName('addExp');
-    character.attackTarget = null;
     character.attack = jest.fn().mockName('userAttack');
     character.actionDie = '1d20';
+    character.equipped = {};
     character.inventory = [];
+    character.offers = [];
+    character.partyInvites = [];
+    
+    
+
+    character.teleport = jest.fn().mockName('teleport').mockImplementation(() => Promise.resolve());
+    character.stats = {
+      strength: 0,
+      intelligence: 0,
+      dexterity: 0,
+      charisma: 0,
+      constitution: 0,
+      willpower: 0,
+
+    };
+    character.skills = {
+      stealth: 0,
+      lockpick: 0,
+      pickpocket: 0,
+      search: 0,
+      detect: 0,
+      listen: 0,
+      identify: 0,
+      disable: 0,
+      negotiate: 0,
+      bluff: 0,
+      intimidate: 0,
+      magic: 0,
+      weapons: 0,
+      conceal: 0,
+      heal: 0,
+      refresh: 0,
+      endure: 0,
+      resist: 0,
+    };
     this.character = character;
 
-    this.offers = [];
-    this.partyInvites = [];
     this.reset = function () {
       broadcastEmitSpy.mockClear();
       this.emit.mockClear();
@@ -176,15 +217,13 @@ class SocketMock {
 const mobType = {
   name: 'kobold',
   desc: 'an ugly kobold',
-  displayName: 'kobold sentry',
   adjectives: [
     {
       name: 'big',
       modifiers: {
         hp: 10,
         xp: 0,
-        minDamage: 0,
-        maxDamage: 0,
+        damage: '1d2',
         hitDice: 0,
         attackInterval: 250,
       },

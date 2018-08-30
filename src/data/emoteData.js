@@ -1,5 +1,5 @@
 export default {
-  actions: {
+  emotes: {
     hug: {
       solo: {
         roomMessage: '{0} hugs himself.',

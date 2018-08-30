@@ -1,5 +1,5 @@
 import mocks from '../../spec/mocks';
-import {mockRoll} from '../core/dice';
+import { mockRoll } from '../core/dice';
 import sut from './roll';
 
 jest.mock('../core/dice');
@@ -16,17 +16,19 @@ describe('roll', () => {
     it('without die type should display Action Die results', () => {
       mockRoll.mockReturnValueOnce(1);
 
-      sut.execute(socket);
+      return sut.execute(socket.character).then(response => {
+        expect(response).toEqual('Action Die Roll Result:  1<br />');
+      });
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'Action Die Roll Result:  1<br />' });
     });
 
     it('with die type should display die type results', () => {
       mockRoll.mockReturnValueOnce(2);
 
-      sut.execute(socket, '1d4');
+      return sut.execute(socket.character, '1d4').then(response => {
+        expect(response).toEqual('1d4 Roll Result:  2<br />');
+      });
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: '1d4 Roll Result:  2<br />' });
     });
   });
 });

@@ -8,7 +8,9 @@ export const updateHUD = (socket) => {
   socket.emit('hud', {
     currentHP: socket.character.currentHP,
     maxHP: socket.character.maxHP,
+    status: socket.character.status(),
     dayPhase: dayPhase,
+    currency: socket.character.currency,
   });
 };
 

@@ -5,6 +5,7 @@ import Room from './room';
 import dice from '../core/dice';
 import socketUtil from '../core/socketUtil';
 import CharacterEquipSchema from './characterEquipSchema';
+import { updateHUD } from '../core/hud';
 
 const CharacterSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -17,7 +18,7 @@ const CharacterSchema = new mongoose.Schema({
   keys: [ItemSchema],
   currency: { type: Number, default: 0 },
 
-  equipped: { type: CharacterEquipSchema, default: CharacterEquipSchema},
+  equipped: { type: CharacterEquipSchema, default: CharacterEquipSchema },
 
   armorRating: { type: Number },
 
@@ -85,7 +86,6 @@ CharacterSchema.statics.findByUser = function (user) {
   return this.findOne({ user: user });
 };
 
-
 //============================================================================
 // Instance methods
 //============================================================================
@@ -129,7 +129,7 @@ return 0;
   // just return 0 or 1 for now
   dice.roll('1d2');
 
-CharacterSchema.methods.attack = function (socket, mob, now) {
+CharacterSchema.methods.attack = function (mob, now) {
   if (!this.readyToAttack(now)) return;
   if (!mob) return;
   this.lastAttack = now;
@@ -148,12 +148,66 @@ CharacterSchema.methods.attack = function (socket, mob, now) {
     roomMessage = `<span class="${config.MSG_COLOR}">${this.username} swings at the ${mob.name} but misses!</span>`;
   }
 
-  socket.emit('output', { message: actorMessage });
-  socket.broadcast.to(this.roomId).emit('output', { message: roomMessage });
+  this.output(actorMessage);
+  this.toRoom(roomMessage);
 
   if (attackResult == 2) {
     mob.takeDamage(playerDmg);
   }
+};
+
+CharacterSchema.methods.processEndOfRound = function (round) {
+  
+  if (this.bleeding) {
+
+    // take damage every 4 rounds
+    if(this.bleeding % 4 === 0) {
+      this.output('<span class="firebrick">You are bleeding!</span>');
+      this.toRoom(`<span class="firebrick">${this.name} is bleeding out!</span>`);
+      this.takeDamage(1);
+    }
+    this.bleeding++;
+  }
+};
+
+CharacterSchema.methods.isIncompacitated = function () {
+  if (this.currentHP <= 0) {
+    return true;
+  }
+  return false;
+};
+
+CharacterSchema.methods.die = function () {
+  // todo: this will be configuration to a church location
+  this.break();
+  Room.getByCoords({ x: 0, y: 0, z: 0 }).then(room => {
+    this.teleport(room.id);
+    this.currentHP = this.maxHP;
+    this.bleeding = false;
+    this.output('You have died!\nYou have been resurrected.');
+    const socket = socketUtil.getSocketByCharacterId(this.id);
+    updateHUD(socket);
+  });
+};
+
+CharacterSchema.methods.takeDamage = function (damage) {
+  const wasStanding = this.currentHP > 0;
+  this.currentHP -= damage;
+  if (this.currentHP <= 0) {
+    if (wasStanding) {
+      this.break();
+      this.output('<span class="firebrick">You are incompacitated!</span>\n');
+      this.toRoom(`<span class="firebrick">${this.name} drops to the ground!</span>\n`);
+    }
+    this.bleeding = 1;
+  }
+  const socket = socketUtil.getSocketByCharacterId(this.id);
+  updateHUD(socket);
+  if (this.currentHP <= -15) {
+    this.die();
+  }
+
+  this.save();
 };
 
 CharacterSchema.methods.break = function () {
@@ -163,6 +217,9 @@ CharacterSchema.methods.break = function () {
 };
 
 CharacterSchema.methods.move = function (dir) {
+  if (this.isIncompacitated()) {
+    return Promise.reject('<span class="firebrick">You are incompacitated!</span>\n');
+  }
   const fromRoom = Room.getById(this.roomId);
   const socket = socketUtil.getSocketByCharacterId(this.id);
 
@@ -237,5 +294,23 @@ CharacterSchema.methods.toRoom = function (msg) {
   }
 };
 
+CharacterSchema.methods.status = function() {
+  const quotient = this.currentHP / this.maxHP;
+  let status = 'unharmed';
+
+  if(quotient <= 0) {
+    status = '<span class="red">incapacitated</span>';
+  }
+  else if(quotient <= 0.33) {
+    status = '<span class="firebrick">severely wounded</span>';
+  }
+  else if(quotient <= 0.66) {
+    status = '<span class="yellow">moderately wounded</span>';
+  }
+  else if(quotient < 1) {
+    status = '<span class="olive">lightly wounded</span>';
+  }
+  return status;
+};
 
 export default CharacterSchema;

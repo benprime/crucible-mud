@@ -46,9 +46,22 @@ export default {
               return Promise.reject('No character associated with this user.');
             }
 
+            // databse objects
             socket.character = character;
             socket.character.user = user;
+
+            // state tracking
             socket.character.offers = [];
+            socket.character.sneakMode = 0;
+            socket.character.bleeding = false;
+            socket.character.attackInterval = undefined;
+            socket.character.lastAttack = undefined;
+            socket.character.attackTarget = undefined;
+            socket.character.leader = null;
+
+            // once character is loaded, we freeze the ability to add new properties.
+            // this forces "state properties" to be added here, explicitly.
+            Object.preventExtensions(socket.character);
 
             // format the subdocuments so we have actual object instances
             // Note: tried a lean() query here, but that also stripped away the model
@@ -71,7 +84,7 @@ export default {
 
             const currentRoom = Room.getById(character.roomId);
             if (!currentRoom) {
-              return Room.byCoords({ x: 0, y: 0, z: 0 }).then(room => {
+              return Room.getByCoords({ x: 0, y: 0, z: 0 }).then(room => {
                 character.roomId = room.id;
                 socket.join(room.id);
                 return Promise.resolve();

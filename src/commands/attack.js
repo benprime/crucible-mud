@@ -17,6 +17,11 @@ export default {
   },
 
   execute(character, targetName) {
+
+    if (character.isIncompacitated()) {
+      return Promise.reject('<span class="firebrick">You are incompacitated!</span>\n');
+    }
+
     const acResult = autocomplete.multiple(character, ['mob'], targetName);
     if (!acResult) {
       character.attackTarget = null;

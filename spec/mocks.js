@@ -223,7 +223,6 @@ const mobType = {
       modifiers: {
         hp: 10,
         xp: 0,
-        damage: '1d2',
         hitDice: 0,
         attackInterval: 250,
       },
@@ -233,8 +232,7 @@ const mobType = {
   hitDice: '1d4',
   hp: 10,
   xp: 20,
-  minDamage: 1,
-  maxDamage: 3,
+  damage: '1d3',
   tauntInterval: 12000, // every 3 rounds
   deathMessage: 'The {0} crumbles to dust.',
   taunts: [

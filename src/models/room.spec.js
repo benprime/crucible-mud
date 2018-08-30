@@ -69,7 +69,7 @@ describe('room model', () => {
     });
 
 
-    describe('byCoords', () => {
+    describe('getByCoords', () => {
 
       test('should call findOne with coordinates', () => {
         const coords = {
@@ -80,7 +80,7 @@ describe('room model', () => {
 
         sutModel.findOne = jest.fn().mockReturnValueOnce(Promise.resolve({}));
 
-        sutModel.byCoords(coords).then(() => {
+        sutModel.getByCoords(coords).then(() => {
           expect(sutModel.findOne).toBeCalledWith(coords);
         });
 

@@ -98,7 +98,7 @@ RoomSchema.statics.oppositeDirection = dir => {
   return null;
 };
 
-RoomSchema.statics.byCoords = function (coords) {
+RoomSchema.statics.getByCoords = function (coords) {
   return this.findOne(coords);
 };
 
@@ -466,18 +466,28 @@ RoomSchema.methods.enter = function (character, dir, socket) {
 // Instance methods : Combat
 //============================================================================
 RoomSchema.methods.processPlayerCombatActions = function (now) {
-  const sockets = socketUtil.getRoomSockets(this.id);
-  for (let socket of sockets) {
-    if (!socket.character.attackTarget) continue;
-    let mob = this.getMobById(socket.character.attackTarget);
+  const characters = this.getCharacters();
+
+  for (let c of characters) {
+    if (!c.attackTarget) continue;
+    let mob = this.getMobById(c.attackTarget);
     if (!mob) continue;
-    socket.character.attack(socket, mob, now);
+    c.attack(mob, now);
   }
+};
+
+RoomSchema.methods.processEndOfRound = function (round) {
+  const characters = this.getCharacters();
+  characters.forEach(c => {
+    c.processEndOfRound(round);
+  });
 };
 
 RoomSchema.methods.processMobCombatActions = function (now) {
   if (Array.isArray(this.mobs) && this.mobs.length > 0) {
     this.mobs.forEach(mob => {
+
+      // attack or taunt to select target
       if (!mob.attack(now)) {
         mob.taunt(now);
       }

@@ -40,8 +40,7 @@ describe('mob model', () => {
     test('should initialize properties', () => {
       expect(mob.hp).not.toBeNull();
       expect(mob.xp).not.toBeNull();
-      expect(mob.minDamage).not.toBeNull();
-      expect(mob.maxDamage).not.toBeNull();
+      expect(mob.damage).not.toBeNull();
       expect(mob.hitDice).not.toBeNull();
       expect(mob.attackInterval).not.toBeNull();
       expect(mob.roomId).not.toBeNull();

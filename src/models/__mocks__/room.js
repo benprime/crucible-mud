@@ -4,7 +4,7 @@ export const mockShortToLong = jest.fn();
 export const mockLongToShort = jest.fn();
 export const mockOppositeDirection = jest.fn();
 export const mockRoomCache = {};
-export const mockByCoords = jest.fn();
+export const mockgetByCoords = jest.fn();
 
 // mock must be a function for when constructing new model instances
 const mock = jest.fn().mockImplementation(() => {
@@ -25,7 +25,7 @@ mock.oppositeDirection = mockOppositeDirection;
 mock.roomCache = mockRoomCache;
 
 // mongoose
-mock.ByCoords = mockByCoords;
+mock.getByCoords = mockgetByCoords;
 
 
 export default mock;

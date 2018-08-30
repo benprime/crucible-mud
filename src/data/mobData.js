@@ -13,14 +13,13 @@ export default {
     class: 'sentry',
     desc: 'an ugly kobold',
     displayTemplate: '${this.adjective} ${this.name} ${this.class}',
+    damage: '1d2',
     adjectives: [
       {
         name: 'big',
         modifiers: {
           hp: 10,
           xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: 1000,
           tauntInterval: 1000,
@@ -31,8 +30,6 @@ export default {
         modifiers: {
           hp: 5,
           xp: 30,
-          minDamage: 4,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: 1000,
           tauntInterval: 1000,
@@ -43,8 +40,6 @@ export default {
         modifiers: {
           hp: 0,
           xp: 0,
-          minDamage: -2,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: -1000,
           tauntInterval: -1000,
@@ -55,8 +50,6 @@ export default {
         modifiers: {
           hp: -5,
           xp: -5,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: -500,
           tauntInterval: -500,
@@ -67,8 +60,6 @@ export default {
         modifiers: {
           hp: 0,
           xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: -250,
           tauntInterval: -250,
@@ -79,8 +70,6 @@ export default {
         modifiers: {
           hp: 0,
           xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: 250,
           tauntInterval: 250,
@@ -91,8 +80,6 @@ export default {
         modifiers: {
           hp: 0,
           xp: 50,
-          minDamage: 2,
-          maxDamage: 2,
           hitDice: 1,
           attackInterval: 750,
           tauntInterval: 750,
@@ -103,8 +90,6 @@ export default {
     hitDice: '1d4',
     hp: 10,
     xp: 20,
-    minDamage: 1,
-    maxDamage: 3,
     tauntInterval: 12000, // every 3 rounds
     deathMessage: 'The {0} crumbles to dust.',
     taunts: [
@@ -117,6 +102,7 @@ export default {
     name: 'cultist',
     class: 'robed',
     desc: 'a robed cultist',
+    damage: '1d2',
     displayTemplate: '${this.adjective} ${this.class} ${this.name}',
     adjectives: [
       {
@@ -124,8 +110,6 @@ export default {
         modifiers: {
           hp: 10,
           xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: 1000,
           tauntInterval: 1000,
@@ -136,8 +120,6 @@ export default {
         modifiers: {
           hp: 5,
           xp: 30,
-          minDamage: 4,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: 1000,
           tauntInterval: 1000,
@@ -148,8 +130,6 @@ export default {
         modifiers: {
           hp: 0,
           xp: 0,
-          minDamage: -2,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: -1000,
           tauntInterval: -1000,
@@ -160,8 +140,6 @@ export default {
         modifiers: {
           hp: -5,
           xp: -5,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: -500,
           tauntInterval: -500,
@@ -172,8 +150,6 @@ export default {
         modifiers: {
           hp: 0,
           xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: -250,
           tauntInterval: -250,
@@ -184,8 +160,6 @@ export default {
         modifiers: {
           hp: 0,
           xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: 250,
           tauntInterval: 250,
@@ -196,8 +170,6 @@ export default {
         modifiers: {
           hp: 0,
           xp: 50,
-          minDamage: 2,
-          maxDamage: 2,
           hitDice: 1,
           attackInterval: 750,
           tauntInterval: 750,
@@ -209,8 +181,6 @@ export default {
     hitDice: '1d4',
     hp: 10,
     xp: 20,
-    minDamage: 1,
-    maxDamage: 3,
     tauntInterval: 12000, // every 3 rounds
     deathMessage: 'The {0} crumbles to dust.',
     taunts: [
@@ -228,8 +198,6 @@ export default {
         modifiers: {
           hp: 10,
           xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: 250,
         },
@@ -239,8 +207,6 @@ export default {
         modifiers: {
           hp: 10,
           xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
           attackInterval: 250,
         },
@@ -250,8 +216,6 @@ export default {
     hitDice: '1d4',
     hp: 10,
     xp: 20,
-    minDamage: 1,
-    maxDamage: 3,
     tauntInterval: 12000, // every 3 rounds
     deathMessage: 'The {0} crumbles to dust.',
     taunts: [

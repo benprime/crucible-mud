@@ -273,7 +273,7 @@ RoomSchema.methods.getDesc = function (character, short) {
 
   if (!short) {
     output += `<span class="silver">${this.desc}</span>\n`;
-    character.toRoom(`${character.name} looks around.`);
+    character.toRoom(`${character.name} looks around.\n`);
   }
 
   let notHiddenItems = '';
@@ -456,6 +456,34 @@ RoomSchema.methods.enter = function (character, dir, socket) {
     socket.join(this.id);
   }
 
+};
+
+RoomSchema.methods.track = function (entity) {
+  let output;
+  let tracks = this.tracks[entity.id];
+  if (tracks) {
+    const dirName = this.constructor.shortToLong(tracks.dir);
+
+    const now = new Date().getTime();
+    const rawSeconds = Math.floor((now - tracks.timestamp) / 1000);
+    const minutes = Math.floor(rawSeconds / 60);
+    const seconds = Math.floor(rawSeconds % 60);
+    let displayString;
+    if (minutes > 1) {
+      displayString = `${minutes} minutes ago`;
+    } else if (minutes == 1) {
+      displayString = 'a minute ago';
+    } else if (seconds > 1) {
+      displayString = `${seconds} seconds ago`;
+    } else {
+      displayString = 'a second ago';
+    }
+
+    output = `<span class="yellow">${entity.name} last left to the ${dirName} ${displayString}.</span>`;
+  } else {
+    output = `${entity.name} has not passed through here recently.`;
+  }
+  return Promise.resolve(output);
 };
 
 //============================================================================

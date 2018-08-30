@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { upperCaseWords, indefiniteArticle, pronounSubject, pronounObject, pronounPossessive, oxfordComma } from '../core/language';
+import { upperCaseWords, indefiniteArticle, pronounSubject, pronounPossessive, oxfordComma } from '../core/language';
 
 const CharacterEquipSchema = new mongoose.Schema({
   // Weapons
@@ -17,7 +17,7 @@ const CharacterEquipSchema = new mongoose.Schema({
   neck: String,
   fingerMain: String,
   fingerOff: String,
-}, { usePushEach: true });
+}, { usePushEach: true, id: false, _id: false });
 
 CharacterEquipSchema.statics.slotNames = function () {
   return Object.keys(this.schema.paths).filter(i => i !== '_id');

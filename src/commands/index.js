@@ -44,6 +44,7 @@ let commandModules = [
   'take.js',
   'telepathy.js',
   'teleport.js',
+  'track.js',
   'unequip.js',
   'unlock.js',
   'who.js',

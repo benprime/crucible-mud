@@ -14,7 +14,6 @@ sutModel.constructor = jest.fn(() => Promise.resolve({
   save: jest.fn(() => Promise.resolve({})),
 }));
 
-
 global.io = new mocks.IOMock();
 
 describe('room model', () => {

@@ -1,3 +1,4 @@
+/** @module models/CharacterSchema */
 import mongoose from 'mongoose';
 import config from '../config';
 import ItemSchema from './itemSchema';
@@ -7,6 +8,9 @@ import socketUtil from '../core/socketUtil';
 import CharacterEquipSchema from './characterEquipSchema';
 import { updateHUD } from '../core/hud';
 
+/**
+ * @constructor
+ */
 const CharacterSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   name: { type: String },
@@ -18,7 +22,10 @@ const CharacterSchema = new mongoose.Schema({
   keys: [ItemSchema],
   currency: { type: Number, default: 0 },
 
-  equipped: { type: CharacterEquipSchema, default: CharacterEquipSchema },
+  equipped: {
+    type: CharacterEquipSchema,
+    default: CharacterEquipSchema,
+  },
 
   armorRating: { type: Number },
 
@@ -77,6 +84,12 @@ const CharacterSchema = new mongoose.Schema({
 //============================================================================
 // Statics
 //============================================================================
+
+/**
+ * Finds a connected character.
+ * @param {String} name - name of the character to find
+ * @memberof module:models~Character
+ */
 CharacterSchema.statics.findByName = function (name) {
   const userRegEx = new RegExp(`^${name}$`, 'i');
   return this.findOne({ name: userRegEx }).populate('user');
@@ -157,11 +170,11 @@ CharacterSchema.methods.attack = function (mob, now) {
 };
 
 CharacterSchema.methods.processEndOfRound = function (round) {
-  
+
   if (this.bleeding) {
 
     // take damage every 4 rounds
-    if(this.bleeding % 4 === 0) {
+    if (this.bleeding % 4 === 0) {
       this.output('<span class="firebrick">You are bleeding!</span>');
       this.toRoom(`<span class="firebrick">${this.name} is bleeding out!</span>`);
       this.takeDamage(1);
@@ -295,20 +308,20 @@ CharacterSchema.methods.toRoom = function (msg) {
   }
 };
 
-CharacterSchema.methods.status = function() {
+CharacterSchema.methods.status = function () {
   const quotient = this.currentHP / this.maxHP;
   let status = 'unharmed';
 
-  if(quotient <= 0) {
+  if (quotient <= 0) {
     status = '<span class="red">incapacitated</span>';
   }
-  else if(quotient <= 0.33) {
+  else if (quotient <= 0.33) {
     status = '<span class="firebrick">severely wounded</span>';
   }
-  else if(quotient <= 0.66) {
+  else if (quotient <= 0.66) {
     status = '<span class="yellow">moderately wounded</span>';
   }
-  else if(quotient < 1) {
+  else if (quotient < 1) {
     status = '<span class="olive">lightly wounded</span>';
   }
   return status;

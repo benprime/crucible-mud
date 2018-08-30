@@ -2,11 +2,11 @@ import autocomplete from '../core/autocomplete';
 
 export default {
   name: 'uninvite',
-  desc: 'Attempt to track another player',
+  desc: 'Party leader command for removing a player from a party',
 
   patterns: [
-    /^track\s+(\w+)$/i,
-    /^track$/i,
+    /^uninvite\s+(\w+)$/i,
+    /^uninvite$/i,
   ],
 
   dispatch(socket, match) {
@@ -27,12 +27,12 @@ export default {
     }
 
     if (targetChar.leader !== character.id) {
-      return Promise.reject(`${targetChar.name} is not in your party.`);
+      return Promise.reject(`You are not leading ${targetChar.name} in a party.`);
     }
 
+    const partyMsg = `<span class="yellow">${targetChar.name} has been removed from ${character.name}'s party.\n`;
+    targetChar.toParty(partyMsg);
     targetChar.leader = undefined;
-    //targetChar.output(`<span class="yellow">You have been removed from ${character.name}'s party.`);
-    targetChar.toParty(`<span class="yellow">${targetChar} has been removed from ${character.name}'s party.`);
     return Promise.resolve();
   },
 

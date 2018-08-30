@@ -157,54 +157,7 @@ class SocketMock {
     user.id = ObjectId().toString();
     this.user = user;
 
-    const character = new Character();
-    character.break = jest.fn();
-    character.name = username ? username : 'TestUser';
-    character.roomId = ObjectId().toString();
-    character.save = jest.fn().mockName('userSave');
-    character.addExp = jest.fn().mockName('addExp');
-    character.attack = jest.fn().mockName('userAttack');
-    character.output = jest.fn().mockName('toRoom');
-    character.toRoom = jest.fn().mockName('toRoom');
-    character.actionDie = '1d20';
-    character.equipped = {};
-    character.inventory = [];
-    character.offers = [];
-    character.partyInvites = [];
-    
-    
-
-    character.teleport = jest.fn().mockName('teleport').mockImplementation(() => Promise.resolve());
-    character.stats = {
-      strength: 0,
-      intelligence: 0,
-      dexterity: 0,
-      charisma: 0,
-      constitution: 0,
-      willpower: 0,
-
-    };
-    character.skills = {
-      stealth: 0,
-      lockpick: 0,
-      pickpocket: 0,
-      search: 0,
-      detect: 0,
-      listen: 0,
-      identify: 0,
-      disable: 0,
-      negotiate: 0,
-      bluff: 0,
-      intimidate: 0,
-      magic: 0,
-      weapons: 0,
-      conceal: 0,
-      heal: 0,
-      refresh: 0,
-      endure: 0,
-      resist: 0,
-    };
-    this.character = character;
+    this.character = getMockCharacter(username);
 
     this.reset = function () {
       broadcastEmitSpy.mockClear();
@@ -214,6 +167,56 @@ class SocketMock {
       Object.keys(this.roomSpies).forEach(rs => this.roomSpies[rs].mockClear());
     };
   }
+}
+
+function getMockCharacter(username) {
+  const character = new Character();
+  character.break = jest.fn();
+  character.name = username ? username : 'TestUser';
+  character.roomId = ObjectId().toString();
+  character.save = jest.fn().mockName('userSave');
+  character.addExp = jest.fn().mockName('addExp');
+  character.attack = jest.fn().mockName('userAttack');
+  character.output = jest.fn().mockName('toRoom');
+  character.toRoom = jest.fn().mockName('toRoom');
+  character.actionDie = '1d20';
+  character.equipped = {};
+  character.inventory = [];
+  character.offers = [];
+  character.partyInvites = [];
+
+  character.teleport = jest.fn().mockName('teleport').mockImplementation(() => Promise.resolve());
+  character.stats = {
+    strength: 0,
+    intelligence: 0,
+    dexterity: 0,
+    charisma: 0,
+    constitution: 0,
+    willpower: 0,
+
+  };
+  character.skills = {
+    stealth: 0,
+    lockpick: 0,
+    pickpocket: 0,
+    search: 0,
+    detect: 0,
+    listen: 0,
+    identify: 0,
+    disable: 0,
+    negotiate: 0,
+    bluff: 0,
+    intimidate: 0,
+    magic: 0,
+    weapons: 0,
+    conceal: 0,
+    heal: 0,
+    refresh: 0,
+    endure: 0,
+    resist: 0,
+  };
+
+  return character;
 }
 
 const mobType = {
@@ -253,6 +256,7 @@ function getMockMob(roomId) {
 export default {
   getMockRoom,
   getMockMob,
+  getMockCharacter,
   IOMock,
   SocketMock,
   mobType,

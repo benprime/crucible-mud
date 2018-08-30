@@ -95,8 +95,8 @@ function processDispatch(socket, input) {
     let match = matches(commands[h], input);
     if (match) {
       if (!commands[h].admin || socket.user.admin) {
-        socket.character.resetActiveBonuses(commands[h].name);
         commands[h].dispatch(socket, match);
+        socket.character.resetActiveBonuses(commands[h].name);
         return;
       }
     }

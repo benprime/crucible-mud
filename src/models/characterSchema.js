@@ -172,7 +172,8 @@ CharacterSchema.methods.move = function (dir) {
 
     if (socket) {
       const displayDir = Room.shortToLong(dir);
-      socket.emit('output', { message: `You move ${displayDir}...` });
+      if(this.sneakMode) this.output(`You sneak ${displayDir}...` );
+      else this.output(`You move ${displayDir}...` );
     }
 
     fromRoom.leave(this, dir, socket);
@@ -240,7 +241,7 @@ CharacterSchema.methods.toRoom = function (msg) {
 //list of commands that shouldn't reset sneak
 let sneakyCommands = ['break','exp','follow','gossip','help','hide','inventory','invite','keys','list','look','party','roll','search','set','sneak','stats','telepathy','who'];
 CharacterSchema.methods.resetActiveBonuses = function (command) {
-  if(!sneakyCommands.includes(command)) this.sneak = 0;
+  if(!sneakyCommands.includes(command)) this.sneakMode = 0;
 };
 
 

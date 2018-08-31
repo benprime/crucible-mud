@@ -169,7 +169,7 @@ CharacterSchema.methods.attack = function (mob, now) {
   }
 };
 
-CharacterSchema.methods.processEndOfRound = function (round) {
+CharacterSchema.methods.processEndOfRound = function () {
 
   if (this.bleeding) {
 

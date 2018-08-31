@@ -34,6 +34,7 @@ describe('summon', () => {
 
   describe('execute', () => {
     test('should output message when user is not found', () => {
+      expect.assertions(1);
       return sut.execute(socket.character, 'Wrong').catch(response => {
         expect(response).toEqual('Player not found.');
       });
@@ -45,6 +46,7 @@ describe('summon', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
       mockGetSocketByCharacterId.mockReturnValueOnce(mockTargetSocket);
       mockTargetSocket.character.roomId = otherRoom.id;
+      expect.assertions(1);
 
       // act
       return sut.execute(socket.character, 'OtherUser').then(() => {
@@ -57,6 +59,7 @@ describe('summon', () => {
     test('should output messages when command successful', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
       const oldRoomId = mockTargetSocket.character.roomId = 'oldRoomId';
+      expect.assertions(3);
 
       // act
       return sut.execute(socket.character, 'OtherUser').then(response => {

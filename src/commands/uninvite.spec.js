@@ -34,6 +34,7 @@ describe('invite', () => {
     test('user is removed from party on valid username', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(follower2);
       mockGetCharacterById.mockReturnValueOnce(leader);
+      expect.assertions(3);
 
       return sut.execute(leader, follower2.name).then(() => {
         expect(follower1.leader).toBe(leader.id);
@@ -44,6 +45,7 @@ describe('invite', () => {
 
     test('non-leader party member cannot remove other party members', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(follower2);
+      expect.assertions(4);
 
       return sut.execute(follower1, follower2.name).catch((response) => {
         expect(response).toBe(`You are not leading ${follower2.name} in a party.`);
@@ -57,6 +59,7 @@ describe('invite', () => {
     test('user not in a party gets appropriate error message', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(follower2);
       const character = mocks.getMockCharacter();
+      expect.assertions(4);
 
       return sut.execute(character, follower1.name).catch((response) => {
         expect(response).toBe(`You are not leading ${follower2.name} in a party.`);

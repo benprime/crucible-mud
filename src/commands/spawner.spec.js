@@ -29,6 +29,7 @@ describe('spawner', () => {
       test('should successfully add valid mob type', () => {
         // arrange
         const beforeLength = currentRoom.spawner.mobTypes.length;
+        expect.assertions(3);
 
         // act
         return sut.execute(socket.character, 'add', 'kobold').then(response => {
@@ -43,6 +44,7 @@ describe('spawner', () => {
       test('should output error message when mob type is invalid', () => {
         // arrange
         const beforeLength = currentRoom.spawner.mobTypes.length;
+        expect.assertions(4);
 
         // act
         return sut.execute(socket.character, 'add', 'unknown mob type').catch(response => {
@@ -61,6 +63,7 @@ describe('spawner', () => {
       test('should remove existing mob type', () => {
         // arrange
         const beforeLength = currentRoom.spawner.mobTypes.length;
+        expect.assertions(3);
 
         // act
         return sut.execute(socket.character, 'remove', 'kobold').then(response => {
@@ -76,6 +79,7 @@ describe('spawner', () => {
       test('should output error message when mob type is invalid', () => {
         // arrange
         const beforeLength = currentRoom.spawner.mobTypes.length;
+        expect.assertions(4);
 
         // act
         return sut.execute(socket.character, 'add', 'unknown mob type').catch(response => {
@@ -90,6 +94,7 @@ describe('spawner', () => {
       });
 
       test('should output error when mob type does not exist on spawner', () => {
+        expect.assertions(2);
         // act
         return sut.execute(socket.character, 'remove', 'dummy').catch(response => {
           // assert
@@ -106,6 +111,7 @@ describe('spawner', () => {
       test('should output error message when param value is not an integer', () => {
         // arrange
         currentRoom.spawner.max = 2;
+        expect.assertions(3);
 
         // act
         return sut.execute(socket.character, 'max', 'not an int').catch(response => {
@@ -121,6 +127,7 @@ describe('spawner', () => {
       test('should set max when value is valid', () => {
         // arrange
         currentRoom.spawner.max = 2;
+        expect.assertions(3);
 
         // act
         return sut.execute(socket.character, 'max', 7).then(response => {
@@ -138,6 +145,7 @@ describe('spawner', () => {
       test('when set timeout when value is valid', () => {
         // arrange
         currentRoom.spawner.timeout = 1;
+        expect.assertions(3);
 
         // act
         return sut.execute(socket.character, 'timeout', 5).then(response => {
@@ -153,6 +161,7 @@ describe('spawner', () => {
       test('should output error message when param value is not an integer', () => {
         // arrange
         currentRoom.spawner.max = 2;
+        expect.assertions(3);
 
         // act
         return sut.execute(socket.character, 'timeout', 'not an int').catch(response => {
@@ -168,6 +177,7 @@ describe('spawner', () => {
 
     describe('when action is clear', () => {
       test('when action is clear', () => {
+        expect.assertions(3);
         // act
         return sut.execute(socket.character, 'clear').then(response => {
           // arrange
@@ -182,6 +192,7 @@ describe('spawner', () => {
 
     describe('when action is copy', () => {
       test('when action is copy', () => {
+        expect.assertions(2);
         // act
         return sut.execute(socket.character, 'copy').then(response => {
           // assert
@@ -197,6 +208,7 @@ describe('spawner', () => {
       test('when action is paste', () => {
         // arrange
         socket.character.spawnerClipboard = null;
+        expect.assertions(2);
 
         // act
         return sut.execute(socket.character, 'paste').then(response => {
@@ -210,8 +222,9 @@ describe('spawner', () => {
     });
 
     test('when action is not valid', () => {
+      expect.assertions(1);
       // act
-      return sut.execute(socket.character, 'multiply').catch(response => {
+      return sut.execute(socket.character, 'multiply').then(response => {
         // assert
         expect(response).toEqual(currentRoom.spawner ? currentRoom.spawner.toString() : 'None.');
       });

@@ -5,6 +5,7 @@ export const mockGetFollowers = jest.fn();
 export const mockGetSocketByUserId = jest.fn();
 export const mockGetSocketByCharacterId = jest.fn();
 export const mockGetCharacterById = jest.fn();
+export const mockGetAllSockets = jest.fn();
 
 const mock = {
   getCharacterNames: mockgetCharacterNames,
@@ -14,6 +15,7 @@ const mock = {
   getSocketByUserId: mockGetSocketByUserId,
   getSocketByCharacterId: mockGetSocketByCharacterId,
   getCharacterById: mockGetCharacterById,
+  getAllSockets: mockGetAllSockets,
 };
 
 export default mock;

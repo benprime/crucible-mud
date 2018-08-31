@@ -37,6 +37,7 @@ describe('invite', () => {
     test('users following a party leader may not invite followers', () => {
       socket.character.leader = 'aLeader';
       let username = 'TargetUser';
+      expect.assertions(2);
 
       return sut.execute(socket.character, username).catch(response => {
         expect(response).toEqual('Only the party leader may invite followers.');
@@ -49,6 +50,7 @@ describe('invite', () => {
       socket.character.leader = undefined;
       let username = 'TargetUser';
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
+      expect.assertions(2);
 
       return sut.execute(socket.character, username).then(commandResult => {
         expect(commandResult.charMessages).toHaveLength(2);

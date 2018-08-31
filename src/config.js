@@ -9,8 +9,10 @@ export default {
   ROUND_DURATION: 4000, // how long a round is considered to be
   SPAWNER_INTERVAL: 500,
   DOOR_CLOSE_TIMER: 60 * 1000,
+  OFFER_TIMEOUT: 60 * 1000,
   DEFAULT_ROOM_MOB_MAX: 4,
   DAY_LENGTH: 10 * 60 * 1000, // ten minutes
+  TESTING_MODE: false,
 
   // todo: remove this when login functionality exists
   STATES: {

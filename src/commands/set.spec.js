@@ -23,6 +23,8 @@ describe('set', () => {
 
     describe('when type is room', () => {
       test('should return error when property not in allowed properties list', () => {
+        expect.assertions(1);
+
         return sut.execute(socket.character, 'room', 'bad property', 'new value').catch(response => {
           expect(response).toEqual('Invalid property.');
         });
@@ -30,6 +32,7 @@ describe('set', () => {
       });
 
       test('should update room in room cache and room database object on success', () => {
+        expect.assertions(3);
 
         return sut.execute(socket.character, 'room', 'name', 'new name value').then(response => {
           expect(mockRoom.name).toBe('new name value');
@@ -41,6 +44,7 @@ describe('set', () => {
     });
 
     test('should return error when type is not room', () => {
+      expect.assertions(1);
       return sut.execute(socket.character, 'bad type', 'some property', 'new value').catch(response => {
         expect(response).toEqual('Invalid type.');
       });

@@ -10,6 +10,7 @@ describe('break', () => {
       // arrange
       socket = new mocks.SocketMock();
       socket.character.attackTarget = 1;
+      expect.assertions(2);
 
       // act
       return sut.execute(socket.character).then(response => {
@@ -22,6 +23,7 @@ describe('break', () => {
     test('should not emit messages if combat is not underway', () => {
       // arrange
       socket = new mocks.SocketMock();
+      expect.assertions(2);
 
       // act
       return sut.execute(socket.character).then(response => {

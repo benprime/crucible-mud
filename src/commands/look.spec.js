@@ -70,6 +70,8 @@ describe('look', () => {
     describe('on room', () => {
 
       test('should output short room look when short param is true', () => {
+        expect.assertions(1);
+
         return sut.execute(socket.character, true).then(() => {
           expect(currentRoom.getDesc).toBeCalledWith(socket.character, true);
         });
@@ -77,6 +79,8 @@ describe('look', () => {
       });
 
       test('should output room look when lookTarget is not passed', () => {
+        expect.assertions(1);
+
         return sut.execute(socket.character, false).then(() => {
           expect(currentRoom.getDesc).toBeCalledWith(socket.character, false);
         });
@@ -87,6 +91,7 @@ describe('look', () => {
         // arrange
         mockValidDirectionInput.mockReturnValue('s');
         mockShortToLong.mockReturnValueOnce('south').mockReturnValueOnce('south').mockReturnValueOnce('north');
+        expect.assertions(3);
 
         // act
         return sut.execute(socket.character, false, 's').then(response => {
@@ -103,6 +108,7 @@ describe('look', () => {
         mockValidDirectionInput.mockReturnValue('n');
         mockOppositeDirection.mockReturnValue('s');
         mockShortToLong.mockReturnValue('south');
+        expect.assertions(1);
 
         // act
         return sut.execute(socket.character, false, 'n').catch(response => {
@@ -119,6 +125,7 @@ describe('look', () => {
       test('should do nothing when lookTarget is an invalid inventory item', () => {
         mockValidDirectionInput.mockReturnValue(null);
         mockAutocompleteMultiple.mockReturnValue(undefined);
+        expect.assertions(1);
 
         return sut.execute(socket.character, false, 'boot').catch(response => {
           expect(response).toBe('You don\'t see that here.');
@@ -134,6 +141,7 @@ describe('look', () => {
         mockAutocompleteMultiple.mockReturnValue({ item: new Item({ desc: 'a practice dummy' }) });
         mockValidDirectionInput.mockReturnValue(false);
         mockGetSocketByCharacterId.mockReturnValue(socket);
+        expect.assertions(1);
 
         return sut.execute(socket.character, false, 'dummy').then(response => {
           expect(response).toContain('a practice dummy');

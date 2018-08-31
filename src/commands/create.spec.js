@@ -39,6 +39,7 @@ describe('create', () => {
       test('should accept valid forms of direction input', () => {
         mockValidDirectionInput.mockReturnValueOnce('n');
         mockShortToLong.mockReturnValueOnce('north');
+        expect.assertions(3);
 
         return sut.execute(socket.character, 'room', 'n').then(response => {
           expect(mockRoom.createRoom).toBeCalledWith('n');
@@ -50,6 +51,8 @@ describe('create', () => {
 
       test('should output error message when direction in invalid', () => {
         let dir = 'invalid dir';
+        expect.assertions(1);
+
         return sut.execute(socket.character, 'room', dir).catch(response => {
           expect(response).toEqual('Invalid direction!');
         });
@@ -61,6 +64,7 @@ describe('create', () => {
       test('should accept valid direction input', () => {
         const dir = 'n';
         mockValidDirectionInput.mockReturnValueOnce('n');
+        expect.assertions(3);
 
         return sut.execute(socket.character, 'door', dir).then(() => {
           expect(mockRoom.getExit).toBeCalledWith(dir);
@@ -73,6 +77,7 @@ describe('create', () => {
         const dir = 'n';
         mockValidDirectionInput.mockReturnValueOnce('n');
         mockRoom.getExit.mockReturnValueOnce(null);
+        expect.assertions(3);
 
         return sut.execute(socket.character, 'door', dir).catch(response => {
           expect(mockRoom.getExit).toBeCalledWith(dir);
@@ -85,6 +90,8 @@ describe('create', () => {
     });
 
     test('should output error when create type is invalid', () => {
+      expect.assertions(1);
+
       return sut.execute(socket.character, 'other', 'n').catch(response => {
         expect(response).toEqual('Invalid create type.');
       });

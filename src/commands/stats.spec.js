@@ -14,6 +14,7 @@ describe('stats', function () {
   describe('execute', function () {
 
     test('should display stat block', function () {
+      expect.assertions(1);
       return sut.execute(socket.character).then((output) => {
         expect(output).not.toBeNull();
       });

@@ -13,6 +13,7 @@ describe('keys', () => {
       // arrange
       socket.character.keys = [];
       const expectedString = '<span class=\'cyan\'>Key ring: </span><span class=\'silver\'>None.</span>';
+      expect.assertions(1);
 
       // act
       return sut.execute(socket.character).then(response => {
@@ -31,6 +32,7 @@ describe('keys', () => {
         { name: 'KeyThree' },
       ];
       const expectedString = '<span class=\'cyan\'>Key ring: </span><span class=\'silver\'>KeyOne, KeyTwo, KeyThree</span>';
+      expect.assertions(1);
 
       // act
       return sut.execute(socket.character).then(response => {

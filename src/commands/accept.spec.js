@@ -46,6 +46,8 @@ describe('accept', () => {
         item: offeredItem,
       }];
 
+      expect.assertions(8);
+
       return sut.execute(socket.character, 'aUser').then(response => {
         expect(socket.character.offers).toHaveLength(0);
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `You accept the ${offeredItem.name} from ${offeringSocket.character.name}.` });

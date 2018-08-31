@@ -31,6 +31,7 @@ describe('hide', () => {
   describe('doors', () => {
     test('should output message when direction is invalid', () => {
       mockValidDirectionInput.mockReturnValueOnce('e');
+      expect.assertions(2);
 
       return sut.execute(socket.character, 'e').catch(response => {
         expect(response).toEqual('No exit in that direction.<br />');
@@ -42,6 +43,7 @@ describe('hide', () => {
 
   test('should succeed on valid direction', () => {
     mockValidDirectionInput.mockReturnValueOnce('d');
+    expect.assertions(3);
 
     return sut.execute(socket.character, 'd').then(response => {
       const exit = mockRoom.exits.find(({ dir }) => dir === 'd');
@@ -57,6 +59,7 @@ describe('hide', () => {
 
     test('should output message when item is invalid', () => {
       mockAutocompleteMultiple.mockReturnValueOnce(null);
+      expect.assertions(2);
       return sut.execute(socket.character, 'emu').catch(response => {
         expect(response).toEqual('Item does not exist in inventory or in room.<br />');
         expect(mockRoom.save).not.toHaveBeenCalled();
@@ -67,6 +70,7 @@ describe('hide', () => {
     test('should succeed on valid item', () => {
       const item = { id: 'clownId', name: 'clown', hidden: false };
       mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
+      expect.assertions(3);
 
       return sut.execute(socket.character, 'clown').then(response => {
         expect(response).toEqual('clown has been concealed.<br />');

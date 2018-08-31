@@ -17,6 +17,7 @@ describe('say', () => {
 
       // arrange
       const msg = 'This is a message.';
+      expect.assertions(2);
 
       // act
       return sut.execute(socket.character, msg).then(response => {
@@ -24,15 +25,13 @@ describe('say', () => {
         expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser says "<span class="silver">This is a message.</span>"', exclude: [socket.character.id] });
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You say "<span class="silver">This is a message.</span>"' });
       });
-
-
-
     });
 
     test('should escape tags for display', () => {
 
       // arrange
       const msg = '<Safety_First.com>';
+      expect.assertions(2);
 
       // act
       return sut.execute(socket.character, msg).then(response => {

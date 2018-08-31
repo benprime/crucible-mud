@@ -39,6 +39,8 @@ describe('who', () => {
 
   describe('execute', () => {
     test('should display online users', () => {
+      expect.assertions(1);
+      
       return sut.execute().then(response => {
         expect(response).toContain('<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1<br />Test2<br /></div>');
       });
@@ -50,6 +52,7 @@ describe('who', () => {
       mockGetAreaById.mockReturnValueOnce(area);
       mockGetAreaById.mockReturnValueOnce(mocks.getMockRoom(socket.character.roomId));
       t2.character.roomId = 'room without area';
+      expect.assertions(1);
 
       return sut.execute().then(response => {
         expect(response).toContain('<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1 (A dangerous area)<br />Test2<br /></div>');

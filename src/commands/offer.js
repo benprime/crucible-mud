@@ -1,6 +1,7 @@
 import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import { currencyToInt, currencyToString } from '../core/currency';
+import config from '../config';
 
 export default {
   name: 'offer',
@@ -25,7 +26,7 @@ export default {
       .catch(error => socket.emit('output', { message: error }));
   },
 
-  execute(character, itemName, userName) {
+  execute(character, itemName, userName, cb) {
     let item = null;
 
     // autocomplete username
@@ -68,7 +69,8 @@ export default {
     // set an expiration of 60 seconds for this offer
     setTimeout(() => {
       toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName != character.name);
-    }, 60000);
+      if(cb) cb(); // this callback currently only exists for testing
+    }, config.OFFER_TIMEOUT);
 
     // format and emit feedback messages
     let offerMessage;

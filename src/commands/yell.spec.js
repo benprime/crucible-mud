@@ -40,21 +40,22 @@ describe('yell', () => {
   describe('execute', () => {
 
     test('should send message to actioning player', () => {
+      expect.assertions(1);
       return sut.execute(socket.character, msg).then((response) => {
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You yell \'This is a yelled message!\'' });
       });
     });
 
     test('should send message to local rooms', () => {
+      expect.assertions(1);
       return sut.execute(socket.character, msg).then((response) => {
-
         expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} yells 'This is a yelled message!'`, exclude: [socket.character.id] });
       });
     });
 
     test('should send message to surrounding rooms', () => {
+      expect.assertions(10);
       return sut.execute(socket.character, msg).then((response) => {
-
         expect(response.roomMessages).toContainEqual({ roomId: mockRoom.roomIds.u, message: 'Someone yells from below  \'This is a yelled message!\'' });
         expect(response.roomMessages).toContainEqual({ roomId: mockRoom.roomIds.d, message: 'Someone yells from above  \'This is a yelled message!\'' });
         expect(response.roomMessages).toContainEqual({ roomId: mockRoom.roomIds.n, message: 'Someone yells from the south  \'This is a yelled message!\'' });

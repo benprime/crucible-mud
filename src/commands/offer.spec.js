@@ -5,7 +5,8 @@ import { mockAutocompleteMultiple, mockAutocompleteCharacter } from '../core/aut
 import mocks from '../../spec/mocks';
 import sut from './offer';
 
-
+//jest.mock('../core/dayCycle');
+jest.mock('../config');
 jest.mock('../models/room');
 jest.mock('../core/autocomplete');
 jest.mock('../core/socketUtil');
@@ -59,6 +60,7 @@ describe('offer', () => {
     test('should return when item is not in inventory', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
       mockAutocompleteMultiple.mockReturnValueOnce(null);
+      expect.assertions(1);
 
       return sut.execute(socket.character, 'aItem', 'aUser').catch(response => {
         expect(response).toBe('You don\'t seem to be carrying that.');
@@ -69,6 +71,8 @@ describe('offer', () => {
     test('should output message when user is not in room', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
       mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
+      mockTargetSocket.character.roomId = 'a different room';
+      expect.assertions(1);
 
       return sut.execute(socket.character, 'aItem', 'aUser').catch(response => {
         expect(response).toBe('aUser is not here!');
@@ -78,6 +82,7 @@ describe('offer', () => {
 
     test('should output message if user socket is not found', () => {
       mockAutocompleteMultiple.mockReturnValueOnce({ item: item }).mockReturnValueOnce(undefined);
+      expect.assertions(1);
 
       return sut.execute(socket.character, 'aItem', 'aUser').catch(response => {
         expect(response).toBe('Unknown user or user not connected.');
@@ -96,6 +101,7 @@ describe('offer', () => {
         toUserName: 'aUser',
         item: item,
       };
+      expect.assertions(5);
 
       return sut.execute(socket.character, 'aItem', 'aUser').then(response => {
         expect(mockTargetSocket.character.offers[0]).toHaveProperty('fromUserName', expectedOffer.fromUserName);
@@ -130,6 +136,7 @@ describe('offer', () => {
         toUserName: 'aUser',
         item: item,
       };
+      expect.assertions(9);
 
       return sut.execute(socket.character, 'aItem', 'aUser').then(response => {
         expect(mockTargetSocket.character.offers).toHaveLength(2);
@@ -146,55 +153,61 @@ describe('offer', () => {
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You offer your aItem to aUser.' });
       });
     });
-  });
 
-  test('should add offer to other user socket offers collection if existing offers exist', () => {
-    mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
-    mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
-    mockGetSocketByCharacterId.mockReturnValueOnce(socket);
+    test('should add offer to other user socket offers collection if existing offers exist', () => {
+      mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
+      mockGetSocketByCharacterId.mockReturnValueOnce(socket);
 
-    socket.character.name = 'TestUser';
-    socket.inventory = [item];
+      socket.character.name = 'TestUser';
+      socket.inventory = [item];
 
-    let existingItem = new Item({ name: 'aDifferentItem' });
+      let existingItem = new Item({ name: 'aDifferentItem' });
 
-    let existingOffer = {
-      fromUserName: 'TestUser2',
-      toUserName: 'aUser',
-      item: existingItem,
-    };
+      let existingOffer = {
+        fromUserName: 'TestUser2',
+        toUserName: 'aUser',
+        item: existingItem,
+      };
 
-    mockTargetSocket.character.offers = [existingOffer];
+      mockTargetSocket.character.offers = [existingOffer];
+      expect.assertions(9);
 
-    return sut.execute(socket.character, item.name, 'aUser').then(response => {
-      expect(mockTargetSocket.character.offers).toHaveLength(2);
+      return sut.execute(socket.character, item.name, 'aUser').then(response => {
+        expect(mockTargetSocket.character.offers).toHaveLength(2);
 
-      expect(mockTargetSocket.character.offers[0].fromUserName).toBe(existingOffer.fromUserName);
-      expect(mockTargetSocket.character.offers[0].toUserName).toBe('aUser');
-      expect(mockTargetSocket.character.offers[0].item).toBe(existingItem);
+        expect(mockTargetSocket.character.offers[0].fromUserName).toBe(existingOffer.fromUserName);
+        expect(mockTargetSocket.character.offers[0].toUserName).toBe('aUser');
+        expect(mockTargetSocket.character.offers[0].item).toBe(existingItem);
 
-      expect(mockTargetSocket.character.offers[1].fromUserName).toBe(socket.character.name);
-      expect(mockTargetSocket.character.offers[1].toUserName).toBe('aUser');
-      expect(mockTargetSocket.character.offers[1].item.id).toBe(item.id);
+        expect(mockTargetSocket.character.offers[1].fromUserName).toBe(socket.character.name);
+        expect(mockTargetSocket.character.offers[1].toUserName).toBe('aUser');
+        expect(mockTargetSocket.character.offers[1].item.id).toBe(item.id);
 
-      expect(response.charMessages).toContainEqual({ charId: mockTargetSocket.character.id, message: 'TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser' });
-      expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You offer your aItem to aUser.' });
+        expect(response.charMessages).toContainEqual({ charId: mockTargetSocket.character.id, message: 'TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser' });
+        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You offer your aItem to aUser.' });
+      });
+    });
+
+    test('should remove offer if it is not taken before the timeout', (done) => {
+      mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
+      mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
+      getCharacterNamesResult = ['TestUser', 'aUser'];
+
+      socket.character.name = 'TestUser';
+      socket.inventory = [item];
+      expect.assertions(2);
+
+      sut.execute(socket.character, 'aUser', 'aItem', () => {
+        // verified after callback is called (this will be the last item verified)
+        expect(mockTargetSocket.character.offers).toHaveLength(0);
+        done();
+      });
+      // this is checked before the callback is run
+      expect(mockTargetSocket.character.offers).toHaveLength(1);
     });
   });
 
-  test('should remove offer if it is not taken before the timeout', () => {
-    mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
-    mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
-    getCharacterNamesResult = ['TestUser', 'aUser'];
-
-    socket.character.name = 'TestUser';
-    socket.inventory = [item];
-
-
-    return sut.execute(socket.character, 'aUser', 'aItem', () => {
-      expect(mockTargetSocket.character.offers).toHaveLength(0);
-    });
-  });
 
   describe('help', () => {
     test('should output message', () => {

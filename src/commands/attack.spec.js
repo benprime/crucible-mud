@@ -37,6 +37,8 @@ describe('attack', () => {
       mockGetRoomById.mockReturnValueOnce(mockRoom);
       mockAutocompleteMultiple.mockReturnValueOnce(autocompleteResult);
 
+      expect.assertions(3);
+
       return sut.execute(socket.character, 'thing').then(response => {
         expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: '<span class="olive">*** Combat Engaged ***</span>' });
         expect(response.roomMessages).toContainEqual({ roomId: mockRoom.id, message: `${socket.character.name} moves to attack ${autocompleteResult.item.displayName}!`, exclude: [socket.character.id] });

@@ -33,6 +33,8 @@ describe('unlock', () => {
   });
 
   test('should output message when direction is invalid', () => {
+    expect.assertions(2);
+
     return sut.execute(socket.character, 'e', 'some key').catch(response => {
       expect(response).toEqual('No door in that direction.' );
       expect(mockRoom.save).not.toHaveBeenCalled();
@@ -41,8 +43,8 @@ describe('unlock', () => {
   });
 
   test('should output message when a door exists but is not locked', () => {
-
     mockValidDirectionInput.mockReturnValueOnce('n');
+    expect.assertions(2);
 
     return sut.execute(socket.character, 'n', 'some key').catch(response => {
       expect(response).toEqual('That door is not locked.' );
@@ -54,7 +56,8 @@ describe('unlock', () => {
   test('should output no messages when user is not carrying the key', () => {
     mockValidDirectionInput.mockReturnValueOnce('nw');
     mockAutocompleteMultiple.mockReturnValueOnce(null);
-
+    expect.assertions(2);
+    
     return sut.execute(socket.character, 'nw', 'some key').catch(response => {
       expect(response).toBe('You don\'t seem to be carrying that key.');
       expect(mockRoom.save).not.toHaveBeenCalled();
@@ -69,6 +72,7 @@ describe('unlock', () => {
     key.name = 'Blue';
     mockValidDirectionInput.mockReturnValueOnce('ne');
     mockAutocompleteMultiple.mockReturnValueOnce({ item: key });
+    expect.assertions(2);
 
     return sut.execute(socket.character, 'ne', 'Blue').catch(response => {
       expect(response).toEqual('That key does not unlock that door.');
@@ -84,6 +88,7 @@ describe('unlock', () => {
     key.name = 'Gold';
     mockValidDirectionInput.mockReturnValueOnce('w');
     mockAutocompleteMultiple.mockReturnValueOnce({ item: key });
+    expect.assertions(2);
 
     return sut.execute(socket.character, 'w', 'Gold').then(response => {
       expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Door unlocked.' });
@@ -93,7 +98,6 @@ describe('unlock', () => {
   });
 
   describe('asyncTest', () => {
-    let worked = false;
 
     beforeEach(() => {
       global.io.reset();
@@ -107,12 +111,15 @@ describe('unlock', () => {
 
     test('should automatically relock door after timeout', (done) => {
 
+      const exit = mockRoom.exits.find(e => e.dir === 'nw');
+      expect.assertions(4);
+
       return sut.execute(socket.character, 'nw', 'Silver', () => {
-        worked = true;
 
         expect(global.io.to('bogus').emit).toHaveBeenCalledWith('output', { message: 'The door to the northwest clicks locked!' });
+        expect(exit.closed).toBe(true);
+        expect(exit.keyName).toBe('Silver');
         expect(mockRoom.save).not.toHaveBeenCalled();
-        expect(worked).toBe(true);
 
         done();
       });

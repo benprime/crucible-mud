@@ -18,6 +18,7 @@ describe('equip', () => {
   describe('execute', () => {
     test('should do nothing when item is not in inventory', () => {
       mockAutocompleteMultiple.mockReturnValueOnce(null);
+      expect.assertions(1);
 
       return sut.execute(socket.character, 'boot').catch(output => {
         expect(output).toBe('item is not in inventory.');
@@ -30,6 +31,7 @@ describe('equip', () => {
       sword.equip = null;
       sword.name = 'sword';
       mockAutocompleteMultiple.mockReturnValueOnce({ item: sword });
+      expect.assertions(1);
 
       return sut.execute(socket.character, 'sword').catch(output => {
         expect(output).toEqual('You cannot equip that!\n');

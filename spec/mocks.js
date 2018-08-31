@@ -184,6 +184,7 @@ function getMockCharacter(username) {
   character.inventory = [];
   character.offers = [];
   character.partyInvites = [];
+  character.currency = 0;
 
   character.teleport = jest.fn().mockName('teleport').mockImplementation(() => Promise.resolve());
   character.stats = {

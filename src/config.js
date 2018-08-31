@@ -12,6 +12,8 @@ export default {
   OFFER_TIMEOUT: 60 * 1000,
   DEFAULT_ROOM_MOB_MAX: 4,
   DAY_LENGTH: 10 * 60 * 1000, // ten minutes
+  BLEED_ROUNDS: 4,
+  REGEN_ROUNDS: 4,
   TESTING_MODE: false,
 
   // todo: remove this when login functionality exists

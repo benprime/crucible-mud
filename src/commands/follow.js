@@ -1,11 +1,13 @@
 import socketUtil from '../core/socketUtil';
 import utils from '../core/utilities';
 import autocomplete from '../core/autocomplete';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'follow',
   desc: 'accept an invite to follow another player',
-
+  category: commandCategories.party,
+  
   patterns: [
     /^follow\s+(\w+)$/i,
     /^follow\s.+$/i,

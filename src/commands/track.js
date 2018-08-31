@@ -1,9 +1,11 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'track',
   desc: 'Attempt to track another player',
+  category: commandCategories.special,
 
   patterns: [
     /^track\s+(\w+)$/i,

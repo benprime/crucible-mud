@@ -1,9 +1,11 @@
 import autocomplete from '../core/autocomplete';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'equip',
   desc: 'wield a weapon or wear armor you are currently carrying',
-
+  category: commandCategories.item,
+  
   patterns: [
     /^eq\s+(.+)$/i,
     /^equip\s+(.+)$/i,

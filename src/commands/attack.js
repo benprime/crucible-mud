@@ -1,10 +1,12 @@
 import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import config from '../config';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'attack',
   desc: 'attack a monster',
+  category: commandCategories.combat,
 
   patterns: [
     /^a\s+(.+)$/i,
@@ -21,6 +23,13 @@ export default {
 
     if (character.isIncompacitated()) {
       return Promise.reject('<span class="firebrick">You are incompacitated!</span>\n');
+    }
+
+    if (character.dragging) {
+      const drag = socketUtil.getCharacterById(character.dragging);
+      let msg = `<span class="yellow">You cannot do that while dragging ${drag.name}!</span>\n`;
+      msg += `<span class="silver">type DROP ${drag.name} to stop dragging them.</span>\n`;
+      return Promise.reject(msg);
     }
 
     const acResult = autocomplete.multiple(character, ['mob'], targetName);

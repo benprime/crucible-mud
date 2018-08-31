@@ -4,7 +4,6 @@ import config from '../config';
 let lastRound = new Date();
 let round = 0;
 
-
 /**
  * Executes player combat logic for every room.
  * @param {Date} now - Execution time of this frame.

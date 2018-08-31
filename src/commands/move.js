@@ -1,4 +1,5 @@
 import lookCommand from './look';
+import { commandCategories } from '../core/commandManager';
 
 const commands = [
   /^go\s+(\w+)$/i,
@@ -32,6 +33,7 @@ const directions = [
 export default {
   name: 'move',
   desc: 'move from room to room',
+  category: commandCategories.basic,
 
   patterns: commands.concat(directions),
 
@@ -48,6 +50,9 @@ export default {
   },
 
   execute(character, dir) {
+    if (character.isIncompacitated()) {
+      return Promise.reject('<span class="firebrick">You are incompacitated!</span>\n');
+    }
     return character.move(dir);
   },
 

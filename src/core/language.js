@@ -1,8 +1,18 @@
+/**
+ * Returns an indefinite article 'a'/'an' for an object name.
+ * @param {String} name 
+ * @returns {String} - 'a' or 'an'
+ */
 export const indefiniteArticle = (name) => {
   var pattern = /^([aeiou])/i;
   return name.match(pattern) ? 'an' : 'a';
 };
 
+/**
+ * Converts gender string 'male'/'female' to subject pronoun 'he'/'she'/'they'
+ * @param {String} gender - gender string 'male' or 'female'
+ * @returns {String} - 'he', 'she', or 'they'
+ */
 export const pronounSubject = (gender) => {
   if (gender === 'male') {
     return 'he';
@@ -13,6 +23,11 @@ export const pronounSubject = (gender) => {
   }
 };
 
+/**
+ * Converts gender string 'male'/'female' to object pronoun 'him'/'her'/'them'
+ * @param {String} gender - gender string 'male' or 'female'
+ * @returns {String} - 'him', 'her', or 'them'
+ */
 export const pronounObject = (gender) => {
   if (gender === 'male') {
     return 'him';
@@ -23,6 +38,11 @@ export const pronounObject = (gender) => {
   }
 };
 
+/**
+ * Converts gender string 'male'/'female' to possessive pronoun 'his'/'her'/'their'
+ * @param {String} gender - gender string 'male' or 'female'
+ * @returns {String} - 'his', 'her', or 'their'
+ */
 export const pronounPossessive = (gender) => {
   if (gender === 'male') {
     return 'his';
@@ -33,6 +53,11 @@ export const pronounPossessive = (gender) => {
   }
 };
 
+/**
+ * Uppercases each work in a string.
+ * @param {String} text - A string containing words to convert to title case.
+ * @returns {String} - String in title case.
+ */
 export const upperCaseWords = (text) => {
   return text.toLowerCase()
     .split(' ')
@@ -40,14 +65,20 @@ export const upperCaseWords = (text) => {
     .join(' ');
 };
 
-export const oxfordComma = (list) => {
-  if(!Array.isArray(list) || list.length === 0) {
+/**
+ * Joins an array of strings into a list form using an oxford comma.
+ * Example: ['bat', 'ball', 'glove'] becomes 'bat, ball, and glove'
+ * @param {String[]} array
+ * @returns {String} - Comma separated list.
+ */
+export const oxfordComma = (array) => {
+  if (!Array.isArray(array) || array.length === 0) {
     return '';
   }
   let s;
-  let last = list.pop();
-  if (list.length > 0) {
-    s = list.join(', ');
+  let last = array.pop();
+  if (array.length > 0) {
+    s = array.join(', ');
     s += `, and ${last}`;
   } else {
     s = last;
@@ -55,10 +86,27 @@ export const oxfordComma = (list) => {
   return s;
 };
 
+/**
+ * Converts a verb to third person singular form.
+ * Examples: 'hit' to 'hits', 'punch' to 'punches'
+ * @param {String} verb - verb to convert.
+ * @returns {String} - verb in third person singular form.
+ */
+export const verbToThirdPerson = (verb) => {
+  const end = verb.slice(-2);
+  if (['sh', 'ch'].includes(end)) {
+    return verb + 'es';
+  } else {
+    return verb + 's';
+  }
+};
+
 export default {
   indefiniteArticle,
+  oxfordComma,
   pronounSubject,
   pronounObject,
   pronounPossessive,
   upperCaseWords,
+  verbToThirdPerson,
 };

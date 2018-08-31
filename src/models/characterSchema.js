@@ -7,79 +7,160 @@ import dice from '../core/dice';
 import socketUtil from '../core/socketUtil';
 import CharacterEquipSchema from './characterEquipSchema';
 import { updateHUD } from '../core/hud';
+import { pronounSubject, upperCaseWords, verbToThirdPerson } from '../core/language';
 
 /**
  * @constructor
  */
 const CharacterSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  name: { type: String },
-  roomId: { type: String },
+  name: String,
+  roomId: String,
 
   gender: { type: String, enum: ['male', 'female'], default: 'male' },
 
   inventory: [ItemSchema],
   keys: [ItemSchema],
-  currency: { type: Number, default: 0 },
+  currency: Number,
 
   equipped: {
     type: CharacterEquipSchema,
     default: CharacterEquipSchema,
   },
 
-  armorRating: { type: Number },
+  armorRating: Number,
 
-  xp: { type: Number },
-  level: { type: Number },
+  xp: Number,
+  level: Number,
 
-  maxHP: { type: Number },
-  currentHP: { type: Number },
+  maxHP: Number,
+  currentHP: Number,
 
   actionDie: {  // base die for all of player's action results to add variance
     type: String,
   },
 
   stats: {
-    strength: { type: Number, default: 10 },
-    intelligence: { type: Number, default: 10 },
-    dexterity: { type: Number, default: 10 },
-    charisma: { type: Number, default: 10 },
-    constitution: { type: Number, default: 10 },
-    willpower: { type: Number, default: 10 },
+    strength: Number,
+    intelligence: Number,
+    dexterity: Number,
+    charisma: Number,
+    constitution: Number,
+    willpower: Number,
   },
 
   skills: {
 
-    stealth: { type: Number }, // ability to not be seen/heard (DEX)
-    lockpick: { type: Number }, // open non-magical locks (DEX)
-    pickpocket: { type: Number }, // steal from others (DEX)
+    stealth: Number, // ability to not be seen/heard (DEX)
+    lockpick: Number, // open non-magical locks (DEX)
+    pickpocket: Number, // steal from others (DEX)
 
 
     // combine to perception
-    search: { type: Number }, // visual (hidden door, trap, etc) (INT)
-    listen: { type: Number }, // auditory (sounds beyond door, wind outside cave entrance, etc) (INT)
-    detect: { type: Number }, // magical (active spell, illusion, etc) (INT/WIL)
+    search: Number, // visual (hidden door, trap, etc) (INT)
+    listen: Number, // auditory (sounds beyond door, wind outside cave entrance, etc) (INT)
+    detect: Number, // magical (active spell, illusion, etc) (INT/WIL)
 
     //unarmed?
 
-    identify: { type: Number }, // determine hidden qualities of objects (INT)
-    disable: { type: Number }, // eliminate traps (DEX)
-    negotiate: { type: Number }, // make deals with others (CHA)
-    bluff: { type: Number }, // mislead/swindle others (CHA)
-    intimidate: { type: Number }, // force others to comply through fear (STR/CHA)
-    magic: { type: Number }, // affinity/skill with magic (INT/WIL)
-    weapons: { type: Number }, // affinity/skill with weapons (STR/DEX) // subweapon skills? (dual, ranged, one hand, two hand, pierce, slash, bludge)
+    identify: Number, // determine hidden qualities of objects (INT)
+    disable: Number, // eliminate traps (DEX)
+    negotiate: Number, // make deals with others (CHA)
+    bluff: Number, // mislead/swindle others (CHA)
+    intimidate: Number, // force others to comply through fear (STR/CHA)
+    magic: Number, // affinity/skill with magic (INT/WIL)
+    weapons: Number, // affinity/skill with weapons (STR/DEX) // subweapon skills? (dual, ranged, one hand, two hand, pierce, slash, bludge)
 
-    conceal: { type: Number }, // hide objects (DEX)
-    heal: { type: Number }, // minor self heal (CON)
+    conceal: Number, // hide objects (DEX)
+    heal: Number, // minor self heal (CON)
 
-    refresh: { type: Number }, // minor self revitalization of energy (WIL)
+    refresh: Number, // minor self revitalization of energy (WIL)
 
-    endure: { type: Number }, // survive what others cannot (resist poison, no KO, etc) (CON)
+    endure: Number, // survive what others cannot (resist poison, no KO, etc) (CON)
 
-    resist: { type: Number }, // shield from magic (resist spell, see through illusion/charm, etc) (WIL)
+    resist: Number, // shield from magic (resist spell, see through illusion/charm, etc) (WIL)
   },
 }, { usePushEach: true });
+
+
+//============================================================================
+// Player specific config
+//============================================================================
+//const states = Object.freeze({
+
+let sneakyCommands = [
+  'break',
+  'exp',
+  'follow',
+  'gossip',
+  'help',
+  'hide',
+  'inventory',
+  'invite',
+  'keys',
+  'list',
+  'look',
+  'party',
+  'roll',
+  'search',
+  'set',
+  'sneak',
+  'stats',
+  'telepathy',
+  'who'];
+
+const states = {
+  sneaking: {
+    deactivates: [
+      'aid',
+      'attack',
+      'accept',
+      'buy',
+      'close',
+      'drag',
+      'drop',
+      'equip',
+      'kick',
+      'move',
+      'offer',
+      'open',
+      'say',
+      'search',
+      'sell',
+      'take',
+      'unequip',
+      'unlock',
+      'yell'
+    ],
+  },
+  dragging: {
+
+  },
+  resting: {
+
+  },
+  incapacitated: {
+    whitelist: [
+      // system commands
+      'help',
+      'who',
+
+      // character info
+      'experience',
+      'health',
+      'inventory',
+      'keys',
+      'party',
+      'stats',
+
+      // communication
+      'gossip', // stealthy
+      'telepathy',  // stealthy
+      'say',
+      'yell',
+    ],
+  },
+};
 
 //============================================================================
 // Statics
@@ -103,8 +184,16 @@ CharacterSchema.statics.findByUser = function (user) {
 // Instance methods
 //============================================================================
 CharacterSchema.methods.getDesc = function () {
-  // todo: Add character specific detaisl. Currently only returning the description of equipped items.
-  return this.equipped.getDesc();
+  // todo: Add character specific details. Currently only returning the description of equipped items.
+  return this.equipped.getDesc().then(output => {
+    const pronoun = upperCaseWords(pronounSubject(this.gender));
+    output += `\n${pronoun} is ${this.status()}.`;
+    if (this.bleeding) {
+      output += `<span class="red">${this.name} is bleeding out!</span>\n`;
+    }
+    output += '\n';
+    return Promise.resolve(output);
+  });
 };
 
 CharacterSchema.methods.nextExp = function () {
@@ -142,6 +231,22 @@ return 0;
   // just return 0 or 1 for now
   dice.roll('1d2');
 
+
+
+// TODO: perhaps have miss verbs per weapon type also: "thrusts at, stabs at" in addition to "swings at"
+CharacterSchema.method.getAttackVerb = function (weapon) {
+  const weaponType = weapon ? weapon.weaponType : 'unarmed';
+  const attackVerbs = {
+    'slashing': ['slash', 'stab', 'cut', 'hack', 'chop', 'cleave'],
+    'piercing': ['pierce', 'stick', 'stab', 'impale', 'skewer', 'spear', 'lance', 'thrust'],
+    'bludgeoning': ['bludgeon', 'club', 'whop', 'swat', 'hit', 'smack', 'smash', 'wallop', 'bash', 'thump'],
+    'unarmed': ['uppercut', 'punch', 'sock', 'smack', 'jab', 'slap', 'bash', 'pummel', 'slam', 'slug', 'strike', 'thump'],
+  };
+  const verbs = attackVerbs[weaponType];
+  const verbIndex = dice.getRandomNumber(0, verbs.length);
+  return verbs[verbIndex];
+};
+
 CharacterSchema.methods.attack = function (mob, now) {
   if (!this.readyToAttack(now)) return;
   if (!mob) return;
@@ -149,13 +254,26 @@ CharacterSchema.methods.attack = function (mob, now) {
 
   let actorMessage = '';
   let roomMessage = '';
-  const playerDmg = 5; // dice.roll(this.actionDie) + this.strength;
 
   let attackResult = this.attackroll();
+  const hit = attackResult === 2;
 
-  if (attackResult == 2) {
-    actorMessage = `<span class="${config.DMG_COLOR}">You hit ${mob.name} for ${playerDmg} damage!</span>`;
-    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} hits ${mob.name} for ${playerDmg} damage!</span>`;
+  // a successful attack
+  let weapon;
+  if (hit) {
+    //if(this.equipped.weaponMain) {
+    weapon = this.inventory.id(this.equipped.weaponMain);
+    //} else {
+
+    //    }
+    let dmg = weapon ? dice.roll(weapon.damage) : '1d2'; // todo: +STR modifier
+    mob.takeDamage(dmg);
+
+    // messages
+    const verb = this.getAttackVerb(weapon);
+    const thirdPersonVerb = verbToThirdPerson(verb);
+    actorMessage = `<span class="${config.DMG_COLOR}">You ${verb} the ${mob.name} for ${dmg} damage!</span>`;
+    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} ${thirdPersonVerb} ${mob.name} for ${dmg} damage!</span>`;
   } else {
     actorMessage = `<span class="${config.MSG_COLOR}">You swing at the ${mob.name} but miss!</span>`;
     roomMessage = `<span class="${config.MSG_COLOR}">${this.username} swings at the ${mob.name} but misses!</span>`;
@@ -163,23 +281,21 @@ CharacterSchema.methods.attack = function (mob, now) {
 
   this.output(actorMessage);
   this.toRoom(roomMessage);
-
-  if (attackResult == 2) {
-    mob.takeDamage(playerDmg);
-  }
 };
 
 CharacterSchema.methods.processEndOfRound = function () {
 
   if (this.bleeding) {
 
-    // take damage every 4 rounds
-    if (this.bleeding % 4 === 0) {
+    // take damage every number of rounds configured
+    if (this.bleeding % config.BLEED_ROUNDS === 0) {
       this.output('<span class="firebrick">You are bleeding!</span>');
       this.toRoom(`<span class="firebrick">${this.name} is bleeding out!</span>`);
       this.takeDamage(1);
     }
     this.bleeding++;
+  } else {
+
   }
 };
 
@@ -231,9 +347,7 @@ CharacterSchema.methods.break = function () {
 };
 
 CharacterSchema.methods.move = function (dir) {
-  if (this.isIncompacitated()) {
-    return Promise.reject('<span class="firebrick">You are incompacitated!</span>\n');
-  }
+
   const fromRoom = Room.getById(this.roomId);
   const socket = socketUtil.getSocketByCharacterId(this.id);
 
@@ -243,7 +357,13 @@ CharacterSchema.methods.move = function (dir) {
 
     if (socket) {
       const displayDir = Room.shortToLong(dir);
-      socket.emit('output', { message: `You move ${displayDir}...` });
+      if (this.isIncompacitated()) {
+        socket.emit('output', { message: `You are dragged ${displayDir}...` });
+
+      } else {
+        socket.emit('output', { message: `You move ${displayDir}...` });
+
+      }
     }
 
     fromRoom.leave(this, dir, socket);
@@ -251,6 +371,10 @@ CharacterSchema.methods.move = function (dir) {
     toRoom.enter(this, enterDir, socket);
 
     let followers = socketUtil.getFollowers(socket.character.id);
+    if (this.dragging) {
+      const drag = socketUtil.getCharacterById(this.dragging);
+      followers.push(drag);
+    }
     followers.forEach(c => {
       c.move(dir);
     });
@@ -301,11 +425,12 @@ CharacterSchema.methods.output = function (msg) {
   }
 };
 
-CharacterSchema.methods.toRoom = function (msg) {
-  const socket = socketUtil.getSocketByCharacterId(this.id);
-  if (socket) {
-    socket.to(this.roomId).emit('output', { message: msg });
+CharacterSchema.methods.toRoom = function (msg, exclude) {
+  let excludeArr = [this.id];
+  if (Array.isArray(exclude)) {
+    excludeArr = excludeArr.concat(exclude);
   }
+  socketUtil.roomMessage(this.roomId, msg, excludeArr);
 };
 
 CharacterSchema.methods.getFollowers = function () {

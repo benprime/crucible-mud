@@ -1,9 +1,11 @@
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'keys',
   desc: 'list the keys your are currently carrying',
-
+  category: commandCategories.character,
+  
   patterns: [
     /^keys$/i,
   ],

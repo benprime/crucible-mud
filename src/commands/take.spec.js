@@ -45,6 +45,7 @@ describe('take', () => {
     test('should output message when item is not found', () => {
       mockRoom.save.mockClear();
       mockAutocompleteMultiple.mockReturnValueOnce(null);
+      expect.assertions(3);
 
       return sut.execute(socket.character, 'itemNotThere').catch(response => {
         expect(response).toEqual('You don\'t see that here!');
@@ -64,7 +65,7 @@ describe('take', () => {
         fixed: true,
       };
       mockAutocompleteMultiple.mockReturnValueOnce({ item: fixedItem });
-
+      expect.assertions(4);
 
       return sut.execute(socket.character, 'aItem').catch(response => {
         expect(socket.character.inventory).toHaveLength(0);
@@ -83,6 +84,7 @@ describe('take', () => {
       };
       mockRoom.inventory = [item];
       mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
+      expect.assertions(5);
 
       return sut.execute(socket.character, 'aItem').then(response => {
         expect(mockRoom.inventory).not.toContain(item);

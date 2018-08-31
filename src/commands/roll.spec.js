@@ -15,6 +15,7 @@ describe('roll', () => {
   describe('execute', () => {
     it('without die type should display Action Die results', () => {
       mockRoll.mockReturnValueOnce(1);
+      expect.assertions(1);
 
       return sut.execute(socket.character).then(response => {
         expect(response).toEqual('Action Die Roll Result:  1<br />');
@@ -24,6 +25,7 @@ describe('roll', () => {
 
     it('with die type should display die type results', () => {
       mockRoll.mockReturnValueOnce(2);
+      expect.assertions(1);
 
       return sut.execute(socket.character, '1d4').then(response => {
         expect(response).toEqual('1d4 Roll Result:  2<br />');

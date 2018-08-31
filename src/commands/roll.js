@@ -1,9 +1,11 @@
 import dice from '../core/dice';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'roll',
   desc: 'roll a dice',
+  category: commandCategories.system,
 
   patterns: [
     /^roll$/i,

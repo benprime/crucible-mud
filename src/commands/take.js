@@ -2,10 +2,12 @@ import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 import utils from '../core/utilities';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'take',
   desc: 'take an item',
+  category: commandCategories.item,
 
   patterns: [
     /^take\s+(.+)$/i,

@@ -2,10 +2,12 @@ import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import lookCmd from './look';
 import Room from '../models/room';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'teleport',
   desc: 'teleport to another user\'s location',
+  category: commandCategories.admin,
   admin: true,
 
   patterns: [

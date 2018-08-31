@@ -1,9 +1,11 @@
 import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'invite',
   desc: 'invite another player to follow you',
+  category: commandCategories.party,
 
   patterns: [
     /^invite\s+(\w+)$/i,

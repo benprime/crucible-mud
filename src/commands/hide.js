@@ -1,6 +1,7 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 function hideDir(socket, room, dir) {
   let exit = room.getExit(dir);
@@ -37,7 +38,8 @@ function hideItem(character, room, itemName) {
 export default {
   name: 'hide',
   desc: 'hide an item in your current room',
-
+  category: commandCategories.item,
+  
   patterns: [
     /^hide$/i,
     /^hide\s+(.+)$/i,

@@ -1,10 +1,12 @@
 import emoteHandler from '../core/emoteHandler';
 import socketUtil from '../core/socketUtil';
-import helpHandler from './help';
 import config from '../config';
+import { commands } from '../core/commandManager';
 
-let commandModules = [
+
+const commandModules = [
   'accept.js',
+  'aid.js',
   'attack.js',
   'break.js',
   'buy.js',
@@ -12,6 +14,7 @@ let commandModules = [
   'close.js',
   'create.js',
   'destroy.js',
+  'drag.js',
   'drop.js',
   'equip.js',
   'exp.js',
@@ -51,8 +54,6 @@ let commandModules = [
   'who.js',
   'yell.js',
 ];
-const commands = [];
-let defaultCommand;
 
 function validateCommand(commandHandler, file) {
   if (!commandHandler) throw `could not load ${file} when initializing commands`;
@@ -61,22 +62,22 @@ function validateCommand(commandHandler, file) {
   if (!commandHandler.execute) throw `command ${file} missing execute!`;
   if (!commandHandler.patterns) throw `command ${file} missing patterns!`;
   if (!commandHandler.help) throw `command ${file} missing help!`;
+  if (!commandHandler.category) throw `command ${file} missing category!`;
 }
 
 commandModules.forEach(file => {
   // eslint-disable-next-line
   let commandHandler = require(`./${file}`).default;
-  //console.log(commandHandler)
   validateCommand(commandHandler, file);
-  commands.push(commandHandler);
-  helpHandler.registerCommand(commandHandler);
+  //commands.push(commandHandler);
+  commands[commandHandler.name] = commandHandler;
 });
 
-defaultCommand = commands.find(({ name }) => name === 'say');
+const defaultCommand = commands['say'];
 
-function matches({ patterns }, input) {
-  for (let p = 0; p < patterns.length; p++) {
-    let match = input.match(patterns[p]);
+function checkPatterns(patterns, input) {
+  for (let pattern of patterns) {
+    let match = input.match(pattern);
     if (match) {
       return match;
     }
@@ -87,27 +88,26 @@ function processDispatch(socket, input) {
   input = input.trim();
 
   if (input) {
-    socket.emit('output', { message: `\n<span class="silver">&gt; ${input}</span>\n` });
+    socket.character.output(`\n<span class="silver">&gt; ${input}</span>\n`);
   }
 
   // check if input string matches any of our matching patterns.
   // then call the handler with the input, socket
-  for (let h = 0; h < commands.length; h++) {
-    let match = matches(commands[h], input);
+  for (let command of Object.values(commands)) {
+    let match = checkPatterns(command.patterns, input);
     if (match) {
-      if (!commands[h].admin || socket.user.admin) {
-        commands[h].dispatch(socket, match);
-        return;
+      if (!command.admin || socket.user.admin) {
+        return command.dispatch(socket, match);
       }
     }
   }
 
-  // handle player actions (emotes)
-  const actionRegex = /^(\w+)\s?(.*)$/i;
-  let match = input.match(actionRegex);
+  // emote handler
+  const emoteRegex = /^(\w+)\s?(.*)$/i;
+  let match = input.match(emoteRegex) || [];
   if (match) {
-    let action = match[1];
-    let username = match[2];
+    let action, username;
+    [, action, username] = match;
     if (emoteHandler.isValidAction(action)) {
       return emoteHandler.actionDispatcher(socket.character, action, username)
         .then(response => socketUtil.sendMessages(socket, response))

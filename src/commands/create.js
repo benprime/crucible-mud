@@ -1,10 +1,12 @@
 import Room from '../models/room';
 import Area from '../models/area';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'create',
   desc: 'create a room or door',
+  category: commandCategories.world,
   admin: true,
 
   patterns: [
@@ -28,7 +30,7 @@ export default {
 
   execute(character, type, param) {
     const room = Room.getById(character.roomId);
-    
+
     if (type === 'room') {
       const dir = Room.validDirectionInput(param.toLowerCase());
       if (!dir) {

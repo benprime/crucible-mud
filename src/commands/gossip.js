@@ -1,7 +1,10 @@
+import { commandCategories } from '../core/commandManager';
+
 export default Object.freeze({
   name: 'gossip',
   desc: 'chat in a global channel, visible to all rooms',
-
+  category: commandCategories.system,
+  
   patterns: [
     /^gossip\s+?(.+)/i,
     /^gos\s+?(.+)/i,

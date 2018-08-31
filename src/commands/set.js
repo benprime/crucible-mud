@@ -5,6 +5,7 @@ import lookCmd from './look';
 import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
 import { updateHUD } from '../core/hud';
+import { commandCategories } from '../core/commandManager';
 
 function setCurrency(character, amount) {
   character.currency = amount;
@@ -89,6 +90,7 @@ function setRoom(character, prop, value) {
 export default {
   name: 'set',
   desc: 'set game object properties',
+  category: commandCategories.world,
   admin: true,
 
   patterns: [

@@ -1,8 +1,10 @@
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'stats',
   desc: 'view your character status and abilities',
+  category: commandCategories.character,
 
   patterns: [
     /^stats$/i,

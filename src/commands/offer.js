@@ -2,11 +2,13 @@ import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import { currencyToInt, currencyToString } from '../core/currency';
 import config from '../config';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'offer',
   desc: 'offer an item to another player',
-
+  category: commandCategories.item,
+  
   patterns: [
     /^offer\s+(.+)\s+to\s+(.+)$/i,
     /^off\s+(.+)\s+to\s+(.+)$/i,

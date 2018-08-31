@@ -1,9 +1,11 @@
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'party',
   desc: 'list the members of your current party',
-
+  category: commandCategories.party,
+  
   patterns: [
     /^party$/i,
     /^par$/i,

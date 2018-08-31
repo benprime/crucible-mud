@@ -1,10 +1,12 @@
 import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
 import lookCmd from './look';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'summon',
   desc: 'teleport another player to your location',
+  category: commandCategories.admin,
   admin: true,
 
   patterns: [

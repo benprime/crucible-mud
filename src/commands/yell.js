@@ -1,9 +1,11 @@
 import Room from '../models/room';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'yell',
   desc: 'shout a message to current and all adjacent rooms',
+  category: commandCategories.communication,
 
   patterns: [
     /^"(.+)"?/,

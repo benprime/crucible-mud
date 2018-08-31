@@ -1,9 +1,11 @@
 import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'unequip',
   desc: 'stop wielding or wearing an item your are currently using',
+  category: commandCategories.item,
 
   patterns: [
     /^uneq\s+(.+)$/i,

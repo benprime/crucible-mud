@@ -1,6 +1,7 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 function lookDir(character, { exits }, dir) {
   dir = Room.validDirectionInput(dir);
@@ -32,6 +33,7 @@ function lookDir(character, { exits }, dir) {
 export default {
   name: 'look',
   desc: 'look around you or examine an item, mob, or player',
+  category: commandCategories.basic,
 
   patterns: [
     /^$/,

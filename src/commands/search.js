@@ -1,10 +1,12 @@
 import Room from '../models/room';
 import dice from '../core/dice';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'search',
   desc: 'search the current room for hidden objects',
+  category: commandCategories.item,
 
   patterns: [
     /^search$/i,

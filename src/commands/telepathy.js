@@ -1,13 +1,16 @@
 import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'telepathy',
   desc: 'communicate directly to a single user',
+  category: commandCategories.system,
 
   patterns: [
     /^\/(\w+)\s+(.*)$/,
     /^\/.*$/,
+    /^telepathy\s+(\w+)\s+(.*)$/,
   ],
 
   dispatch(socket, match) {

@@ -52,7 +52,7 @@ export default {
 
             // state tracking
             socket.character.offers = [];
-            socket.character.sneakMode = 0;
+            //socket.character.sneakMode = 0;
             socket.character.bleeding = false;
             socket.character.attackInterval = undefined;
             socket.character.lastAttack = undefined;
@@ -60,6 +60,7 @@ export default {
             socket.character.leader = null;
             socket.character.partyInvites = [];
             socket.character.dragging = false;
+            socket.character.states = [];
 
             // once character is loaded, we freeze the ability to add new properties.
             // this forces "state properties" to be added here, explicitly.

@@ -50,9 +50,6 @@ export default {
   },
 
   execute(character, dir) {
-    if (character.isIncompacitated()) {
-      return Promise.reject('<span class="firebrick">You are incompacitated!</span>\n');
-    }
     return character.move(dir);
   },
 

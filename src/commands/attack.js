@@ -21,10 +21,6 @@ export default {
 
   execute(character, targetName) {
 
-    if (character.isIncompacitated()) {
-      return Promise.reject('<span class="firebrick">You are incompacitated!</span>\n');
-    }
-
     if (character.dragging) {
       const drag = socketUtil.getCharacterById(character.dragging);
       let msg = `<span class="yellow">You cannot do that while dragging ${drag.name}!</span>\n`;

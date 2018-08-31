@@ -154,7 +154,7 @@ RoomSchema.methods.getCharacters = function (excludeSneaking) {
   const sockets = socketUtil.getRoomSockets(this.id);
   let characters = sockets.map(s => s.character);
   if (excludeSneaking) {
-    characters = characters.filter(c => !c.sneakMode);
+    characters = characters.filter(c => !c.sneakMode());
   }
   return characters;
 };
@@ -416,7 +416,7 @@ RoomSchema.methods.leave = function (character, dir, socket) {
     throw 'Character leave was called when the character was not assigned the room';
   }
 
-  if (!character.sneakMode) {
+  if (!character.sneakMode()) {
     this.sendMovementSoundsMessage(dir);
   }
 
@@ -433,7 +433,7 @@ RoomSchema.methods.leave = function (character, dir, socket) {
   };
 
   // leaving room message
-  if (!character.sneakMode) {
+  if (!character.sneakMode()) {
     const msg = this.getLeftMessages(dir, character.name);
     socketUtil.roomMessage(this.id, msg, exclude);
   }
@@ -444,7 +444,7 @@ RoomSchema.methods.leave = function (character, dir, socket) {
 RoomSchema.methods.enter = function (character, dir, socket) {
   character.roomId = this.id;
 
-  if (!character.sneakMode) {
+  if (!character.sneakMode()) {
     const exclude = socket ? [socket.id] : [];
     const msg = this.getEnteredMessage(dir, character.name);
     socketUtil.roomMessage(character.roomId, msg, exclude);

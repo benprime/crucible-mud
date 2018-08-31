@@ -185,6 +185,8 @@ function getMockCharacter(username) {
   character.offers = [];
   character.partyInvites = [];
   character.currency = 0;
+  character.sneakMode = jest.fn();
+  character.states = [];
 
   character.teleport = jest.fn().mockName('teleport').mockImplementation(() => Promise.resolve());
   character.stats = {

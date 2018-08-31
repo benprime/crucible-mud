@@ -24,10 +24,6 @@ export default {
 
   execute(character, username) {
 
-    if (character.isIncompacitated()) {
-      return Promise.reject('<span class="firebrick">You are incompacitated!</span>\n');
-    }
-
     const targetPlayer = autocomplete.character(character, username);
     if (!targetPlayer) {
       return Promise.reject('unknown player.');
@@ -37,7 +33,7 @@ export default {
       return Promise.reject('That player doesn\'t appear to be in the room.');
     }
 
-    if (!targetPlayer.isIncompacitated()) {
+    if (!targetPlayer.isIncapacitated()) {
       return Promise.reject(`${targetPlayer.name} is not in need of your assistance.`);
     }
 

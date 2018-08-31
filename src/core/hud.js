@@ -11,6 +11,7 @@ export const updateHUD = (socket) => {
     status: socket.character.status(),
     dayPhase: dayPhase,
     currency: socket.character.currency,
+    states: socket.character.states.map(s => s.name),
   });
 };
 

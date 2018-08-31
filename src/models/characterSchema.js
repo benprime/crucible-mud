@@ -5,9 +5,11 @@ import ItemSchema from './itemSchema';
 import Room from './room';
 import dice from '../core/dice';
 import socketUtil from '../core/socketUtil';
+import characterStates, { stateMode } from '../core/characterStates';
 import CharacterEquipSchema from './characterEquipSchema';
 import { updateHUD } from '../core/hud';
 import { pronounSubject, upperCaseWords, verbToThirdPerson } from '../core/language';
+import healthStatus from '../models/enums/healthStatuses';
 
 /**
  * @constructor
@@ -81,86 +83,6 @@ const CharacterSchema = new mongoose.Schema({
     resist: Number, // shield from magic (resist spell, see through illusion/charm, etc) (WIL)
   },
 }, { usePushEach: true });
-
-
-//============================================================================
-// Player specific config
-//============================================================================
-//const states = Object.freeze({
-
-let sneakyCommands = [
-  'break',
-  'exp',
-  'follow',
-  'gossip',
-  'help',
-  'hide',
-  'inventory',
-  'invite',
-  'keys',
-  'list',
-  'look',
-  'party',
-  'roll',
-  'search',
-  'set',
-  'sneak',
-  'stats',
-  'telepathy',
-  'who'];
-
-const states = {
-  sneaking: {
-    deactivates: [
-      'aid',
-      'attack',
-      'accept',
-      'buy',
-      'close',
-      'drag',
-      'drop',
-      'equip',
-      'kick',
-      'move',
-      'offer',
-      'open',
-      'say',
-      'search',
-      'sell',
-      'take',
-      'unequip',
-      'unlock',
-      'yell'
-    ],
-  },
-  dragging: {
-
-  },
-  resting: {
-
-  },
-  incapacitated: {
-    whitelist: [
-      // system commands
-      'help',
-      'who',
-
-      // character info
-      'experience',
-      'health',
-      'inventory',
-      'keys',
-      'party',
-      'stats',
-
-      // communication
-      'gossip', // stealthy
-      'telepathy',  // stealthy
-      'say',
-      'yell',
-    ],
-  },
-};
 
 //============================================================================
 // Statics
@@ -295,44 +217,74 @@ CharacterSchema.methods.processEndOfRound = function () {
     }
     this.bleeding++;
   } else {
+    this.regen();
+  }
 
+  if (this.hasState(characterStates.resting) && this.currentHP >= this.maxHP) {
+    this.removeState(characterStates.resting);
+    this.output('<span class="olive">You are fully healed.</span>');
+  }
+
+  // todo: may need to find a way to remove the incapacitated state
+  // when the user gains HP above 0.... (no matter what method that happens in)
+  if (this.currentHP > 0) {
+    this.removeState(characterStates.incapacitated);
   }
 };
 
-CharacterSchema.methods.isIncompacitated = function () {
-  if (this.currentHP <= 0) {
-    return true;
+CharacterSchema.methods.isIncapacitated = function () {
+  return this.hasState(characterStates.incapacitated);
+};
+
+CharacterSchema.methods.regen = function () {
+  // just a hack for now, only players regen.
+  if (!this.user) return;
+
+  if (this.currentHP < this.maxHP) {
+    if (this.states.includes(characterStates.resting)) {
+      // poor man's Math.clamp()
+      this.currentHP = Math.min(Math.max(this.currentHP + 2, 0), this.maxHP);
+    } else {
+      this.currentHP++;
+    }
   }
-  return false;
 };
 
 CharacterSchema.methods.die = function () {
-  // todo: this will be configuration to a church location
   this.break();
+  // regenerate user at coordinate location
   Room.getByCoords({ x: 0, y: 0, z: 0 }).then(room => {
     this.teleport(room.id);
     this.currentHP = this.maxHP;
     this.bleeding = false;
     this.output('\n<span class="red">You have died!</span>\n');
     this.output('<span class="yellow">You have been resurrected.</span>\n');
-    const socket = socketUtil.getSocketByCharacterId(this.id);
-    updateHUD(socket);
+    this.updateHUD();
   });
 };
 
+CharacterSchema.methods.updateHUD = function () {
+  const socket = socketUtil.getSocketByCharacterId(this.id);
+  updateHUD(socket);
+};
+
+CharacterSchema.methods.incapacitate = function () {
+  this.break();
+  this.states.setState(characterStates.incapacitated);
+};
+
 CharacterSchema.methods.takeDamage = function (damage) {
-  const wasStanding = this.currentHP > 0;
+  const characterDrop = this.currentHP > 0;
   this.currentHP -= damage;
   if (this.currentHP <= 0) {
-    if (wasStanding) {
-      this.break();
+    if (characterDrop) {
+      this.incapacitate();
       this.output('<span class="firebrick">You are incompacitated!</span>\n');
       this.toRoom(`<span class="firebrick">${this.name} drops to the ground!</span>\n`);
     }
     this.bleeding = 1;
   }
-  const socket = socketUtil.getSocketByCharacterId(this.id);
-  updateHUD(socket);
+  this.updateHUD();
   if (this.currentHP <= -15) {
     this.die();
   }
@@ -357,7 +309,7 @@ CharacterSchema.methods.move = function (dir) {
 
     if (socket) {
       const displayDir = Room.shortToLong(dir);
-      if (this.isIncompacitated()) {
+      if (this.isIncapacitated()) {
         socket.emit('output', { message: `You are dragged ${displayDir}...` });
 
       } else {
@@ -458,22 +410,97 @@ CharacterSchema.methods.toParty = function (msg) {
 };
 
 CharacterSchema.methods.status = function () {
-  const quotient = this.currentHP / this.maxHP;
-  let status = 'unharmed';
 
+  let status = healthStatus.UNHARMED;
+
+  const quotient = this.currentHP / this.maxHP;
   if (quotient <= 0) {
-    status = '<span class="red">incapacitated</span>';
+    status = `<span class="red">${healthStatus.INCAPACITATED}</span>`;
   }
   else if (quotient <= 0.33) {
-    status = '<span class="firebrick">severely wounded</span>';
+    status = `<span class="firebrick">${healthStatus.SEVERELY_WOUNDED}</span>`;
   }
   else if (quotient <= 0.66) {
-    status = '<span class="yellow">moderately wounded</span>';
+    status = `<span class="yellow">${healthStatus.MODERATELY_WOUNDED}</span>`;
   }
   else if (quotient < 1) {
-    status = '<span class="olive">lightly wounded</span>';
+    status = `<span class="olive">${healthStatus.LIGHTLY_WOUNDED}</span>`;
   }
   return status;
+};
+
+//============================================================================
+// Character States - this may get moved to a sub-schema
+//============================================================================
+CharacterSchema.methods.setState = function (state) {
+  if (!Object.values(characterStates).includes(state)) {
+    return;
+  }
+  if (!this.states.includes(state)) {
+    this.states.push(state);
+    this.updateHUD();
+    return true;
+  }
+  return;
+};
+
+CharacterSchema.methods.hasState = function (state) {
+  return this.states.includes(state);
+};
+
+CharacterSchema.methods.removeState = function (state) {
+  if (!Object.values(characterStates).includes(state)) {
+    return;
+  }
+
+  const sIndex = this.states.findIndex(s => s === state);
+  if (sIndex > -1) {
+    const removed = this.states.splice(sIndex, 1);
+    this.updateHUD();
+    return removed;
+  }
+
+  return;
+};
+
+CharacterSchema.methods.sneakMode = function () {
+  return this.hasState(characterStates.sneaking);
+};
+
+/**
+ * Checks if a command being executed affects a character's current states.
+ * @param {Character} character 
+ * @param {Object} command 
+ * @returns {Boolean} - Whether or not the command can continue.
+ */
+CharacterSchema.methods.processStates = function (command) {
+
+  // if any state restricts the action, we will let that trump deactivating other states.
+  // For this reason, we must check all states for action prevention first.
+  const restrictStates = this.states.filter(s => s.stateMode === stateMode.RESTRICT);
+  for (let state of restrictStates) {
+    if (!state.commandCategories.includes(command.category)) {
+      if (state.message) this.output(state.message);
+
+      // since the action is blocked, we can return immediately
+      return false;
+    }
+  }
+
+  // multiple states can be deactivated in one action, so we must loop through
+  // entire array and remove states as they become deactivated.
+  const deactivateStates = this.states.filter(s => s.stateMode === stateMode.DEACTIVATE);
+  for (let i = 0; i < deactivateStates.length; i++) {
+    let state = deactivateStates[i];
+
+    if (!state.commandCategories.includes(command.category)) {
+      if (state.message) this.output(state.message);
+      deactivateStates.splice(i, 1);
+      i--;
+    }
+  }
+
+  return true;
 };
 
 export default CharacterSchema;

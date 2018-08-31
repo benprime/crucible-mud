@@ -54,6 +54,21 @@ export const pronounPossessive = (gender) => {
 };
 
 /**
+ * Converts gender string 'male'/'female' to reflexive pronoun 'himself'/'hersef'/'theirself'
+ * @param {String} gender - gender string 'male' or 'female'
+ * @returns {String} - 'himself', 'hersef', 'theirself'
+ */
+export const pronounReflexive = (gender) => {
+  if (gender === 'male') {
+    return 'himself';
+  } else if (gender === 'female') {
+    return 'herself';
+  } else {
+    return 'themself';
+  }
+};
+
+/**
  * Uppercases each work in a string.
  * @param {String} text - A string containing words to convert to title case.
  * @returns {String} - String in title case.
@@ -107,6 +122,7 @@ export default {
   pronounSubject,
   pronounObject,
   pronounPossessive,
+  pronounReflexive,
   upperCaseWords,
   verbToThirdPerson,
 };

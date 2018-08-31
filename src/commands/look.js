@@ -56,13 +56,20 @@ export default {
   },
 
   execute(character, short, lookTarget) {
-    const room = Room.getById(character.roomId);
 
-    if (!lookTarget) return room.getDesc(character, short);
+    if (!lookTarget) {
+      const room = Room.getById(character.roomId);
+      return room.getDesc(character, short);
+    }
 
     lookTarget = lookTarget.toLowerCase();
 
+    if (lookTarget === 'me' || lookTarget === 'self') {
+      return character.getDesc();
+    }
+
     if (Room.validDirectionInput(lookTarget)) {
+      const room = Room.getById(character.roomId);
       return lookDir(character, room, lookTarget);
     }
 

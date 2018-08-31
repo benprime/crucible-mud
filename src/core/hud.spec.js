@@ -15,6 +15,7 @@ describe('updateHUD', () => {
       currentHP: socket.character.currentHP,
       maxHP: socket.character.maxHP,
       dayPhase: 'early morning',
+      states: [],
       status: 'unharmed',
     });
   });

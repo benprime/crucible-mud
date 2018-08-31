@@ -27,6 +27,7 @@ describe('telepathy', () => {
       // arrange
       const msg = 'This is a telepath message!';
       mockAutocompleteCharacter.mockReturnValueOnce(null);
+      expect.assertions(1);
 
       // act
       return sut.execute(socket.character, 'Wrong', msg).catch(response => {
@@ -40,6 +41,7 @@ describe('telepathy', () => {
       // arrange
       const msg = 'This is a telepath message!';
       mockAutocompleteCharacter.mockReturnValueOnce(otherSocket.character);
+      expect.assertions(2);
 
       // act
       return sut.execute(socket.character, otherSocket.character.name, msg).then(response => {
@@ -48,9 +50,6 @@ describe('telepathy', () => {
         expect(response.charMessages).toContainEqual({ charId: otherSocket.character.id, message: `${socket.character.name} telepaths: <span class="silver">This is a telepath message!</span>` });
       });
 
-
     });
-
   });
-
 });

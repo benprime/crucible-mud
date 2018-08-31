@@ -1,9 +1,11 @@
 import { currencyToString } from '../core/currency';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'inventory',
   desc: 'list the items you are currently carrying',
-
+  category: commandCategories.character,
+  
   patterns: [
     /^i$/i,
     /^inv$/i,

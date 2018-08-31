@@ -70,6 +70,8 @@ describe('drop', () => {
 
       test('should output error message whmockAutocompleteMultiple.mocken item is not found in user inventory', () => {
         mockAutocompleteMultiple.mockReturnValueOnce(null);
+        expect.assertions(3);
+
         return sut.execute(socket.character, 'non-existent mockAutocompleteMultiple.mockitem').catch(response => {
           expect(socket.character.save).not.toHaveBeenCalled();
           expect(mockRoom.save).not.toHaveBeenCalled();
@@ -85,6 +87,7 @@ describe('drop', () => {
           item,
         };
         mockAutocompleteMultiple.mockReturnValueOnce(autocompleteResult);
+        expect.assertions(6);
 
         return sut.execute(socket.character, 'dropItem').then(response => {
           expect(socket.character.save).toHaveBeenCalled();
@@ -107,6 +110,7 @@ describe('drop', () => {
         };
         mockAutocompleteMultiple.mockReturnValueOnce(autocompleteResult);
         socket.character.keys = [autocompleteResult.item];
+        expect.assertions(6);
 
         return sut.execute(socket.character, 'dropKey').then(response => {
           expect(socket.character.save).toHaveBeenCalled();

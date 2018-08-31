@@ -1,9 +1,11 @@
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'say',
   desc: 'communicate with players in the current room',
-
+  category: commandCategories.communication,
+  
   patterns: [
     /^\.(.+)/,
     /^say\s+(.+)/i,

@@ -1,9 +1,12 @@
+/** @module core/autocomplete
+ * 
+ */
 import Room from '../models/room';
 
 /**
- * TypeConfigs - Holds configurations for doing common autocomplete operations.
- * - source: The array to search for objects.
- * - propertyNames: The properties to use for autocomplete (in order)
+ * TypeConfigs - Holds configurations for doing common autocomplete operations
+ * @readonly
+ * @enum {Object}
  */
 const TypeConfig = Object.freeze({
   mob: {
@@ -48,9 +51,9 @@ function escapeRegExp(string) {
 
 /**
  * Filters array of objects to first object found for each unique property value.
- * @param {Array} objects - Array of object to filter.
+ * @param {Object[]} objects - Array of object to filter.
  * @param {String} propertyName - Property to filter with.
- * @returns {Array} Array of objects such that each property value is unique.
+ * @returns {Object[]} Array of objects such that each property value is unique.
  */
 function distinctByProperty(objects, propertyName) {
   const alreadyAdded = {};
@@ -65,10 +68,10 @@ export default {
 
   /**
    * Get all objects in an enumerable that match the autocomplete filter.
-   * @param {Array} source - Enumerable to find matching objects.
-   * @param {String} propertyName - Property name to use for pattern matching.
+   * @param {Object[]} source - Enumerable to find matching objects.
+   * @param {String[]} propertyName - Property name to use for pattern matching.
    * @param {String} fragment - Search term for autocompleting property value.
-   * @returns {Array} - Array of objects that matches the property value filter.
+   * @returns {Object[]} - Array of objects that matches the property value filter.
    */
   byProperty(source, propertyName, fragment) {
     // if multiple items have the exact same value for a particular property
@@ -88,10 +91,10 @@ export default {
 
   /**
    * Get objects that match autocomplete filter for multiple properties.
-   * @param {Array} source - Enumerable to find matching objects.
-   * @param {Array} propertyNames - Properties to apply pattern matching to.
+   * @param {Object[]} source - Enumerable to find matching objects.
+   * @param {String[]} propertyNames - Properties to apply pattern matching to.
    * @param {String} fragment - Search term to be used against all properties.
-   * @returns {Array} - Array of objects where any of the properties matched the filter.
+   * @returns {Object[]} - Array of objects where any of the properties matched the filter.
    */
   byProperties(source, propertyNames, fragment) {
     const resultArr = [];
@@ -134,9 +137,9 @@ export default {
   /**
    * Autocompletes a name fragment using multiple game object types and returns the object.
    * @param {Character} character - Character performing this action.
-   * @param {Array} types - Types to include in the autocomplete operation.
+   * @param {String[]} types - Types to include in the autocomplete operation.
    * @param {String} fragment - Beginning portion of object name to autocomplete.
-   * @returns {Array} - First result that matched using the type matching configs.
+   * @returns {Object[]} - First result that matched using the type matching configs.
    */
   multiple(character, types, fragment) {
     for (const typeKey in types) {
@@ -163,7 +166,7 @@ export default {
   },
 
   /**
-   * Autocomplete character objects by name fragment.
+   * Autocomplete character objects by name fragment.@typedef {(number|string)} NumberLike
    * @param {Character} character - Character performing this operation.
    * @param {String} fragment - Name fragment to autocomplete.
    */

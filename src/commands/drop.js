@@ -1,11 +1,13 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'drop',
   desc: 'drop an inventory item on the ground',
-
+  category: commandCategories.item,
+  
   patterns: [
     /^dr\s+(.+)$/i,
     /^drop\s+(.+)$/i,
@@ -23,6 +25,25 @@ export default {
 
   execute(character, itemName) {
     const room = Room.getById(character.roomId);
+
+    // drop an incapacitated player that is being dragged
+    if (character.dragging) {
+      const drag = socketUtil.getCharacterById(character.dragging);
+      const re = new RegExp(`^${itemName}`, 'i');
+      if (drag.name.match(re)) {
+        character.dragging = false;
+        return Promise.resolve({
+          charMessages: [
+            { charId: character.id, message: `You stop dragging ${drag.name}.` },
+          ],
+          roomMessages: [
+            { roomId: character.roomId, message: `${character.name} drops ${drag.name}.`, exclude: [character.id] },
+          ],
+        });
+      }
+    }
+
+    // drop items and keys
     const result = autocomplete.multiple(character, ['inventory', 'key'], itemName);
     if (!result) {
       return Promise.reject('You don\'t seem to be carrying that.');
@@ -30,7 +51,7 @@ export default {
 
     // remove item from users inventory or key ring
     if (result.item.type === 'item') {
-      if(character.equipped.isEquipped(result.item)) {
+      if (character.equipped.isEquipped(result.item)) {
         character.equipped.unequip(result.item);
       }
       character.inventory.remove(result.item);

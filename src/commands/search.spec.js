@@ -32,6 +32,7 @@ describe('search', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
     mockRoll.mockReturnValueOnce(1);
+    expect.assertions(4);
 
     return sut.execute(socket.character, admin).then(response => {
       //expect(response).toEqual('Search Roll: admin<br />You have spotted something!<br />');
@@ -46,6 +47,7 @@ describe('search', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = false;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = false;
     mockRoll.mockReturnValueOnce(1);
+    expect.assertions(4);
 
     return sut.execute(socket.character).then(response => {
       expect(response).toEqual('Search Roll: 1<br />You find nothing special.<br />');
@@ -61,6 +63,7 @@ describe('search', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
     mockRoll.mockReturnValueOnce(3);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
+    expect.assertions(4);
 
     return sut.execute(socket.character).then(response => {
       expect(response).toEqual('Search Roll: 3<br />You find nothing special.<br />');
@@ -75,8 +78,8 @@ describe('search', function () {
   test('should only reveal some items/exits if skill check doesn\'t fully succeed', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
-
     mockRoll.mockReturnValueOnce(3);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
+    expect.assertions(4);
 
     return sut.execute(socket.character).then(response => {
       expect(response).toEqual('Search Roll: 3<br />You find nothing special.<br />');
@@ -90,8 +93,8 @@ describe('search', function () {
   test('should reveal hidden targets and output message when skill fully succeeds seach test', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
-
     mockRoll.mockReturnValueOnce(6);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
+    expect.assertions(4);
 
     return sut.execute(socket.character).then(response => {
       expect(response).toEqual('Search Roll: 6<br />You have spotted something!<br />');

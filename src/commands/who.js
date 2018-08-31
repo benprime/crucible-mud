@@ -1,10 +1,12 @@
 import Area from '../models/area';
 import Room from '../models/room';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'who',
   desc: 'display the other players currently online',
+  category: commandCategories.system,
 
   patterns: [
     /^who$/i,

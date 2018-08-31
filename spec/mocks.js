@@ -157,52 +157,8 @@ class SocketMock {
     user.id = ObjectId().toString();
     this.user = user;
 
-    const character = new Character();
-    character.break = jest.fn();
-    character.name = username ? username : 'TestUser';
-    character.roomId = ObjectId().toString();
-    character.save = jest.fn().mockName('userSave');
-    character.addExp = jest.fn().mockName('addExp');
-    character.attack = jest.fn().mockName('userAttack');
-    character.actionDie = '1d20';
-    character.equipped = {};
-    character.inventory = [];
-    character.offers = [];
-    character.partyInvites = [];
-    
-    
-
-    character.teleport = jest.fn().mockName('teleport').mockImplementation(() => Promise.resolve());
-    character.stats = {
-      strength: 0,
-      intelligence: 0,
-      dexterity: 0,
-      charisma: 0,
-      constitution: 0,
-      willpower: 0,
-
-    };
-    character.skills = {
-      stealth: 0,
-      lockpick: 0,
-      pickpocket: 0,
-      search: 0,
-      detect: 0,
-      listen: 0,
-      identify: 0,
-      disable: 0,
-      negotiate: 0,
-      bluff: 0,
-      intimidate: 0,
-      magic: 0,
-      weapons: 0,
-      conceal: 0,
-      heal: 0,
-      refresh: 0,
-      endure: 0,
-      resist: 0,
-    };
-    this.character = character;
+    this.character = getMockCharacter(username);
+    this.character.user = user;
 
     this.reset = function () {
       broadcastEmitSpy.mockClear();
@@ -214,6 +170,67 @@ class SocketMock {
   }
 }
 
+function getMockUser() {
+  const user = new User();
+  user.id = ObjectId().toString();
+  return user;
+}
+
+function getMockCharacter(name) {
+  const character = new Character();
+  character.break = jest.fn();
+  character.name = name ? name : 'TestUser';
+  character.roomId = ObjectId().toString();
+  character.save = jest.fn().mockName('userSave');
+  character.addExp = jest.fn().mockName('addExp');
+  character.attack = jest.fn().mockName('userAttack');
+  character.output = jest.fn().mockName('toRoom');
+  character.toRoom = jest.fn().mockName('toRoom');
+  character.actionDie = '1d20';
+  character.equipped = {};
+  character.inventory = [];
+  character.offers = [];
+  character.partyInvites = [];
+  character.currency = 0;
+  character.sneakMode = jest.fn();
+  character.states = [];
+
+  character.user = getMockUser();
+
+  character.teleport = jest.fn().mockName('teleport').mockImplementation(() => Promise.resolve());
+  character.stats = {
+    strength: 0,
+    intelligence: 0,
+    dexterity: 0,
+    charisma: 0,
+    constitution: 0,
+    willpower: 0,
+
+  };
+  character.skills = {
+    stealth: 0,
+    lockpick: 0,
+    pickpocket: 0,
+    search: 0,
+    detect: 0,
+    listen: 0,
+    identify: 0,
+    disable: 0,
+    negotiate: 0,
+    bluff: 0,
+    intimidate: 0,
+    magic: 0,
+    weapons: 0,
+    conceal: 0,
+    heal: 0,
+    refresh: 0,
+    endure: 0,
+    resist: 0,
+  };
+
+  return character;
+}
+
 const mobType = {
   name: 'kobold',
   desc: 'an ugly kobold',
@@ -223,19 +240,17 @@ const mobType = {
       modifiers: {
         hp: 10,
         xp: 0,
-        damage: '1d2',
         hitDice: 0,
-        attackInterval: 250,
+        attacksPerRound: 0.25,
       },
     },
   ],
-  attackInterval: 4000,
+  attacksPerRound: 1,
   hitDice: '1d4',
   hp: 10,
   xp: 20,
-  minDamage: 1,
-  maxDamage: 3,
-  tauntInterval: 12000, // every 3 rounds
+  damage: '1d3',
+  tauntsPerRound: 3,
   deathMessage: 'The {0} crumbles to dust.',
   taunts: [
     'The {0} growls at {1} aggressively!',
@@ -253,6 +268,8 @@ function getMockMob(roomId) {
 export default {
   getMockRoom,
   getMockMob,
+  getMockCharacter,
+  getMockUser,
   IOMock,
   SocketMock,
   mobType,

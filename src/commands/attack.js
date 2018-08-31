@@ -1,9 +1,12 @@
 import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
+import config from '../config';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'attack',
   desc: 'attack a monster',
+  category: commandCategories.combat,
 
   patterns: [
     /^a\s+(.+)$/i,
@@ -17,6 +20,14 @@ export default {
   },
 
   execute(character, targetName) {
+
+    if (character.dragging) {
+      const drag = socketUtil.getCharacterById(character.dragging);
+      let msg = `<span class="yellow">You cannot do that while dragging ${drag.name}!</span>\n`;
+      msg += `<span class="silver">type DROP ${drag.name} to stop dragging them.</span>\n`;
+      return Promise.reject(msg);
+    }
+
     const acResult = autocomplete.multiple(character, ['mob'], targetName);
     if (!acResult) {
       character.attackTarget = null;
@@ -26,7 +37,7 @@ export default {
     const target = acResult.item;
 
     character.attackTarget = target.id;
-    character.attackInterval = 4000;
+    character.attackInterval = this.attacksPerRound * config.ROUND_DURATION;
 
     return Promise.resolve({
       charMessages: [

@@ -2,10 +2,12 @@ import config from '../config';
 import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
 import Room from '../models/room';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'unlock',
   desc: 'unlock a door with a key',
+  category: commandCategories.door,
 
   patterns: [
     /^unlock\s+(\w+)\s+with\s+(.+)$/i,

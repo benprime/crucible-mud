@@ -47,6 +47,7 @@ describe('teleport', () => {
 
     test('should teleport to another user\'s room if parameter is a username', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(otherSocket.character);
+      expect.assertions(1);
 
       // teleport to user
       return sut.execute(socket.character, otherSocket.character.name).then(() => {
@@ -56,6 +57,8 @@ describe('teleport', () => {
     });
 
     test('should teleport to room if parameter is a room', () => {
+      expect.assertions(1);
+
       // teleport to room
       return sut.execute(socket.character, otherRoom.id).then(() => {
         // check current room
@@ -66,6 +69,7 @@ describe('teleport', () => {
     test('should output messages when target is invalid user', () => {
       // arrange
       mockAutocompleteCharacter.mockReturnValueOnce(null);
+      expect.assertions(1);
 
       // act
       return sut.execute(socket.character, 'Bobby').catch(response => {

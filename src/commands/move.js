@@ -1,4 +1,5 @@
 import lookCommand from './look';
+import { commandCategories } from '../core/commandManager';
 
 const commands = [
   /^go\s+(\w+)$/i,
@@ -32,6 +33,7 @@ const directions = [
 export default {
   name: 'move',
   desc: 'move from room to room',
+  category: commandCategories.basic,
 
   patterns: commands.concat(directions),
 
@@ -44,7 +46,7 @@ export default {
     this.execute(socket.character, direction).then(() => {
       // todo: I don't think we want to have commands call other commands...
       return lookCommand.execute(socket.character).then(output => socket.emit('output', { message: output }));
-    });
+    }).catch(output => socket.character.output(output));
   },
 
   execute(character, dir) {

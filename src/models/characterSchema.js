@@ -1,81 +1,98 @@
+/** @module models/CharacterSchema */
 import mongoose from 'mongoose';
 import config from '../config';
 import ItemSchema from './itemSchema';
 import Room from './room';
 import dice from '../core/dice';
 import socketUtil from '../core/socketUtil';
+import characterStates, { stateMode } from '../core/characterStates';
 import CharacterEquipSchema from './characterEquipSchema';
+import { updateHUD } from '../core/hud';
+import { pronounSubject, upperCaseWords, verbToThirdPerson } from '../core/language';
+import healthStatus from '../models/enums/healthStatuses';
 
+/**
+ * @constructor
+ */
 const CharacterSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  name: { type: String },
-  roomId: { type: String },
+  name: String,
+  roomId: String,
 
   gender: { type: String, enum: ['male', 'female'], default: 'male' },
 
   inventory: [ItemSchema],
   keys: [ItemSchema],
-  currency: { type: Number, default: 0 },
+  currency: Number,
 
-  equipped: { type: CharacterEquipSchema, default: CharacterEquipSchema},
+  equipped: {
+    type: CharacterEquipSchema,
+    default: CharacterEquipSchema,
+  },
 
-  armorRating: { type: Number },
+  armorRating: Number,
 
-  xp: { type: Number },
-  level: { type: Number },
+  xp: Number,
+  level: Number,
 
-  maxHP: { type: Number },
-  currentHP: { type: Number },
+  maxHP: Number,
+  currentHP: Number,
 
   actionDie: {  // base die for all of player's action results to add variance
     type: String,
   },
 
   stats: {
-    strength: { type: Number, default: 10 },
-    intelligence: { type: Number, default: 10 },
-    dexterity: { type: Number, default: 10 },
-    charisma: { type: Number, default: 10 },
-    constitution: { type: Number, default: 10 },
-    willpower: { type: Number, default: 10 },
+    strength: Number,
+    intelligence: Number,
+    dexterity: Number,
+    charisma: Number,
+    constitution: Number,
+    willpower: Number,
   },
 
   skills: {
 
-    stealth: { type: Number }, // ability to not be seen/heard (DEX)
-    lockpick: { type: Number }, // open non-magical locks (DEX)
-    pickpocket: { type: Number }, // steal from others (DEX)
+    stealth: Number, // ability to not be seen/heard (DEX)
+    lockpick: Number, // open non-magical locks (DEX)
+    pickpocket: Number, // steal from others (DEX)
 
 
     // combine to perception
-    search: { type: Number }, // visual (hidden door, trap, etc) (INT)
-    listen: { type: Number }, // auditory (sounds beyond door, wind outside cave entrance, etc) (INT)
-    detect: { type: Number }, // magical (active spell, illusion, etc) (INT/WIL)
+    search: Number, // visual (hidden door, trap, etc) (INT)
+    listen: Number, // auditory (sounds beyond door, wind outside cave entrance, etc) (INT)
+    detect: Number, // magical (active spell, illusion, etc) (INT/WIL)
 
     //unarmed?
 
-    identify: { type: Number }, // determine hidden qualities of objects (INT)
-    disable: { type: Number }, // eliminate traps (DEX)
-    negotiate: { type: Number }, // make deals with others (CHA)
-    bluff: { type: Number }, // mislead/swindle others (CHA)
-    intimidate: { type: Number }, // force others to comply through fear (STR/CHA)
-    magic: { type: Number }, // affinity/skill with magic (INT/WIL)
-    weapons: { type: Number }, // affinity/skill with weapons (STR/DEX) // subweapon skills? (dual, ranged, one hand, two hand, pierce, slash, bludge)
+    identify: Number, // determine hidden qualities of objects (INT)
+    disable: Number, // eliminate traps (DEX)
+    negotiate: Number, // make deals with others (CHA)
+    bluff: Number, // mislead/swindle others (CHA)
+    intimidate: Number, // force others to comply through fear (STR/CHA)
+    magic: Number, // affinity/skill with magic (INT/WIL)
+    weapons: Number, // affinity/skill with weapons (STR/DEX) // subweapon skills? (dual, ranged, one hand, two hand, pierce, slash, bludge)
 
-    conceal: { type: Number }, // hide objects (DEX)
-    heal: { type: Number }, // minor self heal (CON)
+    conceal: Number, // hide objects (DEX)
+    heal: Number, // minor self heal (CON)
 
-    refresh: { type: Number }, // minor self revitalization of energy (WIL)
+    refresh: Number, // minor self revitalization of energy (WIL)
 
-    endure: { type: Number }, // survive what others cannot (resist poison, no KO, etc) (CON)
+    endure: Number, // survive what others cannot (resist poison, no KO, etc) (CON)
 
-    resist: { type: Number }, // shield from magic (resist spell, see through illusion/charm, etc) (WIL)
+    resist: Number, // shield from magic (resist spell, see through illusion/charm, etc) (WIL)
   },
 }, { usePushEach: true });
 
 //============================================================================
 // Statics
 //============================================================================
+
+/**
+ * Finds a connected character.
+ * @param {String} name - name of the character to find
+ * @memberof module:models~Character
+ */
 CharacterSchema.statics.findByName = function (name) {
   const userRegEx = new RegExp(`^${name}$`, 'i');
   return this.findOne({ name: userRegEx }).populate('user');
@@ -85,13 +102,20 @@ CharacterSchema.statics.findByUser = function (user) {
   return this.findOne({ user: user });
 };
 
-
 //============================================================================
 // Instance methods
 //============================================================================
 CharacterSchema.methods.getDesc = function () {
-  // todo: Add character specific detaisl. Currently only returning the description of equipped items.
-  return this.equipped.getDesc();
+  // todo: Add character specific details. Currently only returning the description of equipped items.
+  return this.equipped.getDesc().then(output => {
+    const pronoun = upperCaseWords(pronounSubject(this.gender));
+    output += `\n${pronoun} is ${this.status()}.`;
+    if (this.bleeding) {
+      output += `<span class="red">${this.name} is bleeding out!</span>\n`;
+    }
+    output += '\n';
+    return Promise.resolve(output);
+  });
 };
 
 CharacterSchema.methods.nextExp = function () {
@@ -129,31 +153,145 @@ return 0;
   // just return 0 or 1 for now
   dice.roll('1d2');
 
-CharacterSchema.methods.attack = function (socket, mob, now) {
+
+
+// TODO: perhaps have miss verbs per weapon type also: "thrusts at, stabs at" in addition to "swings at"
+CharacterSchema.method.getAttackVerb = function (weapon) {
+  const weaponType = weapon ? weapon.weaponType : 'unarmed';
+  const attackVerbs = {
+    'slashing': ['slash', 'stab', 'cut', 'hack', 'chop', 'cleave'],
+    'piercing': ['pierce', 'stick', 'stab', 'impale', 'skewer', 'spear', 'lance', 'thrust'],
+    'bludgeoning': ['bludgeon', 'club', 'whop', 'swat', 'hit', 'smack', 'smash', 'wallop', 'bash', 'thump'],
+    'unarmed': ['uppercut', 'punch', 'sock', 'smack', 'jab', 'slap', 'bash', 'pummel', 'slam', 'slug', 'strike', 'thump'],
+  };
+  const verbs = attackVerbs[weaponType];
+  const verbIndex = dice.getRandomNumber(0, verbs.length);
+  return verbs[verbIndex];
+};
+
+CharacterSchema.methods.attack = function (mob, now) {
   if (!this.readyToAttack(now)) return;
   if (!mob) return;
   this.lastAttack = now;
 
   let actorMessage = '';
   let roomMessage = '';
-  const playerDmg = 5; // dice.roll(this.actionDie) + this.strength;
 
   let attackResult = this.attackroll();
+  const hit = attackResult === 2;
 
-  if (attackResult == 2) {
-    actorMessage = `<span class="${config.DMG_COLOR}">You hit ${mob.name} for ${playerDmg} damage!</span>`;
-    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} hits ${mob.name} for ${playerDmg} damage!</span>`;
+  // a successful attack
+  let weapon;
+  if (hit) {
+    //if(this.equipped.weaponMain) {
+    weapon = this.inventory.id(this.equipped.weaponMain);
+    //} else {
+
+    //    }
+    let dmg = weapon ? dice.roll(weapon.damage) : '1d2'; // todo: +STR modifier
+    mob.takeDamage(dmg);
+
+    // messages
+    const verb = this.getAttackVerb(weapon);
+    const thirdPersonVerb = verbToThirdPerson(verb);
+    actorMessage = `<span class="${config.DMG_COLOR}">You ${verb} the ${mob.name} for ${dmg} damage!</span>`;
+    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} ${thirdPersonVerb} ${mob.name} for ${dmg} damage!</span>`;
   } else {
     actorMessage = `<span class="${config.MSG_COLOR}">You swing at the ${mob.name} but miss!</span>`;
     roomMessage = `<span class="${config.MSG_COLOR}">${this.username} swings at the ${mob.name} but misses!</span>`;
   }
 
-  socket.emit('output', { message: actorMessage });
-  socket.broadcast.to(this.roomId).emit('output', { message: roomMessage });
+  this.output(actorMessage);
+  this.toRoom(roomMessage);
+};
 
-  if (attackResult == 2) {
-    mob.takeDamage(playerDmg);
+CharacterSchema.methods.processEndOfRound = function () {
+
+  if (this.bleeding) {
+
+    // take damage every number of rounds configured
+    if (this.bleeding % config.BLEED_ROUNDS === 0) {
+      this.output('<span class="firebrick">You are bleeding!</span>');
+      this.toRoom(`<span class="firebrick">${this.name} is bleeding out!</span>`);
+      this.takeDamage(1);
+    }
+    this.bleeding++;
+  } else {
+    this.regen();
   }
+
+  if (this.hasState(characterStates.resting) && this.currentHP >= this.maxHP) {
+    this.removeState(characterStates.resting);
+    this.output('<span class="olive">You are fully healed.</span>');
+  }
+
+  // todo: may need to find a way to remove the incapacitated state
+  // when the user gains HP above 0.... (no matter what method that happens in)
+  if (this.currentHP > 0) {
+    this.removeState(characterStates.incapacitated);
+  }
+};
+
+CharacterSchema.methods.isIncapacitated = function () {
+  return this.hasState(characterStates.incapacitated);
+};
+
+CharacterSchema.methods.regen = function () {
+  // just a hack for now, only players regen.
+  if (!this.user) return;
+
+  if (this.currentHP < this.maxHP) {
+    if (this.states.includes(characterStates.resting)) {
+      // poor man's Math.clamp()
+      this.currentHP = Math.min(Math.max(this.currentHP + 2, 0), this.maxHP);
+    } else {
+      this.currentHP++;
+    }
+  }
+};
+
+CharacterSchema.methods.die = function () {
+  this.break();
+  // regenerate user at coordinate location
+  Room.getByCoords({ x: 0, y: 0, z: 0 }).then(room => {
+    this.teleport(room.id);
+    this.currentHP = this.maxHP;
+    this.bleeding = false;
+    this.output('\n<span class="red">You have died!</span>\n');
+    this.output('<span class="yellow">You have been resurrected.</span>\n');
+    this.updateHUD();
+  });
+};
+
+CharacterSchema.methods.updateHUD = function () {
+  const socket = socketUtil.getSocketByCharacterId(this.id);
+  if(socket) {
+    updateHUD(socket);
+  }
+};
+
+CharacterSchema.methods.incapacitate = function () {
+  this.break();
+  this.states.setState(characterStates.incapacitated);
+};
+
+CharacterSchema.methods.takeDamage = function (damage) {
+  const characterDrop = this.currentHP > 0;
+  this.currentHP -= damage;
+  if (this.currentHP <= 0) {
+    if (characterDrop) {
+      this.incapacitate();
+      this.output('<span class="firebrick">You are incompacitated!</span>\n');
+      this.toRoom(`<span class="firebrick">${this.name} drops to the ground!</span>\n`);
+    }
+    this.bleeding = 1;
+  }
+  this.updateHUD();
+  if (this.currentHP <= -15) {
+    this.die();
+  }
+
+  this.save();
 };
 
 CharacterSchema.methods.break = function () {
@@ -163,6 +301,7 @@ CharacterSchema.methods.break = function () {
 };
 
 CharacterSchema.methods.move = function (dir) {
+
   const fromRoom = Room.getById(this.roomId);
   const socket = socketUtil.getSocketByCharacterId(this.id);
 
@@ -172,15 +311,20 @@ CharacterSchema.methods.move = function (dir) {
 
     if (socket) {
       const displayDir = Room.shortToLong(dir);
-      if(this.sneakMode) this.output(`You sneak ${displayDir}...` );
-      else this.output(`You move ${displayDir}...` );
+      if (this.isIncapacitated()) this.output(`You are dragged ${displayDir}...`);
+      else if (this.sneakMode()) this.output(`You sneak ${displayDir}...`);
+      else this.output(`You move ${displayDir}...`);
     }
 
     fromRoom.leave(this, dir, socket);
     const enterDir = Room.oppositeDirection(dir);
     toRoom.enter(this, enterDir, socket);
 
-    let followers = socketUtil.getFollowingCharacters(socket.character.id);
+    let followers = socketUtil.getFollowers(socket.character.id);
+    if (this.dragging) {
+      const drag = socketUtil.getCharacterById(this.dragging);
+      followers.push(drag);
+    }
     followers.forEach(c => {
       c.move(dir);
     });
@@ -231,18 +375,130 @@ CharacterSchema.methods.output = function (msg) {
   }
 };
 
-CharacterSchema.methods.toRoom = function (msg) {
-  const socket = socketUtil.getSocketByCharacterId(this.id);
-  if (socket) {
-    socket.to(this.roomId).emit('output', { message: msg });
+CharacterSchema.methods.toRoom = function (msg, exclude) {
+  let excludeArr = [this.id];
+  if (Array.isArray(exclude)) {
+    excludeArr = excludeArr.concat(exclude);
   }
+  socketUtil.roomMessage(this.roomId, msg, excludeArr);
 };
 
-//list of commands that shouldn't reset sneak
-let sneakyCommands = ['break','exp','follow','gossip','help','hide','inventory','invite','keys','list','look','party','roll','search','set','sneak','stats','telepathy','who'];
-CharacterSchema.methods.resetActiveBonuses = function (command) {
-  if(!sneakyCommands.includes(command)) this.sneakMode = 0;
+CharacterSchema.methods.getFollowers = function () {
+  return socketUtil.getFollowers(this.id);
 };
 
+CharacterSchema.methods.getPartyCharacters = function () {
+  let followers = [];
+  if (this.leader) {
+    const leader = socketUtil.getCharacterById(this.leader);
+    followers.push(leader);
+    followers = followers.concat(leader.getFollowers());
+  } else {
+    followers.push(this);
+    followers = followers.concat(this.getFollowers());
+  }
+  return Promise.resolve(followers);
+};
+
+CharacterSchema.methods.toParty = function (msg) {
+  return this.getPartyCharacters().then(characters => {
+    characters.forEach(c => c.output(msg));
+    return Promise.resolve();
+  });
+};
+
+CharacterSchema.methods.status = function () {
+
+  let status = healthStatus.UNHARMED;
+
+  const quotient = this.currentHP / this.maxHP;
+  if (quotient <= 0) {
+    status = `<span class="red">${healthStatus.INCAPACITATED}</span>`;
+  }
+  else if (quotient <= 0.33) {
+    status = `<span class="firebrick">${healthStatus.SEVERELY_WOUNDED}</span>`;
+  }
+  else if (quotient <= 0.66) {
+    status = `<span class="yellow">${healthStatus.MODERATELY_WOUNDED}</span>`;
+  }
+  else if (quotient < 1) {
+    status = `<span class="olive">${healthStatus.LIGHTLY_WOUNDED}</span>`;
+  }
+  return status;
+};
+
+//============================================================================
+// Character States - this may get moved to a sub-schema
+//============================================================================
+CharacterSchema.methods.setState = function (state) {
+  if (!Object.values(characterStates).includes(state)) {
+    return;
+  }
+  if (!this.states.includes(state)) {
+    this.states.push(state);
+    this.updateHUD();
+    return true;
+  }
+  return;
+};
+
+CharacterSchema.methods.hasState = function (state) {
+  return this.states.includes(state);
+};
+
+CharacterSchema.methods.removeState = function (state) {
+  if (!Object.values(characterStates).includes(state)) {
+    return;
+  }
+
+  const sIndex = this.states.findIndex(s => s === state);
+  if (sIndex > -1) {
+    const removed = this.states.splice(sIndex, 1);
+    this.updateHUD();
+    return removed;
+  }
+
+  return;
+};
+
+CharacterSchema.methods.sneakMode = function () {
+  return this.hasState(characterStates.sneaking);
+};
+
+/**
+ * Checks if a command being executed affects a character's current states.
+ * @param {Character} character
+ * @param {Object} command
+ * @returns {Boolean} - Whether or not the command can continue.
+ */
+CharacterSchema.methods.processStates = function (command) {
+
+  // if any state restricts the action, we will let that trump deactivating other states.
+  // For this reason, we must check all states for action prevention first.
+  const restrictStates = this.states.filter(s => s.stateMode === stateMode.RESTRICT);
+  for (let state of restrictStates) {
+    if (!state.commandCategories.includes(command.category)) {
+      if (state.message) this.output(state.message);
+
+      // since the action is blocked, we can return immediately
+      return false;
+    }
+  }
+
+  // multiple states can be deactivated in one action, so we must loop through
+  // entire array and remove states as they become deactivated.
+  const deactivateStates = this.states.filter(s => s.stateMode === stateMode.DEACTIVATE);
+  for (let i = 0; i < deactivateStates.length; i++) {
+    let state = deactivateStates[i];
+
+    if (!state.commandCategories.includes(command.category)) {
+      if (state.message) this.output(state.message);
+      deactivateStates.splice(i, 1);
+      i--;
+    }
+  }
+
+  return true;
+};
 
 export default CharacterSchema;

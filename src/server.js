@@ -71,6 +71,6 @@ db.once('open', () => {
   });
 
   serve.listen(app.get('port'), () => {
-    console.log(`Express server listening on port ${app.get('port')}`);
+    console.log(`CrucibleMUD server running on port ${app.get('port')}`);
   });
 });

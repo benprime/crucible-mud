@@ -1,13 +1,16 @@
 import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'telepathy',
   desc: 'communicate directly to a single user',
+  category: commandCategories.system,
 
   patterns: [
     /^\/(\w+)\s+(.*)$/,
     /^\/.*$/,
+    /^telepathy\s+(\w+)\s+(.*)$/,
   ],
 
   dispatch(socket, match) {
@@ -22,6 +25,15 @@ export default {
 
   execute(character, username, message) {
 
+    let safeMessage = message.replace(/</g, '&lt;');
+    safeMessage = safeMessage.replace(/>/g, '&gt;');
+
+    // party chat
+    if(username.toLowerCase() === 'par'|| username.toLowerCase() === 'party') {
+      return character.toParty(`<span class="olive">[Party Chat]</span> ${character.name}: <span class="silver">${safeMessage}</span>`);
+    }
+
+    // player to player chat
     const targetCharacter = autocomplete.character(character, username);
     if (!targetCharacter) {
       return Promise.reject('Invalid username.');
@@ -29,8 +41,8 @@ export default {
 
     return Promise.resolve({
       charMessages: [
-        { charId: targetCharacter.id, message: `${character.name} telepaths: <span class="silver">${message}</span>` },
-        { charId: character.id, message: `Telepath to ${targetCharacter.name}: <span class="silver">${message}</span>` },
+        { charId: targetCharacter.id, message: `${character.name} telepaths: <span class="silver">${safeMessage}</span>` },
+        { charId: character.id, message: `Telepath to ${targetCharacter.name}: <span class="silver">${safeMessage}</span>` },
       ],
     });
   },

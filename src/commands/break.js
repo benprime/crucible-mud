@@ -1,7 +1,10 @@
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
+
 export default {
   name: 'break',
   desc: 'break off combat',
+  category: commandCategories.combat,
 
   patterns: [
     /^br$/i,

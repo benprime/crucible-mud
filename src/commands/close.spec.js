@@ -29,6 +29,8 @@ describe('close', () => {
 
     test('should print message on invalid direction', () => {
       mockValidDirectionInput.mockReturnValueOnce('ne');
+      expect.assertions(1);
+      
       return sut.execute(socket.character, 'ne').catch(response => {
         expect(response).toEqual('There is no exit in that direction!');
       });
@@ -37,6 +39,7 @@ describe('close', () => {
 
     test('should print message when no door exists in valid direction', () => {
       mockValidDirectionInput.mockReturnValueOnce('e');
+      expect.assertions(2);
 
       return sut.execute(socket.character, 'e').catch(response => {
         const exit = mockRoom.exits.find(({ dir }) => dir === 'e');
@@ -49,6 +52,7 @@ describe('close', () => {
     test('should be succesful when door is open', () => {
       mockValidDirectionInput.mockReturnValueOnce('s');
       mockShortToLong.mockReturnValueOnce('south');
+      expect.assertions(3);
 
       return sut.execute(socket.character, 's').then(response => {
         const exit = mockRoom.exits.find(({ dir }) => dir === 's');
@@ -63,6 +67,7 @@ describe('close', () => {
     test('should be succesful when door is already closed', () => {
       mockValidDirectionInput.mockReturnValueOnce('n');
       mockShortToLong.mockReturnValueOnce('north');
+      expect.assertions(3);
 
       return sut.execute(socket.character, 'n').then(response => {
         const exit = mockRoom.exits.find(({ dir }) => dir === 'n');

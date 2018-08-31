@@ -1,10 +1,12 @@
 import Shop from '../models/shop';
 import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'sell',
   desc: 'sell your items at a shop',
+  category: commandCategories.shop,
 
   patterns: [
     /^sell\s+(.+)$/i,

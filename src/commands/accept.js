@@ -1,10 +1,12 @@
 import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import { currencyToString } from '../core/currency';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'accept',
   desc: 'accept offered currency or item from another player',
+  category: commandCategories.item,
 
   patterns: [
     /^accept\s+offer\s+(\w+)$/i,

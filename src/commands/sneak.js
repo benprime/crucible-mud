@@ -1,6 +1,7 @@
 'use strict';
 
 import dice from '../core/dice';
+import characterStates from '../core/characterStates';
 
 export default {
   name: 'sneak',
@@ -10,27 +11,27 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket);
+    this.execute(socket.character);
   },
 
-  execute(socket) {
+  execute(character) {
 
     //if admin, skip to auto sneak
-    if (!socket.user.admin) {
-
+    if (!character.user.admin) {
       //calculate player stealth skill
-      let stealthRoll = socket.user.stealth + dice.roll(socket.user.actionDie);
-      socket.character.sneakMode = stealthRoll;
-      socket.emit('output', { message: `Sneak Roll: ${stealthRoll}<br />` });
-
+      let stealthRoll = character.skills.stealth + dice.roll(character.actionDie);
+      //character.sneakMode = stealthRoll;
+      character.output(`Sneak Roll: ${stealthRoll}<br />`);
     }
     else {
-      socket.character.sneakMode = 100;
-      socket.emit('output', { message: 'Sneak Roll: admin<br />' });
+      //character.sneakMode = 100;
+      character.output('Sneak Roll: admin<br />');
     }
 
-    socket.user.save(err => { if (err) throw err; });
+    // for now we'll just put them into sneak mode
+    character.setState(characterStates.sneaking);
 
+    return Promise.resolve();
   },
 
   help(socket) {

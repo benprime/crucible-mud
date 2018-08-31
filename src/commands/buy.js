@@ -1,9 +1,11 @@
 import socketUtil from '../core/socketUtil';
 import Shop from '../models/shop';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'buy',
   desc: 'buy item from a shop',
+  category: commandCategories.shop,
 
   patterns: [
     /^buy\s+(.+)$/i,

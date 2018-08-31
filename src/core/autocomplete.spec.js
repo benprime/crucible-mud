@@ -25,7 +25,7 @@ describe('autocomplete', () => {
 
     test('returns object when only one target type has a match', () => {
       // arrange
-      const testObj = { name: 'test name', name: 'test name' };
+      const testObj = { name: 'test name' };
       socket.character.inventory = [testObj];
 
       // act
@@ -76,15 +76,15 @@ describe('autocomplete', () => {
       mockGetRoomById.mockReturnValue(room);
     });
 
-    test('should return object if only name has a matching object', () => {
+    test('room should return object if only name has a matching object', () => {
       // arrange
-      const inventoryItem = { name: 'aaa', name: 'bbb' };
+      const inventoryItem = { name: 'aaa' };
       socket.character.inventory = [inventoryItem];
-      const roomItem = { name: 'ccc', name: 'ddd' };
+      const roomItem = { name: 'bbb' };
       room.inventory = [roomItem];
 
       // act
-      const result = sut.multiple(socket.character, ['inventory', 'room'], 'd');
+      const result = sut.multiple(socket.character, ['inventory', 'room'], 'b');
 
       // assert
       expect(result.type).toBe('room');
@@ -92,9 +92,9 @@ describe('autocomplete', () => {
       expect(result.item.name).toBe(roomItem.name);
     });
 
-    test('should return object if only name has a matching object', () => {
+    test('inventory should return object if only name has a matching object', () => {
       // arrange
-      const inventoryItem = new Item({ name: 'aaa'});
+      const inventoryItem = new Item({ name: 'aaa' });
       socket.character.inventory = [inventoryItem];
       const roomItem = new Item({ name: 'bbb' });
       room.inventory = [roomItem];
@@ -108,9 +108,9 @@ describe('autocomplete', () => {
 
     test('should return null if neither name or name have matching object', () => {
       // arrange
-      const inventoryItem = { name: 'aaa', name: 'aaa' };
+      const inventoryItem = { name: 'aaa' };
       socket.character.inventory = [inventoryItem];
-      const roomItem = { name: 'aaa', name: 'aaa' };
+      const roomItem = { name: 'aaa' };
       room.inventory = [roomItem];
 
       // act

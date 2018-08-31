@@ -24,7 +24,7 @@ export default {
     if (username) {
       targetCharacter = autocomplete.character(character, username);
       if (!targetCharacter) {
-        return Promise.reject(`Unknwon player: ${username}`);
+        return Promise.reject(`Unknown player: ${username}`);
       }
     }
 

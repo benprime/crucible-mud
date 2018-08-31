@@ -1,4 +1,5 @@
 import mocks from '../../spec/mocks';
+import commandManager from '../core/commandManager';
 import sut from './help';
 
 describe('help', () => {
@@ -13,10 +14,9 @@ describe('help', () => {
       help: jasmine.createSpy('gossip'),
     };
 
-    sut.registerCommand(command);
+    commandManager.commands[command.name] = command;
   });
 
-  // TODO: The heklp 
   describe('execute', () => {
 
     test('should display general help with no parameters', () => {

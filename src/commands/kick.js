@@ -1,10 +1,12 @@
 import autocomplete from '../core/autocomplete';
 import Room from '../models/room';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'kick',
   desc: 'kick an item in a particular direction',
-
+  category: commandCategories.item,
+  
   patterns: [
     /^kick\s+(.+)\s+(\w+)$/i,
     /^kick\s+(.+)$/i,

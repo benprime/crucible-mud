@@ -4,6 +4,7 @@ import Mob from '../models/mob';
 import itemData from '../data/itemData';
 import Item from '../models/item';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export const spawn = (itemType) => {
   return new Item({
@@ -13,7 +14,7 @@ export const spawn = (itemType) => {
     fixed: itemType.fixed,
     equipSlots: itemType.equipSlots,
     damage: itemType.damage,
-    damageType: itemType.damageType,
+    weaponType: itemType.weaponType,
     speed: itemType.speed,
     bonus: itemType.bonus,
   });
@@ -34,6 +35,7 @@ export const spawnAndGive = (character, itemType, cb) => {
 export default {
   name: 'spawn',
   desc: 'create mob and item instances of the catalog types',
+  category: commandCategories.admin,
   admin: true,
 
   targets: ['mob', 'player', 'inventoryItem', 'roomItem'],

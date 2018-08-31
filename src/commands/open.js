@@ -1,10 +1,12 @@
 import Room from '../models/room';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'open',
   desc: 'open a door',
-
+  category: commandCategories.door,
+  
   patterns: [
     /^open\s+(\w+)$/i,
     /^op\s+(\w+)$/i,

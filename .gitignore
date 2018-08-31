@@ -48,4 +48,7 @@ jspm_packages
 .yarn-integrity
 
 # output from babel build
-dist
+dist/
+
+# jsdoc output
+out/

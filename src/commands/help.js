@@ -1,13 +1,28 @@
 import emoteData from '../data/emoteData';
+import { commandCategories, commands } from '../core/commandManager';
 
-let commandHandlers = {};
 
 function commandListHelp(socket) {
-  let output = '<span class="mediumOrchid">For specific help on any of these commands: </span><span class="silver">help &lt;command name&gt;</span><br /><br />';
+  let output = '<span class="mediumOrchid">For specific help on any of these commands: </span><span class="silver">help &lt;command name&gt;</span>\n';
 
-  for (let command of Object.values(commandHandlers).filter(c => !c.admin)) {
-    output += `<span class="mediumOrchid">${command.name}</span><span class="purple"> | </span>${command.desc}<br />`;
+  for (let category of Object.values(commandCategories)) {
+    output += `\n<span class="yellow">${category.name}</span>`;
+    if (category.silent) output += '<span class="silver"> [STEALTHY]</span>';
+    if (category.restricted) output += '<span class="firebrick"> [RESTRICTED]</span>';
+    output += '\n';
+    output += '<span class="olive">===============================================================================</span>\n';
+
+    let categoryCommands = Object.values(commands).filter(c => c.category === category).sort(function (a, b) {
+      return a.name - b.name;
+    });
+
+    let nameLength = Math.max(...categoryCommands.map(c => c.name.length));
+
+    for (let command of Object.values(categoryCommands)) {
+      output += `<span class="mediumOrchid" style="white-space:pre">${command.name.padEnd(nameLength, ' ')}</span><span class="purple"> | </span><span class="silver">${command.desc}</span>\n`;
+    }
   }
+
   socket.emit('output', { message: output });
 }
 
@@ -56,11 +71,13 @@ function basicHelp(socket) {
   //   output += '<span class="mediumOrchid">set room</span><br />';
   //   output += '<span class="mediumOrchid">teleport</span><br />';
   //   output += '<span class="mediumOrchid">summon</span><br />';
-  //   output += '<span class="mediumOrchid">list</span><br />';
+  //   output += '<span class="mediumOrchid">catalog</span><br />';
   //   output += '<span class="mediumOrchid">spawn mob</span><br />';
   //   output += '<span class="mediumOrchid">spawn item</span><br />';
   //   output += '<span class="mediumOrchid">destroy</span><br />';
   //   output += '<span class="mediumOrchid">lock</span><br /><br>';
+  //   output += '<span class="mediumOrchid">spawner</span><br /><br>';
+  //   output += '<span class="mediumOrchid">stock</span><br /><br>';
   // }
 
   output += '<span class="cyan">Communication:</span><br>';
@@ -77,10 +94,10 @@ function basicHelp(socket) {
   socket.emit('output', { message: output });
 }
 
-function commandHelp(socket, topic) {
-  topic = topic.toLowerCase();
-  if (Object.keys(commandHandlers).includes(topic)) {
-    commandHandlers[topic].help(socket);
+function commandHelp(socket, commandName) {
+  commandName = commandName.toLowerCase();
+  if (Object.keys(commands).includes(commandName)) {
+    commands[commandName].help(socket);
   }
   else {
     socket.emit('output', { message: 'No help for that topic.' });
@@ -90,6 +107,7 @@ function commandHelp(socket, topic) {
 export default {
   name: 'help',
   desc: 'help system',
+  category: commandCategories.system,
 
   patterns: [
     /^help$/i,
@@ -124,9 +142,5 @@ export default {
     output += '<span class="mediumOrchid">help commands</span> <span class="purple">-</span> Display list of available commands.<br />';
     output += '<span class="mediumOrchid">help &lt;command&gt</span> <span class="purple">-</span> Display detailed help for specified command.<br />';
     socket.emit('output', { message: output });
-  },
-
-  registerCommand(commandHandler) {
-    commandHandlers[commandHandler.name] = commandHandler;
   },
 };

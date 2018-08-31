@@ -37,6 +37,8 @@ describe('lock', () => {
 
   test('should output message when direction is not a door', () => {
     mockValidDirectionInput.mockReturnValueOnce('s');
+    expect.assertions(2);
+
     return sut.execute(socket.character, 's', 'some key').catch(response => {
       expect(response).toBe('No door in that direction.');
       expect(mockRoom.save).not.toHaveBeenCalled();
@@ -47,6 +49,7 @@ describe('lock', () => {
 
   test('should do nothing when key name is invalid', () => {
     mockValidDirectionInput.mockReturnValueOnce('e');
+    expect.assertions(2);
     return sut.execute(socket.character, 'e', 'invalid key name').catch(response => {
       expect(response).toBe('Unknown key.');
       expect(mockRoom.save).not.toHaveBeenCalled();
@@ -59,6 +62,7 @@ describe('lock', () => {
     // arrange
     mockValidDirectionInput.mockReturnValueOnce('n');
     mockAutocompleteMultiple.mockReturnValueOnce({ item: { name: 'some key' } });
+    expect.assertions(4);
 
     // act
     return sut.execute(socket.character, 'n', 'some key').then(output => {

@@ -50,6 +50,7 @@ describe('inventory', () => {
         for (let slot of equippedItem.equipSlots) {
           socket.character.equipped[slot] = equippedItem.id;
         }
+        expect.assertions(1);
 
         // act
         return sut.execute(socket.character).then(response => {
@@ -69,6 +70,7 @@ describe('inventory', () => {
         { name: 'ItemThree' },
       ];
       const expectedString = '<span class="cyan">Backpack: </span><span class="silver">ItemOne, ItemTwo, ItemThree</span>';
+      expect.assertions(1);
 
       // act
       return sut.execute(socket.character).then(response => {
@@ -86,6 +88,7 @@ describe('inventory', () => {
         { name: 'KeyThree' },
       ];
       const expectedString = '<span class="cyan">Keys: </span><span class="silver">KeyOne, KeyTwo, KeyThree</span>';
+      expect.assertions(1);
 
       // act
       return sut.execute(socket.character).then(response => {
@@ -124,6 +127,7 @@ describe('inventory', () => {
       ]).test('should print correct currency string for amount on %s equip slot', (currency, expectedString) => {
         // arrange
         socket.character.currency = currency;
+        expect.assertions(1);
 
         // act
         return sut.execute(socket.character).then(response => {

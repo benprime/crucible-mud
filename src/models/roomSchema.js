@@ -98,7 +98,7 @@ RoomSchema.statics.oppositeDirection = dir => {
   return null;
 };
 
-RoomSchema.statics.byCoords = function (coords) {
+RoomSchema.statics.getByCoords = function (coords) {
   return this.findOne(coords);
 };
 
@@ -151,17 +151,12 @@ RoomSchema.methods.getCharacterNames = function (excludeSneaking) {
 };
 
 RoomSchema.methods.getCharacters = function (excludeSneaking) {
-  const ioRoom = global.io.sockets.adapter.rooms[this.id];
-  if (!ioRoom) {
-    return [];
-  }
-
-  const otherSocketIds = Object.keys(ioRoom.sockets);
-  let otherCharacters = otherSocketIds.map(socketId => global.io.sockets.connected[socketId].character);
+  const sockets = socketUtil.getRoomSockets(this.id);
+  let characters = sockets.map(s => s.character);
   if (excludeSneaking) {
-    otherCharacters = otherCharacters.filter(c => !c.sneakMode);
+    characters = characters.filter(c => !c.sneakMode());
   }
-  return otherCharacters;
+  return characters;
 };
 
 RoomSchema.methods.userInRoom = function (username) {
@@ -278,6 +273,7 @@ RoomSchema.methods.getDesc = function (character, short) {
 
   if (!short) {
     output += `<span class="silver">${this.desc}</span>\n`;
+    character.toRoom(`${character.name} looks around.\n`);
   }
 
   let notHiddenItems = '';
@@ -293,7 +289,7 @@ RoomSchema.methods.getDesc = function (character, short) {
   //   output += `<span class="olive">Hidden items: ${hiddenItems}.</span>\n`;
   // }
 
-  let characterNames = this.getCharacterNames(this.id, true).filter(name => name !== character.name);
+  let characterNames = this.getCharacterNames(true).filter(name => name !== character.name);
 
   const mobNames = this.mobs.map(m => m.displayName);
   if (mobNames) { characterNames = characterNames.concat(mobNames); }
@@ -420,7 +416,7 @@ RoomSchema.methods.leave = function (character, dir, socket) {
     throw 'Character leave was called when the character was not assigned the room';
   }
 
-  if (!character.sneakMode) {
+  if (!character.sneakMode()) {
     this.sendMovementSoundsMessage(dir);
   }
 
@@ -437,7 +433,7 @@ RoomSchema.methods.leave = function (character, dir, socket) {
   };
 
   // leaving room message
-  if (!character.sneakMode) {
+  if (!character.sneakMode()) {
     const msg = this.getLeftMessages(dir, character.name);
     socketUtil.roomMessage(this.id, msg, exclude);
   }
@@ -448,7 +444,7 @@ RoomSchema.methods.leave = function (character, dir, socket) {
 RoomSchema.methods.enter = function (character, dir, socket) {
   character.roomId = this.id;
 
-  if (!character.sneakMode) {
+  if (!character.sneakMode()) {
     const exclude = socket ? [socket.id] : [];
     const msg = this.getEnteredMessage(dir, character.name);
     socketUtil.roomMessage(character.roomId, msg, exclude);
@@ -462,22 +458,60 @@ RoomSchema.methods.enter = function (character, dir, socket) {
 
 };
 
+RoomSchema.methods.track = function (entity) {
+  let output;
+  let tracks = this.tracks[entity.id];
+  if (tracks) {
+    const dirName = this.constructor.shortToLong(tracks.dir);
+
+    const now = new Date().getTime();
+    const rawSeconds = Math.floor((now - tracks.timestamp) / 1000);
+    const minutes = Math.floor(rawSeconds / 60);
+    const seconds = Math.floor(rawSeconds % 60);
+    let displayString;
+    if (minutes > 1) {
+      displayString = `${minutes} minutes ago`;
+    } else if (minutes == 1) {
+      displayString = 'a minute ago';
+    } else if (seconds > 1) {
+      displayString = `${seconds} seconds ago`;
+    } else {
+      displayString = 'a second ago';
+    }
+
+    output = `<span class="yellow">${entity.name} last left to the ${dirName} ${displayString}.</span>`;
+  } else {
+    output = `${entity.name} has not passed through here recently.`;
+  }
+  return Promise.resolve(output);
+};
+
 //============================================================================
 // Instance methods : Combat
 //============================================================================
 RoomSchema.methods.processPlayerCombatActions = function (now) {
-  const sockets = socketUtil.getRoomSockets(this.id);
-  for (let socket of sockets) {
-    if (!socket.character.attackTarget) continue;
-    let mob = this.getMobById(socket.character.attackTarget);
+  const characters = this.getCharacters();
+
+  for (let c of characters) {
+    if (!c.attackTarget) continue;
+    let mob = this.getMobById(c.attackTarget);
     if (!mob) continue;
-    socket.character.attack(socket, mob, now);
+    c.attack(mob, now);
   }
+};
+
+RoomSchema.methods.processEndOfRound = function (round) {
+  const characters = this.getCharacters();
+  characters.forEach(c => {
+    c.processEndOfRound(round);
+  });
 };
 
 RoomSchema.methods.processMobCombatActions = function (now) {
   if (Array.isArray(this.mobs) && this.mobs.length > 0) {
     this.mobs.forEach(mob => {
+
+      // attack or taunt to select target
       if (!mob.attack(now)) {
         mob.taunt(now);
       }

@@ -31,6 +31,7 @@ describe('destroy', () => {
         // arrange
         mockRoom.mobs = [{}];
         mockAutocompleteMultiple.mockReturnValueOnce(null);
+        expect.assertions(1);
 
         // act
         return sut.execute(socket.character, 'mob', 'not found name').catch(response => {
@@ -46,6 +47,7 @@ describe('destroy', () => {
         const mob = mocks.getMockMob();
         mockAutocompleteMultiple.mockReturnValueOnce({ item: mob });
         mockRoom.mobs = [mob];
+        expect.assertions(3);
 
         // act
         return sut.execute(socket.character, 'mob', 'mob name').then(response => {
@@ -67,10 +69,10 @@ describe('destroy', () => {
         // arrange
         let item = new Item({
           name: 'item name',
-          name: 'item name',
         });
         socket.character.inventory.push(item);
         mockAutocompleteMultiple.mockReturnValueOnce(null);
+        expect.assertions(3);
 
         // act
         return sut.execute(socket.character, 'item', 'non-existant item').catch(response => {
@@ -87,10 +89,10 @@ describe('destroy', () => {
         // arrange
         let item = new Item({
           name: 'item name',
-          name: 'item name',
         });
         mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
         socket.character.inventory.push(item);
+        expect.assertions(3);
 
         // act
         return sut.execute(socket.character, 'item', 'item name').then(response => {
@@ -105,6 +107,8 @@ describe('destroy', () => {
     });
 
     test('should output error when type parameter is invalid', () => {
+      expect.assertions(3);
+
       // act
       return sut.execute(socket.character, 'invalid type', 'name of thing to destroy').catch(response => {
         // assert

@@ -2,13 +2,16 @@ import Shop from '../models/shop';
 import itemData from '../data/itemData';
 import AsciiTable from 'ascii-table';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'list',
   desc: 'list item available for purchase in a shop',
-
+  category: commandCategories.shop,
+  
   patterns: [
     /^list$/i,
+    /^ls$/i,
   ],
 
   dispatch(socket) {

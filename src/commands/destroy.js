@@ -2,10 +2,12 @@ import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 import utils from '../core/utilities';
 import socketUtil from '../core/socketUtil';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'destroy',
   desc: 'destroy an item or mob instance',
+  category: commandCategories.admin,
   admin: true,
 
   patterns: [

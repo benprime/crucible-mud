@@ -1,11 +1,13 @@
 import socketUtil from '../core/socketUtil';
 import utils from '../core/utilities';
 import autocomplete from '../core/autocomplete';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'follow',
   desc: 'accept an invite to follow another player',
-
+  category: commandCategories.party,
+  
   patterns: [
     /^follow\s+(\w+)$/i,
     /^follow\s.+$/i,
@@ -38,7 +40,7 @@ export default {
     const charMessages = [];
 
     // re-assign following sockets to new leader
-    let followers = socketUtil.getFollowingCharacters(character.id);
+    let followers = socketUtil.getFollowers(character.id);
     followers.forEach(c => {
       c.leader = invitingCharacter.id;
       charMessages.push({ charId: c.id, message: `<span class="yellow">Now following ${invitingCharacter.name}</span>` });

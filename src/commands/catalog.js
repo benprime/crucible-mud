@@ -1,10 +1,12 @@
 import mobData from '../data/mobData';
 import itemData from '../data/itemData';
 import Area from '../models/area';
+import { commandCategories } from '../core/commandManager';
 
 export default {
   name: 'catalog',
   desc: 'list catalog of item types for use with spawn command',
+  category: commandCategories.system,
   admin: true,
 
   patterns: [

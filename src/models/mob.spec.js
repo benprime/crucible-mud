@@ -40,8 +40,7 @@ describe('mob model', () => {
     test('should initialize properties', () => {
       expect(mob.hp).not.toBeNull();
       expect(mob.xp).not.toBeNull();
-      expect(mob.minDamage).not.toBeNull();
-      expect(mob.maxDamage).not.toBeNull();
+      expect(mob.damage).not.toBeNull();
       expect(mob.hitDice).not.toBeNull();
       expect(mob.attackInterval).not.toBeNull();
       expect(mob.roomId).not.toBeNull();
@@ -255,8 +254,8 @@ describe('mob model', () => {
       // assert
       expect(mob.attackTarget).toBeNull();
       expect(mob.lastAttack).not.toBeNull();
-      expect(socket.emit).toHaveBeenCalled();
-      expect(mockRoomMessage).toHaveBeenCalled();
+      expect(socket.character.output).toHaveBeenCalled();
+      expect(socket.character.toRoom).toHaveBeenCalled();
       expect(result).toBe(true);
     });
 
@@ -273,8 +272,8 @@ describe('mob model', () => {
       mob.attack(new Date());
 
       // assert
-      expect(socket.emit).toBeCalledWith('output', { message: playerMessage });
-      expect(mockRoomMessage).toBeCalledWith(socket.character.roomId, roomMessage, [socket.character.id]);
+      expect(socket.character.output).toBeCalledWith(playerMessage);
+      expect(socket.character.toRoom).toBeCalledWith(roomMessage);
     });
 
     test('should output miss messages if attack roll fails', () => {
@@ -282,7 +281,7 @@ describe('mob model', () => {
       mockGetCharacterById.mockReturnValueOnce(socket.character);
       mockGetSocketByCharacterId.mockReturnValueOnce(socket);
 
-      mockRoll.mockReturnValueOnce(0);
+      mockRoll.mockReturnValueOnce(0).mockReturnValueOnce(0);
       mob.attackTarget = socket.character.id;
       const playerMessage = `<span class="${config.MSG_COLOR}">The ${mob.displayName} swings at you, but misses!</span>`;
       const roomMessage = `<span class="${config.MSG_COLOR}">The ${mob.displayName} swings at ${socket.character.name}, but misses!</span>`;
@@ -291,8 +290,8 @@ describe('mob model', () => {
       mob.attack(new Date());
 
       // assert
-      //expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: playerMessage });
-      expect(mockRoomMessage).toBeCalledWith(socket.character.roomId, roomMessage, [socket.character.id]);
+      expect(socket.character.output).toBeCalledWith(playerMessage);
+      expect(socket.character.toRoom).toBeCalledWith(roomMessage);
     });
   });
 

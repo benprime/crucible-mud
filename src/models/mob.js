@@ -1,13 +1,10 @@
 import socketUtil from '../core/socketUtil';
 import config from '../config';
 import utils from '../core/utilities';
-
-/* State only model */
-import { Types } from 'mongoose';
-const { ObjectId } = Types;
-
 import Room from '../models/room';
 import dice from '../core/dice';
+import { Types } from 'mongoose';
+const { ObjectId } = Types;
 
 class Mob {
   constructor(mobType, roomId, adjectiveIndex) {
@@ -30,10 +27,13 @@ class Mob {
       this.adjective = adjective.name;
       instance.hp += adjective.modifiers.hp;
       instance.xp += adjective.modifiers.xp;
-      instance.minDamage += adjective.modifiers.minDamage;
-      instance.maxDamage += adjective.modifiers.maxDamage;
       instance.hitDice += adjective.modifiers.hitDice;
-      instance.attackInterval += adjective.modifiers.attackInterval;
+      instance.attacksPerRound += adjective.modifiers.attacksPerRound;
+      instance.tauntsPerRound += adjective.modifiers.tauntsPerRound;
+
+      // state variables
+      instance.attackInterval = instance.attacksPerRound * config.ROUND_DURATION;
+      instance.tauntInterval = instance.tauntsPerRound * config.ROUND_DURATION;
     }
 
     instance.roomId = roomId;
@@ -117,11 +117,12 @@ class Mob {
     }
 
     this.lastAttack = now;
-    const dmg = dice.roll('1d2');
+    const dmg = dice.roll(this.damage);
     let playerMessage = '';
     let roomMessage = '';
 
-    if (this.attackroll() == 1) {
+    if (this.attackroll() === 1) {
+      character.takeDamage(dmg);
       playerMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits you for ${dmg} damage!</span>`;
       roomMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits ${character.name} for ${dmg} damage!</span>`;
     } else {
@@ -129,10 +130,8 @@ class Mob {
       roomMessage = `<span class="${config.MSG_COLOR}">The ${this.displayName} swings at ${character.name}, but misses!</span>`;
     }
 
-    const socket = socketUtil.getSocketByCharacterId(character.id);
-
-    socket.emit('output', { message: playerMessage });
-    socketUtil.roomMessage(character.roomId, roomMessage, [character.id]);
+    character.output(playerMessage);
+    character.toRoom(roomMessage);
 
     this.attackTarget = null;
 

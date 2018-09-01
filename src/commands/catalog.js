@@ -32,14 +32,14 @@ export default {
     const type = match[1].toLowerCase();
 
     if (type === 'items') {
-      this.execute(socket, itemData, 'item');
+      return this.execute(socket, itemData, 'item');
     } else if (type === 'mobs') {
-      this.execute(socket, mobData);
+      return this.execute(socket, mobData);
     } else if (type === 'keys') {
-      this.execute(socket, itemData, 'key');
+      return this.execute(socket, itemData, 'key');
     } else if (type === 'areas') {
       const areas = Object.values(Area.areaCache);
-      this.execute(socket, areas);
+      return this.execute(socket, areas);
     } else {
       socket.emit('output', { message: 'Unknown catalog: {types}' });
       return;

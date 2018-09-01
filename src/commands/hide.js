@@ -54,7 +54,7 @@ export default {
       this.help(socket);
       return;
     }
-    this.execute(socket.character, hideTarget)
+    return this.execute(socket.character, hideTarget)
       .then(output => socketUtil.output(socket, output))
       .catch(error => socket.emit('output', { message: error }));
   },

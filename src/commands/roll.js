@@ -17,7 +17,7 @@ export default {
     if (match.length > 1) {
       dieType = match[1];
     }
-    this.execute(socket.character, dieType)
+    return this.execute(socket.character, dieType)
       .then(output => socketUtil.output(socket, output))
       .catch(error => socket.emit('output', { message: error }));
   },

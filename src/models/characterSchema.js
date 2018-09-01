@@ -325,6 +325,7 @@ CharacterSchema.methods.move = function (dir) {
       const drag = socketUtil.getCharacterById(this.dragging);
       followers.push(drag);
     }
+
     followers.forEach(c => {
       c.move(dir);
     });

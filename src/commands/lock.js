@@ -22,7 +22,7 @@ export default {
     }
     const dir = match[1].toLowerCase();
     const keyName = match[2];
-    this.execute(socket.character, dir, keyName)
+    return this.execute(socket.character, dir, keyName)
       .then(output => socketUtil.output(socket, output))
       .catch(error => socket.emit('output', { message: error }));
   },

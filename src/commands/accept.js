@@ -20,7 +20,7 @@ export default {
       return;
     }
 
-    this.execute(socket.character, match[1], match[2])
+    return this.execute(socket.character, match[1], match[2])
       .then(commandResult => socketUtil.sendMessages(socket, commandResult))
       .catch(error => socket.emit('output', { message: error }));
   },

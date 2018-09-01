@@ -50,7 +50,7 @@ export default {
       lookTarget = match[1];
     }
     const short = (match[0] === '');
-    this.execute(socket.character, short, lookTarget)
+    return this.execute(socket.character, short, lookTarget)
       .then(response => socketUtil.sendMessages(socket, response))
       .catch(error => socket.emit('output', { message: error }));
   },

@@ -19,19 +19,19 @@ export default {
 
   dispatch(socket, match) {
     // teleport to room coordinates
-    let promise;
+    let param;
     if (match.length >= 3) {
-      promise = this.execute(socket.character, {
+      param = {
         x: match[1],
         y: match[2],
         z: match[3] || 0,
-      });
+      };
 
     } else {
-      promise = this.execute(socket.character, match[1]);
+      param = match[1];
     }
 
-    promise
+    return this.execute(socket.character, param)
       .then(response => socketUtil.sendMessages(socket, response))
       .then(() => lookCmd.execute(socket.character, false).then(output => socketUtil.sendMessages(socket, output)))
       .catch(err => socketUtil.sendMessages(socket, err));

@@ -13,21 +13,31 @@ const roomCache = {};
 // Room Schema
 //============================================================================
 const RoomSchema = new mongoose.Schema({
-  name: String,
-  desc: String,
+  name: {
+    type: String,
+    required: true,
+  },
+  desc: {
+    type: String,
+    required: true,
+  },
   alias: String,
   areaId: String,
   x: {
     type: Number,
-    default: 0,
+    required: true,
   },
   y: {
     type: Number,
-    default: 0,
+    required: true,
   },
   z: {
     type: Number,
-    default: 0,
+    required: true,
+  },
+  worldId: {
+    type: String,
+    required: true,
   },
 
   exits: [ExitSchema],
@@ -36,7 +46,7 @@ const RoomSchema = new mongoose.Schema({
   inventory: [ItemSchema],
 }, { usePushEach: true });
 
-RoomSchema.index({ x: 1, y: 1, z: 1 }, { unique: true });
+RoomSchema.index({ worldId: 1, x: 1, y: 1, z: 1 }, { unique: true });
 
 //============================================================================
 // Direction Support
@@ -198,6 +208,7 @@ RoomSchema.methods.createRoom = function (dir) {
     targetRoom = this.constructor.instantiate({
       name: 'Default Room Name',
       desc: 'Room Description',
+      worldId: currentRoom.worldId,
       x: targetCoords.x,
       y: targetCoords.y,
       z: targetCoords.z,

@@ -16,7 +16,7 @@ export default {
       return this.help(socket);
     }
 
-    this.execute(socket.character, match[1])
+    return this.execute(socket.character, match[1])
       .then(output => socket.character.output(output))
       .catch(output => socket.character.output(output));
   },

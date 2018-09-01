@@ -13,7 +13,7 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute().then(output => socketUtil.output(socket, output));
+    return this.execute().then(output => socketUtil.output(socket, output));
   },
 
   execute() {

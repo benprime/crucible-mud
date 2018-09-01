@@ -53,7 +53,7 @@ export default {
     }
     let typeName = match[1];
     let itemTypeName = match[2];
-    this.execute(socket.character, typeName, itemTypeName)
+    return this.execute(socket.character, typeName, itemTypeName)
       .then(response => socketUtil.sendMessages(socket, response))
       .catch(response => socketUtil.output(socket, response));
 

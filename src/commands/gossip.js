@@ -11,7 +11,7 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1]);
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character, message) {

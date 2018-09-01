@@ -14,7 +14,7 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1], match[2])
+    return this.execute(socket.character, match[1], match[2])
       .catch(error => socket.emit('output', { message: error }));
   },
 

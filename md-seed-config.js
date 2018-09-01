@@ -6,6 +6,7 @@ import Characters from './seeders/characters.seeder';
 import Rooms from './seeders/rooms.seeder';
 import Shops from './seeders/shops.seeder';
 import Users from './seeders/users.seeder';
+import Worlds from './seeders/worlds.seeder';
 
 
 // Export the mongoose lib
@@ -25,6 +26,7 @@ export const seedersList = {
   Areas,
   Characters,
   Rooms,
-  Shops,
+  //Shops,
   Users,
+  Worlds,
 };

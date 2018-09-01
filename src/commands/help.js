@@ -119,7 +119,7 @@ export default {
 
   dispatch(socket, match) {
     const topic = match.length < 2 ? null : match[1];
-    this.execute(socket, topic);
+    return this.execute(socket, topic);
   },
 
   execute(socket, topic) {
@@ -133,8 +133,8 @@ export default {
       commandHelp(socket, topic);
     } else {
       this.help(socket);
-      //basicHelp(socket);
     }
+    return Promise.resolve();
   },
 
   help(socket) {

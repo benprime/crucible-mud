@@ -17,7 +17,7 @@ export default {
     if (match.length != 2) {
       this.help(socket);
     }
-    this.execute(socket.character, match[1])
+    return this.execute(socket.character, match[1])
       .then(response => socketUtil.sendMessages(socket, response))
       .catch(response => socketUtil.output(socket, response));
   },

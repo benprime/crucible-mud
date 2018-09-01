@@ -23,7 +23,7 @@ export default {
     }
     const type = match[1].toLowerCase();
     const param = match[2];
-    this.execute(socket.character, type, param)
+    return this.execute(socket.character, type, param)
       .then(commandResult => socketUtil.sendMessages(socket, commandResult))
       .catch(error => socket.emit('output', { message: error }));
   },

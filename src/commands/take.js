@@ -20,7 +20,7 @@ export default {
     if (match.length != 2) {
       return Promise.reject('What do you want to take?');
     }
-    this.execute(socket.character, match[1], socket.user.admin)
+    return this.execute(socket.character, match[1], socket.user.admin)
       .then(response => socketUtil.sendMessages(socket, response))
       .catch(response => socketUtil.output(socket, response));
   },

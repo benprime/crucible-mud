@@ -11,7 +11,7 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket)
+    return this.execute(socket)
       .then(output => socketUtil.output(socket, output))
       .catch(error => socket.emit('output', { message: error }));
   },

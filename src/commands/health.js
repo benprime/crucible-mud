@@ -12,7 +12,7 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket.character)
+    return this.execute(socket.character)
       .then(output => socketUtil.output(socket, output));
   },
 

@@ -23,7 +23,7 @@ export default {
     }
     let typeName = match[1];
     let objectID = match[2];
-    this.execute(socket.character, typeName, objectID)
+    return this.execute(socket.character, typeName, objectID)
       .then(output => socketUtil.output(socket, output))
       .catch(output => socketUtil.output(socket, output));
 

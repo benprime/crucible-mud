@@ -43,7 +43,7 @@ export default {
 
     // Multiple in the array means this matched to a command and not a direction
     let direction = match.length > 1 ? match[1] : match[0];
-    this.execute(socket.character, direction).then(() => {
+    return this.execute(socket.character, direction).then(() => {
       // todo: I don't think we want to have commands call other commands...
       return lookCommand.execute(socket.character).then(output => socket.emit('output', { message: output }));
     }).catch(output => socket.character.output(output));

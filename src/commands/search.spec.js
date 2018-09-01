@@ -28,13 +28,13 @@ describe('search', function () {
   });
 
   test('should reveal all when user is admin', function () {
-    const admin = true;
+    socket.character.user.admin = true;
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
     mockRoll.mockReturnValueOnce(1);
     expect.assertions(4);
 
-    return sut.execute(socket.character, admin).then(response => {
+    return sut.execute(socket.character).then(response => {
       //expect(response).toEqual('Search Roll: admin<br />You have spotted something!<br />');
       expect(response).toEqual('You have spotted something!<br />');
       expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(false);

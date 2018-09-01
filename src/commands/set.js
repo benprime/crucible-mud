@@ -5,7 +5,7 @@ import lookCmd from './look';
 import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
 import { updateHUD } from '../core/hud';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 function setCurrency(character, amount) {
   character.currency = amount;

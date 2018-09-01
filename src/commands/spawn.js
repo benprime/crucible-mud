@@ -4,7 +4,7 @@ import Mob from '../models/mob';
 import itemData from '../data/itemData';
 import Item from '../models/item';
 import socketUtil from '../core/socketUtil';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export const spawn = (itemType) => {
   return new Item({

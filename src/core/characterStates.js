@@ -1,6 +1,4 @@
-import { commandCategories } from '../core/commandManager';
-
-
+import commandCategories from './commandCategories';
 
 export const stateMode = Object.freeze({
   RESTRICT: 'restrict',
@@ -11,6 +9,7 @@ export default {
   dragging: {
     name: 'DRAGGING', // HUD display
     commandCategories: [
+      commandCategories.basic,
       commandCategories.system,
       commandCategories.character,
       commandCategories.communication,
@@ -40,10 +39,11 @@ export default {
   sneaking: {
     name: 'SNEAKING', // HUD display
     commandCategories: [
+      commandCategories.basic,
       commandCategories.system,
       commandCategories.character,
     ],
     mode: stateMode.DEACTIVATE,
-    //message: '<span color="yellow">You are revealed!</span>',
+    message: '<span class="yellow">You are revealed!</span>',
   },
 };

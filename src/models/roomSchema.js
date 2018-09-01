@@ -273,7 +273,6 @@ RoomSchema.methods.getDesc = function (character, short) {
 
   if (!short) {
     output += `<span class="silver">${this.desc}</span>\n`;
-    character.toRoom(`${character.name} looks around.\n`);
   }
 
   let notHiddenItems = '';

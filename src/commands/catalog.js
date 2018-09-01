@@ -1,7 +1,7 @@
 import mobData from '../data/mobData';
 import itemData from '../data/itemData';
 import Area from '../models/area';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'catalog',

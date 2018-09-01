@@ -475,7 +475,7 @@ CharacterSchema.methods.processStates = function (command) {
 
   // if any state restricts the action, we will let that trump deactivating other states.
   // For this reason, we must check all states for action prevention first.
-  const restrictStates = this.states.filter(s => s.stateMode === stateMode.RESTRICT);
+  const restrictStates = this.states.filter(s => s.mode === stateMode.RESTRICT);
   for (let state of restrictStates) {
     if (!state.commandCategories.includes(command.category)) {
       if (state.message) this.output(state.message);
@@ -487,7 +487,7 @@ CharacterSchema.methods.processStates = function (command) {
 
   // multiple states can be deactivated in one action, so we must loop through
   // entire array and remove states as they become deactivated.
-  const deactivateStates = this.states.filter(s => s.stateMode === stateMode.DEACTIVATE);
+  const deactivateStates = this.states.filter(s => s.mode === stateMode.DEACTIVATE);
   for (let i = 0; i < deactivateStates.length; i++) {
     let state = deactivateStates[i];
 
@@ -495,9 +495,11 @@ CharacterSchema.methods.processStates = function (command) {
       if (state.message) this.output(state.message);
       deactivateStates.splice(i, 1);
       i--;
+      this.removeState(state);
     }
   }
 
+  this.updateHUD();
   return true;
 };
 

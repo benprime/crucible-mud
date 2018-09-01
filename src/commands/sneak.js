@@ -2,12 +2,16 @@
 
 import dice from '../core/dice';
 import characterStates from '../core/characterStates';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'sneak',
+  desc: 'Activates stealthy movement.',
+  category: commandCategories.stealth,
 
   patterns: [
     /^sneak$/i,
+    /^sn$/i,
   ],
 
   dispatch(socket) {

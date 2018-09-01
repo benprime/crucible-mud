@@ -2,7 +2,7 @@ import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import lookCmd from './look';
 import Room from '../models/room';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'teleport',
@@ -56,6 +56,8 @@ export default {
       const targetCharacter = autocomplete.character(character, teleportTo);
       if (!targetCharacter) {
         return Promise.reject('Target not found.');
+      } else if(targetCharacter === character) {
+        return Promise.reject('You cannot teleport to yourself.');
       }
       toRoomId = targetCharacter.roomId;
     }

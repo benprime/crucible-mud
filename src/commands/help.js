@@ -1,5 +1,6 @@
 import emoteData from '../data/emoteData';
-import { commandCategories, commands } from '../core/commandManager';
+import { commands } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 
 function commandListHelp(socket) {
@@ -7,7 +8,7 @@ function commandListHelp(socket) {
 
   for (let category of Object.values(commandCategories)) {
     output += `\n<span class="yellow">${category.name}</span>`;
-    if (category.silent) output += '<span class="silver"> [STEALTHY]</span>';
+    //if (category.silent) output += '<span class="silver"> [STEALTHY]</span>';
     if (category.restricted) output += '<span class="firebrick"> [RESTRICTED]</span>';
     output += '\n';
     output += '<span class="olive">===============================================================================</span>\n';

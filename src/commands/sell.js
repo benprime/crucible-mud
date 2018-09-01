@@ -1,7 +1,7 @@
 import Shop from '../models/shop';
 import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'sell',

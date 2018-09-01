@@ -1,5 +1,5 @@
 import socketUtil from '../core/socketUtil';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'stats',
@@ -51,8 +51,7 @@ export default {
     output += `<span class="cyan">Resistance: </span><span class="silver">${character.skills.resist}</span>\n`;
     output += '<span class="yellow">Active Buffs/Debuffs: </span>\n';
     if(character.sneakMode) {
-      output += '<span class="cyan">Sneaking </span>';
-      if(character.user.admin) output += `<span class="silver">(${character.sneakMode})</span>  `;
+      output += '\n<span class="cyan">Sneaking </span>';
     }
     return Promise.resolve(output);
   },

@@ -1,6 +1,6 @@
 import autocomplete from '../core/autocomplete';
 import Room from '../models/room';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'kick',

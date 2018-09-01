@@ -1,5 +1,5 @@
 import socketUtil from '../core/socketUtil';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'break',

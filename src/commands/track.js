@@ -1,6 +1,6 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'track',

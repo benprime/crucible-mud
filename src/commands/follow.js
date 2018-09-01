@@ -1,7 +1,7 @@
 import socketUtil from '../core/socketUtil';
 import utils from '../core/utilities';
 import autocomplete from '../core/autocomplete';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'follow',

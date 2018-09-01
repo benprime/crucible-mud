@@ -1,6 +1,6 @@
 import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'telepathy',

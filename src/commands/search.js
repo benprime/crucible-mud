@@ -1,7 +1,7 @@
 import Room from '../models/room';
 import dice from '../core/dice';
 import socketUtil from '../core/socketUtil';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'search',
@@ -13,12 +13,12 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket, socket.user.admin)
+    this.execute(socket.character)
       .then(response => socketUtil.output(socket, response))
       .catch(response => socketUtil.output(socket, response));
   },
 
-  execute(character, admin) {
+  execute(character) {
     const room = Room.getById(character.roomId);
     let hExits, hItems, totalHidden;
     let roomDC = 4; //base difficulty of rooms to reveal hidden things
@@ -31,7 +31,7 @@ export default {
     let output = '';
 
     //if admin, skip to reveal
-    if (!admin) {
+    if (!character.user.admin) {
 
       //calculate player search skill
       let diceResult = dice.roll(character.actionDie);

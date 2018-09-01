@@ -1,5 +1,5 @@
 import socketUtil from '../core/socketUtil';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 import Room from '../models/room';
 import characterStates from '../core/characterStates';
 import healthStatus from '../models/enums/healthStatuses';

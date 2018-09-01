@@ -1,7 +1,7 @@
 import Shop from '../models/shop';
 import itemData from '../data/itemData';
 import socketUtil from '../core/socketUtil';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'stock',

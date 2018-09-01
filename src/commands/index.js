@@ -37,6 +37,7 @@ const commandModules = [
   'search.js',
   'sell.js',
   'set.js',
+  'sneak.js',
   'spawner.js',
   'spawn.js',
   'stats.js',

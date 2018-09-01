@@ -1,30 +1,13 @@
 import socketUtil from './socketUtil';
 import emoteHandler from './emoteHandler';
+import characterStates from './characterStates';
+import commandCategories from './commandCategories';
 
 /**
  * Dictionary of successfully validated and loaded commands.
  */
 export const commands = {};
 let defaultCommand;
-
-/**
- * Command categories are used for organizations and to determine which
- * commands are "safe" for particular character states (ie, sneaking)
- */
-export const commandCategories = Object.freeze({
-  item: { name: 'Item Commands', silent: false, restricted: false },
-  combat: { name: 'Combat Commands', silent: false, restricted: false },
-  shop: { name: 'Shop Commands', silent: false, restricted: false },
-  door: { name: 'Door Commands', silent: false, restricted: false },
-  character: { name: 'Character Commands', silent: true, restricted: false },
-  system: { name: 'System Commands', silent: true, restricted: false },
-  communication: { name: 'Room Communication Commands', silent: false, restricted: false },
-  party: { name: 'Party Commands', silent: true, restricted: false },
-  basic: { name: 'Basic Commands', silent: true, restricted: false },
-  special: { name: 'Special Use Commands', silent: false, restricted: false },
-  world: { name: 'World Crafting Commands', silent: false, restricted: true },
-  admin: { name: 'Admin Commands', silent: false, restricted: true },
-});
 
 /**
  * 
@@ -89,8 +72,11 @@ function processDispatch(socket, input) {
     let match = matchPatterns(command.patterns, input);
     if (match) {
       if (!command.admin || socket.user.admin) {
-        // okay, we're about to call a method.
-        return command.dispatch(socket, match);
+        // check and see if the character is in a state that
+        // would prevent them from running this command.
+        if(socket.character.processStates(command)) {
+          return command.dispatch(socket, match);
+        }
       }
     }
   }
@@ -102,6 +88,11 @@ function processDispatch(socket, input) {
     let action, username;
     [, action, username] = match;
     if (emoteHandler.isValidAction(action)) {
+      
+      // emotes are ignored by most states, but in the case of sneaking,
+      // it reveals the player in the room.
+      socket.character.removeState(characterStates.sneaking);
+
       return emoteHandler.actionDispatcher(socket.character, action, username)
         .then(response => socketUtil.sendMessages(socket, response))
         .catch(response => socketUtil.output(socket, response));
@@ -109,6 +100,7 @@ function processDispatch(socket, input) {
   }
 
   // when a command is not found, it defaults to "say"
+  socket.character.processStates(defaultCommand);
   defaultCommand.execute(socket.character, input)
     .then(commandResult => socketUtil.sendMessages(socket, commandResult))
     .catch(error => socket.emit('output', { message: error }));

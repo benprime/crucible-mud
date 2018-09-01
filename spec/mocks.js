@@ -158,6 +158,7 @@ class SocketMock {
     this.user = user;
 
     this.character = getMockCharacter(username);
+    this.character.user = user;
 
     this.reset = function () {
       broadcastEmitSpy.mockClear();
@@ -169,10 +170,16 @@ class SocketMock {
   }
 }
 
-function getMockCharacter(username) {
+function getMockUser() {
+  const user = new User();
+  user.id = ObjectId().toString();
+  return user;
+}
+
+function getMockCharacter(name) {
   const character = new Character();
   character.break = jest.fn();
-  character.name = username ? username : 'TestUser';
+  character.name = name ? name : 'TestUser';
   character.roomId = ObjectId().toString();
   character.save = jest.fn().mockName('userSave');
   character.addExp = jest.fn().mockName('addExp');
@@ -187,6 +194,8 @@ function getMockCharacter(username) {
   character.currency = 0;
   character.sneakMode = jest.fn();
   character.states = [];
+
+  character.user = getMockUser();
 
   character.teleport = jest.fn().mockName('teleport').mockImplementation(() => Promise.resolve());
   character.stats = {
@@ -260,6 +269,7 @@ export default {
   getMockRoom,
   getMockMob,
   getMockCharacter,
+  getMockUser,
   IOMock,
   SocketMock,
   mobType,

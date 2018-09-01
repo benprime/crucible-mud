@@ -2,7 +2,7 @@ import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 import utils from '../core/utilities';
 import socketUtil from '../core/socketUtil';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'destroy',

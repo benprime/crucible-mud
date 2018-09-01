@@ -2,7 +2,7 @@ import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import { currencyToInt, currencyToString } from '../core/currency';
 import config from '../config';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 export default {
   name: 'offer',

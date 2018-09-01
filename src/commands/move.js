@@ -1,5 +1,5 @@
 import lookCommand from './look';
-import { commandCategories } from '../core/commandManager';
+import commandCategories from '../core/commandCategories';
 
 const commands = [
   /^go\s+(\w+)$/i,

@@ -137,7 +137,7 @@ CharacterSchema.methods.readyToAttack = function (now) {
 };
 
 CharacterSchema.methods.attackroll = () => /*
-/* UserSchema.methods.attackroll = weapon => 
+/* UserSchema.methods.attackroll = weapon =>
 var wdParts = weapon.damage.spltest(" ");
 
 if(!weapon) {
@@ -265,7 +265,9 @@ CharacterSchema.methods.die = function () {
 
 CharacterSchema.methods.updateHUD = function () {
   const socket = socketUtil.getSocketByCharacterId(this.id);
-  updateHUD(socket);
+  if(socket) {
+    updateHUD(socket);
+  }
 };
 
 CharacterSchema.methods.incapacitate = function () {
@@ -309,13 +311,9 @@ CharacterSchema.methods.move = function (dir) {
 
     if (socket) {
       const displayDir = Room.shortToLong(dir);
-      if (this.isIncapacitated()) {
-        socket.emit('output', { message: `You are dragged ${displayDir}...` });
-
-      } else {
-        socket.emit('output', { message: `You move ${displayDir}...` });
-
-      }
+      if (this.isIncapacitated()) this.output(`You are dragged ${displayDir}...`);
+      else if (this.sneakMode()) this.output(`You sneak ${displayDir}...`);
+      else this.output(`You move ${displayDir}...`);
     }
 
     fromRoom.leave(this, dir, socket);
@@ -469,15 +467,15 @@ CharacterSchema.methods.sneakMode = function () {
 
 /**
  * Checks if a command being executed affects a character's current states.
- * @param {Character} character 
- * @param {Object} command 
+ * @param {Character} character
+ * @param {Object} command
  * @returns {Boolean} - Whether or not the command can continue.
  */
 CharacterSchema.methods.processStates = function (command) {
 
   // if any state restricts the action, we will let that trump deactivating other states.
   // For this reason, we must check all states for action prevention first.
-  const restrictStates = this.states.filter(s => s.stateMode === stateMode.RESTRICT);
+  const restrictStates = this.states.filter(s => s.mode === stateMode.RESTRICT);
   for (let state of restrictStates) {
     if (!state.commandCategories.includes(command.category)) {
       if (state.message) this.output(state.message);
@@ -489,7 +487,7 @@ CharacterSchema.methods.processStates = function (command) {
 
   // multiple states can be deactivated in one action, so we must loop through
   // entire array and remove states as they become deactivated.
-  const deactivateStates = this.states.filter(s => s.stateMode === stateMode.DEACTIVATE);
+  const deactivateStates = this.states.filter(s => s.mode === stateMode.DEACTIVATE);
   for (let i = 0; i < deactivateStates.length; i++) {
     let state = deactivateStates[i];
 
@@ -497,9 +495,11 @@ CharacterSchema.methods.processStates = function (command) {
       if (state.message) this.output(state.message);
       deactivateStates.splice(i, 1);
       i--;
+      this.removeState(state);
     }
   }
 
+  this.updateHUD();
   return true;
 };
 

@@ -53,13 +53,13 @@ db.once('open', () => {
       // todo: remove state logic when there is a login process
       switch (socket.state) {
         case config.STATES.MUD:
-          commands.Dispatch(socket, data.value);
+          commands.dispatch(socket, data.value);
           break;
         case config.STATES.LOGIN_USERNAME:
-          loginUtil.LoginUsername(socket, data);
+          loginUtil.loginUsername(socket, data);
           break;
         case config.STATES.LOGIN_PASSWORD:
-          loginUtil.LoginPassword(socket, data).then(() => {
+          loginUtil.loginPassword(socket, data).then(() => {
             const room = Room.getById(socket.character.roomId);
             return room.getDesc(socket.character, false).then(response => {
               socketUtil.output(socket, response);

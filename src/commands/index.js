@@ -58,7 +58,7 @@ commandManager.loadCommands(commandModules);
 commandManager.setDefaultCommand('say');
 
 export default {
-  Dispatch(socket, input) {
+  dispatch(socket, input) {
     try {
       commandManager.processDispatch(socket, input)
         .catch(err => globalErrorHandler(err));

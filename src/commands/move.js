@@ -33,14 +33,14 @@ export default {
     /^down$/i,
   ],
 
-  parse(character, match) {
+  parseParams(character, match) {
     let dirInput = match.length > 1 ? match[1] : match[0];
     let dir = getDirection(dirInput);
     return [character, dir];
   },
 
   dispatch(socket, match) {
-    const params = this.parse(socket.character, match);
+    const params = this.parseParams(socket.character, match);
     return this.execute.apply(this, params);
   },
 

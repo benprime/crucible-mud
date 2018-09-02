@@ -6,7 +6,7 @@ import User from '../models/user';
 import Character from '../models/character';
 
 export default {
-  LoginUsername(socket, { value }) {
+  loginUsername(socket, { value }) {
     if (socket.state == config.STATES.LOGIN_USERNAME) {
       Character.findByName(value).then(character => {
         if (!character) {
@@ -22,7 +22,7 @@ export default {
     }
   },
 
-  LoginPassword(socket, { value }) {
+  loginPassword(socket, { value }) {
     if (socket.state == config.STATES.LOGIN_PASSWORD) {
 
       return User.findOne({ email: socket.tempEmail, password: value }).then(user => {

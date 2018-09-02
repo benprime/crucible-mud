@@ -7,7 +7,7 @@ export default {
   name: 'follow',
   desc: 'accept an invite to follow another player',
   category: commandCategories.party,
-  
+
   patterns: [
     /^follow\s+(\w+)$/i,
     /^follow\s.+$/i,
@@ -16,8 +16,7 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1])
-      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+    return this.execute(socket.character, match[1])
       .catch(response => socketUtil.output(socket, response));
   },
 
@@ -37,27 +36,23 @@ export default {
 
     character.leader = invitingCharacter.id;
 
-    const charMessages = [];
-
     // re-assign following sockets to new leader
     let followers = socketUtil.getFollowers(character.id);
     followers.forEach(c => {
       c.leader = invitingCharacter.id;
-      charMessages.push({ charId: c.id, message: `<span class="yellow">Now following ${invitingCharacter.name}</span>` });
+      c.output(`<span class="yellow">Now following ${invitingCharacter.name}</span>`);
     });
 
     utils.removeItem(character.partyInvites, invitingCharacter.id);
 
-    charMessages.push({ charId: character.id, message: `You are now following ${username}.` });
-    charMessages.push({ charId: invitingCharacter.id, message: `${character.name} has started following you.` });
+    character.output(`You are now following ${username}.`);
+    invitingCharacter.output(`${character.name} has started following you.`);
 
-    return Promise.resolve({
-      charMessages: charMessages,
-    });
+    return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     const output = '<span class="mediumOrchid">follow <span class="purple">|</span> join &lt;player&gt; </span><span class="purple">-</span> Invite a player to follow you.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

@@ -15,8 +15,7 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1])
-      .then(response => socketUtil.sendMessages(socket, response))
+    return this.execute(socket.character, match[1])
       .catch(response => socketUtil.output(socket, response));
   },
 
@@ -33,19 +32,16 @@ export default {
     return targetCharacter.teleport(character.roomId).then(() => {
       lookCmd.execute(targetCharacter);
 
-      return Promise.resolve({
-        roomMessages: [
-          { roomId: oldRoomId, message: `${targetCharacter.name} vanishes!` },
-          { roomId: character.roomId, message: `${targetCharacter.name} appears out of thin air!`, exclude: [targetCharacter.id] },
-        ],
-        charMessages: [{ charId: targetCharacter.id, message: `You were summoned to ${character.name}'s room!` }],
-      });
+      socketUtil.roomMessage(oldRoomId, `${targetCharacter.name} vanishes!`);
+      character.toRoom(`${targetCharacter.name} appears out of thin air!`, [targetCharacter.id]);
+      targetCharacter.output(`You were summoned to ${character.name}'s room!`);
+      return Promise.resolve();
     });
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">summon &lt;username&gt; </span><span class="purple">-</span> Summon &lt;player&gt; to current room.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

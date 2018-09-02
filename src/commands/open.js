@@ -6,16 +6,15 @@ export default {
   name: 'open',
   desc: 'open a door',
   category: commandCategories.door,
-  
+
   patterns: [
     /^open\s+(\w+)$/i,
     /^op\s+(\w+)$/i,
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1])
-      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
-      .catch(error => socket.emit('output', { message: error }));
+    return this.execute(socket.character, match[1])
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, dir) {
@@ -42,18 +41,13 @@ export default {
 
     exit.closed = false;
 
-    return Promise.resolve({
-      charMessages: [
-        { charId: character.id, message: 'Door opened.' },
-      ],
-      roomMessages: [
-        { roomId: character.roomId, message: `${character.name} opens the door to the ${Room.shortToLong(d)}.`, exclude: [character.id] },
-      ],
-    });
+    character.output('Door opened.');
+    character.toRoom(`${character.name} opens the door to the ${Room.shortToLong(d)}.`, [character.id]);
+    return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     const output = '<span class="mediumOrchid">open &lt;direction&gt; </span><span class="purple">-</span> Open a door in the given direction.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

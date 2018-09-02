@@ -46,7 +46,7 @@ export default {
               return Promise.reject('No character associated with this user.');
             }
 
-            // databse objects
+            // database objects
             socket.character = character;
             socket.character.user = user;
 

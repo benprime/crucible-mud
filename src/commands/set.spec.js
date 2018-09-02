@@ -34,10 +34,10 @@ describe('set', () => {
       test('should update room in room cache and room database object on success', () => {
         expect.assertions(3);
 
-        return sut.execute(socket.character, 'room', 'name', 'new name value').then(response => {
+        return sut.execute(socket.character, 'room', 'name', 'new name value').then(() => {
           expect(mockRoom.name).toBe('new name value');
           expect(mockRoom.save).toHaveBeenCalled();
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser has altered the fabric of reality.', exclude: [socket.character.id] });
+          expect(socket.character.toRoom).toHaveBeenCalledWith('TestUser has altered the fabric of reality.', [socket.character.id]);
         });
 
       });

@@ -1,10 +1,10 @@
 import { mockGetRoomSockets, mockGetSocketByCharacterId } from '../core/socketUtil';
 import Mob from '../models/mob';
 import mobData from '../data/mobData';
-import sutModel from '../models/room';
 import mocks from '../../spec/mocks';
 import { Types } from 'mongoose';
 const { ObjectId } = Types;
+import sutModel from '../models/room';
 
 jest.mock('../core/socketUtil');
 
@@ -229,35 +229,58 @@ describe('room model', () => {
         });
       });
 
-
       describe('successful creation', () => {
+        let resultRoom;
 
         beforeEach(() => {
           room.save = jest.fn(() => Promise.resolve(room));
-          const resultRoom = mocks.getMockRoom();
+          resultRoom = mocks.getMockRoom();
           resultRoom.save = jest.fn(() => Promise.resolve(resultRoom));
-          sutModel.instantiate = jest.fn().mockReturnValue(resultRoom);
-        });
-        afterEach(() => {
-          sutModel.instantiate.mockRestore();
         });
 
         test('should create a new room if room does not already exist in target direction', () => {
 
-          return room.createRoom('s').then(room => {
-            const exit = room.exits.find(({ dir }) => dir === 's');
+          return room.createRoom('s').then(newRoom => {
+            // verify target room door
+            const roomExit = room.exits.find(({ dir }) => dir === 's');
+            expect(roomExit).not.toBeUndefined();
+            expect(roomExit.roomId).toBe(newRoom.id);
 
-            expect(exit).not.toBeUndefined();
-            expect(exit.roomId in sutModel.roomCache).toBe(true);
+            // verify this door
+            const newRoomExit = newRoom.exits.find(({ dir }) => dir === 'n');
+            expect(newRoomExit).not.toBeUndefined();
+            expect(newRoomExit.roomId).toBe(room.id);
+
+            // verify cache
+            expect(newRoom.id in sutModel.roomCache).toBe(true);
           });
         });
 
         test('should not load new room to cache when creating a door in a direction where room exists', () => {
-          return room.createRoom('s').then(updateRoom => {
-            const exit = updateRoom.exits.find(({ dir }) => dir === 's');
+          resultRoom.exits = [];
+          room.x = 5;
+          room.y = 5;
+          room.z = 5;
+          const targetCoords = room.dirToCoords('s');
+          resultRoom.x = targetCoords.x;
+          resultRoom.y = targetCoords.y;
+          resultRoom.z = targetCoords.z;
+          sutModel.roomCache = {};
+          sutModel.roomCache[resultRoom.id] = resultRoom;
 
-            expect(exit).not.toBeUndefined();
-            expect(updateRoom.id in sutModel.roomCache).toBe(false);
+
+          return room.createRoom('s').then(updatedTargetRoom => {
+            // verify target room door
+            const roomExit = room.exits.find(({ dir }) => dir === 's');
+            expect(roomExit).not.toBeUndefined();
+            expect(roomExit.roomId).toBe(updatedTargetRoom.id);
+
+            // verify this door
+            const targetRoomExit = updatedTargetRoom.exits.find(({ dir }) => dir === 'n');
+            expect(targetRoomExit).not.toBeUndefined();
+            expect(targetRoomExit.roomId).toBe(room.id);
+
+            expect(updatedTargetRoom.id in sutModel.roomCache).toBe(false);
           });
         });
 

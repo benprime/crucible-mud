@@ -6,6 +6,7 @@ import Area from './area';
 import SpawnerSchema from './spawnerSchema';
 import socketUtil from '../core/socketUtil';
 import { indefiniteArticle } from '../core/language';
+//import Room from './room';
 
 const roomCache = {};
 
@@ -13,21 +14,31 @@ const roomCache = {};
 // Room Schema
 //============================================================================
 const RoomSchema = new mongoose.Schema({
-  name: String,
-  desc: String,
+  name: {
+    type: String,
+    required: true,
+  },
+  desc: {
+    type: String,
+    required: true,
+  },
   alias: String,
   areaId: String,
   x: {
     type: Number,
-    default: 0,
+    required: true,
   },
   y: {
     type: Number,
-    default: 0,
+    required: true,
   },
   z: {
     type: Number,
-    default: 0,
+    required: true,
+  },
+  worldId: {
+    type: String,
+    required: true,
   },
 
   exits: [ExitSchema],
@@ -36,7 +47,7 @@ const RoomSchema = new mongoose.Schema({
   inventory: [ItemSchema],
 }, { usePushEach: true });
 
-RoomSchema.index({ x: 1, y: 1, z: 1 }, { unique: true });
+RoomSchema.index({ worldId: 1, x: 1, y: 1, z: 1 }, { unique: true });
 
 //============================================================================
 // Direction Support
@@ -132,13 +143,6 @@ RoomSchema.statics.populateRoomCache = function () {
   });
 };
 
-/**
- * Factory method to make it possible to mock the constructor.
- */
-RoomSchema.statics.instantiate = function (obj) {
-  return new this(obj);
-};
-
 //============================================================================
 // Instance methods
 //============================================================================
@@ -166,38 +170,38 @@ RoomSchema.methods.userInRoom = function (username) {
 };
 
 RoomSchema.methods.createRoom = function (dir) {
-  const currentRoom = this;
   if (!this.constructor.validDirectionInput(dir)) {
     return Promise.reject('Invalid direction');
   }
 
-  let exit = currentRoom.getExit(dir);
+  let exit = this.getExit(dir);
   if (exit) {
     return Promise.reject('Exit already exists');
   }
 
   // see if room exists at the coords
-  const targetCoords = currentRoom.dirToCoords(dir);
+  const targetCoords = this.dirToCoords(dir);
   let targetRoom = Object.values(roomCache).find(r =>
     r.x === targetCoords.x
     && r.y === targetCoords.y
     && r.z === targetCoords.z);
 
   const oppDir = this.constructor.oppositeDirection(dir);
-
   if (targetRoom) {
-    // room already exists, just link the rooms with an exit
-    currentRoom.addExit(dir, targetRoom.id);
-    targetRoom.addExit(oppDir, currentRoom.id);
-    currentRoom.save(err => { if (err) throw err; });
+    // room already exists, just link the rooms with a new exit in each room
+    this.addExit(dir, targetRoom.id);
+    targetRoom.addExit(oppDir, this.id);
+    this.save(err => { if (err) throw err; });
     targetRoom.save(err => { if (err) throw err; });
     return Promise.resolve(targetRoom);
   } else {
-    // if room does not exist, create a new room
-    // with an exit to this room
-    targetRoom = this.constructor.instantiate({
+    // if room does not exist, create a new room with an exit to this room
+    const currentRoom = this;
+
+    const newRoom = new this.constructor({
       name: 'Default Room Name',
       desc: 'Room Description',
+      worldId: currentRoom.worldId,
       x: targetCoords.x,
       y: targetCoords.y,
       z: targetCoords.z,
@@ -207,21 +211,22 @@ RoomSchema.methods.createRoom = function (dir) {
       }],
     });
 
-    if (currentRoom.area) {
-      targetRoom.area = currentRoom.area;
+    // state tracking member (not included in schema)
+    newRoom.tracks = [];
+    newRoom.mobs = [];
+    roomCache[newRoom.id] = newRoom;
+
+    if (this.area) {
+      newRoom.area = this.area;
     }
 
     // update this room with exit to new room
-    return targetRoom.save().then(updatedRoom => {
+    this.addExit(dir, newRoom.id);
 
-      // add new room to room cache
-      targetRoom.mobs = [];
-      roomCache[updatedRoom.id] = updatedRoom;
+    this.save();
+    newRoom.save();
 
-      currentRoom.addExit(dir, updatedRoom.id);
-
-      return currentRoom.save().catch(err => { throw err; });
-    }).catch(err => { throw err; });
+    return Promise.resolve(newRoom);
   }
 };
 
@@ -324,6 +329,7 @@ RoomSchema.methods.getDesc = function (character, short) {
     output += `<span class="gray">Room ID: ${this.id}</span>\n`;
     output += `<span class="gray">Room coords: ${this.x}, ${this.y}</span>\n`;
     if (this.alias) output += `<span class="gray">Alias: ${this.alias}</span>\n`;
+    //output += '<pre>' + JSON.stringify(this, null, 2) + '</pre>';
   }
 
   return Promise.resolve(output);

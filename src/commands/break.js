@@ -12,33 +12,26 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket.character)
-      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
-      .catch(error => socket.emit('output', { message: error }));
+    return this.execute(socket.character)
+      .catch(error => socket.character.output(error));
   },
 
   execute(character) {
 
-    const charMessages = [];
-    const roomMessages = [];
-
-    if(character.attackTarget) {
-      charMessages.push({ charId: character.id, message: '<span class="olive">*** Combat Disengaged ***</span>' });
-      roomMessages.push({ roomId: character.roomId, message: `${character.name} breaks off his attack.`, exclude: [character.id] });
+    if (character.attackTarget) {
+      character.output('<span class="olive">*** Combat Disengaged ***</span>');
+      character.toRoom(`${character.name} breaks off his attack.`, [character.id]);
     }
 
     character.break();
 
-    return Promise.resolve({
-      charMessages: charMessages,
-      roomMessages: roomMessages,
-    });
+    return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">break <span class="purple">|</span> br</span> <span class="purple">-</span> End combat.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 
 };

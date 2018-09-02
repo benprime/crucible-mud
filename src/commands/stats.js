@@ -12,7 +12,7 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket)
+    return this.execute(socket)
       .then(output => socketUtil.output(socket, output));
   },
 
@@ -56,9 +56,9 @@ export default {
     return Promise.resolve(output);
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">stats </span><span class="purple">-</span> Display current character stats.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

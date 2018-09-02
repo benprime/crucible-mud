@@ -16,17 +16,15 @@ function lookDir(character, { exits }, dir) {
 
   const lookRoom = Room.getById(exit.roomId);
   return lookRoom.getDesc(character, false).then(output => {
-    const charOuput = `You look to the ${Room.shortToLong(dir)}...\n` + output;
-    const roomOutput = `${character.name} looks to the ${Room.shortToLong(dir)}.\n`;
-    return Promise.resolve({
-      charMessages: [
-        { charId: character.id, message: charOuput },
-      ],
-      roomMessages: [
-        { roomId: character.roomId, message: roomOutput, exclude: [character.id] },
-        { roomId: lookRoom.id, message: `<span class="yellow">${character.name} peaks in from the ${Room.shortToLong(Room.oppositeDirection(dir))}.</span>`, exclude: [character.id] },
-      ],
-    });
+
+    //const roomOutput = `${character.name} looks to the ${Room.shortToLong(dir)}.\n`;
+    //character.toRoom(roomOutput, [character.id]);
+
+    const charOutput = `You look to the ${Room.shortToLong(dir)}...\n` + output;
+    character.output(charOutput);
+    socketUtil.roomMessage(lookRoom.id, `<span class="yellow">${character.name} peaks in from the ${Room.shortToLong(Room.oppositeDirection(dir))}.</span>`, [character.id]);
+
+    return Promise.resolve();
   });
 }
 
@@ -50,22 +48,27 @@ export default {
       lookTarget = match[1];
     }
     const short = (match[0] === '');
-    this.execute(socket.character, short, lookTarget)
-      .then(response => socketUtil.sendMessages(socket, response))
-      .catch(error => socket.emit('output', { message: error }));
+    return this.execute(socket.character, short, lookTarget)
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, short, lookTarget) {
 
     if (!lookTarget) {
       const room = Room.getById(character.roomId);
-      return room.getDesc(character, short);
+      return room.getDesc(character, short).then(output => {
+        character.output(output);
+        return Promise.resolve();
+      });
     }
 
     lookTarget = lookTarget.toLowerCase();
 
     if (lookTarget === 'me' || lookTarget === 'self') {
-      return character.getDesc();
+      return character.getDesc().then(output => {
+        character.output(output);
+        return Promise.resolve();
+      });
     }
 
     if (Room.validDirectionInput(lookTarget)) {
@@ -80,11 +83,11 @@ export default {
     return acResult.item.getDesc(character);
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">l <span class="purple">|</span> look </span><span class="purple">-</span> Display info about current room.<br />';
     output += '<span class="mediumOrchid">look &lt;item/mob name&gt; </span><span class="purple">-</span> Display detailed info about &lt;item/mob&gt;.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 
 };

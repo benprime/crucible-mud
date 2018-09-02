@@ -65,7 +65,7 @@ function getMockRoom(roomId) {
   room.createRoom = jest.fn(() => Promise.resolve({}));
   room.getExit = jest.fn().mockName('getExit').mockImplementation((dir) => room.exits.find(r => r.dir === dir));
   room.save = jest.fn().mockName('save').mockImplementation(() => Promise.resolve(room));
-  room.getDesc = jest.fn().mockName('getDesc').mockImplementation(() => Promise.resolve());
+  room.getDesc = jest.fn().mockName('getDesc').mockImplementation(() => Promise.resolve('mocked room description'));
   room.getCharacters = jest.fn();
   room.getCharacterNames = jest.fn().mockName('getCharacterNames');
   room.userInRoom = jest.fn().mockName('userInRoom');

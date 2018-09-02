@@ -13,10 +13,10 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 2) {
-      return this.help(socket);
+      return this.help(socket.character);
     }
 
-    this.execute(socket.character, match[1])
+    return this.execute(socket.character, match[1])
       .then(output => socket.character.output(output))
       .catch(output => socket.character.output(output));
   },
@@ -38,9 +38,9 @@ export default {
     return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">uninvite &lt;player&gt;</span> <span class="purple">-</span> Remove player from a party that you are leading.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

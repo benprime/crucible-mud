@@ -50,10 +50,10 @@ describe('destroy', () => {
         expect.assertions(3);
 
         // act
-        return sut.execute(socket.character, 'mob', 'mob name').then(response => {
+        return sut.execute(socket.character, 'mob', 'mob name').then(() => {
           // assert
-          expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Mob successfully destroyed.' });
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `TestUser erases ${mob.displayName} from existence!`, exclude: [socket.character.id] });
+          expect(socket.character.output).toHaveBeenCalledWith('Mob successfully destroyed.');
+          expect(socket.character.toRoom).toHaveBeenCalledWith(`TestUser erases ${mob.displayName} from existence!`, [socket.character.id]);
           expect(mockRoom.mobs).toHaveLength(0);
         });
       });

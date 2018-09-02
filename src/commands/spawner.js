@@ -32,7 +32,7 @@ setInterval(() => {
       room.spawnTimer = now;
 
       room.mobs.push(mob);
-      global.io.to(room.id).emit('output', { message: `<span class="yellow">A ${mob.displayName} appears!</span>` });
+      socketUtil.roomMessage(room.id, `<span class="yellow">A ${mob.displayName} appears!</span>`);
     }
 
   });
@@ -57,7 +57,7 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1], match[2])
+    return this.execute(socket.character, match[1], match[2])
       .then(response => socketUtil.output(socket, response))
       .catch(response => socketUtil.output(socket, response));
   },
@@ -131,7 +131,7 @@ export default {
     }
   },
 
-  help(socket) {
+  help(character) {
     let output = '<span class="mediumOrchid">spawner </span><span class="purple">-</span> Show spawner settings for current room.<br />';
     output += '<span class="mediumOrchid">spawner add &lt;mob type&gt; </span><span class="purple">-</span> Add creature to the current room\'s spawner.<br />';
     output += '<span class="mediumOrchid">spawner remove &lt;mob type&gt; </span><span class="purple">-</span> Remove a creature from the current room\'s spawner.<br />';
@@ -140,6 +140,6 @@ export default {
     output += '<span class="mediumOrchid">spawner clear </span><span class="purple">-</span> Clear all spawner settings for this room.<br />';
     output += '<span class="mediumOrchid">spawner copy </span><span class="purple">-</span> Copy the current room\'s spawner settings.<br />';
     output += '<span class="mediumOrchid">spawner paste </span><span class="purple">-</span> Paste a room\'s spawner settings.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

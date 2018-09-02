@@ -8,15 +8,15 @@ export default {
   name: 'list',
   desc: 'list item available for purchase in a shop',
   category: commandCategories.shop,
-  
+
   patterns: [
     /^list$/i,
     /^ls$/i,
   ],
 
   dispatch(socket) {
-    this.execute(socket.character)
-      .then(output => socket.emit('output', { message: output, pre: true }))
+    return this.execute(socket.character)
+      .then(output => socket.character.output(output, { pre: true }))
       .catch(output => socketUtil.output(socket, output));
   },
 
@@ -45,8 +45,8 @@ export default {
     return Promise.resolve(`<pre>${table.toString()}</pre>`);
   },
 
-  help(socket) {
+  help(character) {
     const output = '<span class="mediumOrchid">list </span><span class="purple">-</span> List store inventory.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

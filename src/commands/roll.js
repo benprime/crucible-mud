@@ -17,9 +17,9 @@ export default {
     if (match.length > 1) {
       dieType = match[1];
     }
-    this.execute(socket.character, dieType)
+    return this.execute(socket.character, dieType)
       .then(output => socketUtil.output(socket, output))
-      .catch(error => socket.emit('output', { message: error }));
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, dieType) {
@@ -38,10 +38,10 @@ export default {
     return Promise.resolve(output);
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">roll</span> <span class="purple">-</span> Rolls a players Action Die and displays result.<br />';
     output += '<span class="mediumOrchid">roll &lt;die type&gt;</span> <span class="purple">-</span> Rolls &lt;die type&gt; and displays result.  Example: "Roll 1d6" would roll 1 6-sided die.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

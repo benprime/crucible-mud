@@ -30,7 +30,7 @@ describe('take', () => {
   //   test('should output message if multiple matches', () => {
   //     sut.dispatch(socket, 'take', 'aItem', 'anotherItem');
 
-  //     expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'What do you want to take?' });
+  //     expect(socket.character.output).toHaveBeenCalledWith('What do you want to take?' )
   //   });
   // });
 
@@ -86,13 +86,13 @@ describe('take', () => {
       mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
       expect.assertions(5);
 
-      return sut.execute(socket.character, 'aItem').then(response => {
+      return sut.execute(socket.character, 'aItem').then(() => {
         expect(mockRoom.inventory).not.toContain(item);
         // THIS IS RAD
         expect(socket.character.inventory).toContainEqual(expect.objectContaining({ name: 'aItem' }));
         expect(socket.character.save).toHaveBeenCalled();
-        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `${item.name} taken.` });
-        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} takes ${item.name}.`, exclude: [socket.character.id] });
+        expect(socket.character.output).toHaveBeenCalledWith(`${item.name} taken.`);
+        expect(socket.character.toRoom).toHaveBeenCalledWith(`${socket.character.name} takes ${item.name}.`, [socket.character.id]);
       });
 
     });
@@ -100,9 +100,9 @@ describe('take', () => {
 
   describe('help', () => {
     test('outputs message', () => {
-      sut.help(socket);
+      sut.help(socket.character);
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: '<span class="mediumOrchid">take &lt;item name&gt </span><span class="purple">-</span> Move &lt;item&gt; into inventory. <br />' });
+      expect(socket.character.output).toHaveBeenCalledWith('<span class="mediumOrchid">take &lt;item name&gt </span><span class="purple">-</span> Move &lt;item&gt; into inventory. <br />');
     });
   });
 });

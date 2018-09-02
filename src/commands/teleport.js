@@ -11,30 +11,36 @@ export default {
   admin: true,
 
   patterns: [
+    // player
     /^teleport\s+(\w+)$/i,
-    /^teleport\s+(\d+)\s(\d+)\s?(\d+)?$/i,
     /^tele\s+(\w+)$/i,
+
+    // room coordinates
+    /^teleport\s+(\d+)\s(\d+)\s?(\d+)?$/i,
     /^tele\s+(\d+)\s(\d+)\s?(\d+)?$/i,
+
+    // catch all
+    /^tele\s+(.*)$/i,
+    /^teleport\s+(.*)$/i,
   ],
 
   dispatch(socket, match) {
     // teleport to room coordinates
-    let promise;
+    let param;
     if (match.length >= 3) {
-      promise = this.execute(socket.character, {
+      param = {
         x: match[1],
         y: match[2],
         z: match[3] || 0,
-      });
+      };
 
     } else {
-      promise = this.execute(socket.character, match[1]);
+      param = match[1];
     }
 
-    promise
-      .then(response => socketUtil.sendMessages(socket, response))
-      .then(() => lookCmd.execute(socket.character, false).then(output => socketUtil.sendMessages(socket, output)))
-      .catch(err => socketUtil.sendMessages(socket, err));
+    return this.execute(socket.character, param)
+      .then(() => lookCmd.execute(socket.character, false))
+      .catch(err => socket.output(err));
   },
 
   execute(character, teleportTo) {
@@ -65,10 +71,10 @@ export default {
     return character.teleport(toRoomId);
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">teleport &lt;room ID&gt;</span><span class="purple">-</span> Teleport to &lt;room&gt;.<br />';
     output += '<span class="mediumOrchid">teleport &lt;username&gt;</span><span class="purple">-</span> Teleport to &lt;player&gt;.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

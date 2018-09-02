@@ -11,9 +11,9 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket)
+    return this.execute(socket)
       .then(output => socketUtil.output(socket, output))
-      .catch(error => socket.emit('output', { message: error }));
+      .catch(error => socket.character.output(error));
   },
 
   execute(character) {
@@ -31,9 +31,9 @@ export default {
     return Promise.resolve(output);
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">keys </span><span class="purple">-</span> Display keys on your key ring.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

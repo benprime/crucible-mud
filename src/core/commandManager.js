@@ -74,7 +74,7 @@ function processDispatch(socket, input) {
       if (!command.admin || socket.user.admin) {
         // check and see if the character is in a state that
         // would prevent them from running this command.
-        if(socket.character.processStates(command)) {
+        if (socket.character.processStates(command)) {
           return command.dispatch(socket, match);
         }
       }
@@ -88,7 +88,7 @@ function processDispatch(socket, input) {
     let action, username;
     [, action, username] = match;
     if (emoteHandler.isValidAction(action)) {
-      
+
       // emotes are ignored by most states, but in the case of sneaking,
       // it reveals the player in the room.
       socket.character.removeState(characterStates.sneaking);
@@ -101,7 +101,7 @@ function processDispatch(socket, input) {
 
   // when a command is not found, it defaults to "say"
   socket.character.processStates(defaultCommand);
-  defaultCommand.execute(socket.character, input)
+  return defaultCommand.execute(socket.character, input)
     .then(commandResult => socketUtil.sendMessages(socket, commandResult))
     .catch(error => socket.emit('output', { message: error }));
 }

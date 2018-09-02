@@ -265,7 +265,7 @@ CharacterSchema.methods.die = function () {
 
 CharacterSchema.methods.updateHUD = function () {
   const socket = socketUtil.getSocketByCharacterId(this.id);
-  if(socket) {
+  if (socket) {
     updateHUD(socket);
   }
 };
@@ -325,6 +325,7 @@ CharacterSchema.methods.move = function (dir) {
       const drag = socketUtil.getCharacterById(this.dragging);
       followers.push(drag);
     }
+
     followers.forEach(c => {
       c.move(dir);
     });
@@ -368,11 +369,16 @@ CharacterSchema.methods.teleport = function (roomTarget) {
   });
 };
 
-CharacterSchema.methods.output = function (msg) {
+CharacterSchema.methods.output = function (msg, options) {
   const socket = socketUtil.getSocketByCharacterId(this.id);
   if (socket) {
-    socket.emit('output', { message: msg });
+    let payload = { message: msg };
+    if(options) {
+      Object.assign(payload, options);
+    }
+    socket.emit('output', payload);
   }
+  return msg;
 };
 
 CharacterSchema.methods.toRoom = function (msg, exclude) {
@@ -425,6 +431,14 @@ CharacterSchema.methods.status = function () {
     status = `<span class="olive">${healthStatus.LIGHTLY_WOUNDED}</span>`;
   }
   return status;
+};
+
+CharacterSchema.methods.gossip = function (msg) {
+  let safeMessage = msg.replace(/</g, '&lt;');
+  safeMessage = safeMessage.replace(/>/g, '&gt;');
+  const output = `<span class="silver">${this.name} gossips: </span><span class="mediumOrchid">${safeMessage}</span>`;
+  global.io.to('gossip').emit('output', { message: output });
+  return Promise.resolve(output);
 };
 
 //============================================================================

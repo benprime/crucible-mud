@@ -15,11 +15,10 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 3) {
-      this.help(socket);
-      return;
+      return this.help(socket.character);
     }
-    this.execute(socket.character, match[1], match[2])
-      .catch(error => socket.emit('output', { message: error }));
+    return this.execute(socket.character, match[1], match[2])
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, itemName, dir) {
@@ -37,9 +36,9 @@ export default {
     return room.kick(character, item, dir);
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">kick &lt;item name&gt; &lt;dir&gt;</span><span class="purple">-</span> Kick &lt;item&gt; from this room to the direction specified in &lt;dir&gt;<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

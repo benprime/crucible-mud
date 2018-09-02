@@ -28,8 +28,8 @@ describe('spawn', () => {
         return sut.execute(socket.character, 'mob', 'kobold').then(response => {
           expect(mockRoom.mobs).toHaveLength(1);
           expect(mockRoom.mobs[0].displayName.endsWith('kobold sentry')).toBeTruthy();
-          expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Summoning successful.' });
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `TestUser waves his hand and a ${mockRoom.mobs[0].displayName} appears!`, exclude: [socket.character.id]});
+          expect(socket.character.output).toHaveBeenCalledWith('Summoning successful.')
+          expect(socket.character.toRoom).toHaveBeenCalledWith(`TestUser waves his hand and a ${mockRoom.mobs[0].displayName} appears!`, [socket.character.id]);
           expect(mockRoom.save).not.toHaveBeenCalled();
         });
       });
@@ -48,8 +48,8 @@ describe('spawn', () => {
         return sut.execute(socket.character, 'item', 'short sword').then(response => {
           expect(socket.character.inventory).toHaveLength(1);
           expect(socket.character.inventory[0].name).toBe('short sword');
-          expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Item created.' });
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser emits a wave of energy!', exclude: [socket.character.id] });
+          expect(socket.character.output).toHaveBeenCalledWith('Item created.')
+          expect(socket.character.toRoom).toHaveBeenCalledWith('TestUser emits a wave of energy!', [socket.character.id]);
           expect(socket.character.save).toHaveBeenCalled();
         });
       });

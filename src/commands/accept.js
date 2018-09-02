@@ -16,13 +16,11 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 2) {
-      this.help(socket);
-      return;
+      return this.help(socket.character);
     }
 
-    this.execute(socket.character, match[1], match[2])
-      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
-      .catch(error => socket.emit('output', { message: error }));
+    return this.execute(socket.character, match[1], match[2])
+      .catch(error => socket.character.output(error));
   },
 
   execute(toCharacter, fromCharName) {
@@ -74,16 +72,13 @@ export default {
       toCharacterMessage = `You accept the ${offer.item.name} from ${fromCharacter.name}.`;
     }
 
-    return Promise.resolve({
-      charMessages: [
-        { charId: fromCharacter.id, message: fromCharacterMessage },
-        { charId: toCharacter.id, message: toCharacterMessage },
-      ],
-    });
+    fromCharacter.output(fromCharacterMessage);
+    toCharacter.output(toCharacterMessage);
+    return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     const output = '<span class="mediumOrchid">accept offer &lt;player&gt; </span><span class="purple">-</span> Accept an offer from another player.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

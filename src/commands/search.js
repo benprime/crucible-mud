@@ -13,7 +13,7 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket.character)
+    return this.execute(socket.character)
       .then(response => socketUtil.output(socket, response))
       .catch(response => socketUtil.output(socket, response));
   },
@@ -74,10 +74,10 @@ export default {
 
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">search</span><span class="purple">-</span> If successful, reveal any hidden items and/or exits.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 
 };

@@ -15,8 +15,7 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1])
-      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
+    return this.execute(socket.character, match[1])
       .catch(response => socketUtil.output(socket, response));
   },
 
@@ -49,8 +48,8 @@ export default {
     return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     const output = '<span class="mediumOrchid">rest </span><span class="purple">-</span> Recover hit points faster when idle.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

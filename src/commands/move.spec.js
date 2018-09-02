@@ -57,7 +57,7 @@ describe('move', () => {
 
   describe('help', () => {
     test('should print help message', () => {
-      sut.help(socket);
+      sut.help(socket.character);
 
       // let expected = '';
       // expected += '<span class="cyan">move command </span><span class="darkcyan">-</span> Move in specified direction. Move command word is not used.<br />';
@@ -72,7 +72,7 @@ describe('move', () => {
       // expected += '<span class="mediumOrchid">u<span class="purple"> | </span>up</span> <span class="purple">-</span> Move up.<br />';
       // expected += '<span class="mediumOrchid">d<span class="purple"> | </span>down</span> <span class="purple">-</span> Move down.<br />';
 
-      expect(socket.emit).toHaveBeenCalled();
+      expect(socket.character.output).toHaveBeenCalled();
     });
   });
 });

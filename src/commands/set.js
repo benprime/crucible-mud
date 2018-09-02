@@ -71,14 +71,9 @@ function setRoom(character, prop, value) {
 
     room.save(err => { if (err) throw err; });
     // todo: add a type of message that is for the room, not just a broadcast
-    return Promise.resolve({
-      charMessages: [
-        { charId: character.id, message: `${character.name} has altered the fabric of reality.` },
-      ],
-      roomMessages: [
-        { roomId: character.roomId, message: `${character.name} has altered the fabric of reality.`, exclude: [character.id] },
-      ],
-    });
+    character.output(`${character.name} has altered the fabric of reality.`);
+    character.toRoom(`${character.name} has altered the fabric of reality.`, [character.id]);
+    return Promise.resolve();
   }
 
   else {
@@ -110,16 +105,14 @@ export default {
   dispatch(socket, match) {
 
     if (match.length < 3) {
-      this.help(socket);
-      return;
+      return this.help(socket.character);
     }
 
     const type = match[1];
     const prop = match[2];
     const value = match[3];
 
-    this.execute(socket.character, type, prop, value)
-      .then(response => socketUtil.sendMessages(socket, response))
+    return this.execute(socket.character, type, prop, value)
       .then(() => lookCmd.execute(socket))
       .catch(response => socketUtil.output(socket, response));
   },
@@ -142,7 +135,7 @@ export default {
     }
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">set room name &lt;new room name&gt; </span><span class="purple">-</span> Change name of current room.<br />';
     output += '<span class="mediumOrchid">set room desc &lt;new room desc&gt; </span><span class="purple">-</span> Change description of current room.<br />';
@@ -152,6 +145,6 @@ export default {
     output += '<span class="mediumOrchid">set hp &lt;amount&gt; </span><span class="purple">-</span> Set the hp amount for your character.<br />';
     output += '<span class="mediumOrchid">set blleding &lt;value&gt; </span><span class="purple">-</span> Set the bleeding value for your character.<br />';
     output += '<span class="mediumOrchid">set debug &lt;on|off&gt; </span><span class="purple">-</span> Enable debug view.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

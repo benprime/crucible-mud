@@ -60,16 +60,18 @@ commandManager.setDefaultCommand('say');
 export default {
   Dispatch(socket, input) {
 
-    if (!config.THROW_EXCEPTIONS) {
-      try {
-        commandManager.processDispatch(socket, input);
-      } catch (e) {
-        socket.emit('output', { message: `AN ERROR OCCURED!\n${e.message}` });
-        console.error(e);
-        console.error(new Error().stack);
-      }
-    } else {
-      commandManager.processDispatch(socket, input);
+
+    function errorHandler(err) {
+      socket.character.output('--------------------------------------------');
+      socket.character.output(`AN ERROR OCCURED!\n${err.stack}`);
+      socket.character.output('--------------------------------------------');
+    }
+
+    try {
+      commandManager.processDispatch(socket, input)
+        .catch(err => errorHandler(err));
+    } catch (err) {
+      errorHandler(err);
     }
   },
 };

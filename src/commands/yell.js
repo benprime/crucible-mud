@@ -13,15 +13,12 @@ export default {
   ],
 
   dispatch(socket, match) {
-    this.execute(socket.character, match[1])
-      .then(commandResult => socketUtil.sendMessages(socket, commandResult));
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character, message) {
 
     const room = Room.getById(character.roomId);
-
-    const roomMessages = [];
 
     // send message to all adjacent exits
     room.exits.forEach(exit => {
@@ -34,22 +31,19 @@ export default {
         preMsg = `Someone yells from the ${Room.shortToLong(Room.oppositeDirection(exit.dir))} `;
       }
       const surroundMsg = `${preMsg} '${message}'`;
-      roomMessages.push({ roomId: exit.roomId, message: surroundMsg });
+      socketUtil.roomMessage(exit.roomId, surroundMsg);
     });
 
-    roomMessages.push({ roomId: room.id, message: `${character.name} yells '${message}'`, exclude: [character.id] });
-    const charMessages = [{ charId: character.id, message: `You yell '${message}'` }];
+    socketUtil.roomMessage(room.id, `${character.name} yells '${message}'`, [character.id]);
+    character.output(`You yell '${message}'`);
 
-    return Promise.resolve({
-      roomMessages: roomMessages,
-      charMessages: charMessages,
-    });
+    return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="cyan">yell command</span><br/>';
     output += '<span class="mediumOrchid">"<message></span> <span class="purple">-</span> Yell to this room and all adjacent rooms.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

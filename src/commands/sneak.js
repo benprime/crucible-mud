@@ -15,7 +15,7 @@ export default {
   ],
 
   dispatch(socket) {
-    this.execute(socket.character);
+    return this.execute(socket.character);
   },
 
   execute(character) {
@@ -38,10 +38,10 @@ export default {
     return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">sneak</span><span class="purple">-</span> Activates a sneak bonus for the following stealth-based commands: move<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 
 };

@@ -39,9 +39,9 @@ describe('attack', () => {
 
       expect.assertions(3);
 
-      return sut.execute(socket.character, 'thing').then(response => {
-        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: '<span class="olive">*** Combat Engaged ***</span>' });
-        expect(response.roomMessages).toContainEqual({ roomId: mockRoom.id, message: `${socket.character.name} moves to attack ${autocompleteResult.item.displayName}!`, exclude: [socket.character.id] });
+      return sut.execute(socket.character, 'thing').then(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('<span class="olive">*** Combat Engaged ***</span>');
+        expect(socket.character.toRoom).toHaveBeenCalledWith(`${socket.character.name} moves to attack ${autocompleteResult.item.displayName}!`, [socket.character.id]);
         expect(socket.character.attackTarget).toBe(autocompleteResult.item.id);
       });
     });

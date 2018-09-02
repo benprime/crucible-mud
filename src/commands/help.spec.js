@@ -22,19 +22,20 @@ describe('help', () => {
     test('should display general help with no parameters', () => {
       sut.execute(socket);
 
-      expect(socket.emit).toHaveBeenCalled();
+      expect(socket.character.output).toHaveBeenCalled();
     });
 
     test('should display topic help with a parameter', () => {
-      sut.execute(socket, 'gossip');
+      sut.execute(socket.character, 'gossip');
 
-      expect(socket.emit).toHaveBeenCalled();
+      expect(socket.character.output).toHaveBeenCalled();
     });
 
     test('should display error message when topic is invalid', () => {
-      sut.execute(socket, 'yourface');
+      sut.execute(socket.character, 'yourface');
+      
       //check output for bad command
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: 'No help for that topic.' });
+      expect(socket.character.output).toHaveBeenCalledWith('No help for that topic.');
 
     });
   });

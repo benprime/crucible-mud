@@ -74,13 +74,13 @@ describe('open', () => {
         mockShortToLong.mockReturnValueOnce('southeast');
         expect.assertions(5);
 
-        return sut.execute(socket.character, 'se').then(response => {
+        return sut.execute(socket.character, 'se').then(() => {
           const exit = mockRoom.exits.find(({ dir }) => dir === 'se');
           expect(exit.keyName).toBe('someKey');
           expect(exit.locked).toBe(false);
           expect(exit.closed).toBe(false);
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser opens the door to the southeast.', exclude: [socket.character.id] });
-          expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Door opened.' });
+          expect(socket.character.toRoom).toHaveBeenCalledWith('TestUser opens the door to the southeast.', [socket.character.id]);
+          expect(socket.character.output).toHaveBeenCalledWith('Door opened.');
         });
 
       });
@@ -107,12 +107,12 @@ describe('open', () => {
         mockShortToLong.mockReturnValueOnce('north');
         expect.assertions(3);
 
-        return sut.execute(socket.character, 'n').then(response => {
+        return sut.execute(socket.character, 'n').then(() => {
           const exit = mockRoom.exits.find(({ dir }) => dir === 'n');
 
           expect(exit.closed).toBe(false);
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser opens the door to the north.', exclude: [socket.character.id] });
-          expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Door opened.' });
+          expect(socket.character.toRoom).toHaveBeenCalledWith('TestUser opens the door to the north.', [socket.character.id]);
+          expect(socket.character.output).toHaveBeenCalledWith('Door opened.');
         });
 
       });

@@ -14,12 +14,10 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 2) {
-      this.help(socket);
-      return;
+      return this.help(socket.character);
     }
     return this.execute(socket.character, match[1])
-      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
-      .catch(error => socket.emit('output', { message: error }));
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, username) {
@@ -44,13 +42,11 @@ export default {
     if (!targetCharacter.partyInvites.includes(character.id)) {
       targetCharacter.partyInvites.push(character.id);
     }
+    
+    targetCharacter.output(`${character.name} has invited you to join a party.`);
+    character.output(`You have invited ${targetCharacter.name} to join your party.`);
 
-    return Promise.resolve({
-      charMessages: [
-        { charId: targetCharacter.id, message: `${character.name} has invited you to join a party.` },
-        { charId: character.id, message: `You have invited ${targetCharacter.name} to join your party.` },
-      ],
-    });
+    return Promise.resolve();
 
     // TODO: make party invites timeout
     // setTimeout(() => {
@@ -62,8 +58,8 @@ export default {
     // }, 60000);
   },
 
-  help(socket) {
+  help(character) {
     const output = '<span class="mediumOrchid">invite &lt;player&gt; </span><span class="purple">-</span> Invite a player to follow you.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

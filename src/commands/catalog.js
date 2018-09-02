@@ -25,8 +25,7 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 2) {
-      this.help(socket);
-      return;
+      return this.help(socket.character);
     }
 
     const type = match[1].toLowerCase();
@@ -41,12 +40,12 @@ export default {
       const areas = Object.values(Area.areaCache);
       return this.execute(socket, areas);
     } else {
-      socket.emit('output', { message: 'Unknown catalog: {types}' });
+      socket.character.output('Unknown catalog: {types}');
       return;
     }
   },
 
-  execute(socket, data, type) {
+  execute(character, data, type) {
 
     let catalog;
     if (type) {
@@ -64,15 +63,15 @@ export default {
 
     output += '</table>';
 
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">[catalog|cat] mobs </span><span class="purple">-</span> Display info table of all valid mobs<br />';
     output += '<span class="mediumOrchid">[catalog|cat] items </span><span class="purple">-</span> Display info table of all valid items<br />';
     output += '<span class="mediumOrchid">[catalog|cat] keys </span><span class="purple">-</span> Display info table of all valid keys<br />';
     output += '<span class="mediumOrchid">[catalog|cat] areas </span><span class="purple">-</span> Display info table of all valid areas<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

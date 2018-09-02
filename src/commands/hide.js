@@ -51,12 +51,11 @@ export default {
       hideTarget = match[1];
     }
     else {
-      this.help(socket);
-      return;
+      return this.help(socket.character);
     }
     return this.execute(socket.character, hideTarget)
       .then(output => socketUtil.output(socket, output))
-      .catch(error => socket.emit('output', { message: error }));
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, hideTarget) {
@@ -73,10 +72,10 @@ export default {
     }
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">hide &lt;item name/exit dir&gt; </span><span class="purple">-</span> Make target &lt;item name/exit dir&gt; hidden.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 
 };

@@ -49,10 +49,10 @@ describe('catalog', () => {
       const expectedString = '<table><tr><th>Name</th></tr><tr><td>mob 1</td></tr></table>';
 
       // act
-      sut.execute(socket, mobCatalog, 'mob');
+      sut.execute(socket.character, mobCatalog, 'mob');
 
       // assert
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: expectedString });
+      expect(socket.character.output).toHaveBeenCalledWith(expectedString);
     });
 
     test('should lists item catalog', () => {
@@ -60,10 +60,10 @@ describe('catalog', () => {
       const expectedString = '<table><tr><th>Name</th></tr><tr><td>item 1</td></tr>\n<tr><td>item 2</td></tr></table>';
 
       // act
-      sut.execute(socket, itemCatalog, 'item');
+      sut.execute(socket.character, itemCatalog, 'item');
 
       // assert
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: expectedString });
+      expect(socket.character.output).toHaveBeenCalledWith(expectedString);
     });
 
     test('should list key catalog', () => {
@@ -71,10 +71,10 @@ describe('catalog', () => {
       const expectedString = '<table><tr><th>Name</th></tr><tr><td>key 1</td></tr>\n<tr><td>key 2</td></tr></table>';
 
       // act
-      sut.execute(socket, itemCatalog, 'key');
+      sut.execute(socket.character, itemCatalog, 'key');
 
       // assert
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: expectedString });
+      expect(socket.character.output).toHaveBeenCalledWith(expectedString);
     });
 
   });

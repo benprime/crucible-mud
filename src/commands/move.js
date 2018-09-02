@@ -45,7 +45,7 @@ export default {
     let direction = match.length > 1 ? match[1] : match[0];
     return this.execute(socket.character, direction).then(() => {
       // todo: I don't think we want to have commands call other commands...
-      return lookCommand.execute(socket.character).then(output => socket.emit('output', { message: output }));
+      return lookCommand.execute(socket.character).then(output => socket.character.output(output));
     }).catch(output => socket.character.output(output));
   },
 
@@ -53,7 +53,7 @@ export default {
     return character.move(dir);
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="cyan">move command </span><span class="darkcyan">-</span> Move in specified direction. Move command word is not used.<br />';
     output += '<span class="mediumOrchid">n<span class="purple"> | </span>north</span> <span class="purple">-</span> Move north.<br />';
@@ -66,6 +66,6 @@ export default {
     output += '<span class="mediumOrchid">sw<span class="purple"> | </span>southwest</span> <span class="purple">-</span> Move southwest.<br />';
     output += '<span class="mediumOrchid">u<span class="purple"> | </span>up</span> <span class="purple">-</span> Move up.<br />';
     output += '<span class="mediumOrchid">d<span class="purple"> | </span>down</span> <span class="purple">-</span> Move down.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

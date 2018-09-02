@@ -15,10 +15,9 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 2) {
-      this.help(socket);
+      return this.help(socket.character);
     }
     return this.execute(socket.character, match[1])
-      .then(response => socketUtil.sendMessages(socket, response))
       .catch(response => socketUtil.output(socket, response));
   },
 
@@ -57,21 +56,16 @@ export default {
 
     shop.sell(character, itemType);
     if (sellPrice) {
-      return Promise.resolve({
-        charMessages: [
-          { charId: character.id, message: `You sold ${itemType.name} for ${sellPrice}.` },
-        ],
-        roomMessages: [
-          // todo: is item type enough here? There may be adjectives on items
-          { roomId: character.roomId, message: `${character.name} sells ${itemType.name} to the shop.`, exclude: [character.id] },
-        ],
-      });
+      character.output(`You sold ${itemType.name} for ${sellPrice}.`);
+      // todo: is item type enough here? There may be adjectives on items
+      character.toRoom(`${character.name} sells ${itemType.name} to the shop.`, [character.id]);
     }
+    return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">sell &lt;item name&gt </span><span class="purple">-</span> sell an item to a shop. <br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

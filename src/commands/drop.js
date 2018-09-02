@@ -7,7 +7,7 @@ export default {
   name: 'drop',
   desc: 'drop an inventory item on the ground',
   category: commandCategories.item,
-  
+
   patterns: [
     /^dr\s+(.+)$/i,
     /^drop\s+(.+)$/i,
@@ -19,8 +19,7 @@ export default {
       return Promise.reject('What do you want to drop?');
     }
     return this.execute(socket.character, match[1])
-      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
-      .catch(error => socket.emit('output', { message: error }));
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, itemName) {
@@ -32,14 +31,9 @@ export default {
       const re = new RegExp(`^${itemName}`, 'i');
       if (drag.name.match(re)) {
         character.dragging = false;
-        return Promise.resolve({
-          charMessages: [
-            { charId: character.id, message: `You stop dragging ${drag.name}.` },
-          ],
-          roomMessages: [
-            { roomId: character.roomId, message: `${character.name} drops ${drag.name}.`, exclude: [character.id] },
-          ],
-        });
+        character.output(`You stop dragging ${drag.name}.`);
+        character.toRoom(`${character.name} drops ${drag.name}.`, [character.id]);
+        return Promise.resolve();
       }
     }
 
@@ -69,20 +63,16 @@ export default {
     room.save(err => { if (err) throw err; });
     character.save(err => { if (err) throw err; });
 
-    return Promise.resolve({
-      charMessages: [
-        { charId: character.id, message: 'Dropped.' },
-      ],
-      roomMessages: [
-        { roomId: character.roomId, message: `${character.name} drops ${result.item.name}.`, exclude: [character.id] },
-      ],
-    });
+    character.output('Dropped.');
+    character.toRoom(`${character.name} drops ${result.item.name}.`, [character.id]);
+
+    return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">drop &lt;item name&gt </span><span class="purple">-</span> Drop <item> from inventory onto the floor.<br>';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 
 };

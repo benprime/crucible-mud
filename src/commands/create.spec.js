@@ -41,10 +41,10 @@ describe('create', () => {
         mockShortToLong.mockReturnValueOnce('north');
         expect.assertions(3);
 
-        return sut.execute(socket.character, 'room', 'n').then(response => {
+        return sut.execute(socket.character, 'room', 'n').then(() => {
           expect(mockRoom.createRoom).toBeCalledWith('n');
-          expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Room created.' });
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: `${socket.character.name} waves his hand and an exit appears to the ${longDir}!`, exclude: [socket.character.id] });
+          expect(socket.character.output).toHaveBeenCalledWith('Room created.');
+          expect(socket.character.toRoom).toHaveBeenCalledWith(`${socket.character.name} waves his hand and an exit appears to the ${longDir}!`, [socket.character.id]);
         });
 
       });
@@ -104,9 +104,9 @@ describe('create', () => {
     });
 
     test('help should output message', () => {
-      sut.help(socket);
+      sut.help(socket.character);
 
-      expect(socket.emit.mock.calls[0][1].message).toContain('<span class="mediumOrchid">create room &lt;dir&gt; </span><span class="purple">-</span> Create new room in specified direction.<br />');
+      expect(socket.character.output).lastCalledWith(expect.stringContaining('Create new room in specified direction'));
     });
   });
 });

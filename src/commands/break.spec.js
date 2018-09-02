@@ -15,8 +15,8 @@ describe('break', () => {
       // act
       return sut.execute(socket.character).then(response => {
         // assert
-        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser breaks off his attack.', exclude: [socket.character.id] });
-        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: '<span class="olive">*** Combat Disengaged ***</span>' });
+        expect(socket.character.toRoom).toHaveBeenCalledWith('TestUser breaks off his attack.', [socket.character.id]);
+        expect(socket.character.output).toHaveBeenCalledWith('<span class="olive">*** Combat Disengaged ***</span>')
       });
     });
 
@@ -28,8 +28,8 @@ describe('break', () => {
       // act
       return sut.execute(socket.character).then(response => {
         // assert
-        expect(response.charMessages).toHaveLength(0);
-        expect(response.roomMessages).toHaveLength(0);
+        expect(socket.character.output).not.toHaveBeenCalled();
+        expect(socket.character.toRoom).not.toHaveBeenCalled();
       });
 
 

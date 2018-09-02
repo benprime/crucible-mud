@@ -17,8 +17,7 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 3) {
-      this.help(socket);
-      return;
+      return this.help(socket.character);
     }
 
     return this.execute(socket.character, match[1], match[2])
@@ -57,8 +56,8 @@ export default {
     });
   },
 
-  help(socket) {
+  help(character) {
     const output = '<span class="mediumOrchid">stock &lt;item type&gt; &lt;quantity&gt;</span><span class="purple">-</span> Creates items to stock stores with.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

@@ -20,12 +20,10 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 3) {
-      this.help(socket);
-      return;
+      return this.help(socket.character);
     }
     return this.execute(socket.character, match[1], match[2])
-      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
-      .catch(error => socket.emit('output', { message: error }));
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, itemName, userName, cb) {
@@ -74,7 +72,7 @@ export default {
       if(cb) cb(); // this callback currently only exists for testing
     }, config.OFFER_TIMEOUT);
 
-    // format and emit feedback messages
+    // format and send feedback messages
     let offerMessage;
     let feedbackMessage;
     if (currencyValue) {
@@ -86,17 +84,14 @@ export default {
     }
     offerMessage += `\nTo accept the offer: accept offer ${character.name}`;
 
-    return Promise.resolve({
-      charMessages: [
-        { charId: toCharacter.id, message: offerMessage },
-        { charId: character.id, message: feedbackMessage },
-      ],
-    });
+    toCharacter.output(offerMessage);
+    character.output(feedbackMessage);
+    return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     let output = '<span class="mediumOrchid">offer &lt;item&gt; to &lt;player&gt; </span><span class="purple">-</span> Offer an item to another player.<br />';
     output += '<span class="mediumOrchid">offer 10gp to &lt;player&gt; </span><span class="purple">-</span> Offer currency to another player.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

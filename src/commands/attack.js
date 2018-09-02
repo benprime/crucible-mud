@@ -15,8 +15,7 @@ export default {
 
   dispatch(socket, match) {
     return this.execute(socket.character, match[1])
-      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
-      .catch(error => socket.emit('output', { message: error }));
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, targetName) {
@@ -39,19 +38,15 @@ export default {
     character.attackTarget = target.id;
     character.attackInterval = this.attacksPerRound * config.ROUND_DURATION;
 
-    return Promise.resolve({
-      charMessages: [
-        { charId: character.id, message: '<span class="olive">*** Combat Engaged ***</span>' },
-      ],
-      roomMessages: [
-        { roomId: character.roomId, message: `${character.name} moves to attack ${target.displayName}!`, exclude: [character.id] },
-      ],
-    });
+    character.output('<span class="olive">*** Combat Engaged ***</span>');
+    character.toRoom(`${character.name} moves to attack ${target.displayName}!`, [character.id]);
+
+    return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">attack &lt;mob name&gt;<span class="purple">|</span> a</span> <span class="purple">-</span> Begin combat attacking &lt;target&gt;.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

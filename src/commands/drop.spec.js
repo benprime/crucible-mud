@@ -89,13 +89,13 @@ describe('drop', () => {
         mockAutocompleteMultiple.mockReturnValueOnce(autocompleteResult);
         expect.assertions(6);
 
-        return sut.execute(socket.character, 'dropItem').then(response => {
+        return sut.execute(socket.character, 'dropItem').then(() => {
           expect(socket.character.save).toHaveBeenCalled();
           expect(mockRoom.save).toHaveBeenCalled();
           expect(socket.character.inventory).toHaveLength(0);
           expect(mockRoom.inventory[0].name).toEqual(item.name);
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser drops dropItem.', exclude: [socket.character.id] });
-          expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Dropped.' });
+          expect(socket.character.toRoom).toHaveBeenCalledWith('TestUser drops dropItem.', [socket.character.id]);
+          expect(socket.character.output).toHaveBeenCalledWith('Dropped.');
         });
 
 
@@ -112,13 +112,13 @@ describe('drop', () => {
         socket.character.keys = [autocompleteResult.item];
         expect.assertions(6);
 
-        return sut.execute(socket.character, 'dropKey').then(response => {
+        return sut.execute(socket.character, 'dropKey').then(() => {
           expect(socket.character.save).toHaveBeenCalled();
           expect(mockRoom.save).toHaveBeenCalled();
           expect(socket.character.keys).toHaveLength(0);
           expect(mockRoom.inventory[0].name).toEqual(key.name);
-          expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'TestUser drops dropKey.', exclude: [socket.character.id] });
-          expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'Dropped.' });
+          expect(socket.character.toRoom).toHaveBeenCalledWith('TestUser drops dropKey.', [socket.character.id]);
+          expect(socket.character.output).toHaveBeenCalledWith('Dropped.');
         });
 
 

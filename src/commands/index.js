@@ -62,9 +62,9 @@ export default {
 
 
     function errorHandler(err) {
-      socket.emit('output', { message: '--------------------------------------------' });
-      socket.emit('output', { message: `AN ERROR OCCURED!\n${err.stack}` });
-      socket.emit('output', { message: '--------------------------------------------' });
+      socket.character.output('--------------------------------------------');
+      socket.character.output(`AN ERROR OCCURED!\n${err.stack}`);
+      socket.character.output('--------------------------------------------');
     }
 
     try {

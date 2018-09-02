@@ -15,7 +15,7 @@ export default {
 
   dispatch(socket, match) {
     return this.execute(socket.character, match[1], match[2])
-      .catch(error => socket.emit('output', { message: error }));
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, itemName) {
@@ -38,9 +38,9 @@ export default {
     return Promise.resolve(); // output taken care of in character model
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">equip &lt;item name&gt;</span><span class="purple">-</span> Equip &lt;item&gt; from inventory.  If &lt;item&gt; is a weapon or ring, specify main/off to equip to one hand or the other (if able).<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

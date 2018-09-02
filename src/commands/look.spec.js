@@ -1,6 +1,6 @@
 import { mockGetRoomById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection } from '../models/room';
 import { mockAutocompleteMultiple } from '../core/autocomplete';
-import { mockGetSocketByCharacterId } from '../core/socketUtil';
+import { mockGetSocketByCharacterId, mockRoomMessage } from '../core/socketUtil';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
 import sut from './look';
@@ -91,14 +91,15 @@ describe('look', () => {
         // arrange
         mockValidDirectionInput.mockReturnValue('s');
         mockShortToLong.mockReturnValueOnce('south').mockReturnValueOnce('south').mockReturnValueOnce('north');
-        expect.assertions(3);
+        expect.assertions(4);
 
         // act
-        return sut.execute(socket.character, false, 's').then(response => {
+        return sut.execute(socket.character, false, 's').then(() => {
 
           // assert
-          expect(response.charMessages[0].message).toContain('You look to the south...');
-          expect(response.roomMessages).toContainEqual({ roomId: targetRoomSouth.id, message: `<span class="yellow">${socket.character.name} peaks in from the north.</span>`, exclude: [socket.character.id] });
+          expect(socket.character.output).toHaveBeenCalledWith('You look to the south...\nmocked room description');
+          expect(mockRoomMessage).toHaveBeenCalledWith(targetRoomSouth.id, `<span class="yellow">${socket.character.name} peaks in from the north.</span>`, [socket.character.id]);
+          expect(socket.character.toRoom).toHaveBeenCalledWith(`${socket.character.name} looks to the south.\n`, [socket.character.id]);
           expect(targetRoomSouth.getDesc).toBeCalledWith(socket.character, false);
         });
       });
@@ -153,12 +154,12 @@ describe('look', () => {
   });
 
   test('help should output message', () => {
-    sut.help(socket);
+    sut.help(socket.character);
 
     let output = '';
     output += '<span class="mediumOrchid">l <span class="purple">|</span> look </span><span class="purple">-</span> Display info about current room.<br />';
     output += '<span class="mediumOrchid">look &lt;item/mob name&gt; </span><span class="purple">-</span> Display detailed info about &lt;item/mob&gt;.<br />';
 
-    expect(socket.emit).toHaveBeenCalledWith('output', { message: output });
+    expect(socket.character.output).toHaveBeenCalledWith(output);
   });
 });

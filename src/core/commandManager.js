@@ -101,7 +101,7 @@ function processDispatch(socket, input) {
 
   // when a command is not found, it defaults to "say"
   socket.character.processStates(defaultCommand);
-  defaultCommand.execute(socket.character, input)
+  return defaultCommand.execute(socket.character, input)
     .then(commandResult => socketUtil.sendMessages(socket, commandResult))
     .catch(error => socket.emit('output', { message: error }));
 }

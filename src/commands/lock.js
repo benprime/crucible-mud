@@ -17,14 +17,13 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      this.help(socket);
-      return;
+      return this.help(socket.character);
     }
     const dir = match[1].toLowerCase();
     const keyName = match[2];
     return this.execute(socket.character, dir, keyName)
       .then(output => socketUtil.output(socket, output))
-      .catch(error => socket.emit('output', { message: error }));
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, dir, keyName) {
@@ -49,10 +48,10 @@ export default {
     return Promise.resolve('Door locked.');
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">lock &lt;dir&gt; with &lt;key name&gt; </span><span class="purple">-</span> Lock a door with the key type you are carrying.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 
 };

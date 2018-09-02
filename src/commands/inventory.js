@@ -14,7 +14,7 @@ export default {
 
   dispatch(socket) {
     return this.execute(socket.character)
-      .then(output => socket.emit('output', { message: output }));
+      .then(output => socket.character.output(output));
   },
 
   execute(character) {
@@ -51,9 +51,9 @@ export default {
     return Promise.resolve(output);
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">inventory </span><span class="purple">-</span> Display current inventory.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

@@ -44,10 +44,10 @@ describe('telepathy', () => {
       expect.assertions(2);
 
       // act
-      return sut.execute(socket.character, otherSocket.character.name, msg).then(response => {
+      return sut.execute(socket.character, otherSocket.character.name, msg).then(() => {
         // assert
-        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `Telepath to ${otherSocket.character.name}: <span class="silver">This is a telepath message!</span>` });
-        expect(response.charMessages).toContainEqual({ charId: otherSocket.character.id, message: `${socket.character.name} telepaths: <span class="silver">This is a telepath message!</span>` });
+        expect(socket.character.output).toHaveBeenCalledWith(`Telepath to ${otherSocket.character.name}: <span class="silver">This is a telepath message!</span>`);
+        expect(otherSocket.character.output).toHaveBeenCalledWith(`${socket.character.name} telepaths: <span class="silver">This is a telepath message!</span>`);
       });
 
     });

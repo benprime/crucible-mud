@@ -32,9 +32,8 @@ export default {
     }
 
     return this.execute(socket.character, param)
-      .then(response => socketUtil.sendMessages(socket, response))
-      .then(() => lookCmd.execute(socket.character, false).then(output => socketUtil.sendMessages(socket, output)))
-      .catch(err => socketUtil.sendMessages(socket, err));
+      .then(() => lookCmd.execute(socket.character, false))
+      .catch(err => socket.output(err));
   },
 
   execute(character, teleportTo) {
@@ -65,10 +64,10 @@ export default {
     return character.teleport(toRoomId);
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">teleport &lt;room ID&gt;</span><span class="purple">-</span> Teleport to &lt;room&gt;.<br />';
     output += '<span class="mediumOrchid">teleport &lt;username&gt;</span><span class="purple">-</span> Teleport to &lt;player&gt;.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

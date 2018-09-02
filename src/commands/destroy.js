@@ -18,8 +18,7 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      this.help(socket);
-      return;
+      return this.help(socket.character);
     }
     let typeName = match[1];
     let objectID = match[2];
@@ -45,14 +44,9 @@ export default {
       if (!removedItem) {
         return Promise.reject('Something went terribly wrong.');
       } else {
-        return Promise.resolve({
-          charMessages: [
-            { charId: character.id, message: 'Mob successfully destroyed.' },
-          ],
-          roomMessages: [
-            { roomId: character.roomId, message: `${character.name} erases ${mob.name} from existence!`, exclude: [character.id] },
-          ],
-        });
+        character.output('Mob successfully destroyed.');
+        character.toRoom(`${character.name} erases ${mob.name} from existence!`, [character.id]);
+        return Promise.resolve();
       }
     }
     else if (type === 'item') {
@@ -71,10 +65,10 @@ export default {
     }
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">destroy mob &lt;mob ID&gt; </span><span class="purple">-</span> Remove <mob> from current room.<br />';
     output += '<span class="mediumOrchid">destroy item &lt;item ID&gt; </span><span class="purple">-</span> Remove <item> from inventory.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

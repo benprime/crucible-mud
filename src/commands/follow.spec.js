@@ -40,9 +40,9 @@ describe('follow', () => {
     });
 
     test('transfers any current followers to the new leader\'s party', () => {
-      const follower1 = new mocks.SocketMock();
-      const follower2 = new mocks.SocketMock();
-      const follower3 = new mocks.SocketMock();
+      const follower1 = mocks.getMockCharacter();
+      const follower2 = mocks.getMockCharacter();
+      const follower3 = mocks.getMockCharacter();
       mockGetFollowers.mockReturnValueOnce([follower1, follower2, follower3]);
       mockAutocompleteCharacter.mockReturnValueOnce(mockInvitingSocket.character);
       expect.assertions(3);

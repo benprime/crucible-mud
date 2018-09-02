@@ -16,7 +16,7 @@ export default {
   dispatch(socket, match) {
     return this.execute(socket.character, match[1], match[2])
       .then(output => socketUtil.output(socket, output))
-      .catch(error => socket.emit('output', { message: error }));
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, itemName) {
@@ -32,9 +32,9 @@ export default {
     return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">unequip &lt;item name&gt;</span><span class="purple">-</span> Unequip an equipped &lt;item&gt; and move to inventory.  If multiples of &lt;item&gt; are equipped, specify main/off to unequip one hand or the other.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

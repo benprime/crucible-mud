@@ -14,11 +14,10 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 2) {
-      this.help(socket);
+      return this.help(socket.character);
     }
     return this.execute(socket.character, match[1])
-      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
-      .catch(error => socket.emit('output', { message: error }));
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, itemName) {
@@ -36,21 +35,17 @@ export default {
 
       const item = shop.buy(character, itemType);
       if (item) {
-        return Promise.resolve({
-          charMessages: [
-            { charId: character.id, message: 'Item purchased.' },
-          ],
-          roomMessages: [
-            { roomId: character.roomId, message: `${character.name} buys ${item.name} from the shop.`, exclude: [character.id] },
-          ],
-        });
+        character.output('Item purchased.');
+        character.toRoom(`${character.name} buys ${item.name} from the shop.`, [character.id]);
+
+        return Promise.resolve();
       }
     });
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">buy &lt;item name&gt </span><span class="purple">-</span> Buy an item from a shop. <br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

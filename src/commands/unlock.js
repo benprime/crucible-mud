@@ -17,14 +17,14 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      this.help(socket);
+      return this.help(socket.character);
       return;
     }
     const dir = match[1].toLowerCase();
     const keyName = match[2];
     return this.execute(socket.character, dir, keyName)
       .then(output => socketUtil.output(socket, output))
-      .catch(error => socket.emit('output', { message: error }));
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, dir, keyName, cb) {
@@ -64,29 +64,26 @@ export default {
 
       // todo: move this socket interaction to the room model
       if (exit.closed === true) {
-        global.io.to(room.id).emit('output', { message: `The door ${doorDesc} clicks locked!` });
+        socketUtil.roomMessage(room.id, `The door ${doorDesc} clicks locked!`);
       } else {
         exit.closed = true;
-        global.io.to(room.id).emit('output', { message: `The door ${doorDesc} slams shut and clicks locked!` });
+        socketUtil.roomMessage(room.id, `The door ${doorDesc} slams shut and clicks locked!`);
       }
       if (cb) cb(exit);
     }, config.DOOR_CLOSE_TIMER);
 
     exit.locked = false;
-    return Promise.resolve({
-      charMessages: [
-        { charId: character.id, message: 'Door unlocked.' },
-      ],
-      roomMessage: [
-        { roomId: character.roomId, message: `${character.name} unlocks the door to the ${displayDir}.` },
-      ],
-    });
+
+    character.output('Door unlocked.');
+    character.toRoom(`${character.name} unlocks the door to the ${displayDir}.`);
+
+    return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">unlock &lt;dir&gt; with &lt;key name&gt; </span><span class="purple">-</span> Unlock a door with the key type you are carrying.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 
 };

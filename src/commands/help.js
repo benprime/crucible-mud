@@ -3,7 +3,7 @@ import { commands } from '../core/commandManager';
 import commandCategories from '../core/commandCategories';
 
 
-function commandListHelp(socket) {
+function commandListHelp(character) {
   let output = '<span class="mediumOrchid">For specific help on any of these commands: </span><span class="silver">help &lt;command name&gt;</span>\n';
 
   for (let category of Object.values(commandCategories)) {
@@ -24,10 +24,10 @@ function commandListHelp(socket) {
     }
   }
 
-  socket.emit('output', { message: output });
+  character.output(output);
 }
 
-function basicHelp(socket) {
+function basicHelp(character) {
   let output = '';
   output += '<span class="cyan">Movement:</span><br>';
   output += '<span class="mediumOrchid">n<span class="purple"> | </span>north</span> <span class="purple">-</span> Move north.<br />';
@@ -92,16 +92,16 @@ function basicHelp(socket) {
   output += '<span class="cyan">Emotes:</span><br />';
   output += `<span class="silver">${Object.keys(emoteData.emotes).sort().join('<span class="mediumOrchid">, </span>')}</span><br /></br />`;
 
-  socket.emit('output', { message: output });
+  character.output(output);
 }
 
-function commandHelp(socket, commandName) {
+function commandHelp(character, commandName) {
   commandName = commandName.toLowerCase();
   if (Object.keys(commands).includes(commandName)) {
-    commands[commandName].help(socket);
+    commands[commandName].help(character);
   }
   else {
-    socket.emit('output', { message: 'No help for that topic.' });
+    character.output('No help for that topic.');
   }
 }
 
@@ -132,16 +132,16 @@ export default {
     else if (topic) {
       commandHelp(socket, topic);
     } else {
-      this.help(socket);
+      return this.help(socket.character);
     }
     return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">help basic</span> <span class="purple">-</span> Display basic help for playing CrucibleMUD.<br />';
     output += '<span class="mediumOrchid">help commands</span> <span class="purple">-</span> Display list of available commands.<br />';
     output += '<span class="mediumOrchid">help &lt;command&gt</span> <span class="purple">-</span> Display detailed help for specified command.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

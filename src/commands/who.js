@@ -39,9 +39,9 @@ export default {
     return Promise.resolve(output);
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">who</span> <span class="purple">-</span> Display list of all connected players.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

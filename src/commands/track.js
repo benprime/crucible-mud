@@ -14,7 +14,7 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 2) {
-      return this.help(socket);
+      return this.help(socket.character);
     }
 
     return this.execute(socket.character, match[1])
@@ -33,9 +33,9 @@ export default {
     return room.track(targetChar);
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">track</span> <span class="purple">-</span> Attempt to track a player that has passed through your current room.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

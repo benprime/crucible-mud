@@ -54,7 +54,6 @@ export default {
     let typeName = match[1];
     let itemTypeName = match[2];
     return this.execute(socket.character, typeName, itemTypeName)
-      .then(response => socketUtil.sendMessages(socket, response))
       .catch(response => socketUtil.output(socket, response));
 
   },
@@ -80,14 +79,9 @@ export default {
 
       room.mobs.push(mob);
 
-      return Promise.resolve({
-        charMessages: [
-          { charId: character.id, message: 'Summoning successful.' },
-        ],
-        roomMessages: [
-          { roomId: character.roomId, message: `${character.name} waves his hand and a ${mob.displayName} appears!`, exclude: [character.id] },
-        ],
-      });
+      character.output('Summoning successful.');
+      character.toRoom(`${character.name} waves his hand and a ${mob.displayName} appears!`, [character.id]);
+      return Promise.resolve();
 
       // Item
       //---------------------
@@ -100,14 +94,9 @@ export default {
 
       spawnAndGive(character, itemType);
 
-      return Promise.resolve({
-        charMessages: [
-          { charId: character.id, message: 'Item created.' },
-        ],
-        roomMessages: [
-          { roomId: character.roomId, message: `${character.name} emits a wave of energy!`, exclude: [character.id] },
-        ],
-      });
+      character.output('Item created.');
+      character.toRoom(`${character.name} emits a wave of energy!`, [character.id]);
+      return Promise.resolve();
 
       // Key
       //---------------------
@@ -136,10 +125,10 @@ export default {
     }
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">spawn mob &lt;mob name&gt; </span><span class="purple">-</span> Create <mob> in current room.<br />';
     output += '<span class="mediumOrchid">spawn item &lt;item name&gt; </span><span class="purple">-</span> Create <item> in inventory.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

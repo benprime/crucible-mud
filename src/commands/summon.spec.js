@@ -1,5 +1,5 @@
 import { mockGetRoomById } from '../models/room';
-import { mockGetSocketByCharacterId } from '../core/socketUtil';
+import { mockGetSocketByCharacterId, mockRoomMessage } from '../core/socketUtil';
 import { mockAutocompleteCharacter } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './summon';
@@ -64,9 +64,9 @@ describe('summon', () => {
       // act
       return sut.execute(socket.character, 'OtherUser').then(response => {
         // assert
-        expect(response.charMessages).toContainEqual({ charId: mockTargetSocket.character.id, message: 'You were summoned to TestUser\'s room!' });
-        expect(response.roomMessages).toContainEqual({ roomId: oldRoomId, message: 'OtherUser vanishes!' });
-        expect(response.roomMessages).toContainEqual({ roomId: socket.character.roomId, message: 'OtherUser appears out of thin air!', exclude: [mockTargetSocket.character.id] });
+        expect(mockTargetSocket.character.output).toHaveBeenCalledWith('You were summoned to TestUser\'s room!');
+        expect(mockRoomMessage).toHaveBeenCalledWith(oldRoomId, 'OtherUser vanishes!');
+        expect(socket.character.toRoom).toHaveBeenCalledWith('OtherUser appears out of thin air!', [mockTargetSocket.character.id] );
       });
 
     });

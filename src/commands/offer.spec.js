@@ -107,8 +107,8 @@ describe('offer', () => {
         expect(mockTargetSocket.character.offers[0]).toHaveProperty('fromUserName', expectedOffer.fromUserName);
         expect(mockTargetSocket.character.offers[0]).toHaveProperty('toUserName', expectedOffer.toUserName);
         expect(mockTargetSocket.character.offers[0].item.id).toBe(expectedOffer.item.id);
-        expect(response.charMessages).toContainEqual({ charId: mockTargetSocket.character.id, message: 'TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser' });
-        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You offer your aItem to aUser.' });
+        expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser');
+        expect(socket.character.output).toHaveBeenCalledWith('You offer your aItem to aUser.' )
       });
 
     });
@@ -149,8 +149,9 @@ describe('offer', () => {
         expect(mockTargetSocket.character.offers[1]).toHaveProperty('toUserName', expectedOffer.toUserName);
         expect(mockTargetSocket.character.offers[1].item.id).toBe(expectedOffer.item.id);
 
-        expect(response.charMessages).toContainEqual({ charId: mockTargetSocket.character.id, message: 'TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser' });
-        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You offer your aItem to aUser.' });
+        expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser');
+
+        expect(socket.character.output).toHaveBeenCalledWith('You offer your aItem to aUser.' )
       });
     });
 
@@ -184,8 +185,8 @@ describe('offer', () => {
         expect(mockTargetSocket.character.offers[1].toUserName).toBe('aUser');
         expect(mockTargetSocket.character.offers[1].item.id).toBe(item.id);
 
-        expect(response.charMessages).toContainEqual({ charId: mockTargetSocket.character.id, message: 'TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser' });
-        expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: 'You offer your aItem to aUser.' });
+        expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser')
+        expect(socket.character.output).toHaveBeenCalledWith('You offer your aItem to aUser.' )
       });
     });
 
@@ -213,9 +214,9 @@ describe('offer', () => {
     test('should output message', () => {
       const output = '<span class="mediumOrchid">offer &lt;item&gt; to &lt;player&gt; </span><span class="purple">-</span> Offer an item to another player.<br /><span class="mediumOrchid">offer 10gp to &lt;player&gt; </span><span class="purple">-</span> Offer currency to another player.<br />';
 
-      sut.help(socket);
+      sut.help(socket.character);
 
-      expect(socket.emit).toHaveBeenCalledWith('output', { message: output });
+      expect(socket.character.output).toHaveBeenCalledWith(output);
     });
   });
 });

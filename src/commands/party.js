@@ -38,9 +38,9 @@ export default {
     });
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">party</span> <span class="purple">-</span> Display list of party members.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

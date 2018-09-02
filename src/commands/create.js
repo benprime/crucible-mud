@@ -18,14 +18,12 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 3) {
-      this.help(socket);
-      return;
+      return this.help(socket.character);
     }
     const type = match[1].toLowerCase();
     const param = match[2];
     return this.execute(socket.character, type, param)
-      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
-      .catch(error => socket.emit('output', { message: error }));
+      .catch(error => socket.character.output(error));
   },
 
   execute(character, type, param) {
@@ -37,14 +35,9 @@ export default {
         return Promise.reject('Invalid direction!');
       }
       return room.createRoom(dir).then(() => {
-        return Promise.resolve({
-          charMessages: [
-            { charId: character.id, message: 'Room created.' },
-          ],
-          roomMessages: [
-            { roomId: character.roomId, message: `${character.name} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!`, exclude: [character.id] },
-          ],
-        });
+        character.output('Room created.');
+        character.toRoom(`${character.name} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!`, [character.id]);
+        return Promise.resolve();
       });
     }
 
@@ -62,14 +55,9 @@ export default {
 
       exit.closed = true;
       room.save(err => { if (err) throw err; });
-      return Promise.resolve({
-        charMessages: [
-          { charId: character.id, message: 'Door created.' },
-        ],
-        roomMessages: [
-          { roomId: character.roomId, message: `${character.name} waves his hand and a door appears to the ${Room.shortToLong(dir)}!`, exclude: [character.id] },
-        ],
-      });
+      character.output('Door created.');
+      character.toRoom(`${character.name} waves his hand and a door appears to the ${Room.shortToLong(dir)}!`, [character.id]);
+      return Promise.resolve();
     }
 
     else if (type === 'area') {
@@ -86,12 +74,12 @@ export default {
     }
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">create room &lt;dir&gt; </span><span class="purple">-</span> Create new room in specified direction.<br />';
     output += '<span class="mediumOrchid">create door </span><span class="purple">-</span> Create new room in specified direction.<br />';
     output += '<span class="mediumOrchid">create area </span><span class="purple">-</span> Create new room in specified direction.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 
 };

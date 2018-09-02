@@ -21,7 +21,6 @@ export default {
       return Promise.reject('What do you want to take?');
     }
     return this.execute(socket.character, match[1], socket.user.admin)
-      .then(response => socketUtil.sendMessages(socket, response))
       .catch(response => socketUtil.output(socket, response));
   },
 
@@ -55,22 +54,17 @@ export default {
       saveItem(roomItem);
       room.save(err => { if (err) throw err; });
 
-      return Promise.resolve({
-        charMessages: [
-          { charId: character.id, message: `${roomItem.name} taken.` },
-        ],
-        roomMessages: [
-          { roomId: character.roomId, message: `${character.name} takes ${roomItem.name}.`, exclude: [character.id] },
-        ],
-      });
+      character.output(`${roomItem.name} taken.`);
+      character.toRoom(`${character.name} takes ${roomItem.name}.`, [character.id]);
+      return Promise.resolve();
     }
 
     return Promise.reject('You don\'t see that here!');
   },
 
-  help(socket) {
+  help(character) {
     let output = '';
     output += '<span class="mediumOrchid">take &lt;item name&gt </span><span class="purple">-</span> Move &lt;item&gt; into inventory. <br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

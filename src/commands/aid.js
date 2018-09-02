@@ -14,11 +14,9 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 2) {
-      this.help(socket);
-      return;
+      return this.help(socket.character);
     }
     return this.execute(socket.character, match[1])
-      .then(commandResult => socketUtil.sendMessages(socket, commandResult))
       .catch(response => socketUtil.output(socket, response));
   },
 
@@ -45,8 +43,8 @@ export default {
     return Promise.resolve();
   },
 
-  help(socket) {
+  help(character) {
     const output = '<span class="mediumOrchid">aid &lt;player&gt; </span><span class="purple">-</span> Bandage a player that recently been incapacitated.<br />';
-    socket.emit('output', { message: output });
+    character.output(output);
   },
 };

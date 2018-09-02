@@ -1,3 +1,11 @@
+
+export const globalExceptionHandler = function (err) {
+  const errorOut = err instanceof Error ? err.stack : err;
+  console.log('--------------------------------------------');
+  console.log(`AN ERROR OCCURED!\n${errorOut}`);
+  console.log('--------------------------------------------');
+};
+
 export default {
   MSG_COLOR: 'darkcyan',
   DMG_COLOR: 'firebrick',

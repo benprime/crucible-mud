@@ -1,4 +1,5 @@
 import commandManager from '../core/commandManager';
+import { globalErrorHandler } from '../config';
 
 const commandModules = [
   'accept.js',
@@ -58,19 +59,11 @@ commandManager.setDefaultCommand('say');
 
 export default {
   Dispatch(socket, input) {
-
-
-    function errorHandler(err) {
-      socket.character.output('--------------------------------------------');
-      socket.character.output(`AN ERROR OCCURED!\n${err.stack}`);
-      socket.character.output('--------------------------------------------');
-    }
-
     try {
       commandManager.processDispatch(socket, input)
-        .catch(err => errorHandler(err));
+        .catch(err => globalErrorHandler(err));
     } catch (err) {
-      errorHandler(err);
+      globalErrorHandler(err);
     }
   },
 };

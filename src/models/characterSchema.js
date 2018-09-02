@@ -276,7 +276,7 @@ CharacterSchema.methods.updateHUD = function () {
 
 CharacterSchema.methods.incapacitate = function () {
   this.break();
-  this.states.setState(characterStates.incapacitated);
+  this.setState(characterStates.incapacitated);
 };
 
 CharacterSchema.methods.takeDamage = function (damage) {

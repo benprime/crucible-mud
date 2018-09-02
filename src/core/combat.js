@@ -1,5 +1,5 @@
 import Room from '../models/room';
-import config from '../config';
+import config, { globalExceptionHandler } from '../config';
 
 let lastRound = new Date();
 let round = 0;
@@ -49,20 +49,22 @@ const processMobCombatActions = function (now) {
  * Main entry point for all combat logic. Executed on interval.
  */
 const combatFrame = function () {
+  try {
+    const now = Date.now();
 
-  const now = Date.now();
+    // round tracker
+    if (now - lastRound >= config.ROUND_DURATION) {
+      processEndOfRound(round);
+      lastRound = now;
+      round++;
+      round = round % 100;
+    }
 
-  // round tracker
-  if(now - lastRound >= config.ROUND_DURATION)
-  {
-    processEndOfRound(round);
-    lastRound = now;
-    round++;
-    round = round % 100;
+    processPlayerCombatActions(now);
+    processMobCombatActions(now);
+  } catch (e) {
+    globalExceptionHandler(e);
   }
-
-  processPlayerCombatActions(now);
-  processMobCombatActions(now);
 };
 
 export default {

@@ -90,8 +90,8 @@ describe('look', () => {
       test('should output room look when lookTarget is a direction', () => {
         // arrange
         mockValidDirectionInput.mockReturnValue('s');
-        mockShortToLong.mockReturnValueOnce('south').mockReturnValueOnce('south').mockReturnValueOnce('north');
-        expect.assertions(4);
+        mockShortToLong.mockReturnValueOnce('south').mockReturnValueOnce('north');
+        expect.assertions(3);
 
         // act
         return sut.execute(socket.character, false, 's').then(() => {
@@ -99,7 +99,7 @@ describe('look', () => {
           // assert
           expect(socket.character.output).toHaveBeenCalledWith('You look to the south...\nmocked room description');
           expect(mockRoomMessage).toHaveBeenCalledWith(targetRoomSouth.id, `<span class="yellow">${socket.character.name} peaks in from the north.</span>`, [socket.character.id]);
-          expect(socket.character.toRoom).toHaveBeenCalledWith(`${socket.character.name} looks to the south.\n`, [socket.character.id]);
+          //expect(socket.character.toRoom).toHaveBeenCalledWith(`${socket.character.name} looks to the south.\n`, [socket.character.id]);
           expect(targetRoomSouth.getDesc).toBeCalledWith(socket.character, false);
         });
       });

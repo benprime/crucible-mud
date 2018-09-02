@@ -11,10 +11,17 @@ export default {
   admin: true,
 
   patterns: [
+    // player
     /^teleport\s+(\w+)$/i,
-    /^teleport\s+(\d+)\s(\d+)\s?(\d+)?$/i,
     /^tele\s+(\w+)$/i,
+
+    // room coordinates
+    /^teleport\s+(\d+)\s(\d+)\s?(\d+)?$/i,
     /^tele\s+(\d+)\s(\d+)\s?(\d+)?$/i,
+
+    // catch all
+    /^tele\s+(.*)$/i,
+    /^teleport\s+(.*)$/i,
   ],
 
   dispatch(socket, match) {

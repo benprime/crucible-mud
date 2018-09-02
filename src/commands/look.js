@@ -16,11 +16,14 @@ function lookDir(character, { exits }, dir) {
 
   const lookRoom = Room.getById(exit.roomId);
   return lookRoom.getDesc(character, false).then(output => {
-    const charOutput = `You look to the ${Room.shortToLong(dir)}...\n` + output;
+
     //const roomOutput = `${character.name} looks to the ${Room.shortToLong(dir)}.\n`;
-    character.output(charOutput);
     //character.toRoom(roomOutput, [character.id]);
+
+    const charOutput = `You look to the ${Room.shortToLong(dir)}...\n` + output;
+    character.output(charOutput);
     socketUtil.roomMessage(lookRoom.id, `<span class="yellow">${character.name} peaks in from the ${Room.shortToLong(Room.oppositeDirection(dir))}.</span>`, [character.id]);
+
     return Promise.resolve();
   });
 }

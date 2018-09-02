@@ -47,8 +47,8 @@ describe('invite', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(follower2);
       expect.assertions(4);
 
-      return sut.execute(follower1, follower2.name).catch((response) => {
-        expect(response).toBe(`You are not leading ${follower2.name} in a party.`);
+      return sut.execute(follower1, follower2.name).catch(() => {
+        expect(follower1.output).toHaveBeenCalledWith(`You are not leading ${follower2.name} in a party.`);
         expect(follower1.leader).toBe(leader.id);
         expect(follower2.leader).toBe(leader.id);
         expect(follower3.leader).toBe(leader.id);
@@ -61,8 +61,8 @@ describe('invite', () => {
       const character = mocks.getMockCharacter();
       expect.assertions(4);
 
-      return sut.execute(character, follower1.name).catch((response) => {
-        expect(response).toBe(`You are not leading ${follower2.name} in a party.`);
+      return sut.execute(character, follower1.name).catch(() => {
+        expect(character.output).toHaveBeenCalledWith(`You are not leading ${follower2.name} in a party.`);
 
         // verify the party is unaffected
         expect(follower1.leader).toBe(leader.id);

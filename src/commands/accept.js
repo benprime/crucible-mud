@@ -1,4 +1,3 @@
-import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import { currencyToString } from '../core/currency';
 import commandCategories from '../core/commandCategories';
@@ -16,64 +15,69 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 2) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
 
-    return this.execute(socket.character, match[1], match[2])
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, match[1], match[2]);
   },
 
-  execute(toCharacter, fromCharName) {
+  execute(character, fromCharName) {
     // autocomplete username
-    const fromCharacter = autocomplete.character(toCharacter, fromCharName);
+    const fromCharacter = autocomplete.character(character, fromCharName);
     if (!fromCharacter) {
-      return Promise.reject(`${fromCharName} is not here!`);
+      character.output(`${fromCharName} is not here!`);
+      return Promise.reject();
     }
 
-    if (toCharacter.roomId !== fromCharacter.roomId) {
-      return Promise.reject(`${fromCharName} is not here!`);
+    if (character.roomId !== fromCharacter.roomId) {
+      character.output(`${fromCharName} is not here!`);
+      return Promise.reject();
     }
 
-    const offer = toCharacter.offers.find(o => o.fromUserName === fromCharacter.name);
+    const offer = character.offers.find(o => o.fromUserName === fromCharacter.name);
     if (!offer) {
-      return Promise.reject(`There are no offers from ${fromCharacter.name}.`);
+      character.output(`There are no offers from ${fromCharacter.name}.`);
+      return Promise.reject();
     }
 
     if (offer.currency) {
       // check if offering user's funds have changed since the offer was made
       if (fromCharacter.currency < offer.currency) {
-        toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== fromCharacter.name);
-        return Promise.reject(`${fromCharacter.username} no longer has enough money to complete this offer.`);
+        character.offers = character.offers.filter(o => o.fromUserName !== fromCharacter.name);
+        character.output(`${fromCharacter.username} no longer has enough money to complete this offer.`);
+        return Promise.reject();
       }
       fromCharacter.currency -= offer.currency;
-      toCharacter.currency += offer.currency;
+      character.currency += offer.currency;
     } else {
       // check that offering user still has item when it is accepted
       const item = fromCharacter.inventory.id(offer.item.id);
       if (!item) {
-        toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== fromCharacter.name);
-        return Promise.reject(`${fromCharacter.name} no longer has the offered item in their inventory.`);
+        character.offers = character.offers.filter(o => o.fromUserName !== fromCharacter.name);
+        character.output(`${fromCharacter.name} no longer has the offered item in their inventory.`);
+        return Promise.reject();
       }
       fromCharacter.inventory.id(offer.item.id).remove();
-      toCharacter.inventory.push(item);
+      character.inventory.push(item);
     }
-    toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== fromCharacter.name);
+    character.offers = character.offers.filter(o => o.fromUserName !== fromCharacter.name);
     fromCharacter.save(err => { if (err) throw err; });
-    toCharacter.save(err => { if (err) throw err; });
+    character.save(err => { if (err) throw err; });
 
     // format feedback messages
     let fromCharacterMessage;
     let toCharacterMessage;
     if (offer.currency) {
-      fromCharacterMessage = `${toCharacter.name} accepts your offer of ${currencyToString(offer.currency)}.`;
+      fromCharacterMessage = `${character.name} accepts your offer of ${currencyToString(offer.currency)}.`;
       toCharacterMessage = `You accept the offer of ${currencyToString(offer.currency)} from ${fromCharacter.name}.`;
     } else {
-      fromCharacterMessage = `${toCharacter.name} accepts the ${offer.item.name}.`;
+      fromCharacterMessage = `${character.name} accepts the ${offer.item.name}.`;
       toCharacterMessage = `You accept the ${offer.item.name} from ${fromCharacter.name}.`;
     }
 
     fromCharacter.output(fromCharacterMessage);
-    toCharacter.output(toCharacterMessage);
+    character.output(toCharacterMessage);
     return Promise.resolve();
   },
 

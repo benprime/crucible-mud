@@ -48,9 +48,9 @@ describe('accept', () => {
 
       expect.assertions(8);
 
-      return sut.execute(socket.character, 'aUser').then(response => {
+      return sut.execute(socket.character, 'aUser').then(() => {
         expect(socket.character.offers).toHaveLength(0);
-        expect(socket.character.output).toHaveBeenCalledWith(`You accept the ${offeredItem.name} from ${offeringSocket.character.name}.` )
+        expect(socket.character.output).toHaveBeenCalledWith(`You accept the ${offeredItem.name} from ${offeringSocket.character.name}.`);
         expect(socket.character.save).toHaveBeenCalled();
         expect(socket.character.inventory).toHaveLength(1);
         expect(socket.character.inventory[0].name).toEqual('aItem');

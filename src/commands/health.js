@@ -1,4 +1,3 @@
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -12,8 +11,7 @@ export default {
   ],
 
   dispatch(socket) {
-    return this.execute(socket.character)
-      .then(output => socketUtil.output(socket, output));
+    return this.execute(socket.character);
   },
 
   execute(character) {
@@ -23,7 +21,8 @@ export default {
       output += '<span class="red">You are bleeding out!</span>\n';
     }
 
-    return Promise.resolve(output);
+    character.output(output);
+    return Promise.resolve();
   },
 
   help(character) {

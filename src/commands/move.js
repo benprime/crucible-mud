@@ -45,8 +45,8 @@ export default {
     let direction = match.length > 1 ? match[1] : match[0];
     return this.execute(socket.character, direction).then(() => {
       // todo: I don't think we want to have commands call other commands...
-      return lookCommand.execute(socket.character).then(output => socket.character.output(output));
-    }).catch(output => socket.character.output(output));
+      return lookCommand.execute(socket.character);
+    });
   },
 
   execute(character, dir) {

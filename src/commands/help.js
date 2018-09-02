@@ -119,20 +119,20 @@ export default {
 
   dispatch(socket, match) {
     const topic = match.length < 2 ? null : match[1];
-    return this.execute(socket, topic);
+    return this.execute(socket.character, topic);
   },
 
-  execute(socket, topic) {
+  execute(character, topic) {
     if (topic === 'basic') {
-      basicHelp(socket);
+      basicHelp(character);
     }
     else if (topic === 'commands') {
-      commandListHelp(socket);
+      commandListHelp(character);
     }
     else if (topic) {
-      commandHelp(socket, topic);
+      commandHelp(character, topic);
     } else {
-      return this.help(socket.character);
+      this.help(character);
     }
     return Promise.resolve();
   },

@@ -1,4 +1,3 @@
-import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import commandCategories from '../core/commandCategories';
 
@@ -14,16 +13,15 @@ export default {
   ],
 
   dispatch(socket, match) {
-    return this.execute(socket.character, match[1], match[2])
-      .then(output => socketUtil.output(socket, output))
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, match[1], match[2]);
   },
 
   execute(character, itemName) {
 
     let item = autocomplete.inventory(character, itemName);
     if (!item) {
-      return Promise.reject('You don\'t have that equipped.\n');
+      character.output('You don\'t have that equipped.\n');
+      return Promise.reject();
     }
 
     character.equipped.unequip(item);

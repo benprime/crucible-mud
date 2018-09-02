@@ -53,8 +53,8 @@ describe('create', () => {
         let dir = 'invalid dir';
         expect.assertions(1);
 
-        return sut.execute(socket.character, 'room', dir).catch(response => {
-          expect(response).toEqual('Invalid direction!');
+        return sut.execute(socket.character, 'room', dir).catch(() => {
+          expect(socket.character.output).toHaveBeenCalledWith('Invalid direction!');
         });
 
       });
@@ -79,10 +79,10 @@ describe('create', () => {
         mockRoom.getExit.mockReturnValueOnce(null);
         expect.assertions(3);
 
-        return sut.execute(socket.character, 'door', dir).catch(response => {
+        return sut.execute(socket.character, 'door', dir).catch(() => {
           expect(mockRoom.getExit).toBeCalledWith(dir);
           expect(mockRoom.save).not.toHaveBeenCalled();
-          expect(response).toEqual('Invalid direction.');
+          expect(socket.character.output).toHaveBeenCalledWith('Invalid direction.');
         });
 
 
@@ -92,8 +92,8 @@ describe('create', () => {
     test('should output error when create type is invalid', () => {
       expect.assertions(1);
 
-      return sut.execute(socket.character, 'other', 'n').catch(response => {
-        expect(response).toEqual('Invalid create type.');
+      return sut.execute(socket.character, 'other', 'n').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('Invalid create type.');
       });
 
 

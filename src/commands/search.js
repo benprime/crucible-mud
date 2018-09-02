@@ -1,6 +1,5 @@
 import Room from '../models/room';
 import dice from '../core/dice';
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -13,9 +12,7 @@ export default {
   ],
 
   dispatch(socket) {
-    return this.execute(socket.character)
-      .then(response => socketUtil.output(socket, response))
-      .catch(response => socketUtil.output(socket, response));
+    return this.execute(socket.character);
   },
 
   execute(character) {
@@ -42,13 +39,15 @@ export default {
       //if nothing is hidden, return "You find nothing special."
       if (hExits.length < 1 && hItems.length < 1) {
         output += 'You find nothing special.<br />';
-        return Promise.resolve(output);
+        character.output(output);
+        return Promise.resolve();
       }
 
       //if skill+dice roll < all hidden DCs, return "You find nothing special.<br />"
       if (searchRoll < roomDC) {
         output += 'You find nothing special.<br />';
-        return Promise.resolve(output);
+        character.output(output);
+        return Promise.resolve();
       }
 
       //cull lists down to only the hidden things with DC lower than skill roll
@@ -65,7 +64,8 @@ export default {
 
     //tell player that they found something
     output += 'You have spotted something!<br />';
-    return Promise.resolve(output);
+    character.output(output);
+    return Promise.resolve();
 
     //either set a reveal timer or make sure revealed things become hidden again after player leaves area
 

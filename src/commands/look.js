@@ -7,11 +7,13 @@ function lookDir(character, { exits }, dir) {
   dir = Room.validDirectionInput(dir);
   const exit = exits.find(e => e.dir === dir);
   if (!exit || exit.hidden) {
-    return Promise.reject('There is no exit in that direction!');
+    character.output('There is no exit in that direction!');
+    return Promise.reject();
   }
 
   if (exit.closed) {
-    return Promise.reject('The door in that direction is closed!');
+    character.output('The door in that direction is closed!');
+    return Promise.reject();
   }
 
   const lookRoom = Room.getById(exit.roomId);
@@ -48,8 +50,7 @@ export default {
       lookTarget = match[1];
     }
     const short = (match[0] === '');
-    return this.execute(socket.character, short, lookTarget)
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, short, lookTarget);
   },
 
   execute(character, short, lookTarget) {
@@ -78,9 +79,13 @@ export default {
 
     const acResult = autocomplete.multiple(character, ['inventory', 'mob', 'room', 'character'], lookTarget);
     if (!acResult || acResult.item.hidden) {
-      return Promise.reject('You don\'t see that here.');
+      character.output('You don\'t see that here.');
+      return Promise.reject();
     }
-    return acResult.item.getDesc(character);
+    return acResult.item.getDesc(character).then(output => {
+      character.toRoom(`${character.name} looks at the ${acResult.item}.`);
+      character.output(output);
+    });
   },
 
   help(character) {

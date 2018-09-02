@@ -1,4 +1,3 @@
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -12,8 +11,7 @@ export default {
   ],
 
   dispatch(socket) {
-    return this.execute(socket)
-      .then(output => socketUtil.output(socket, output));
+    return this.execute(socket.character);
   },
 
   execute(character) {
@@ -50,9 +48,11 @@ export default {
     output += `<span class="cyan">Endurance: </span><span class="silver">${character.skills.endure}</span>  `;
     output += `<span class="cyan">Resistance: </span><span class="silver">${character.skills.resist}</span>\n`;
     output += '<span class="yellow">Active Buffs/Debuffs: </span>\n';
-    if(character.sneakMode) {
+    if (character.sneakMode) {
       output += '\n<span class="cyan">Sneaking </span>';
     }
+
+    character.output(output);
     return Promise.resolve(output);
   },
 

@@ -1,7 +1,6 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 import utils from '../core/utilities';
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -18,10 +17,10 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 2) {
-      return Promise.reject('What do you want to take?');
+      socket.character.output('What do you want to take?');
+      return Promise.reject();
     }
-    return this.execute(socket.character, match[1], socket.user.admin)
-      .catch(response => socketUtil.output(socket, response));
+    return this.execute(socket.character, match[1], socket.user.admin);
   },
 
   execute(character, itemName, admin) {
@@ -41,11 +40,13 @@ export default {
 
       // fixed items cannot be taken, such as a sign.
       if (roomItem.fixed) {
-        return Promise.reject('You cannot take that!');
+        character.output('You cannot take that!');
+        return Promise.reject();
       }
       if (roomItem.hidden && !admin) {
         //ignore players from unknowingly grabbing a hidden item
-        return Promise.reject('You don\'t see that here!');
+        character.output('You don\'t see that here!');
+        return Promise.reject();
       }
       // take the item from the room
       const room = Room.getById(character.roomId);
@@ -59,7 +60,8 @@ export default {
       return Promise.resolve();
     }
 
-    return Promise.reject('You don\'t see that here!');
+    character.output('You don\'t see that here!');
+    return Promise.reject();
   },
 
   help(character) {

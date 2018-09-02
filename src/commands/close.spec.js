@@ -31,8 +31,8 @@ describe('close', () => {
       mockValidDirectionInput.mockReturnValueOnce('ne');
       expect.assertions(1);
 
-      return sut.execute(socket.character, 'ne').catch(response => {
-        expect(response).toEqual('There is no exit in that direction!');
+      return sut.execute(socket.character, 'ne').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('There is no exit in that direction!');
       });
 
     });
@@ -41,11 +41,11 @@ describe('close', () => {
       mockValidDirectionInput.mockReturnValueOnce('e');
       expect.assertions(2);
 
-      return sut.execute(socket.character, 'e').catch(response => {
+      return sut.execute(socket.character, 'e').catch(() => {
         const exit = mockRoom.exits.find(({ dir }) => dir === 'e');
 
         expect(exit.hasOwnProperty('closed')).toBe(false);
-        expect(response).toEqual('There is no door in that direction!');
+        expect(socket.character.output).toHaveBeenCalledWith('There is no door in that direction!');
       });
     });
 

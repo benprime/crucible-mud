@@ -17,14 +17,12 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      return this.help(socket.character);
-      return;
+      this.help(socket.character);
+      return Promise.resolve();
     }
     const dir = match[1].toLowerCase();
     const keyName = match[2];
-    return this.execute(socket.character, dir, keyName)
-      .then(output => socketUtil.output(socket, output))
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, dir, keyName);
   },
 
   execute(character, dir, keyName, cb) {
@@ -32,23 +30,27 @@ export default {
     dir = Room.validDirectionInput(dir);
     let exit = room.getExit(dir);
     if (!exit) {
-      return Promise.reject('No door in that direction.');
+      character.output('No door in that direction.');
+      return Promise.reject();
     }
     let displayDir = Room.shortToLong(exit.dir);
 
     if (!exit.locked) {
-      return Promise.reject('That door is not locked.');
+      character.output('That door is not locked.');
+      return Promise.reject();
     }
 
     const acResult = autocomplete.multiple(character, ['key'], keyName);
     if (!acResult) {
-      return Promise.reject('You don\'t seem to be carrying that key.');
+      character.output('You don\'t seem to be carrying that key.');
+      return Promise.reject();
     }
 
     const key = acResult.item;
 
     if (key.name != exit.keyName) {
-      return Promise.reject('That key does not unlock that door.');
+      character.output('That key does not unlock that door.');
+      return Promise.reject();
     }
 
     setTimeout(() => {

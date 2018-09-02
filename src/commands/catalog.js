@@ -25,24 +25,25 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 2) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
 
     const type = match[1].toLowerCase();
 
     if (type === 'items') {
-      return this.execute(socket, itemData, 'item');
+      this.execute(socket, itemData, 'item');
     } else if (type === 'mobs') {
-      return this.execute(socket, mobData);
+      this.execute(socket, mobData);
     } else if (type === 'keys') {
-      return this.execute(socket, itemData, 'key');
+      this.execute(socket, itemData, 'key');
     } else if (type === 'areas') {
       const areas = Object.values(Area.areaCache);
-      return this.execute(socket, areas);
+      this.execute(socket, areas);
     } else {
       socket.character.output('Unknown catalog: {types}');
-      return;
     }
+    return Promise.resolve();
   },
 
   execute(character, data, type) {

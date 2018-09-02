@@ -47,8 +47,8 @@ describe('take', () => {
       mockAutocompleteMultiple.mockReturnValueOnce(null);
       expect.assertions(3);
 
-      return sut.execute(socket.character, 'itemNotThere').catch(response => {
-        expect(response).toEqual('You don\'t see that here!');
+      return sut.execute(socket.character, 'itemNotThere').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('You don\'t see that here!');
         expect(mockRoom.save).not.toHaveBeenCalled();
         expect(socket.character.save).not.toHaveBeenCalled();
       });
@@ -67,9 +67,9 @@ describe('take', () => {
       mockAutocompleteMultiple.mockReturnValueOnce({ item: fixedItem });
       expect.assertions(4);
 
-      return sut.execute(socket.character, 'aItem').catch(response => {
+      return sut.execute(socket.character, 'aItem').catch(() => {
         expect(socket.character.inventory).toHaveLength(0);
-        expect(response).toEqual('You cannot take that!');
+        expect(socket.character.output).toHaveBeenCalledWith('You cannot take that!');
         expect(mockRoom.save).not.toHaveBeenCalled();
         expect(socket.character.save).not.toHaveBeenCalled();
       });

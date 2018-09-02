@@ -12,11 +12,15 @@ export default {
   patterns: [
     /^summon\s+(\w+)$/i,
     /^sum\s+(\w+)$/i,
+    /^summon$/i,
+    /^sum$/i,
   ],
 
   dispatch(socket, match) {
-    return this.execute(socket.character, match[1])
-      .catch(response => socketUtil.output(socket, response));
+    if(match.length < 2) {
+      this.help(socket.character);
+    }
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character, name) {
@@ -24,7 +28,8 @@ export default {
     // autocomplete character
     const targetCharacter = autocomplete.character(character, name);
     if (!targetCharacter) {
-      return Promise.reject('Player not found.');
+      character.output('Player not found.');
+      return Promise.reject();
     }
 
     const oldRoomId = targetCharacter.roomId;

@@ -1,5 +1,4 @@
 import commandManager from '../core/commandManager';
-import config from '../config';
 
 const commandModules = [
   'accept.js',

@@ -37,8 +37,8 @@ describe('unlock', () => {
   test('should output message when direction is invalid', () => {
     expect.assertions(2);
 
-    return sut.execute(socket.character, 'e', 'some key').catch(response => {
-      expect(response).toEqual('No door in that direction.');
+    return sut.execute(socket.character, 'e', 'some key').catch(() => {
+      expect(socket.character.output).toHaveBeenCalledWith('No door in that direction.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
 
@@ -48,8 +48,8 @@ describe('unlock', () => {
     mockValidDirectionInput.mockReturnValueOnce('n');
     expect.assertions(2);
 
-    return sut.execute(socket.character, 'n', 'some key').catch(response => {
-      expect(response).toEqual('That door is not locked.');
+    return sut.execute(socket.character, 'n', 'some key').catch(() => {
+      expect(socket.character.output).toHaveBeenCalledWith('That door is not locked.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
 
@@ -60,8 +60,8 @@ describe('unlock', () => {
     mockAutocompleteMultiple.mockReturnValueOnce(null);
     expect.assertions(2);
 
-    return sut.execute(socket.character, 'nw', 'some key').catch(response => {
-      expect(response).toBe('You don\'t seem to be carrying that key.');
+    return sut.execute(socket.character, 'nw', 'some key').catch(() => {
+      expect(socket.character.output).toHaveBeenCalledWith('You don\'t seem to be carrying that key.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
 
@@ -76,8 +76,8 @@ describe('unlock', () => {
     mockAutocompleteMultiple.mockReturnValueOnce({ item: key });
     expect.assertions(2);
 
-    return sut.execute(socket.character, 'ne', 'Blue').catch(response => {
-      expect(response).toEqual('That key does not unlock that door.');
+    return sut.execute(socket.character, 'ne', 'Blue').catch(() => {
+      expect(socket.character.output).toHaveBeenCalledWith('That key does not unlock that door.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
 
@@ -92,8 +92,8 @@ describe('unlock', () => {
     mockAutocompleteMultiple.mockReturnValueOnce({ item: key });
     expect.assertions(2);
 
-    return sut.execute(socket.character, 'w', 'Gold').then(response => {
-      expect(socket.character.output).toHaveBeenCalledWith('Door unlocked.')
+    return sut.execute(socket.character, 'w', 'Gold').then(() => {
+      expect(socket.character.output).toHaveBeenCalledWith('Door unlocked.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
 

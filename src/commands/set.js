@@ -1,7 +1,6 @@
 import Room from '../models/room';
 import Area from '../models/area';
 import Shop from '../models/shop';
-import lookCmd from './look';
 import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
 import { updateHUD } from '../core/hud';
@@ -41,9 +40,11 @@ function setRoom(character, prop, value) {
   if (prop === 'area') {
     const areas = autocomplete.byProperty(Object.values(Area.areaCache), 'name', value);
     if (areas.length > 1) {
-      return Promise.reject(`Multiple areas match that param:\n${JSON.stringify(areas)}`);
+      character.output(`Multiple areas match that param:\n${JSON.stringify(areas)}`);
+      return Promise.reject();
     } else if (areas.length === 0) {
-      return Promise.reject('Unknown area.');
+      character.output('Unknown area.');
+      return Promise.reject();
     }
 
     room.areaId = areas[0].id;
@@ -53,7 +54,8 @@ function setRoom(character, prop, value) {
   else if (prop === 'shop') {
     const shop = Shop.getById(character.roomId);
     if (shop) {
-      return Promise.reject('This room is already a shop.');
+      character.output('This room is already a shop.');
+      return Promise.reject();
     }
     return Promise.resolve(Shop.createShop(character.roomId).then(() => 'Shop created.'));
   }
@@ -77,7 +79,8 @@ function setRoom(character, prop, value) {
   }
 
   else {
-    return Promise.reject('Invalid property.');
+    character.output('Invalid property.');
+    return Promise.reject();
   }
 }
 
@@ -100,21 +103,21 @@ export default {
     /^set\s+(debug)\s+(on|off)$/i,
 
     /^set.*$/i,
+    /^set$/i,
   ],
 
   dispatch(socket, match) {
 
     if (match.length < 3) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
 
     const type = match[1];
     const prop = match[2];
     const value = match[3];
 
-    return this.execute(socket.character, type, prop, value)
-      .then(() => lookCmd.execute(socket))
-      .catch(response => socketUtil.output(socket, response));
+    return this.execute(socket.character, type, prop, value);
   },
 
   execute(character, type, prop, value) {
@@ -131,7 +134,8 @@ export default {
       return setDebug(character, prop); // prop is 'value' in this case
     }
     else {
-      return Promise.reject('Invalid type.');
+      character.output('Invalid type.');
+      return Promise.reject();
     }
   },
 

@@ -11,25 +11,27 @@ export default {
     /^equip\s+(.+)$/i,
     /^wield\s+(.+)$/i,
     /^equip$/i,
+    /^eq$/i,
   ],
 
   dispatch(socket, match) {
-    return this.execute(socket.character, match[1], match[2])
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, match[1], match[2]);
   },
 
   execute(character, itemName) {
 
     const acResult = autocomplete.multiple(character, ['inventory'], itemName);
     if (!acResult) {
-      return Promise.reject('item is not in inventory.');
+      character.output('item is not in inventory.');
+      return Promise.reject();
     }
 
     const item = acResult.item;
 
     // check if item is equipable or return
     if (!item.equipSlots || item.equipSlots.length === 0) {
-      return Promise.reject('You cannot equip that!\n');
+      character.output('You cannot equip that!\n');
+      return Promise.reject();
     }
 
     character.equipped.equip(item);

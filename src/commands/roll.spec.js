@@ -17,8 +17,8 @@ describe('roll', () => {
       mockRoll.mockReturnValueOnce(1);
       expect.assertions(1);
 
-      return sut.execute(socket.character).then(response => {
-        expect(response).toEqual('Action Die Roll Result:  1<br />');
+      return sut.execute(socket.character).then(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('Action Die Roll Result:  1<br />');
       });
 
     });
@@ -27,8 +27,8 @@ describe('roll', () => {
       mockRoll.mockReturnValueOnce(2);
       expect.assertions(1);
 
-      return sut.execute(socket.character, '1d4').then(response => {
-        expect(response).toEqual('1d4 Roll Result:  2<br />');
+      return sut.execute(socket.character, '1d4').then(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('1d4 Roll Result:  2<br />');
       });
 
     });

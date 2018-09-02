@@ -13,10 +13,10 @@ describe('break', () => {
       expect.assertions(2);
 
       // act
-      return sut.execute(socket.character).then(response => {
+      return sut.execute(socket.character).then(() => {
         // assert
         expect(socket.character.toRoom).toHaveBeenCalledWith('TestUser breaks off his attack.', [socket.character.id]);
-        expect(socket.character.output).toHaveBeenCalledWith('<span class="olive">*** Combat Disengaged ***</span>')
+        expect(socket.character.output).toHaveBeenCalledWith('<span class="olive">*** Combat Disengaged ***</span>');
       });
     });
 
@@ -26,7 +26,7 @@ describe('break', () => {
       expect.assertions(2);
 
       // act
-      return sut.execute(socket.character).then(response => {
+      return sut.execute(socket.character).then(() => {
         // assert
         expect(socket.character.output).not.toHaveBeenCalled();
         expect(socket.character.toRoom).not.toHaveBeenCalled();

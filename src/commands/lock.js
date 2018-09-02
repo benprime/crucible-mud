@@ -1,6 +1,5 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -17,13 +16,12 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
     const dir = match[1].toLowerCase();
     const keyName = match[2];
-    return this.execute(socket.character, dir, keyName)
-      .then(output => socketUtil.output(socket, output))
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, dir, keyName);
   },
 
   execute(character, dir, keyName) {
@@ -31,12 +29,14 @@ export default {
     const validDir = Room.validDirectionInput(dir);
     let exit = room.getExit(validDir);
     if (!exit || !('closed' in exit)) {
-      return Promise.reject('No door in that direction.');
+      character.output('No door in that direction.');
+      return Promise.reject();
     }
 
     const acResult = autocomplete.multiple(character, ['key'], keyName);
     if (!acResult) {
-      return Promise.reject('Unknown key.');
+      character.output('Unknown key.');
+      return Promise.reject();
     }
 
     let key = acResult.item;
@@ -45,7 +45,8 @@ export default {
     exit.keyName = key.name;
     exit.locked = true;
     room.save(err => { if (err) throw err; });
-    return Promise.resolve('Door locked.');
+    character.output('Door locked.');
+    return Promise.resolve();
   },
 
   help(character) {

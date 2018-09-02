@@ -16,10 +16,10 @@ describe('keys', () => {
       expect.assertions(1);
 
       // act
-      return sut.execute(socket.character).then(response => {
+      return sut.execute(socket.character).then(() => {
 
         // assert
-        expect(response).toContain(expectedString);
+        expect(socket.character.output).toHaveBeenCalledWith(expectedString);
       });
 
     });
@@ -35,9 +35,9 @@ describe('keys', () => {
       expect.assertions(1);
 
       // act
-      return sut.execute(socket.character).then(response => {
+      return sut.execute(socket.character).then(() => {
         // assert
-        expect(response).toContain(expectedString);
+        expect(socket.character.output).toHaveBeenCalledWith(expectedString);
       });
 
     });

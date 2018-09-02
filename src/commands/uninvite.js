@@ -13,23 +13,24 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 2) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
 
-    return this.execute(socket.character, match[1])
-      .then(output => socket.character.output(output))
-      .catch(output => socket.character.output(output));
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character, name) {
 
     const targetChar = autocomplete.character(character, name);
     if (!targetChar) {
-      return Promise.reject('Unknown player.');
+      character.output('Unknown player.');
+      return Promise.reject();
     }
 
     if (targetChar.leader !== character.id) {
-      return Promise.reject(`You are not leading ${targetChar.name} in a party.`);
+      character.output(`You are not leading ${targetChar.name} in a party.`);
+      return Promise.reject();
     }
 
     const partyMsg = `<span class="yellow">${targetChar.name} has been removed from ${character.name}'s party.\n`;

@@ -29,8 +29,8 @@ describe('lock', () => {
 
   test('should output message when direction is invalid', () => {
     mockValidDirectionInput.mockReturnValueOnce('w');
-    return sut.execute(socket.character, 'w', 'some key').catch(response => {
-      expect(response).toBe('No door in that direction.');
+    return sut.execute(socket.character, 'w', 'some key').catch(() => {
+      expect(socket.character.output).toHaveBeenCalledWith('No door in that direction.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
   });
@@ -39,8 +39,8 @@ describe('lock', () => {
     mockValidDirectionInput.mockReturnValueOnce('s');
     expect.assertions(2);
 
-    return sut.execute(socket.character, 's', 'some key').catch(response => {
-      expect(response).toBe('No door in that direction.');
+    return sut.execute(socket.character, 's', 'some key').catch(() => {
+      expect(socket.character.output).toHaveBeenCalledWith('No door in that direction.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
 
@@ -50,8 +50,8 @@ describe('lock', () => {
   test('should do nothing when key name is invalid', () => {
     mockValidDirectionInput.mockReturnValueOnce('e');
     expect.assertions(2);
-    return sut.execute(socket.character, 'e', 'invalid key name').catch(response => {
-      expect(response).toBe('Unknown key.');
+    return sut.execute(socket.character, 'e', 'invalid key name').catch(() => {
+      expect(socket.character.output).toHaveBeenCalledWith('Unknown key.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
 
@@ -65,11 +65,11 @@ describe('lock', () => {
     expect.assertions(4);
 
     // act
-    return sut.execute(socket.character, 'n', 'some key').then(output => {
+    return sut.execute(socket.character, 'n', 'some key').then(() => {
       const exit = mockRoom.exits.find(({ dir }) => dir === 'n');
 
       // assert
-      expect(output).toEqual('Door locked.');
+      expect(socket.character.output).toHaveBeenCalledWith('Door locked.');
       expect(mockRoom.save).toHaveBeenCalledTimes(1);
       expect(exit.closed).toBe(true);
       expect(exit.locked).toBe(true);

@@ -1,5 +1,4 @@
 import Room from '../models/room';
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -13,8 +12,7 @@ export default {
   ],
 
   dispatch(socket, match) {
-    return this.execute(socket.character, match[1])
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character, dir) {
@@ -24,19 +22,23 @@ export default {
     // valid exit in that direction?
     const exit = room.exits.find(e => e.dir === d);
     if (!exit) {
-      return Promise.reject('There is no exit in that direction!');
+      character.output('There is no exit in that direction!');
+      return Promise.reject();
     }
 
     if (exit.closed === undefined) {
-      return Promise.reject('There is no door in that direction!');
+      character.output('There is no door in that direction!');
+      return Promise.reject();
     }
 
     if (exit.locked) {
-      return Promise.reject('That door is locked.');
+      character.output('That door is locked.');
+      return Promise.reject();
     }
 
     if (exit.closed === false) {
-      return Promise.reject('That door is already open.');
+      character.output('That door is already open.');
+      return Promise.reject();
     }
 
     exit.closed = false;

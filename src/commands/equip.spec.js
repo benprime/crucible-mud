@@ -20,8 +20,8 @@ describe('equip', () => {
       mockAutocompleteMultiple.mockReturnValueOnce(null);
       expect.assertions(1);
 
-      return sut.execute(socket.character, 'boot').catch(output => {
-        expect(output).toBe('item is not in inventory.');
+      return sut.execute(socket.character, 'boot').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('item is not in inventory.');
       });
 
     });
@@ -33,8 +33,8 @@ describe('equip', () => {
       mockAutocompleteMultiple.mockReturnValueOnce({ item: sword });
       expect.assertions(1);
 
-      return sut.execute(socket.character, 'sword').catch(output => {
-        expect(output).toEqual('You cannot equip that!\n');
+      return sut.execute(socket.character, 'sword').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('You cannot equip that!\n');
       });
     });
 

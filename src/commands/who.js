@@ -1,6 +1,5 @@
 import Area from '../models/area';
 import Room from '../models/room';
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -13,10 +12,10 @@ export default {
   ],
 
   dispatch(socket) {
-    return this.execute().then(output => socketUtil.output(socket, output));
+    return this.execute(socket.character);
   },
 
-  execute() {
+  execute(character) {
     const characters = Object.values(global.io.sockets.connected)
       .filter(s => s.character).map(s => s.character);
 
@@ -36,7 +35,8 @@ export default {
       output += `${wu.username}${areaName}<br />`;
     });
     output += '</div>';
-    return Promise.resolve(output);
+    character.output(output);
+    return Promise.resolve();
   },
 
   help(character) {

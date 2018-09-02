@@ -1,4 +1,3 @@
-import socketUtil from '../core/socketUtil';
 import Shop from '../models/shop';
 import commandCategories from '../core/commandCategories';
 
@@ -14,23 +13,25 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 2) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
-    return this.execute(socket.character, match[1])
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character, itemName) {
 
     const shop = Shop.getById(character.roomId);
     if (!shop) {
-      return Promise.reject('This command can only be used in a shop.');
+      character.output('This command can only be used in a shop.');
+      return Promise.reject();
     }
 
     return shop.getItemTypeByAutocomplete(itemName).then(itemType => {
       // check if user has money
       if (character.currency < itemType.price) {
-        return Promise.reject('You cannot afford that.');
+        character.output('You cannot afford that.');
+        return Promise.reject();
       }
 
       const item = shop.buy(character, itemType);

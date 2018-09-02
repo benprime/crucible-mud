@@ -21,8 +21,8 @@ describe('unequip', () => {
       mockAutocompleteMultiple.mockReturnValueOnce(null);
       expect.assertions(1);
 
-      return sut.execute(socket.character, 'monocle').catch(response => {
-        expect(response).toEqual('You don\'t have that equipped.\n');
+      return sut.execute(socket.character, 'monocle').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('You don\'t have that equipped.\n');
       });
 
     });

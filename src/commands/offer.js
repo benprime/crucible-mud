@@ -1,4 +1,3 @@
-import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import { currencyToInt, currencyToString } from '../core/currency';
 import config from '../config';
@@ -20,10 +19,10 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 3) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
-    return this.execute(socket.character, match[1], match[2])
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, match[1], match[2]);
   },
 
   execute(character, itemName, userName, cb) {
@@ -32,11 +31,13 @@ export default {
     // autocomplete username
     const toCharacter = autocomplete.character(character, userName);
     if (!toCharacter) {
-      return Promise.reject('Unknown user or user not connected.');
+      character.output('Unknown user or user not connected.');
+      return Promise.reject();
     }
 
     if (toCharacter.roomId !== character.roomId) {
-      return Promise.reject(`${userName} is not here!`);
+      character.output(`${userName} is not here!`);
+      return Promise.reject();
     }
 
     // check if the offer is currency
@@ -44,12 +45,14 @@ export default {
     if (currencyValue) {
       if (character.currency < currencyValue) {
         toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== character.name);
-        return Promise.reject('You do not have enough money.');
+        character.output('You do not have enough money.');
+        return Promise.reject();
       }
     } else {
       const acResult = autocomplete.multiple(character, ['inventory'], itemName);
       if (!acResult) {
-        return Promise.reject('You don\'t seem to be carrying that.');
+        character.output('You don\'t seem to be carrying that.');
+        return Promise.reject();
       }
       item = acResult.item;
     }

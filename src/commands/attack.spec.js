@@ -1,5 +1,5 @@
 import { mockGetRoomById } from '../models/room';
-import { mockAutocompleteMultiple } from '../core/autocomplete';
+import { mockAutocompleteMultiple, mockAutocompleteMob } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './attack';
 
@@ -27,22 +27,19 @@ describe('attack', () => {
     });
 
     test('should set state and emit output when valid target found', () => {
-      const autocompleteResult = {
-        item: {
-          id: 123,
-          name: 'a thing!',
-        },
-        type: 'mob',
+      const mockMob = {
+        id: 123,
+        name: 'a thing!',
       };
       mockGetRoomById.mockReturnValueOnce(mockRoom);
-      mockAutocompleteMultiple.mockReturnValueOnce(autocompleteResult);
+      mockAutocompleteMob.mockReturnValueOnce(mockMob);
 
       expect.assertions(3);
 
       return sut.execute(socket.character, 'thing').then(() => {
         expect(socket.character.output).toHaveBeenCalledWith('<span class="olive">*** Combat Engaged ***</span>');
-        expect(socket.character.toRoom).toHaveBeenCalledWith(`${socket.character.name} moves to attack ${autocompleteResult.item.displayName}!`, [socket.character.id]);
-        expect(socket.character.attackTarget).toBe(autocompleteResult.item.id);
+        expect(socket.character.toRoom).toHaveBeenCalledWith(`${socket.character.name} moves to attack ${mockMob.displayName}!`, [socket.character.id]);
+        expect(socket.character.attackTarget).toBe(mockMob.id);
       });
     });
 

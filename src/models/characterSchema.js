@@ -38,9 +38,8 @@ const CharacterSchema = new mongoose.Schema({
   maxHP: Number,
   currentHP: Number,
 
-  actionDie: {  // base die for all of player's action results to add variance
-    type: String,
-  },
+  actionDie: String,  // base die for all of player's action results to add variance
+  attacksPerRound: Number,
 
   stats: {
     strength: Number,
@@ -156,7 +155,7 @@ return 0;
 
 
 // TODO: perhaps have miss verbs per weapon type also: "thrusts at, stabs at" in addition to "swings at"
-CharacterSchema.method.getAttackVerb = function (weapon) {
+CharacterSchema.methods.getAttackVerb = function (weapon) {
   const weaponType = weapon ? weapon.weaponType : 'unarmed';
   const attackVerbs = {
     'slashing': ['slash', 'stab', 'cut', 'hack', 'chop', 'cleave'],
@@ -183,41 +182,45 @@ CharacterSchema.methods.attack = function (mob, now) {
   // a successful attack
   let weapon;
   if (hit) {
-    //if(this.equipped.weaponMain) {
     weapon = this.inventory.id(this.equipped.weaponMain);
-    //} else {
-
-    //    }
-    let dmg = weapon ? dice.roll(weapon.damage) : '1d2'; // todo: +STR modifier
+    let diceToRoll = weapon ? dice.roll(weapon.damage) : '1d2';
+    let dmg = dice.roll(diceToRoll); // todo: +STR modifier
     mob.takeDamage(dmg);
 
     // messages
     const verb = this.getAttackVerb(weapon);
     const thirdPersonVerb = verbToThirdPerson(verb);
-    actorMessage = `<span class="${config.DMG_COLOR}">You ${verb} the ${mob.name} for ${dmg} damage!</span>`;
-    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} ${thirdPersonVerb} ${mob.name} for ${dmg} damage!</span>`;
+    actorMessage = `<span class="${config.DMG_COLOR}">You ${verb} the ${mob.displayName} for ${dmg} damage!</span>`;
+    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} ${thirdPersonVerb} ${mob.displayName} for ${dmg} damage!</span>`;
   } else {
-    actorMessage = `<span class="${config.MSG_COLOR}">You swing at the ${mob.name} but miss!</span>`;
-    roomMessage = `<span class="${config.MSG_COLOR}">${this.username} swings at the ${mob.name} but misses!</span>`;
+    actorMessage = `<span class="${config.MSG_COLOR}">You swing at the ${mob.displayName} but miss!</span>`;
+    roomMessage = `<span class="${config.MSG_COLOR}">${this.username} swings at the ${mob.displayName} but misses!</span>`;
   }
 
   this.output(actorMessage);
   this.toRoom(roomMessage);
 };
 
-CharacterSchema.methods.processEndOfRound = function () {
+CharacterSchema.methods.processEndOfRound = function (round) {
 
   if (this.bleeding) {
 
     // take damage every number of rounds configured
-    if (this.bleeding % config.BLEED_ROUNDS === 0) {
+    if (round % config.BLEED_ROUNDS === 0) {
       this.output('<span class="firebrick">You are bleeding!</span>');
       this.toRoom(`<span class="firebrick">${this.name} is bleeding out!</span>`);
       this.takeDamage(1);
+      this.save();
     }
-    this.bleeding++;
+    //this.bleeding++;
   } else {
-    this.regen();
+
+    // this is on a global 'timer' and probably should be changed to
+    // track a counter for each character (every 4 rounds after you break of combat)
+    if (!this.attackTarget && round % config.REGEN_ROUNDS === 0) {
+      this.regen();
+      this.save();
+    }
   }
 
   if (this.hasState(characterStates.resting) && this.currentHP >= this.maxHP) {
@@ -247,6 +250,7 @@ CharacterSchema.methods.regen = function () {
     } else {
       this.currentHP++;
     }
+    this.updateHUD();
   }
 };
 
@@ -373,7 +377,7 @@ CharacterSchema.methods.output = function (msg, options) {
   const socket = socketUtil.getSocketByCharacterId(this.id);
   if (socket) {
     let payload = { message: msg };
-    if(options) {
+    if (options) {
       Object.assign(payload, options);
     }
     socket.emit('output', payload);
@@ -492,7 +496,11 @@ CharacterSchema.methods.processStates = function (command) {
   const restrictStates = this.states.filter(s => s.mode === stateMode.RESTRICT);
   for (let state of restrictStates) {
     if (!state.commandCategories.includes(command.category)) {
-      if (state.message) this.output(state.message);
+      if (state.message) {
+        // treat a regular string as a template literal
+        const msg = new Function(`return \`${state.message}\`;`).call(this);
+        this.output(msg);
+      }
 
       // since the action is blocked, we can return immediately
       return false;
@@ -506,7 +514,10 @@ CharacterSchema.methods.processStates = function (command) {
     let state = deactivateStates[i];
 
     if (!state.commandCategories.includes(command.category)) {
-      if (state.message) this.output(state.message);
+      if (state.message) {
+        let msg = new Function(`return \`${state.message}\`;`).call(this);
+        this.output(msg);
+      }
       deactivateStates.splice(i, 1);
       i--;
       this.removeState(state);

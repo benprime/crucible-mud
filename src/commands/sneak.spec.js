@@ -1,7 +1,5 @@
 import { mockGetRoomById } from '../models/room';
-import { mockRoll } from '../core/dice';
 import mocks from '../../spec/mocks';
-import sut from './sneak';
 
 jest.mock('../models/room');
 jest.mock('../core/dice');
@@ -30,13 +28,19 @@ describe('sneak', function () {
   test('character should not generate enter and exit messages when sneaking', () => {
   });
 
+  test('character should generate enter and exit messages after revealed', () => {
+  });
+
   test('character should not generate movement noise messages when sneaking', () => {
   });
 
-  test('should not appear in room description when sneaking', () => {
+  test('character should generate movement noise messages after revealed', () => {
   });
 
   test('should not appear in room description when sneaking', () => {
+  });
+
+  test('should appear in room description when revealed', () => {
   });
 
 });

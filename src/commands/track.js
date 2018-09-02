@@ -14,19 +14,19 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 2) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
 
-    return this.execute(socket.character, match[1])
-      .then(output => socket.character.output(output))
-      .catch(output => socket.character.output(output));
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character, name) {
 
     const targetChar = autocomplete.character(character, name);
     if (!targetChar) {
-      return Promise.reject('Unknown player.');
+      character.output('Unknown player.');
+      return Promise.reject();
     }
 
     const room = Room.getById(character.roomId);

@@ -28,20 +28,20 @@ describe('party', () => {
 
       test('should display party members when command run by leader', () => {
         expect.assertions(1);
-        return sut.execute(socket.character).then(response => {
+        return sut.execute(socket.character).then(() => {
           const expected = 'The following people are in your party:\nTestUser (Leader)\nTest1\nTest2\n';
 
-          expect(response).toEqual(expected);
+          expect(socket.character.output).toHaveBeenCalledWith(expected);
         });
 
       });
 
       test('should display party members when command run by follower', () => {
         expect.assertions(1);
-        return sut.execute(socket.character).then(response => {
+        return sut.execute(socket.character).then(() => {
           const expected = 'The following people are in your party:\nTestUser (Leader)\nTest1\nTest2\n';
 
-          expect(response).toEqual(expected);
+          expect(socket.character.output).toHaveBeenCalledWith(expected);
         });
       });
     });
@@ -50,10 +50,10 @@ describe('party', () => {
       mockGetFollowers.mockReturnValue([]);
       expect.assertions(1);
       const noPartysocket = new mocks.SocketMock();
-      return sut.execute(noPartysocket.character).catch(response => {
+      return sut.execute(noPartysocket.character).catch(() => {
         const expected = 'You are not in a party.';
 
-        expect(response).toEqual(expected);
+        expect(noPartysocket.character.output).toHaveBeenCalledWith(expected);
       });
     });
   });

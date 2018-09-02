@@ -1,6 +1,5 @@
 import Shop from '../models/shop';
 import autocomplete from '../core/autocomplete';
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -15,10 +14,10 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 2) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
-    return this.execute(socket.character, match[1])
-      .catch(response => socketUtil.output(socket, response));
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character, itemName) {
@@ -26,12 +25,14 @@ export default {
     // check if user has item
     const acResult = autocomplete.multiple(character, ['inventory'], itemName);
     if (!acResult) {
-      return Promise.reject('You don\'t seem to be carrying that.');
+      character.output('You don\'t seem to be carrying that.');
+      return Promise.reject();
     }
 
     const shop = Shop.getById(character.roomId);
     if (!shop) {
-      return Promise.reject('This command can only be used in a shop.');
+      character.output('This command can only be used in a shop.');
+      return Promise.reject();
     }
 
     const itemType = shop.getItemTypeByAutocomplete(itemName);
@@ -39,19 +40,22 @@ export default {
     // check if shop carries this type of item
     const stockType = shop.stock.find(st => st.itemTypeName === itemType.name);
     if (!stockType) {
-      return Promise.reject('This shop does not deal in those types of items.');
+      character.output('This shop does not deal in those types of items.');
+      return Promise.reject();
     }
 
     // check if item can be sold
     if (!itemType.price) {
-      return Promise.reject('You cannot sell this item.');
+      character.output('You cannot sell this item.');
+      return Promise.reject();
     }
 
     const sellPrice = shop.getSellPrice(itemType);
 
     // check if shop has money
     if (shop.currency < sellPrice) {
-      return Promise.reject('The shop cannot afford to buy that from you.');
+      character.output('The shop cannot afford to buy that from you.');
+      return Promise.reject();
     }
 
     shop.sell(character, itemType);

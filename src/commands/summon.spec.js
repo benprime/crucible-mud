@@ -35,8 +35,8 @@ describe('summon', () => {
   describe('execute', () => {
     test('should output message when user is not found', () => {
       expect.assertions(1);
-      return sut.execute(socket.character, 'Wrong').catch(response => {
-        expect(response).toEqual('Player not found.');
+      return sut.execute(socket.character, 'Wrong').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('Player not found.');
       });
 
     });
@@ -62,7 +62,7 @@ describe('summon', () => {
       expect.assertions(3);
 
       // act
-      return sut.execute(socket.character, 'OtherUser').then(response => {
+      return sut.execute(socket.character, 'OtherUser').then(() => {
         // assert
         expect(mockTargetSocket.character.output).toHaveBeenCalledWith('You were summoned to TestUser\'s room!');
         expect(mockRoomMessage).toHaveBeenCalledWith(oldRoomId, 'OtherUser vanishes!');

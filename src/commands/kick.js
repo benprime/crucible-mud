@@ -15,21 +15,23 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 3) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
-    return this.execute(socket.character, match[1], match[2])
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, match[1], match[2]);
   },
 
   execute(character, itemName, dir) {
 
     const item = autocomplete.room(character, itemName);
     if (!item) {
-      return Promise.reject('You don\'t see that item here');
+      character.output('You don\'t see that item here');
+      return Promise.reject();
     }
 
     if (!Room.validDirectionInput(dir)) {
-      return Promise.reject('Invalid direction.');
+      character.output('Invalid direction.');
+      return Promise.reject();
     }
 
     const room = Room.getById(character.roomId);

@@ -1,4 +1,3 @@
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -11,9 +10,7 @@ export default {
   ],
 
   dispatch(socket) {
-    return this.execute(socket)
-      .then(output => socketUtil.output(socket, output))
-      .catch(error => socket.character.output(error));
+    return this.execute(socket);
   },
 
   execute(character) {
@@ -28,7 +25,8 @@ export default {
     output += keyOutput;
     output += '</span>';
 
-    return Promise.resolve(output);
+    character.output(output);
+    return Promise.resolve();
   },
 
   help(character) {

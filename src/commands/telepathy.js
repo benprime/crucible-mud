@@ -14,10 +14,10 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
-    return this.execute(socket.character, match[1], match[2])
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, match[1], match[2]);
   },
 
   execute(character, username, message) {
@@ -33,7 +33,8 @@ export default {
     // player to player chat
     const targetCharacter = autocomplete.character(character, username);
     if (!targetCharacter) {
-      return Promise.reject('Invalid username.');
+      character.output('Invalid username.');
+      return Promise.reject();
     }
 
     targetCharacter.output(`${character.name} telepaths: <span class="silver">${safeMessage}</span>`);

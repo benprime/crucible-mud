@@ -57,9 +57,7 @@ export default {
   ],
 
   dispatch(socket, match) {
-    return this.execute(socket.character, match[1], match[2])
-      .then(response => socketUtil.output(socket, response))
-      .catch(response => socketUtil.output(socket, response));
+    return this.execute(socket.character, match[1], match[2]);
   },
 
   execute(character, action, param) {
@@ -81,53 +79,67 @@ export default {
       case 'add':
         addMobType = mobData.catalog.find(({ name }) => name.toLowerCase() === param.toLowerCase());
         if (!addMobType) {
-          return Promise.reject('Invalid mobType.');
+          character.output('Invalid mobType.');
+          return Promise.reject();
         }
         room.spawner.mobTypes.push(addMobType.name);
         room.save(err => { if (err) throw err; });
-        return Promise.resolve('Creature added to spawner.');
+        character.output('Creature added to spawner.');
+        return Promise.resolve();
       case 'remove':
         removeMobType = mobData.catalog.find(({ name }) => name.toLowerCase() === param.toLowerCase());
         if (!removeMobType) {
-          return Promise.reject('Invalid mobType.');
+          character.output('Invalid mobType.');
+          return Promise.reject();
         }
         index = room.spawner.mobTypes.indexOf(removeMobType.name);
         if (index !== -1) {
           room.spawner.mobTypes.splice(index);
           room.save(err => { if (err) throw err; });
-          return Promise.resolve('Creature removed from spawner.');
+          character.output('Creature removed from spawner.');
+          return Promise.resolve();
         } else {
-          return Promise.reject('Creature not found on spawner.');
+          character.output('Creature not found on spawner.');
+          return Promise.reject();
         }
       case 'max':
         maxVal = parseInt(param);
         if (isNaN(maxVal)) {
-          return Promise.reject('Invalid max value - must be an integer.');
+          character.output('Invalid max value - must be an integer.');
+          return Promise.reject();
         }
         room.spawner.max = maxVal;
         room.save(err => { if (err) throw err; });
-        return Promise.resolve(`Max creatures updated to ${maxVal}.`);
+        character.output(`Max creatures updated to ${maxVal}.`);
+        return Promise.resolve();
       case 'timeout':
         timeoutVal = parseInt(param);
         if (isNaN(timeoutVal)) {
-          return Promise.reject('Invalid max value - must be an integer.');
+          character.output('Invalid max value - must be an integer.');
+          return Promise.reject();
         }
         room.spawner.timeout = timeoutVal;
         room.save(err => { if (err) throw err; });
-        return Promise.resolve(`Timeout updated to ${timeoutVal}.`);
+        character.output(`Timeout updated to ${timeoutVal}.`);
+        return Promise.resolve();
       case 'clear':
         room.spawner = null;
         room.save(err => { if (err) throw err; });
-        return Promise.resolve('Spawner cleared.');
+        character.output('Spawner cleared.');
+        return Promise.resolve();
       case 'copy':
         character.spawnerClipboard = room.spawner;
-        return Promise.resolve('Spawner copied.');
+        character.output('Spawner copied.');
+        return Promise.resolve();
       case 'paste':
         room.spawner = character.spawnerClipboard;
-        return Promise.resolve('Spawner pasted.');
+        character.output('Spawner pasted.');
+        return Promise.resolve();
       default:
         desc = room.spawner ? room.spawner.toString() : 'None.';
-        return Promise.resolve(desc);
+        character.output(desc);
+        character.output();
+        return Promise.resolve();
     }
   },
 

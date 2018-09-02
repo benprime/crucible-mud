@@ -1,4 +1,3 @@
-import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import config from '../config';
 import commandCategories from '../core/commandCategories';
@@ -10,36 +9,28 @@ export default {
 
   patterns: [
     /^a\s+(.+)$/i,
+    /^att\s+(.+)$/i,
     /^attack\s+(.+)$/i,
   ],
 
   dispatch(socket, match) {
-    return this.execute(socket.character, match[1])
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character, targetName) {
 
-    if (character.dragging) {
-      const drag = socketUtil.getCharacterById(character.dragging);
-      let msg = `<span class="yellow">You cannot do that while dragging ${drag.name}!</span>\n`;
-      msg += `<span class="silver">type DROP ${drag.name} to stop dragging them.</span>\n`;
-      return Promise.reject(msg);
-    }
-
-    const acResult = autocomplete.multiple(character, ['mob'], targetName);
-    if (!acResult) {
+    const mob = autocomplete.mob(character, targetName);
+    if (!mob) {
       character.attackTarget = null;
-      return Promise.reject('attack target not found');
+      character.output('You don\'t see anything like that here.');
+      return Promise.reject();
     }
 
-    const target = acResult.item;
-
-    character.attackTarget = target.id;
-    character.attackInterval = this.attacksPerRound * config.ROUND_DURATION;
+    character.attackTarget = mob.id;
+    character.attackInterval = character.attacksPerRound * config.ROUND_DURATION;
 
     character.output('<span class="olive">*** Combat Engaged ***</span>');
-    character.toRoom(`${character.name} moves to attack ${target.displayName}!`, [character.id]);
+    character.toRoom(`${character.name} moves to attack ${mob.displayName}!`, [character.id]);
 
     return Promise.resolve();
   },

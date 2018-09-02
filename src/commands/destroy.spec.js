@@ -34,9 +34,9 @@ describe('destroy', () => {
         expect.assertions(1);
 
         // act
-        return sut.execute(socket.character, 'mob', 'not found name').catch(response => {
+        return sut.execute(socket.character, 'mob', 'not found name').catch(() => {
           // assert
-          expect(response).toBe('Mob not found.');
+          expect(socket.character.output).toHaveBeenCalledWith('Mob not found.');
         });
 
 
@@ -75,10 +75,10 @@ describe('destroy', () => {
         expect.assertions(3);
 
         // act
-        return sut.execute(socket.character, 'item', 'non-existant item').catch(response => {
+        return sut.execute(socket.character, 'item', 'non-existant item').catch(() => {
 
           // assert
-          expect(response).toBe('You don\'t seem to be carrying that item.');
+          expect(socket.character.output).toHaveBeenCalledWith('You don\'t seem to be carrying that item.');
           expect(socket.character.inventory).toHaveLength(1);
           expect(socket.character.save).not.toHaveBeenCalled();
         });
@@ -95,9 +95,9 @@ describe('destroy', () => {
         expect.assertions(3);
 
         // act
-        return sut.execute(socket.character, 'item', 'item name').then(response => {
+        return sut.execute(socket.character, 'item', 'item name').then(() => {
           // assert
-          expect(response).toEqual('Item successfully destroyed.');
+          expect(socket.character.output).toHaveBeenCalledWith('Item successfully destroyed.');
           expect(socket.character.inventory).toHaveLength(0);
           expect(socket.character.save).toHaveBeenCalledTimes(1);
         });
@@ -110,9 +110,9 @@ describe('destroy', () => {
       expect.assertions(3);
 
       // act
-      return sut.execute(socket.character, 'invalid type', 'name of thing to destroy').catch(response => {
+      return sut.execute(socket.character, 'invalid type', 'name of thing to destroy').catch(() => {
         // assert
-        expect(response).toEqual('Invalid destroy type.');
+        expect(socket.character.output).toHaveBeenCalledWith('Invalid destroy type.');
         expect(socket.character.inventory).toHaveLength(0);
         expect(socket.character.save).not.toHaveBeenCalled();
       });

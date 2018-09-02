@@ -15,6 +15,7 @@ export default {
       commandCategories.communication,
     ],
     mode: stateMode.RESTRICT,
+    message: '<span class="yellow">You cannot do that while dragging a player!</span>\n<span class="silver">type DROP <PLAYER NAME> to stop dragging them.</span>\n',
   },
   incapacitated: {
     name: 'INCAPACITATED', // HUD display

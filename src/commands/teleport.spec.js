@@ -72,9 +72,9 @@ describe('teleport', () => {
       expect.assertions(1);
 
       // act
-      return sut.execute(socket.character, 'Bobby').catch(response => {
+      return sut.execute(socket.character, 'Bobby').catch(() => {
         // assert
-        expect(response).toEqual('Target not found.');
+        expect(socket.character.output).toHaveBeenCalledWith('Target not found.');
       });
 
     });

@@ -1,4 +1,3 @@
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -12,8 +11,7 @@ export default {
   ],
 
   dispatch(socket) {
-    return this.execute(socket.character)
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character);
   },
 
   execute(character) {

@@ -12,14 +12,15 @@ export default {
     /^dr\s+(.+)$/i,
     /^drop\s+(.+)$/i,
     /^drop/i,
+    /^dr/i,
   ],
 
   dispatch(socket, match) {
     if (match.length < 2) {
-      return Promise.reject('What do you want to drop?');
+      socket.character.output('What do you want to drop?');
+      return Promise.reject();
     }
-    return this.execute(socket.character, match[1])
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character, itemName) {
@@ -40,7 +41,8 @@ export default {
     // drop items and keys
     const result = autocomplete.multiple(character, ['inventory', 'key'], itemName);
     if (!result) {
-      return Promise.reject('You don\'t seem to be carrying that.');
+      character.output('You don\'t seem to be carrying that.');
+      return Promise.reject();
     }
 
     // remove item from users inventory or key ring
@@ -53,7 +55,8 @@ export default {
       character.keys.remove(result.item);
     } else {
       // just a catch for bad data
-      return Promise.reject('Unknown item type!');
+      character.output('Unknown item type!');
+      return Promise.reject();
     }
 
     // and place it in the room

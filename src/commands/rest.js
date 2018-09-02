@@ -1,4 +1,3 @@
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 import Room from '../models/room';
 import characterStates from '../core/characterStates';
@@ -15,15 +14,20 @@ export default {
   ],
 
   dispatch(socket, match) {
-    return this.execute(socket.character, match[1])
-      .catch(response => socketUtil.output(socket, response));
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character) {
 
+    if (character.currentHP >= character.maxHP) {
+      character.output('You are fully healed! Don\'t be lazy!');
+      return Promise.reject();
+    }
+
     const room = Room.getById(character.roomId);
     if (room.mobs.length > 0) {
-      return Promise.reject('<span class="red">You cannot rest with enemies in the room!</span>\n');
+      character.output('<span class="red">You cannot rest with enemies in the room!</span>\n');
+      return Promise.reject();
     }
 
     character.setState(characterStates.resting);

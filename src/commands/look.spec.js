@@ -16,7 +16,7 @@ describe('look', () => {
   let targetRoomNorth;
   let targetRoomSouth;
 
-  beforeAll(() => {
+  beforeEach(() => {
     global.io = new mocks.IOMock();
     socket = new mocks.SocketMock();
     targetRoomNorth = mocks.getMockRoom();
@@ -112,9 +112,9 @@ describe('look', () => {
         expect.assertions(1);
 
         // act
-        return sut.execute(socket.character, false, 'n').catch(response => {
+        return sut.execute(socket.character, false, 'n').catch(() => {
           // assert
-          expect(response).toEqual('The door in that direction is closed!');
+          expect(socket.character.output).toHaveBeenCalledWith('The door in that direction is closed!');
         });
 
       });
@@ -128,8 +128,8 @@ describe('look', () => {
         mockAutocompleteMultiple.mockReturnValue(undefined);
         expect.assertions(1);
 
-        return sut.execute(socket.character, false, 'boot').catch(response => {
-          expect(response).toBe('You don\'t see that here.');
+        return sut.execute(socket.character, false, 'boot').catch(() => {
+          expect(socket.character.output).toHaveBeenCalledWith('You don\'t see that here.');
         });
 
       });
@@ -144,8 +144,8 @@ describe('look', () => {
         mockGetSocketByCharacterId.mockReturnValue(socket);
         expect.assertions(1);
 
-        return sut.execute(socket.character, false, 'dummy').then(response => {
-          expect(response).toContain('a practice dummy');
+        return sut.execute(socket.character, false, 'dummy').then(() => {
+          expect(socket.character.output).toHaveBeenCalledWith('a practice dummy');
         });
 
       });

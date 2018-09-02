@@ -95,14 +95,13 @@ function processDispatch(socket, input) {
 
       return emoteHandler.actionDispatcher(socket.character, action, username)
         .then(response => socketUtil.sendMessages(socket, response))
-        .catch(response => socketUtil.output(socket, response));
+        .catch(response => socket.character.output(response));
     }
   }
 
   // when a command is not found, it defaults to "say"
   socket.character.processStates(defaultCommand);
   return defaultCommand.execute(socket.character, input)
-    .then(commandResult => socketUtil.sendMessages(socket, commandResult))
     .catch(error => socket.emit('output', { message: error }));
 }
 

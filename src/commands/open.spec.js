@@ -35,8 +35,8 @@ describe('open', () => {
       mockValidDirectionInput.mockReturnValueOnce(null);
       expect.assertions(1);
 
-      return sut.execute(socket.character, 'ne').catch(response => {
-        expect(response).toEqual('There is no exit in that direction!');
+      return sut.execute(socket.character, 'ne').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('There is no exit in that direction!');
       });
 
     });
@@ -45,11 +45,11 @@ describe('open', () => {
       mockValidDirectionInput.mockReturnValueOnce('sw');
       expect.assertions(2);
 
-      return sut.execute(socket.character, 'sw').catch(response => {
+      return sut.execute(socket.character, 'sw').catch(() => {
         const exit = mockRoom.exits.find(({ dir }) => dir === 'sw');
 
         expect(exit.hasOwnProperty('closed')).toBe(false);
-        expect(response).toEqual('There is no door in that direction!');
+        expect(socket.character.output).toHaveBeenCalledWith('There is no door in that direction!');
       });
     });
 
@@ -58,13 +58,13 @@ describe('open', () => {
         mockValidDirectionInput.mockReturnValueOnce('e');
         expect.assertions(4);
 
-        return sut.execute(socket.character, 'e').catch(response => {
+        return sut.execute(socket.character, 'e').catch(() => {
           const exit = mockRoom.exits.find(({ dir }) => dir === 'e');
 
           expect(exit.keyName).toBe('someKey');
           expect(exit.locked).toBe(true);
           expect(exit.closed).toBe(true);
-          expect(response).toEqual('That door is locked.');
+          expect(socket.character.output).toHaveBeenCalledWith('That door is locked.');
         });
 
       });
@@ -89,13 +89,13 @@ describe('open', () => {
         mockValidDirectionInput.mockReturnValueOnce('w');
         expect.assertions(4);
 
-        return sut.execute(socket.character, 'w').catch(response => {
+        return sut.execute(socket.character, 'w').catch(() => {
           const exit = mockRoom.exits.find(({ dir }) => dir === 'w');
 
           expect(exit.keyName).toBe('someKey');
           expect(exit.locked).toBe(false);
           expect(exit.closed).toBe(false);
-          expect(response).toEqual('That door is already open.');
+          expect(socket.character.output).toHaveBeenCalledWith('That door is already open.');
         });
 
       });
@@ -121,11 +121,11 @@ describe('open', () => {
         mockValidDirectionInput.mockReturnValueOnce('s');
         expect.assertions(2);
 
-        return sut.execute(socket.character, 's').catch(response => {
+        return sut.execute(socket.character, 's').catch(() => {
           const exit = mockRoom.exits.find(({ dir }) => dir === 's');
 
           expect(exit.closed).toBe(false);
-          expect(response).toEqual('That door is already open.');
+          expect(socket.character.output).toHaveBeenCalledWith('That door is already open.');
         });
 
       });

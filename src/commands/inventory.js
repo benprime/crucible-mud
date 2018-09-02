@@ -13,8 +13,7 @@ export default {
   ],
 
   dispatch(socket) {
-    return this.execute(socket.character)
-      .then(output => socket.character.output(output));
+    return this.execute(socket.character);
   },
 
   execute(character) {
@@ -48,7 +47,8 @@ export default {
 
     output += '<span class="cyan">Currency: </span>';
     output += `<span class="silver">${currencyToString(character.currency)}</span>\n`;
-    return Promise.resolve(output);
+    character.output(output);
+    return Promise.resolve();
   },
 
   help(character) {

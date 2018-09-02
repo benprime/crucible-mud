@@ -3,7 +3,6 @@ import mobData from '../data/mobData';
 import Mob from '../models/mob';
 import itemData from '../data/itemData';
 import Item from '../models/item';
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export const spawn = (itemType) => {
@@ -49,13 +48,12 @@ export default {
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      return Promise.reject('Invalid spawn usage.');
+      this.help(socket.character);
+      return Promise.reject();
     }
     let typeName = match[1];
     let itemTypeName = match[2];
-    return this.execute(socket.character, typeName, itemTypeName)
-      .catch(response => socketUtil.output(socket, response));
-
+    return this.execute(socket.character, typeName, itemTypeName);
   },
 
   execute(character, type, name) {
@@ -66,12 +64,14 @@ export default {
       const createType = mobData.catalog.find(mob => mob.name.toLowerCase() === name.toLowerCase());
 
       if (!createType) {
-        return Promise.reject('Unknown mob type.');
+        character.output('Unknown mob type.');
+        return Promise.reject();
       }
 
       const room = Room.getById(character.roomId);
       if (!room) {
-        return Promise.reject(`no room found for current user room: ${character.roomId}`);
+        character.output(`no room found for current user room: ${character.roomId}`);
+        return Promise.reject();
       }
 
       // clone the create type and give it an id
@@ -89,7 +89,8 @@ export default {
 
       const itemType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'item');
       if (!itemType) {
-        return Promise.reject(`Attempted to spawn unknown item type: ${name}`);
+        character.output(`Attempted to spawn unknown item type: ${name}`);
+        return Promise.reject();
       }
 
       spawnAndGive(character, itemType);
@@ -104,7 +105,8 @@ export default {
       const keyType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'key');
 
       if (!keyType) {
-        return Promise.reject('Unknown key type.');
+        character.output('Unknown key type.');
+        return Promise.reject();
       }
 
       let key = new Item({
@@ -115,13 +117,15 @@ export default {
 
       character.keys.push(key);
       character.save(err => { if (err) throw err; });
-      return Promise.resolve('Key created.');
+      character.output('Key created.');
+      return Promise.resolve();
     }
 
     // Invalid
     //---------------------
     else {
-      return Promise.reject('Unknown object type.');
+      character.output('Unknown object type.');
+      return Promise.reject();
     }
   },
 

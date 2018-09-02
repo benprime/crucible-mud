@@ -72,10 +72,10 @@ describe('drop', () => {
         mockAutocompleteMultiple.mockReturnValueOnce(null);
         expect.assertions(3);
 
-        return sut.execute(socket.character, 'non-existent mockAutocompleteMultiple.mockitem').catch(response => {
+        return sut.execute(socket.character, 'non-existent mockAutocompleteMultiple.mockitem').catch(() => {
           expect(socket.character.save).not.toHaveBeenCalled();
           expect(mockRoom.save).not.toHaveBeenCalled();
-          expect(response).toBe('You don\'t seem to be carrying that.');
+          expect(socket.character.output).toHaveBeenCalledWith('You don\'t seem to be carrying that.');
         });
 
 

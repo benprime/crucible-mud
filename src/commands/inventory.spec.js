@@ -32,18 +32,18 @@ describe('inventory', () => {
 
     describe('inventory display of equipped items', () => {
       each([
-        [new Item({ name: 'testEquippedItem', equipSlots: ['weaponMain'] }), 'Main Weapon'],
-        [new Item({ name: 'testEquippedItem', equipSlots: ['weaponOff'] }), 'Offhand Weapon'],
-        [new Item({ name: 'testEquippedItem', equipSlots: ['head'] }), 'Head'],
-        [new Item({ name: 'testEquippedItem', equipSlots: ['body'] }), 'Body'],
-        [new Item({ name: 'testEquippedItem', equipSlots: ['back'] }), 'Back'],
-        [new Item({ name: 'testEquippedItem', equipSlots: ['legs'] }), 'Legs'],
-        [new Item({ name: 'testEquippedItem', equipSlots: ['feet'] }), 'Feet'],
-        [new Item({ name: 'testEquippedItem', equipSlots: ['arms'] }), 'Arms'],
-        [new Item({ name: 'testEquippedItem', equipSlots: ['hands'] }), 'Hands'],
-        [new Item({ name: 'testEquippedItem', equipSlots: ['neck'] }), 'Neck'],
-        [new Item({ name: 'testEquippedItem', equipSlots: ['fingerMain'] }), 'Main Hand Finger'],
-        [new Item({ name: 'testEquippedItem', equipSlots: ['fingerOff'] }), 'Off Hand Finger'],
+        [new Item({ name: 'testEquippedItemWeaponMain', equipSlots: ['weaponMain'] }), 'Main Weapon'],
+        [new Item({ name: 'testEquippedItemWeaponOff', equipSlots: ['weaponOff'] }), 'Offhand Weapon'],
+        [new Item({ name: 'testEquippedItemHead', equipSlots: ['head'] }), 'Head'],
+        [new Item({ name: 'testEquippedItemBody', equipSlots: ['body'] }), 'Body'],
+        [new Item({ name: 'testEquippedItemBack', equipSlots: ['back'] }), 'Back'],
+        [new Item({ name: 'testEquippedItemLegs', equipSlots: ['legs'] }), 'Legs'],
+        [new Item({ name: 'testEquippedItemFeet', equipSlots: ['feet'] }), 'Feet'],
+        [new Item({ name: 'testEquippedItemArms', equipSlots: ['arms'] }), 'Arms'],
+        [new Item({ name: 'testEquippedItemHands', equipSlots: ['hands'] }), 'Hands'],
+        [new Item({ name: 'testEquippedItemNeck', equipSlots: ['neck'] }), 'Neck'],
+        [new Item({ name: 'testEquippedItemFingerMain', equipSlots: ['fingerMain'] }), 'Main Hand Finger'],
+        [new Item({ name: 'testEquippedItemFingerOff', equipSlots: ['fingerOff'] }), 'Off Hand Finger'],
       ]).test('should print equipped item on %s equip slot', (equippedItem, slotDisplayString) => {
         // arrange
         socket.character.inventory = [equippedItem];
@@ -53,10 +53,10 @@ describe('inventory', () => {
         expect.assertions(1);
 
         // act
-        return sut.execute(socket.character).then(response => {
+        return sut.execute(socket.character).then(() => {
           // assert
           let expectedString = `${slotDisplayString}: </span><span class="silver">${equippedItem.name}</span>`;
-          expect(response).toContain(expectedString);
+          expect(socket.character.output).toHaveBeenCalledWith(expect.stringContaining(expectedString));
         });
 
       });
@@ -73,9 +73,9 @@ describe('inventory', () => {
       expect.assertions(1);
 
       // act
-      return sut.execute(socket.character).then(response => {
+      return sut.execute(socket.character).then(() => {
         // assert
-        expect(response).toContain(expectedString);
+        expect(socket.character.output).toHaveBeenCalledWith(expect.stringContaining(expectedString));
       });
 
     });
@@ -91,9 +91,9 @@ describe('inventory', () => {
       expect.assertions(1);
 
       // act
-      return sut.execute(socket.character).then(response => {
+      return sut.execute(socket.character).then(() => {
         // assert
-        expect(response).toContain(expectedString);
+        expect(socket.character.output).toHaveBeenCalledWith(expect.stringContaining(expectedString));
       });
 
     });
@@ -130,9 +130,9 @@ describe('inventory', () => {
         expect.assertions(1);
 
         // act
-        return sut.execute(socket.character).then(response => {
+        return sut.execute(socket.character).then(() => {
           // assert
-          expect(response).toContain(expectedString);
+          expect(socket.character.output).toHaveBeenCalledWith(expect.stringContaining(expectedString));
         });
 
       });

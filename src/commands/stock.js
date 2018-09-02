@@ -1,6 +1,5 @@
 import Shop from '../models/shop';
 import itemData from '../data/itemData';
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -17,25 +16,26 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 3) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
 
-    return this.execute(socket.character, match[1], match[2])
-      .then(response => socketUtil.output(socket, response))
-      .catch(response => socketUtil.output(socket, response));
+    return this.execute(socket.character, match[1], match[2]);
   },
 
   execute(character, name, count) {
 
     const shop = Shop.getById(character.roomId);
     if (!shop) {
-      return Promise.reject('This command can only be used in a shop.');
+      character.output('This command can only be used in a shop.');
+      return Promise.reject();
     }
 
     // this does not yet use autocomplate, because catalog data will be moved to the database
     const createType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'item');
     if (!createType) {
-      return Promise.reject('Unknown item type.');
+      character.output('Unknown item type.');
+      return Promise.reject();
     }
 
     // see if the shop already carries this item
@@ -52,7 +52,8 @@ export default {
     return shop.save((err) => {
       if (err) throw err;
     }).then(() => {
-      return Promise.resolve('Items created and added to shop.');
+      character.output('Items created and added to shop.');
+      return Promise.resolve();
     });
   },
 

@@ -62,8 +62,8 @@ describe('offer', () => {
       mockAutocompleteMultiple.mockReturnValueOnce(null);
       expect.assertions(1);
 
-      return sut.execute(socket.character, 'aItem', 'aUser').catch(response => {
-        expect(response).toBe('You don\'t seem to be carrying that.');
+      return sut.execute(socket.character, 'aItem', 'aUser').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('You don\'t seem to be carrying that.');
       });
 
     });
@@ -74,8 +74,8 @@ describe('offer', () => {
       mockTargetSocket.character.roomId = 'a different room';
       expect.assertions(1);
 
-      return sut.execute(socket.character, 'aItem', 'aUser').catch(response => {
-        expect(response).toBe('aUser is not here!');
+      return sut.execute(socket.character, 'aItem', 'aUser').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('aUser is not here!');
       });
 
     });
@@ -84,8 +84,8 @@ describe('offer', () => {
       mockAutocompleteMultiple.mockReturnValueOnce({ item: item }).mockReturnValueOnce(undefined);
       expect.assertions(1);
 
-      return sut.execute(socket.character, 'aItem', 'aUser').catch(response => {
-        expect(response).toBe('Unknown user or user not connected.');
+      return sut.execute(socket.character, 'aItem', 'aUser').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('Unknown user or user not connected.');
       });
 
     });
@@ -103,12 +103,12 @@ describe('offer', () => {
       };
       expect.assertions(5);
 
-      return sut.execute(socket.character, 'aItem', 'aUser').then(response => {
+      return sut.execute(socket.character, 'aItem', 'aUser').then(() => {
         expect(mockTargetSocket.character.offers[0]).toHaveProperty('fromUserName', expectedOffer.fromUserName);
         expect(mockTargetSocket.character.offers[0]).toHaveProperty('toUserName', expectedOffer.toUserName);
         expect(mockTargetSocket.character.offers[0].item.id).toBe(expectedOffer.item.id);
         expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser');
-        expect(socket.character.output).toHaveBeenCalledWith('You offer your aItem to aUser.' )
+        expect(socket.character.output).toHaveBeenCalledWith('You offer your aItem to aUser.');
       });
 
     });
@@ -138,7 +138,7 @@ describe('offer', () => {
       };
       expect.assertions(9);
 
-      return sut.execute(socket.character, 'aItem', 'aUser').then(response => {
+      return sut.execute(socket.character, 'aItem', 'aUser').then(() => {
         expect(mockTargetSocket.character.offers).toHaveLength(2);
 
         expect(mockTargetSocket.character.offers[0]).toHaveProperty('fromUserName', existingOffer.fromUserName);
@@ -151,7 +151,7 @@ describe('offer', () => {
 
         expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser');
 
-        expect(socket.character.output).toHaveBeenCalledWith('You offer your aItem to aUser.' )
+        expect(socket.character.output).toHaveBeenCalledWith('You offer your aItem to aUser.');
       });
     });
 
@@ -174,7 +174,7 @@ describe('offer', () => {
       mockTargetSocket.character.offers = [existingOffer];
       expect.assertions(9);
 
-      return sut.execute(socket.character, item.name, 'aUser').then(response => {
+      return sut.execute(socket.character, item.name, 'aUser').then(() => {
         expect(mockTargetSocket.character.offers).toHaveLength(2);
 
         expect(mockTargetSocket.character.offers[0].fromUserName).toBe(existingOffer.fromUserName);
@@ -185,8 +185,8 @@ describe('offer', () => {
         expect(mockTargetSocket.character.offers[1].toUserName).toBe('aUser');
         expect(mockTargetSocket.character.offers[1].item.id).toBe(item.id);
 
-        expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser')
-        expect(socket.character.output).toHaveBeenCalledWith('You offer your aItem to aUser.' )
+        expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser');
+        expect(socket.character.output).toHaveBeenCalledWith('You offer your aItem to aUser.');
       });
     });
 

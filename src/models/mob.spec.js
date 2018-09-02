@@ -57,7 +57,7 @@ describe('mob model', () => {
       // act
       return mob.getDesc(socket).then(response => {
         // assert
-        expect(response).toEqual(mob.desc);
+        expect(response).toBe(mob.desc);
       });
 
     });

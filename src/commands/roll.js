@@ -1,5 +1,4 @@
 import dice from '../core/dice';
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -17,9 +16,7 @@ export default {
     if (match.length > 1) {
       dieType = match[1];
     }
-    return this.execute(socket.character, dieType)
-      .then(output => socketUtil.output(socket, output))
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, dieType);
   },
 
   execute(character, dieType) {
@@ -35,7 +32,8 @@ export default {
       output = `Action Die Roll Result:  ${rollValue}<br />`;
     }
 
-    return Promise.resolve(output);
+    character.output(output);
+    return Promise.resolve();
   },
 
   help(character) {

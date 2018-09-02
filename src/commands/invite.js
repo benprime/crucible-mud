@@ -1,4 +1,3 @@
-import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
 import commandCategories from '../core/commandCategories';
 
@@ -14,25 +13,28 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 2) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
-    return this.execute(socket.character, match[1])
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character, username) {
 
     if (character.leader) {
-      return Promise.reject('Only the party leader may invite followers.');
+      character.output('Only the party leader may invite followers.');
+      return Promise.reject();
     }
 
     const targetCharacter = autocomplete.character(character, username);
     if (!targetCharacter) {
-      return Promise.reject('unknown player');
+      character.output('unknown player');
+      return Promise.reject();
     }
 
     if (character.roomId !== targetCharacter.roomId) {
-      return Promise.reject('That player does not appear to be in the room.');
+      character.output('That player does not appear to be in the room.');
+      return Promise.reject();
     }
 
     if (!targetCharacter.partyInvites) {

@@ -1,17 +1,19 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
-function hideDir(socket, room, dir) {
+function hideDir(character, room, dir) {
   let exit = room.getExit(dir);
   if (!exit) {
-    return Promise.reject('No exit in that direction.<br />');
+    character.output('No exit in that direction.<br />');
+    return Promise.reject();
   }
 
   exit.hidden = true;
   room.save(err => { if (err) throw err; });
-  return Promise.resolve('The exit has been concealed.<br />');
+
+  character.output('The exit has been concealed.<br />');
+  return Promise.resolve();
 }
 
 // for items
@@ -19,19 +21,22 @@ function hideItem(character, room, itemName) {
 
   const acResult = autocomplete.multiple(character, ['inventory', 'room'], itemName);
   if (!acResult) {
-    return Promise.reject('Item does not exist in inventory or in room.<br />');
+    character.output('Item does not exist in inventory or in room.<br />');
+    return Promise.reject();
   }
 
   const hideTargetObj = acResult.item;
 
   if (!hideTargetObj) {
-    return Promise.reject('Item does not exist in inventory or in room.<br />');
+    character.output('Item does not exist in inventory or in room.<br />');
+    return Promise.reject();
   }
 
   hideTargetObj.hidden = true;
   room.save(err => { if (err) throw err; });
 
-  return Promise.resolve(`${itemName} has been concealed.<br />`);
+  character.output(`${itemName} has been concealed.<br />`);
+  return Promise.resolve();
 }
 
 
@@ -51,15 +56,19 @@ export default {
       hideTarget = match[1];
     }
     else {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
-    return this.execute(socket.character, hideTarget)
-      .then(output => socketUtil.output(socket, output))
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, hideTarget);
   },
 
   execute(character, hideTarget) {
     const room = Room.getById(character.roomId);
+
+    if(!hideTarget) {
+      this.help(character);
+      return Promise.resolve();
+    }
 
     if (hideTarget) {
       hideTarget = hideTarget.toLowerCase();

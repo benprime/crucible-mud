@@ -33,8 +33,8 @@ describe('hide', () => {
       mockValidDirectionInput.mockReturnValueOnce('e');
       expect.assertions(2);
 
-      return sut.execute(socket.character, 'e').catch(response => {
-        expect(response).toEqual('No exit in that direction.<br />');
+      return sut.execute(socket.character, 'e').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('No exit in that direction.<br />');
         expect(mockRoom.save).not.toHaveBeenCalled();
       });
     });
@@ -45,9 +45,9 @@ describe('hide', () => {
     mockValidDirectionInput.mockReturnValueOnce('d');
     expect.assertions(3);
 
-    return sut.execute(socket.character, 'd').then(response => {
+    return sut.execute(socket.character, 'd').then(() => {
       const exit = mockRoom.exits.find(({ dir }) => dir === 'd');
-      expect(response).toEqual('The exit has been concealed.<br />');
+      expect(socket.character.output).toHaveBeenCalledWith('The exit has been concealed.<br />');
       expect(mockRoom.save).toHaveBeenCalledTimes(1);
       expect(exit.hidden).toBe(true);
     });
@@ -60,8 +60,8 @@ describe('hide', () => {
     test('should output message when item is invalid', () => {
       mockAutocompleteMultiple.mockReturnValueOnce(null);
       expect.assertions(2);
-      return sut.execute(socket.character, 'emu').catch(response => {
-        expect(response).toEqual('Item does not exist in inventory or in room.<br />');
+      return sut.execute(socket.character, 'emu').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('Item does not exist in inventory or in room.<br />');
         expect(mockRoom.save).not.toHaveBeenCalled();
       });
     });
@@ -72,8 +72,8 @@ describe('hide', () => {
       mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
       expect.assertions(3);
 
-      return sut.execute(socket.character, 'clown').then(response => {
-        expect(response).toEqual('clown has been concealed.<br />');
+      return sut.execute(socket.character, 'clown').then(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('clown has been concealed.<br />');
         expect(mockRoom.save).toHaveBeenCalledTimes(1);
         expect(item.hidden).toBe(true);
       });

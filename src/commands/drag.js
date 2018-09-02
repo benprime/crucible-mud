@@ -14,29 +14,33 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 2) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
-    return this.execute(socket.character, match[1])
-      .catch(response => socketUtil.output(socket, response));
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character, username) {
 
     const targetPlayer = autocomplete.character(character, username);
     if (!targetPlayer) {
-      return Promise.reject('unknown player.');
+      character.output('unknown player.');
+      return Promise.reject();
     }
 
     if (targetPlayer.roomId !== character.roomId) {
-      return Promise.reject('That player doesn\'t appear to be in the room.');
+      character.output('That player doesn\'t appear to be in the room.');
+      return Promise.reject();
     }
 
     if (!targetPlayer.isIncapacitated()) {
-      return Promise.reject(`${targetPlayer.name} is not in need of your assistance.`);
+      character.output(`${targetPlayer.name} is not in need of your assistance.`);
+      return Promise.reject();
     }
 
     if(character.dragging === targetPlayer.id) {
-      return Promise.reject(`You are already dragging ${targetPlayer.name}.`);
+      character.output(`You are already dragging ${targetPlayer.name}.`);
+      return Promise.reject();
     }
 
     const draggers = socketUtil.getRoomSockets(character.roomId)
@@ -44,7 +48,8 @@ export default {
       .map(s => s.character);
 
     if (draggers.length > 0) {
-      return Promise.reject(`${targetPlayer.name} is already being dragged by ${draggers[0].name}.`);
+      character.output(`${targetPlayer.name} is already being dragged by ${draggers[0].name}.`);
+      return Promise.reject();
     }
 
     character.dragging = targetPlayer.id;

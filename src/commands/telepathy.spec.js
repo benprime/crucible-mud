@@ -30,9 +30,9 @@ describe('telepathy', () => {
       expect.assertions(1);
 
       // act
-      return sut.execute(socket.character, 'Wrong', msg).catch(response => {
+      return sut.execute(socket.character, 'Wrong', msg).catch(() => {
         // assert
-        expect(response).toEqual('Invalid username.');
+        expect(socket.character.output).toHaveBeenCalledWith('Invalid username.');
       });
 
     });

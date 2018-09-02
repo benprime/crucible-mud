@@ -39,8 +39,8 @@ describe('invite', () => {
       let username = 'TargetUser';
       expect.assertions(2);
 
-      return sut.execute(socket.character, username).catch(response => {
-        expect(response).toEqual('Only the party leader may invite followers.');
+      return sut.execute(socket.character, username).catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('Only the party leader may invite followers.');
         expect(mockTargetSocket.character.partyInvites).toHaveLength(0);
       });
 
@@ -52,7 +52,7 @@ describe('invite', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
       expect.assertions(3);
 
-      return sut.execute(socket.character, username).then(commandResult => {
+      return sut.execute(socket.character, username).then(() => {
         expect(socket.character.output).toHaveBeenCalledWith('You have invited TargetUser to join your party.');
         expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser has invited you to join a party.');
         expect(mockTargetSocket.character.partyInvites).toContain(socket.character.id);

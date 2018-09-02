@@ -1,4 +1,3 @@
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -12,16 +11,15 @@ export default {
   ],
 
   dispatch(socket) {
-    return this.execute(socket.character)
-      .then(output => socketUtil.output(socket, output))
-      .catch(response => socketUtil.output(socket, response));
+    return this.execute(socket.character);
   },
 
   execute(character) {
     const leadCharacterId = character.leader ? character.leader : character.id;
     return character.getPartyCharacters().then(followers => {
       if (followers.length === 1) {
-        return Promise.reject('You are not in a party.');
+        character.output('You are not in a party.');
+        return Promise.reject();
       }
 
       let output = 'The following people are in your party:\n';
@@ -33,8 +31,7 @@ export default {
         output += '\n';
       });
 
-      return Promise.resolve(output);
-
+      character.output(output);
     });
   },
 

@@ -16,22 +16,24 @@ export default {
   ],
 
   dispatch(socket, match) {
-    return this.execute(socket.character, match[1])
-      .catch(response => socketUtil.output(socket, response));
+    return this.execute(socket.character, match[1]);
   },
 
   execute(character, username) {
     const invitingCharacter = autocomplete.character(character, username);
     if (!invitingCharacter) {
-      return Promise.reject('unknown player.');
+      character.output('unknown player.');
+      return Promise.reject();
     }
 
     if (invitingCharacter.roomId !== character.roomId) {
-      return Promise.reject('That player doesn\'t appear to be in the room.');
+      character.output('That player doesn\'t appear to be in the room.');
+      return Promise.reject();
     }
 
     if (!Array.isArray(character.partyInvites) || !character.partyInvites.includes(invitingCharacter.id)) {
-      return Promise.reject('You must be invited.');
+      character.output('You must be invited.');
+      return Promise.reject();
     }
 
     character.leader = invitingCharacter.id;

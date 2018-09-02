@@ -32,10 +32,10 @@ describe('spawner', () => {
         expect.assertions(3);
 
         // act
-        return sut.execute(socket.character, 'add', 'kobold').then(response => {
+        return sut.execute(socket.character, 'add', 'kobold').then(() => {
           // assert
           expect(currentRoom.save).toHaveBeenCalled();
-          expect(response).toBe('Creature added to spawner.');
+          expect(socket.character.output).toHaveBeenCalledWith('Creature added to spawner.');
           expect(currentRoom.spawner.mobTypes.length).toBeGreaterThan(beforeLength);
         });
 
@@ -47,11 +47,11 @@ describe('spawner', () => {
         expect.assertions(4);
 
         // act
-        return sut.execute(socket.character, 'add', 'unknown mob type').catch(response => {
+        return sut.execute(socket.character, 'add', 'unknown mob type').catch(() => {
           // assert
           expect(currentRoom.save).not.toHaveBeenCalled();
           expect(socket.emit).not.toBeCalledWith('output', { message: 'Creature added to spawner.' });
-          expect(response).toBe('Invalid mobType.');
+          expect(socket.character.output).toHaveBeenCalledWith('Invalid mobType.');
           expect(currentRoom.spawner.mobTypes).toHaveLength(beforeLength);
         });
 
@@ -66,10 +66,10 @@ describe('spawner', () => {
         expect.assertions(3);
 
         // act
-        return sut.execute(socket.character, 'remove', 'kobold').then(response => {
+        return sut.execute(socket.character, 'remove', 'kobold').then(() => {
           // assert
           expect(currentRoom.save).toHaveBeenCalled();
-          expect(response).toBe('Creature removed from spawner.');
+          expect(socket.character.output).toHaveBeenCalledWith('Creature removed from spawner.');
           expect(currentRoom.spawner.mobTypes.length).toBeLessThan(beforeLength);
         });
 
@@ -82,11 +82,11 @@ describe('spawner', () => {
         expect.assertions(4);
 
         // act
-        return sut.execute(socket.character, 'add', 'unknown mob type').catch(response => {
+        return sut.execute(socket.character, 'add', 'unknown mob type').catch(() => {
           // assert
           expect(currentRoom.save).not.toHaveBeenCalled();
           expect(socket.emit).not.toBeCalledWith('output', { message: 'Creature added to spawner.' });
-          expect(response).toBe('Invalid mobType.');
+          expect(socket.character.output).toHaveBeenCalledWith('Invalid mobType.');
           expect(currentRoom.spawner.mobTypes).toHaveLength(beforeLength);
         });
 
@@ -96,10 +96,10 @@ describe('spawner', () => {
       test('should output error when mob type does not exist on spawner', () => {
         expect.assertions(2);
         // act
-        return sut.execute(socket.character, 'remove', 'dummy').catch(response => {
+        return sut.execute(socket.character, 'remove', 'dummy').catch(() => {
           // assert
           expect(currentRoom.save).not.toHaveBeenCalled();
-          expect(response).toBe('Creature not found on spawner.');
+          expect(socket.character.output).toHaveBeenCalledWith('Creature not found on spawner.');
         });
 
 
@@ -114,10 +114,10 @@ describe('spawner', () => {
         expect.assertions(3);
 
         // act
-        return sut.execute(socket.character, 'max', 'not an int').catch(response => {
+        return sut.execute(socket.character, 'max', 'not an int').catch(() => {
           // assert
           expect(currentRoom.save).not.toHaveBeenCalled();
-          expect(response).toBe('Invalid max value - must be an integer.');
+          expect(socket.character.output).toHaveBeenCalledWith('Invalid max value - must be an integer.');
           expect(currentRoom.spawner.max).toEqual(2);
         });
 
@@ -130,10 +130,10 @@ describe('spawner', () => {
         expect.assertions(3);
 
         // act
-        return sut.execute(socket.character, 'max', 7).then(response => {
+        return sut.execute(socket.character, 'max', 7).then(() => {
           // assert
           expect(currentRoom.save).toHaveBeenCalled();
-          expect(response).toBe('Max creatures updated to 7.');
+          expect(socket.character.output).toHaveBeenCalledWith('Max creatures updated to 7.');
           expect(currentRoom.spawner.max).toEqual(7);
         });
 
@@ -148,10 +148,10 @@ describe('spawner', () => {
         expect.assertions(3);
 
         // act
-        return sut.execute(socket.character, 'timeout', 5).then(response => {
+        return sut.execute(socket.character, 'timeout', 5).then(() => {
           // assert
           expect(currentRoom.save).toHaveBeenCalled();
-          expect(response).toBe('Timeout updated to 5.');
+          expect(socket.character.output).toHaveBeenCalledWith('Timeout updated to 5.');
           expect(currentRoom.spawner.timeout).toEqual(5);
         });
 
@@ -164,10 +164,10 @@ describe('spawner', () => {
         expect.assertions(3);
 
         // act
-        return sut.execute(socket.character, 'timeout', 'not an int').catch(response => {
+        return sut.execute(socket.character, 'timeout', 'not an int').catch(() => {
           // assert
           expect(currentRoom.save).not.toHaveBeenCalled();
-          expect(response).toBe('Invalid max value - must be an integer.');
+          expect(socket.character.output).toHaveBeenCalledWith('Invalid max value - must be an integer.');
           expect(currentRoom.spawner.max).toEqual(2);
         });
 
@@ -179,10 +179,10 @@ describe('spawner', () => {
       test('when action is clear', () => {
         expect.assertions(3);
         // act
-        return sut.execute(socket.character, 'clear').then(response => {
+        return sut.execute(socket.character, 'clear').then(() => {
           // arrange
           expect(currentRoom.save).toHaveBeenCalled();
-          expect(response).toBe('Spawner cleared.');
+          expect(socket.character.output).toHaveBeenCalledWith('Spawner cleared.');
           expect(currentRoom.spawner).toBeNull();
         });
 
@@ -194,9 +194,9 @@ describe('spawner', () => {
       test('when action is copy', () => {
         expect.assertions(2);
         // act
-        return sut.execute(socket.character, 'copy').then(response => {
+        return sut.execute(socket.character, 'copy').then(() => {
           // assert
-          expect(response).toBe('Spawner copied.');
+          expect(socket.character.output).toHaveBeenCalledWith('Spawner copied.');
           expect(socket.character.spawnerClipboard).toEqual(currentRoom.spawner);
         });
 
@@ -211,9 +211,9 @@ describe('spawner', () => {
         expect.assertions(2);
 
         // act
-        return sut.execute(socket.character, 'paste').then(response => {
+        return sut.execute(socket.character, 'paste').then(() => {
           // assert
-          expect(response).toBe('Spawner pasted.');
+          expect(socket.character.output).toHaveBeenCalledWith('Spawner pasted.');
           expect(currentRoom.spawner).toBeNull();
         });
 
@@ -224,9 +224,9 @@ describe('spawner', () => {
     test('when action is not valid', () => {
       expect.assertions(1);
       // act
-      return sut.execute(socket.character, 'multiply').then(response => {
+      return sut.execute(socket.character, 'multiply').then(() => {
         // assert
-        expect(response).toEqual(currentRoom.spawner ? currentRoom.spawner.toString() : 'None.');
+        expect(socket.character.output).toHaveBeenCalledWith(currentRoom.spawner ? currentRoom.spawner.toString() : 'None.');
       });
 
     });

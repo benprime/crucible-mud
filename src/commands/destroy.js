@@ -1,7 +1,6 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 import utils from '../core/utilities';
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -14,17 +13,19 @@ export default {
     /^destroy\s+(mob)\s+(.+)$/i,
     /^destroy\s+(item)\s+(.+)$/i,
     /^destroy/i,
+    /^des\s+(mob)\s+(.+)$/i,
+    /^des\s+(item)\s+(.+)$/i,
+    /^des/i,
   ],
 
   dispatch(socket, match) {
     if (match.length != 3) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
     let typeName = match[1];
     let objectID = match[2];
-    return this.execute(socket.character, typeName, objectID)
-      .then(output => socketUtil.output(socket, output))
-      .catch(output => socketUtil.output(socket, output));
+    return this.execute(socket.character, typeName, objectID);
 
   },
 
@@ -35,14 +36,16 @@ export default {
       // look for mob in user's current room
       const acResult = autocomplete.multiple(character, ['mob'], name);
       if (!acResult) {
-        return Promise.reject('Mob not found.');
+        character.output('Mob not found.');
+        return Promise.reject();
       }
       const mob = acResult.item;
 
       // mobs is a non-mongoose array, so must use removeItem
       let removedItem = utils.removeItem(room.mobs, mob);
       if (!removedItem) {
-        return Promise.reject('Something went terribly wrong.');
+        character.output('Something went terribly wrong.');
+        return Promise.reject();
       } else {
         character.output('Mob successfully destroyed.');
         character.toRoom(`${character.name} erases ${mob.name} from existence!`, [character.id]);
@@ -52,16 +55,18 @@ export default {
     else if (type === 'item') {
       const acResult = autocomplete.multiple(character, ['inventory'], name);
       if (!acResult) {
-        return Promise.reject('You don\'t seem to be carrying that item.');
+        character.output('You don\'t seem to be carrying that item.');
+        return Promise.reject();
       }
 
       // delete item
-      // inventory is a mongoose-controlled array, so this must use .remove
       character.inventory.id(acResult.item.id).remove();
       character.save(err => { if (err) throw err; });
-      return Promise.resolve('Item successfully destroyed.');
+      character.output('Item successfully destroyed.');
+      return Promise.resolve();
     } else {
-      return Promise.reject('Invalid destroy type.');
+      character.output('Invalid destroy type.');
+      return Promise.reject();
     }
   },
 

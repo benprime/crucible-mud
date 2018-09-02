@@ -12,8 +12,7 @@ export default {
   ],
 
   dispatch(socket) {
-    return this.execute(socket.character)
-      .then(output => socket.character.output(output));
+    return this.execute(socket.character);
   },
 
   execute(character) {
@@ -24,7 +23,8 @@ export default {
     output += '<span class=\'cyan\'>Next: </span>';
     output += `<span class='silver'>${character.nextExp()}</span>\n`;
 
-    return Promise.resolve(output);
+    character.output(output);
+    return Promise.resolve();
   },
 
   help(character) {

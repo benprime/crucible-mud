@@ -25,8 +25,8 @@ describe('set', () => {
       test('should return error when property not in allowed properties list', () => {
         expect.assertions(1);
 
-        return sut.execute(socket.character, 'room', 'bad property', 'new value').catch(response => {
-          expect(response).toEqual('Invalid property.');
+        return sut.execute(socket.character, 'room', 'bad property', 'new value').catch(() => {
+          expect(socket.character.output).toHaveBeenCalledWith('Invalid property.');
         });
 
       });
@@ -45,8 +45,8 @@ describe('set', () => {
 
     test('should return error when type is not room', () => {
       expect.assertions(1);
-      return sut.execute(socket.character, 'bad type', 'some property', 'new value').catch(response => {
-        expect(response).toEqual('Invalid type.');
+      return sut.execute(socket.character, 'bad type', 'some property', 'new value').catch(() => {
+        expect(socket.character.output).toHaveBeenCalledWith('Invalid type.');
       });
 
     });

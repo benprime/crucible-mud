@@ -33,6 +33,7 @@ const data = [
     "currentHP": 10,
 
     "actionDie": "1d2",
+    "attacksPerRound": 1,
 
     "stats": {
       "strength": 0,
@@ -95,6 +96,7 @@ const data = [
     "currentHP": 10,
 
     "actionDie": "1d2",
+    "attacksPerRound": 1,
 
     "stats": {
       "strength": 0,
@@ -156,6 +158,7 @@ const data = [
     "currentHP": 10,
 
     "actionDie": "1d2",
+    "attacksPerRound": 1,
 
     "stats": {
       "strength": 0,
@@ -217,6 +220,7 @@ const data = [
     "currentHP": 10,
 
     "actionDie": "1d2",
+    "attacksPerRound": 1,
 
     "stats": {
       "strength": 0,
@@ -278,6 +282,7 @@ const data = [
     "currentHP": 10,
 
     "actionDie": "1d2",
+    "attacksPerRound": 1,
 
     "stats": {
       "strength": 0,

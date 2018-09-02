@@ -1,6 +1,5 @@
 import Room from '../models/room';
 import Area from '../models/area';
-import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
 
 export default {
@@ -18,12 +17,12 @@ export default {
 
   dispatch(socket, match) {
     if (match.length < 3) {
-      return this.help(socket.character);
+      this.help(socket.character);
+      return Promise.resolve();
     }
     const type = match[1].toLowerCase();
     const param = match[2];
-    return this.execute(socket.character, type, param)
-      .catch(error => socket.character.output(error));
+    return this.execute(socket.character, type, param);
   },
 
   execute(character, type, param) {
@@ -32,7 +31,8 @@ export default {
     if (type === 'room') {
       const dir = Room.validDirectionInput(param.toLowerCase());
       if (!dir) {
-        return Promise.reject('Invalid direction!');
+        character.output('Invalid direction!');
+        return Promise.reject();
       }
       return room.createRoom(dir).then(() => {
         character.output('Room created.');
@@ -46,11 +46,13 @@ export default {
       const exit = room.getExit(dir);
 
       if (!exit) {
-        return Promise.reject('Invalid direction.');
+        character.output('Invalid direction.');
+        return Promise.reject();
       }
 
       if (exit.closed !== undefined) {
-        return Promise.reject('Door already exists.');
+        character.output('Door already exists.');
+        return Promise.reject();
       }
 
       exit.closed = true;
@@ -63,14 +65,16 @@ export default {
     else if (type === 'area') {
       let area = Area.getByName(param);
       if (area) {
-        return Promise.reject(`Area already exists: ${area.id}`);
+        character.output(`Area already exists: ${area.id}`);
+        return Promise.reject();
       }
       Area.addArea(param);
       return Promise.resolve('Area created.');
     }
 
     else {
-      return Promise.reject('Invalid create type.');
+      character.output('Invalid create type.');
+      return Promise.reject();
     }
   },
 

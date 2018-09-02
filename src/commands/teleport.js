@@ -1,6 +1,4 @@
-import socketUtil from '../core/socketUtil';
 import autocomplete from '../core/autocomplete';
-import lookCmd from './look';
 import Room from '../models/room';
 import commandCategories from '../core/commandCategories';
 
@@ -38,9 +36,7 @@ export default {
       param = match[1];
     }
 
-    return this.execute(socket.character, param)
-      .then(() => lookCmd.execute(socket.character, false))
-      .catch(err => socket.output(err));
+    return this.execute(socket.character, param);
   },
 
   execute(character, teleportTo) {
@@ -49,7 +45,10 @@ export default {
     let toRoomId = '';
     if (teleportTo.x && teleportTo.y) {
       const room = Object.values(Room.roomCache).find(r => r.x == teleportTo.x && r.y == teleportTo.y && r.z == teleportTo.z);
-      if (!room) return Promise.reject('room not found in cache by coordinates');
+      if (!room) {
+        character.output('room not found in cache by coordinates');
+        return Promise.reject();
+      }
       toRoomId = room.id;
 
       // if the parameter is an object id or alias, we are definitely teleporting to a room.
@@ -61,9 +60,11 @@ export default {
       // autocomplete username
       const targetCharacter = autocomplete.character(character, teleportTo);
       if (!targetCharacter) {
-        return Promise.reject('Target not found.');
-      } else if(targetCharacter === character) {
-        return Promise.reject('You cannot teleport to yourself.');
+        character.output('Target not found.');
+        return Promise.reject();
+      } else if (targetCharacter === character) {
+        character.output('You cannot teleport to yourself.');
+        return Promise.reject();
       }
       toRoomId = targetCharacter.roomId;
     }

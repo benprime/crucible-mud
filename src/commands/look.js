@@ -2,10 +2,10 @@ import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
+import directions, {getDirection, Direction} from '../core/directions';
 
 function lookDir(character, { exits }, dir) {
-  dir = Room.validDirectionInput(dir);
-  const exit = exits.find(e => e.dir === dir);
+  const exit = exits.find(e => e.dir === dir.short);
   if (!exit || exit.hidden) {
     character.output('There is no exit in that direction!');
     return Promise.reject();
@@ -19,12 +19,13 @@ function lookDir(character, { exits }, dir) {
   const lookRoom = Room.getById(exit.roomId);
   return lookRoom.getDesc(character, false).then(output => {
 
+    // TODO: NICH SNEAKING
     //const roomOutput = `${character.name} looks to the ${Room.shortToLong(dir)}.\n`;
     //character.toRoom(roomOutput, [character.id]);
 
-    const charOutput = `You look to the ${Room.shortToLong(dir)}...\n` + output;
+    const charOutput = `You look to the ${dir.long}...\n` + output;
     character.output(charOutput);
-    socketUtil.roomMessage(lookRoom.id, `<span class="yellow">${character.name} peaks in from the ${Room.shortToLong(Room.oppositeDirection(dir))}.</span>`, [character.id]);
+    socketUtil.roomMessage(lookRoom.id, `<span class="yellow">${character.name} peaks in from the ${dir.opposite.long}.</span>`, [character.id]);
 
     return Promise.resolve();
   });
@@ -44,13 +45,22 @@ export default {
     /^l\s+(.+)$/i,
   ],
 
-  dispatch(socket, match) {
+  parse(character, match) {
     let lookTarget = null;
+    const short = (match[0] === '');
     if (match.length > 1) {
       lookTarget = match[1];
     }
-    const short = (match[0] === '');
-    return this.execute(socket.character, short, lookTarget);
+
+    const dir = getDirection(lookTarget);
+    if(dir) lookTarget = dir;
+
+    return [character, short, lookTarget];
+  },
+
+  dispatch(socket, match) {
+    const params = this.parse(socket.character, match);
+    return this.execute.apply(this, params);
   },
 
   execute(character, short, lookTarget) {
@@ -63,6 +73,11 @@ export default {
       });
     }
 
+    if (lookTarget instanceof Direction) {
+      const room = Room.getById(character.roomId);
+      return lookDir(character, room, lookTarget);
+    }
+
     lookTarget = lookTarget.toLowerCase();
 
     if (lookTarget === 'me' || lookTarget === 'self') {
@@ -70,11 +85,6 @@ export default {
         character.output(output);
         return Promise.resolve();
       });
-    }
-
-    if (Room.validDirectionInput(lookTarget)) {
-      const room = Room.getById(character.roomId);
-      return lookDir(character, room, lookTarget);
     }
 
     const acResult = autocomplete.multiple(character, ['inventory', 'mob', 'room', 'character'], lookTarget);

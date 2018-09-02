@@ -86,15 +86,17 @@ export default {
             hud.updateHUD(socket);
 
             const currentRoom = Room.getById(character.roomId);
-            if (!currentRoom) {
+            if (currentRoom) {
+              socket.join(character.roomId);
+              currentRoom.getDesc(character, false).then(output => character.output(output));
+              return Promise.resolve();
+            } else {
               return Room.getByCoords({ x: 0, y: 0, z: 0 }).then(room => {
                 character.roomId = room.id;
                 socket.join(room.id);
+                room.getDesc(character, false).then(output => character.output(output));
                 return Promise.resolve();
               });
-            } else {
-              socket.join(character.roomId);
-              return Promise.resolve();
             }
           });
 

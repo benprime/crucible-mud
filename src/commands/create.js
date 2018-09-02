@@ -1,6 +1,7 @@
 import Room from '../models/room';
 import Area from '../models/area';
 import commandCategories from '../core/commandCategories';
+import { Direction, getDirection } from '../core/directions';
 
 export default {
   name: 'create',
@@ -21,7 +22,12 @@ export default {
       return Promise.resolve();
     }
     const type = match[1].toLowerCase();
-    const param = match[2];
+    let param = match[2];
+
+    if(type === 'room' || type === 'door') {
+      param = getDirection(param);
+    }
+
     return this.execute(socket.character, type, param);
   },
 
@@ -29,21 +35,21 @@ export default {
     const room = Room.getById(character.roomId);
 
     if (type === 'room') {
-      const dir = Room.validDirectionInput(param.toLowerCase());
-      if (!dir) {
+      const dir = param;
+      if (!(dir instanceof Direction)) {
         character.output('Invalid direction!');
         return Promise.reject();
       }
       return room.createRoom(dir).then(() => {
         character.output('Room created.');
-        character.toRoom(`${character.name} waves his hand and an exit appears to the ${Room.shortToLong(dir)}!`, [character.id]);
+        character.toRoom(`${character.name} waves his hand and an exit appears to the ${dir.long}!`, [character.id]);
         return Promise.resolve();
       });
     }
 
     else if (type === 'door') {
-      const dir = Room.validDirectionInput(param);
-      const exit = room.getExit(dir);
+      const dir = param;
+      const exit = room.getExit(dir.short);
 
       if (!exit) {
         character.output('Invalid direction.');
@@ -58,7 +64,7 @@ export default {
       exit.closed = true;
       room.save(err => { if (err) throw err; });
       character.output('Door created.');
-      character.toRoom(`${character.name} waves his hand and a door appears to the ${Room.shortToLong(dir)}!`, [character.id]);
+      character.toRoom(`${character.name} waves his hand and a door appears to the ${dir.long}!`, [character.id]);
       return Promise.resolve();
     }
 

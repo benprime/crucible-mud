@@ -1,4 +1,5 @@
 import { mockGetRoomSockets, mockGetSocketByCharacterId } from '../core/socketUtil';
+import directions, { getDirection } from '../core/directions';
 import Mob from '../models/mob';
 import mobData from '../data/mobData';
 import mocks from '../../spec/mocks';
@@ -46,28 +47,6 @@ describe('room model', () => {
       });
     });
 
-    describe('oppositeDirection', () => {
-      const oppositeDirectionParamTest = (inputDir, expectedOutput) => {
-        test('should return correct direction', () => {
-          const result = sutModel.oppositeDirection(inputDir);
-
-          expect(result).toBe(expectedOutput);
-        });
-      };
-      oppositeDirectionParamTest('n', 's');
-      oppositeDirectionParamTest('ne', 'sw');
-      oppositeDirectionParamTest('e', 'w');
-      oppositeDirectionParamTest('se', 'nw');
-      oppositeDirectionParamTest('s', 'n');
-      oppositeDirectionParamTest('sw', 'ne');
-      oppositeDirectionParamTest('w', 'e');
-      oppositeDirectionParamTest('nw', 'se');
-      oppositeDirectionParamTest('u', 'd');
-      oppositeDirectionParamTest('d', 'u');
-      oppositeDirectionParamTest('?', null);
-    });
-
-
     describe('getByCoords', () => {
 
       test('should call findOne with coordinates', () => {
@@ -84,79 +63,6 @@ describe('room model', () => {
         });
 
       });
-    });
-
-    describe('shortToLong', () => {
-      const shortToLongParamTest = (inputDir, expectedOutput) => {
-        test('should return correct long direction name', () => {
-          const result = sutModel.shortToLong(inputDir);
-
-          expect(result).toBe(expectedOutput);
-        });
-      };
-      shortToLongParamTest('n', 'north');
-      shortToLongParamTest('ne', 'northeast');
-      shortToLongParamTest('e', 'east');
-      shortToLongParamTest('se', 'southeast');
-      shortToLongParamTest('s', 'south');
-      shortToLongParamTest('sw', 'southwest');
-      shortToLongParamTest('w', 'west');
-      shortToLongParamTest('nw', 'northwest');
-      shortToLongParamTest('u', 'up');
-      shortToLongParamTest('d', 'down');
-      shortToLongParamTest('?', '?');
-    });
-
-    describe('longToShort', () => {
-      const longToShortParamTest = (inputDir, expectedOutput) => {
-        test('should return correct short direction name', () => {
-          const result = sutModel.longToShort(inputDir);
-
-          expect(result).toBe(expectedOutput);
-        });
-      };
-      longToShortParamTest('north', 'n');
-      longToShortParamTest('northeast', 'ne');
-      longToShortParamTest('east', 'e');
-      longToShortParamTest('southeast', 'se');
-      longToShortParamTest('south', 's');
-      longToShortParamTest('southwest', 'sw');
-      longToShortParamTest('west', 'w');
-      longToShortParamTest('northwest', 'nw');
-      longToShortParamTest('up', 'u');
-      longToShortParamTest('down', 'd');
-      longToShortParamTest('?', '?');
-    });
-
-    describe('validDirectionInput', () => {
-      const validDirParamTest = (inputDir, expectedOutput) => {
-        test('should return correct response', () => {
-          const result = sutModel.validDirectionInput(inputDir);
-
-          expect(result).toBe(expectedOutput);
-        });
-      };
-      validDirParamTest('north', 'n');
-      validDirParamTest('n', 'n');
-      validDirParamTest('northeast', 'ne');
-      validDirParamTest('ne', 'ne');
-      validDirParamTest('east', 'e');
-      validDirParamTest('e', 'e');
-      validDirParamTest('southeast', 'se');
-      validDirParamTest('se', 'se');
-      validDirParamTest('south', 's');
-      validDirParamTest('s', 's');
-      validDirParamTest('southwest', 'sw');
-      validDirParamTest('sw', 'sw');
-      validDirParamTest('west', 'w');
-      validDirParamTest('w', 'w');
-      validDirParamTest('northwest', 'nw');
-      validDirParamTest('nw', 'nw');
-      validDirParamTest('up', 'u');
-      validDirParamTest('u', 'u');
-      validDirParamTest('down', 'd');
-      validDirParamTest('d', 'd');
-      validDirParamTest('?', null);
     });
   });
 
@@ -218,13 +124,13 @@ describe('room model', () => {
 
       test('should return false if direction is invalid', () => {
         return room.createRoom('invalid direction').catch(response => {
-          expect(response).toBe('Invalid direction');
+          expect(response).toBe('Invalid direction.');
         });
       });
 
       test('should return false if there is already an exit in a valid input direction', () => {
         room.exits.push({ dir: 'n', roomId: 'some-id' });
-        return room.createRoom('n').catch(response => {
+        return room.createRoom(directions.N).catch(response => {
           expect(response).toBe('Exit already exists');
         });
       });
@@ -240,7 +146,7 @@ describe('room model', () => {
 
         test('should create a new room if room does not already exist in target direction', () => {
 
-          return room.createRoom('s').then(newRoom => {
+          return room.createRoom(directions.S).then(newRoom => {
             // verify target room door
             const roomExit = room.exits.find(({ dir }) => dir === 's');
             expect(roomExit).not.toBeUndefined();
@@ -269,7 +175,7 @@ describe('room model', () => {
           sutModel.roomCache[resultRoom.id] = resultRoom;
 
 
-          return room.createRoom('s').then(updatedTargetRoom => {
+          return room.createRoom(directions.S).then(updatedTargetRoom => {
             // verify target room door
             const roomExit = room.exits.find(({ dir }) => dir === 's');
             expect(roomExit).not.toBeUndefined();
@@ -372,26 +278,6 @@ describe('room model', () => {
       });
     });
 
-    describe('dirToCoords', () => {
-      const dirToCoordsParamTest = (inputDir, expectedOutput) => {
-        test('should return correct direction', () => {
-          const result = sutModel.oppositeDirection(inputDir);
-
-          expect(result).toBe(expectedOutput);
-        });
-      };
-      dirToCoordsParamTest('n', 's');
-      dirToCoordsParamTest('ne', 'sw');
-      dirToCoordsParamTest('e', 'w');
-      dirToCoordsParamTest('se', 'nw');
-      dirToCoordsParamTest('s', 'n');
-      dirToCoordsParamTest('sw', 'ne');
-      dirToCoordsParamTest('w', 'e');
-      dirToCoordsParamTest('nw', 'se');
-      dirToCoordsParamTest('u', 'd');
-      dirToCoordsParamTest('d', 'u');
-      dirToCoordsParamTest('?', null);
-    });
 
     describe('getExit', () => {
       test('should return undefined if exit does not exists', () => {
@@ -416,14 +302,16 @@ describe('room model', () => {
       test('should return false if exit already exists', () => {
         let exit = { _id: new ObjectId(), dir: 's', roomId: new ObjectId() };
         room.exits.push(exit);
+        const dir = getDirection('s');
 
-        let result = room.addExit('s');
+        let result = room.addExit(dir);
 
         expect(result).toBeFalsy();
       });
 
       test('should return true when exit successfully added to object', () => {
-        let result = room.addExit('e');
+        const dir = getDirection('e');
+        let result = room.addExit(dir);
 
         let exit = room.exits.find(({ dir }) => dir === 'e');
 

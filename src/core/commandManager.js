@@ -2,7 +2,7 @@ import socketUtil from './socketUtil';
 import emoteHandler from './emoteHandler';
 import characterStates from './characterStates';
 import commandCategories from './commandCategories';
-import { globalExceptionHandler } from '../config';
+import { globalErrorHandler } from '../config';
 
 /**
  * Dictionary of successfully validated and loaded commands.
@@ -103,7 +103,7 @@ function processDispatch(socket, input) {
   // when a command is not found, it defaults to "say"
   socket.character.processStates(defaultCommand);
   return defaultCommand.execute(socket.character, input)
-    .catch(error => globalExceptionHandler(error));
+    .catch(error => globalErrorHandler(error));
 }
 
 export default {

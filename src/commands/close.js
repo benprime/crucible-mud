@@ -18,11 +18,10 @@ export default {
   execute(character, dir) {
 
     // changes "north" to "n" (just returns "n" if that's what's passed in)
-    const d = Room.validDirectionInput(dir.toLowerCase());
     const room = Room.getById(character.roomId);
 
     // valid exit in that direction?
-    const exit = room.exits.find(e => e.dir === d);
+    const exit = room.exits.find(e => e.dir === dir.short);
     if (!exit) {
       character.output('There is no exit in that direction!');
       return Promise.reject();
@@ -36,7 +35,7 @@ export default {
     exit.closed = true;
 
     character.output('Door closed.');
-    character.toRoom(`${character.name} closes the door to the ${Room.shortToLong(d)}.`, [character.id]);
+    character.toRoom(`${character.name} closes the door to the ${dir.long}.`, [character.id]);
     return Promise.resolve();
   },
 

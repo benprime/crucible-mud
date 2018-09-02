@@ -1,6 +1,5 @@
-import { mockGetRoomById, mockShortToLong, mockOppositeDirection } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockRoomMessage } from '../core/socketUtil';
-import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
 import sut from './yell';
 
@@ -18,26 +17,7 @@ describe('yell', () => {
   beforeAll(() => {
     socket = new mocks.SocketMock();
     socket.character.roomId = mockRoom.id;
-
     mockGetRoomById.mockReturnValue(mockRoom);
-
-    when(mockOppositeDirection).calledWith('n').mockReturnValue('s');
-    when(mockOppositeDirection).calledWith('s').mockReturnValue('n');
-    when(mockOppositeDirection).calledWith('e').mockReturnValue('w');
-    when(mockOppositeDirection).calledWith('w').mockReturnValue('e');
-    when(mockOppositeDirection).calledWith('ne').mockReturnValue('sw');
-    when(mockOppositeDirection).calledWith('nw').mockReturnValue('se');
-    when(mockOppositeDirection).calledWith('se').mockReturnValue('nw');
-    when(mockOppositeDirection).calledWith('sw').mockReturnValue('ne');
-
-    when(mockShortToLong).calledWith('n').mockReturnValue('north');
-    when(mockShortToLong).calledWith('s').mockReturnValue('south');
-    when(mockShortToLong).calledWith('e').mockReturnValue('east');
-    when(mockShortToLong).calledWith('w').mockReturnValue('west');
-    when(mockShortToLong).calledWith('ne').mockReturnValue('northeast');
-    when(mockShortToLong).calledWith('nw').mockReturnValue('northwest');
-    when(mockShortToLong).calledWith('se').mockReturnValue('southeast');
-    when(mockShortToLong).calledWith('sw').mockReturnValue('southwest');
   });
 
   describe('execute', () => {

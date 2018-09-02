@@ -1,5 +1,6 @@
-import { mockGetRoomById, mockValidDirectionInput } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockAutocompleteMultiple } from '../core/autocomplete';
+import directions from '../core/directions';
 import mocks from '../../spec/mocks';
 import sut from './hide';
 
@@ -30,10 +31,9 @@ describe('hide', () => {
 
   describe('doors', () => {
     test('should output message when direction is invalid', () => {
-      mockValidDirectionInput.mockReturnValueOnce('e');
       expect.assertions(2);
 
-      return sut.execute(socket.character, 'e').catch(() => {
+      return sut.execute(socket.character, directions.E).catch(() => {
         expect(socket.character.output).toHaveBeenCalledWith('No exit in that direction.<br />');
         expect(mockRoom.save).not.toHaveBeenCalled();
       });
@@ -42,10 +42,9 @@ describe('hide', () => {
   });
 
   test('should succeed on valid direction', () => {
-    mockValidDirectionInput.mockReturnValueOnce('d');
     expect.assertions(3);
 
-    return sut.execute(socket.character, 'd').then(() => {
+    return sut.execute(socket.character, directions.D).then(() => {
       const exit = mockRoom.exits.find(({ dir }) => dir === 'd');
       expect(socket.character.output).toHaveBeenCalledWith('The exit has been concealed.<br />');
       expect(mockRoom.save).toHaveBeenCalledTimes(1);
@@ -53,19 +52,15 @@ describe('hide', () => {
     });
   });
 
-
-
   describe('items', () => {
 
     test('should output message when item is invalid', () => {
-      mockAutocompleteMultiple.mockReturnValueOnce(null);
       expect.assertions(2);
       return sut.execute(socket.character, 'emu').catch(() => {
         expect(socket.character.output).toHaveBeenCalledWith('Item does not exist in inventory or in room.<br />');
         expect(mockRoom.save).not.toHaveBeenCalled();
       });
     });
-
 
     test('should succeed on valid item', () => {
       const item = { id: 'clownId', name: 'clown', hidden: false };

@@ -1,6 +1,7 @@
-import { mockGetRoomById, mockValidDirectionInput, mockShortToLong } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import mocks from '../../spec/mocks';
 import sut from './create';
+import directions, { getDirection } from '../core/directions';
 
 
 jest.mock('../models/room');
@@ -17,32 +18,14 @@ describe('create', () => {
     mockGetRoomById.mockReturnValue(mockRoom);
   });
 
-  // describe('dispatch triggers execute', () => {
-  //   let executeSpy;
-
-  //   beforeAll(() => {
-  //     executeSpy = spyOn(sut, 'execute');
-  //   });
-
-  //   test('with type and param', () => {
-  //     let type = 'room';
-  //     let param = 'thing';
-  //     sut.dispatch(socket, ['create', type, param]);
-
-  //     expect(executeSpy).toBeCalledWith(socket, type, param);
-  //   });
-  // });
-
   describe('execute', () => {
 
     describe('when type is room', () => {
       test('should accept valid forms of direction input', () => {
-        mockValidDirectionInput.mockReturnValueOnce('n');
-        mockShortToLong.mockReturnValueOnce('north');
         expect.assertions(3);
 
-        return sut.execute(socket.character, 'room', 'n').then(() => {
-          expect(mockRoom.createRoom).toBeCalledWith('n');
+        return sut.execute(socket.character, 'room', directions.N).then(() => {
+          expect(mockRoom.createRoom).toBeCalledWith(directions.N);
           expect(socket.character.output).toHaveBeenCalledWith('Room created.');
           expect(socket.character.toRoom).toHaveBeenCalledWith(`${socket.character.name} waves his hand and an exit appears to the ${longDir}!`, [socket.character.id]);
         });
@@ -50,7 +33,7 @@ describe('create', () => {
       });
 
       test('should output error message when direction in invalid', () => {
-        let dir = 'invalid dir';
+        let dir = undefined;
         expect.assertions(1);
 
         return sut.execute(socket.character, 'room', dir).catch(() => {
@@ -62,25 +45,23 @@ describe('create', () => {
 
     describe('when type is door', () => {
       test('should accept valid direction input', () => {
-        const dir = 'n';
-        mockValidDirectionInput.mockReturnValueOnce('n');
+        const dir = getDirection('n');
         expect.assertions(3);
 
         return sut.execute(socket.character, 'door', dir).then(() => {
-          expect(mockRoom.getExit).toBeCalledWith(dir);
+          expect(mockRoom.getExit).toBeCalledWith(dir.short);
           expect(mockRoom.exits.find(r => r.dir === 'n').closed).toBe(true);
           expect(mockRoom.save).toHaveBeenCalled();
         });
       });
 
       test('should output error message when direction in invalid', () => {
-        const dir = 'n';
-        mockValidDirectionInput.mockReturnValueOnce('n');
+        const dir = getDirection('n');
         mockRoom.getExit.mockReturnValueOnce(null);
         expect.assertions(3);
 
         return sut.execute(socket.character, 'door', dir).catch(() => {
-          expect(mockRoom.getExit).toBeCalledWith(dir);
+          expect(mockRoom.getExit).toBeCalledWith(dir.short);
           expect(mockRoom.save).not.toHaveBeenCalled();
           expect(socket.character.output).toHaveBeenCalledWith('Invalid direction.');
         });
@@ -92,7 +73,7 @@ describe('create', () => {
     test('should output error when create type is invalid', () => {
       expect.assertions(1);
 
-      return sut.execute(socket.character, 'other', 'n').catch(() => {
+      return sut.execute(socket.character, 'other', directions.N).catch(() => {
         expect(socket.character.output).toHaveBeenCalledWith('Invalid create type.');
       });
 

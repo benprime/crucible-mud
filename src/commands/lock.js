@@ -26,8 +26,7 @@ export default {
 
   execute(character, dir, keyName) {
     const room = Room.getById(character.roomId);
-    const validDir = Room.validDirectionInput(dir);
-    let exit = room.getExit(validDir);
+    let exit = room.getExit(dir.short);
     if (!exit || !('closed' in exit)) {
       character.output('No door in that direction.');
       return Promise.reject();

@@ -314,15 +314,13 @@ CharacterSchema.methods.move = function (dir) {
     this.break();
 
     if (socket) {
-      const displayDir = Room.shortToLong(dir);
-      if (this.isIncapacitated()) this.output(`You are dragged ${displayDir}...`);
-      else if (this.sneakMode()) this.output(`You sneak ${displayDir}...`);
-      else this.output(`You move ${displayDir}...`);
+      if (this.isIncapacitated()) this.output(`You are dragged ${dir.long}...`);
+      else if (this.sneakMode()) this.output(`You sneak ${dir.long}...`);
+      else this.output(`You move ${dir.long}...`);
     }
 
     fromRoom.leave(this, dir, socket);
-    const enterDir = Room.oppositeDirection(dir);
-    toRoom.enter(this, enterDir, socket);
+    toRoom.enter(this, dir.opposite, socket);
 
     let followers = socketUtil.getFollowers(socket.character.id);
     if (this.dragging) {

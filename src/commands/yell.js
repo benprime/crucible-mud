@@ -1,6 +1,7 @@
 import Room from '../models/room';
 import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
+import {getDirection} from '../core/directions';
 
 export default {
   name: 'yell',
@@ -28,7 +29,8 @@ export default {
       } else if (exit.dir === 'd') {
         preMsg = 'Someone yells from above ';
       } else {
-        preMsg = `Someone yells from the ${Room.shortToLong(Room.oppositeDirection(exit.dir))} `;
+        let dir = getDirection(exit.dir);
+        preMsg = `Someone yells from the ${dir.opposite.long} `;
       }
       const surroundMsg = `${preMsg} '${message}'`;
       socketUtil.roomMessage(exit.roomId, surroundMsg);

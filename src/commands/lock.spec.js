@@ -1,8 +1,8 @@
-import { mockGetRoomById, mockValidDirectionInput } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockAutocompleteMultiple } from '../core/autocomplete';
 import mocks from '../../spec/mocks';
 import sut from './lock';
-
+import directions from '../core/directions';
 
 jest.mock('../models/room');
 jest.mock('../core/autocomplete');
@@ -28,18 +28,16 @@ describe('lock', () => {
   });
 
   test('should output message when direction is invalid', () => {
-    mockValidDirectionInput.mockReturnValueOnce('w');
-    return sut.execute(socket.character, 'w', 'some key').catch(() => {
+    return sut.execute(socket.character, directions.W, 'some key').catch(() => {
       expect(socket.character.output).toHaveBeenCalledWith('No door in that direction.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
   });
 
   test('should output message when direction is not a door', () => {
-    mockValidDirectionInput.mockReturnValueOnce('s');
     expect.assertions(2);
 
-    return sut.execute(socket.character, 's', 'some key').catch(() => {
+    return sut.execute(socket.character, directions.S, 'some key').catch(() => {
       expect(socket.character.output).toHaveBeenCalledWith('No door in that direction.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
@@ -48,9 +46,8 @@ describe('lock', () => {
   });
 
   test('should do nothing when key name is invalid', () => {
-    mockValidDirectionInput.mockReturnValueOnce('e');
     expect.assertions(2);
-    return sut.execute(socket.character, 'e', 'invalid key name').catch(() => {
+    return sut.execute(socket.character, directions.E, 'invalid key name').catch(() => {
       expect(socket.character.output).toHaveBeenCalledWith('Unknown key.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
@@ -60,12 +57,11 @@ describe('lock', () => {
 
   test('should succeed on valid direction with door', () => {
     // arrange
-    mockValidDirectionInput.mockReturnValueOnce('n');
     mockAutocompleteMultiple.mockReturnValueOnce({ item: { name: 'some key' } });
     expect.assertions(4);
 
     // act
-    return sut.execute(socket.character, 'n', 'some key').then(() => {
+    return sut.execute(socket.character, directions.N, 'some key').then(() => {
       const exit = mockRoom.exits.find(({ dir }) => dir === 'n');
 
       // assert

@@ -27,13 +27,11 @@ export default {
 
   execute(character, dir, keyName, cb) {
     const room = Room.getById(character.roomId);
-    dir = Room.validDirectionInput(dir);
-    let exit = room.getExit(dir);
+    let exit = room.getExit(dir.short);
     if (!exit) {
       character.output('No door in that direction.');
       return Promise.reject();
     }
-    let displayDir = Room.shortToLong(exit.dir);
 
     if (!exit.locked) {
       character.output('That door is not locked.');
@@ -61,7 +59,7 @@ export default {
       } else if (exit.dir === 'd') {
         doorDesc = 'below';
       } else {
-        doorDesc = `to the ${displayDir}`;
+        doorDesc = `to the ${dir.long}`;
       }
 
       // todo: move this socket interaction to the room model
@@ -77,7 +75,9 @@ export default {
     exit.locked = false;
 
     character.output('Door unlocked.');
-    character.toRoom(`${character.name} unlocks the door to the ${displayDir}.`);
+
+    // todo: "To the down?"
+    character.toRoom(`${character.name} unlocks the door to the ${dir.long}.`);
 
     return Promise.resolve();
   },

@@ -1,9 +1,10 @@
 import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 import commandCategories from '../core/commandCategories';
+import { Direction } from '../core/directions';
 
 function hideDir(character, room, dir) {
-  let exit = room.getExit(dir);
+  let exit = room.getExit(dir.short);
   if (!exit) {
     character.output('No exit in that direction.<br />');
     return Promise.reject();
@@ -44,7 +45,7 @@ export default {
   name: 'hide',
   desc: 'hide an item in your current room',
   category: commandCategories.item,
-  
+
   patterns: [
     /^hide$/i,
     /^hide\s+(.+)$/i,
@@ -65,17 +66,16 @@ export default {
   execute(character, hideTarget) {
     const room = Room.getById(character.roomId);
 
-    if(!hideTarget) {
+    if (!hideTarget) {
       this.help(character);
       return Promise.resolve();
     }
 
     if (hideTarget) {
-      hideTarget = hideTarget.toLowerCase();
-
-      if (Room.validDirectionInput(hideTarget)) {
+      if (hideTarget instanceof Direction) {
         return hideDir(character, room, hideTarget);
       } else {
+        hideTarget = hideTarget.toLowerCase();
         return hideItem(character, room, hideTarget);
       }
     }

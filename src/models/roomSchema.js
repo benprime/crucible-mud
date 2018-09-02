@@ -6,7 +6,7 @@ import Area from './area';
 import SpawnerSchema from './spawnerSchema';
 import socketUtil from '../core/socketUtil';
 import { indefiniteArticle } from '../core/language';
-//import Room from './room';
+import { getDirection, Direction } from '../core/directions';
 
 const roomCache = {};
 
@@ -50,50 +50,6 @@ const RoomSchema = new mongoose.Schema({
 RoomSchema.index({ worldId: 1, x: 1, y: 1, z: 1 }, { unique: true });
 
 //============================================================================
-// Direction Support
-//============================================================================
-const dirEnum = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw', 'u', 'd'];
-
-const longToShort = {
-  north: 'n',
-  northeast: 'ne',
-  east: 'e',
-  southeast: 'se',
-  south: 's',
-  southwest: 'sw',
-  west: 'w',
-  northwest: 'nw',
-  up: 'u',
-  down: 'd',
-};
-
-const shortToLong = {
-  n: 'north',
-  ne: 'northeast',
-  e: 'east',
-  se: 'southeast',
-  s: 'south',
-  sw: 'southwest',
-  w: 'west',
-  nw: 'northwest',
-  u: 'up',
-  d: 'down',
-};
-
-const oppositeDir = {
-  n: 's',
-  ne: 'sw',
-  e: 'w',
-  se: 'nw',
-  s: 'n',
-  sw: 'ne',
-  w: 'e',
-  nw: 'se',
-  u: 'd',
-  d: 'u',
-};
-
-//============================================================================
 // Statics
 //============================================================================
 RoomSchema.statics.roomCache = roomCache;
@@ -104,29 +60,8 @@ RoomSchema.statics.getById = roomId => {
   return room;
 };
 
-RoomSchema.statics.oppositeDirection = dir => {
-  if (dir in oppositeDir) return oppositeDir[dir];
-  return null;
-};
-
 RoomSchema.statics.getByCoords = function (coords) {
   return this.findOne(coords);
-};
-
-RoomSchema.statics.shortToLong = dir => {
-  if (dir in shortToLong) return shortToLong[dir];
-  return dir;
-};
-
-RoomSchema.statics.longToShort = dir => {
-  if (dir in longToShort) return longToShort[dir];
-  return dir;
-};
-
-RoomSchema.statics.validDirectionInput = function (dir) {
-  const input = this.longToShort(dir.toLowerCase());
-  if (dirEnum.includes(input)) return input;
-  return null;
 };
 
 RoomSchema.statics.populateRoomCache = function () {
@@ -170,27 +105,27 @@ RoomSchema.methods.userInRoom = function (username) {
 };
 
 RoomSchema.methods.createRoom = function (dir) {
-  if (!this.constructor.validDirectionInput(dir)) {
-    return Promise.reject('Invalid direction');
+
+  if (!(dir instanceof Direction)) {
+    return Promise.reject('Invalid direction.');
   }
 
-  let exit = this.getExit(dir);
+  let exit = this.getExit(dir.short);
   if (exit) {
     return Promise.reject('Exit already exists');
   }
 
   // see if room exists at the coords
-  const targetCoords = this.dirToCoords(dir);
+  const targetCoords = this.dirToCoords(dir.short);
   let targetRoom = Object.values(roomCache).find(r =>
     r.x === targetCoords.x
     && r.y === targetCoords.y
     && r.z === targetCoords.z);
 
-  const oppDir = this.constructor.oppositeDirection(dir);
   if (targetRoom) {
     // room already exists, just link the rooms with a new exit in each room
     this.addExit(dir, targetRoom.id);
-    targetRoom.addExit(oppDir, this.id);
+    targetRoom.addExit(dir.opposite.short, this.id);
     this.save(err => { if (err) throw err; });
     targetRoom.save(err => { if (err) throw err; });
     return Promise.resolve(targetRoom);
@@ -206,7 +141,7 @@ RoomSchema.methods.createRoom = function (dir) {
       y: targetCoords.y,
       z: targetCoords.z,
       exits: [{
-        dir: oppDir,
+        dir: dir.opposite.short,
         roomId: currentRoom.id,
       }],
     });
@@ -248,11 +183,11 @@ RoomSchema.methods.kick = function (character, item, dir) {
     timestamp: new Date().getTime(),
   };
 
-  const dirName = this.constructor.shortToLong(dir);
+  const dirName = dir.long;
   const msg = `<span class="yellow">${character.name} kicks the ${item.name} to the ${dirName}</span>`;
   socketUtil.roomMessage(this.id, msg);
 
-  const targetDirName = this.constructor.shortToLong(this.constructor.oppositeDirection(dir));
+  const targetDirName = dir.opposite.long;
 
   // language, determining A or An
   let article = indefiniteArticle(item.name);
@@ -306,9 +241,10 @@ RoomSchema.methods.getDesc = function (character, short) {
   let notHiddenExits = '';
   //let hiddenExits = '';
   if (this.exits) {
-    notHiddenExits = this.exits.filter(({ hidden }) => !hidden).map(({ dir }) => {
-      let exitName = this.constructor.shortToLong(dir);
-      const exit = this.exits.find(e => e.dir === dir);
+    notHiddenExits = this.exits.filter(e => !e.hidden).map(e => {
+      let dir = getDirection(e.dir);
+      let exitName = dir.long;
+      const exit = this.exits.find(e => e.dir === dir.short);
       if (exit.closed) {
         exitName += ' (closed)';
       } else if ('closed' in exit && exit.closed === false) {
@@ -355,20 +291,20 @@ RoomSchema.methods.dirToCoords = function (dir) {
   return { x, y, z };
 };
 
-RoomSchema.methods.getExit = function (dir) {
-  const ldir = dir.toLowerCase();
+RoomSchema.methods.getExit = function (dirShort) {
+  const ldir = dirShort.toLowerCase();
   return this.exits.find(e => e.dir === ldir);
 };
 
 RoomSchema.methods.addExit = function (dir, roomId) {
-  const ldir = dir.toLowerCase();
-  const exit = this.getExit(ldir);
+  if (!(dir instanceof Direction)) return;
+  const exit = this.getExit(dir.short);
   if (exit) {
     return false;
   }
 
   const e = new Exit({
-    dir: ldir,
+    dir: dir.short,
     roomId: roomId,
   });
   this.exits.push(e);
@@ -376,16 +312,16 @@ RoomSchema.methods.addExit = function (dir, roomId) {
 };
 
 RoomSchema.methods.IsExitPassable = function (character, dir) {
+  if (!(dir instanceof Direction)) return;
 
   // validate direction is valid
-  const validDir = this.constructor.validDirectionInput(dir.toLowerCase());
-  if (!validDir) {
+  if (!dir) {
     return Promise.reject('<span class="yellow">That is not a valid direction!</span>');
   }
 
-  const exit = this.exits.find(e => e.dir === validDir);
+  const exit = this.exits.find(e => e.dir === dir.short);
   if (!exit) {
-    this.sendHitWallMessage(character, validDir);
+    this.sendHitWallMessage(character, dir.short);
     return Promise.reject();
   }
 
@@ -403,7 +339,7 @@ RoomSchema.methods.IsExitPassable = function (character, dir) {
   // }
 
   if (exit.closed) {
-    this.sendHitDoorMessage(character, validDir);
+    this.sendHitDoorMessage(character, dir.short);
     return Promise.reject();
   }
 
@@ -422,7 +358,7 @@ RoomSchema.methods.leave = function (character, dir, socket) {
   }
 
   if (!character.sneakMode()) {
-    this.sendMovementSoundsMessage(dir);
+    this.sendMovementSoundsMessage(dir.short);
   }
 
   // if this is a player
@@ -433,7 +369,7 @@ RoomSchema.methods.leave = function (character, dir, socket) {
 
   // whenever you leave a room, you leave tracks (for tracking command and scripting options)
   this.tracks[character.id] = {
-    dir: dir,
+    dir: dir.short,
     timestamp: new Date().getTime(),
   };
 
@@ -451,9 +387,9 @@ RoomSchema.methods.enter = function (character, dir, socket) {
 
   if (!character.sneakMode()) {
     const exclude = socket ? [socket.id] : [];
-    const msg = this.getEnteredMessage(dir, character.name);
+    const msg = this.getEnteredMessage(dir.short, character.name);
     socketUtil.roomMessage(character.roomId, msg, exclude);
-    this.sendMovementSoundsMessage(dir);
+    this.sendMovementSoundsMessage(dir.short);
   }
 
   character.save(err => { if (err) throw err; });
@@ -467,7 +403,7 @@ RoomSchema.methods.track = function (entity) {
   let output;
   let tracks = this.tracks[entity.id];
   if (tracks) {
-    const dirName = this.constructor.shortToLong(tracks.dir);
+    const dir = getDirection(tracks.dir);
 
     const now = new Date().getTime();
     const rawSeconds = Math.floor((now - tracks.timestamp) / 1000);
@@ -484,7 +420,7 @@ RoomSchema.methods.track = function (entity) {
       displayString = 'a second ago';
     }
 
-    output = `<span class="yellow">${entity.name} last left to the ${dirName} ${displayString}.</span>`;
+    output = `<span class="yellow">${entity.name} last left to the ${dir.long} ${displayString}.</span>`;
   } else {
     output = `${entity.name} has not passed through here recently.`;
   }
@@ -537,12 +473,12 @@ RoomSchema.methods.sendHitWallMessage = function (character, dir) {
   const socket = socketUtil.getSocketByCharacterId(character.id);
 
   // send message to everyone in current room that player is running into stuff.
-  if (dir === 'u') {
+  if (dir.short === 'u') {
     message = `${character.name} runs into the ceiling.`;
-  } else if (dir === 'd') {
+  } else if (dir.short === 'd') {
     message = `${character.name} runs into the floor.`;
   } else {
-    message = `${character.name} runs into the wall to the ${this.constructor.shortToLong(dir)}.`;
+    message = `${character.name} runs into the wall to the ${dir.long}.`;
   }
   socket.broadcast.to(socket.character.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
   socket.emit('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
@@ -554,12 +490,12 @@ RoomSchema.methods.sendHitDoorMessage = function (character, dir) {
   const socket = socketUtil.getSocketByCharacterId(character.id);
 
   // send message to everyone in current room that player is running into stuff.
-  if (dir === 'u') {
+  if (dir.short === 'u') {
     message = `${character.name} runs into the closed door above.`;
-  } else if (dir === 'd') {
+  } else if (dir.short === 'd') {
     message = `${character.name} runs into the trapdoor on the floor.`;
   } else {
-    message = `${character.name} runs into the door to the ${this.constructor.shortToLong(dir)}.`;
+    message = `${character.name} runs into the door to the ${dir.long}.`;
   }
   socket.broadcast.to(socket.character.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
   socket.emit('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
@@ -575,42 +511,32 @@ RoomSchema.methods.sendMovementSoundsMessage = function (excludeDir) {
       continue;
     }
 
-    let message = '';
-    if (exit.dir === 'u') {
-      message = 'You hear movement from below.';
-    } else if (exit.dir === 'd') {
-      message = 'You hear movement from above.';
-    } else {
-      const oppDir = this.constructor.shortToLong(this.constructor.oppositeDirection(exit.dir));
-      message = `You hear movement to the ${oppDir}.`;
-    }
-
+    let dir = getDirection(exit.dir);
+    const message = `You hear movement ${dir.opposite.desc}.`;
     global.io.to(exit.roomId).emit('output', { message });
   }
 };
 
 RoomSchema.methods.getLeftMessages = function (dir, charName) {
-  const displayDir = this.constructor.shortToLong(dir);
   let output = '';
-  if (dir === 'u') {
+  if (dir.short === 'u') {
     output = `${charName} has gone above.`;
-  } else if (dir === 'd') {
+  } else if (dir.short === 'd') {
     output = `${charName} has gone below.`;
   } else {
-    output = `${charName} has left to the ${displayDir}.`;
+    output = `${charName} has left to the ${dir.long}.`;
   }
   return `<span class="yellow">${output}</span>`;
 };
 
 RoomSchema.methods.getEnteredMessage = function (dir, charName) {
-  const displayDir = this.constructor.shortToLong(dir);
   let output = '';
-  if (dir === 'u') {
+  if (dir.short === 'u') {
     output = `${charName} has entered from below.`;
-  } else if (dir === 'd') {
+  } else if (dir.short === 'd') {
     output = `${charName} has entered from above.`;
   } else {
-    output = `${charName} has entered from the ${displayDir}.`;
+    output = `${charName} has entered from the ${dir.long}.`;
   }
   return `<span class="yellow">${output}</span>`;
 };

@@ -1,5 +1,5 @@
 import Room from '../models/room';
-import config, { globalExceptionHandler } from '../config';
+import config, { globalErrorHandler } from '../config';
 
 let lastRound = new Date();
 let round = 0;
@@ -63,7 +63,7 @@ const combatFrame = function () {
     processPlayerCombatActions(now);
     processMobCombatActions(now);
   } catch (e) {
-    globalExceptionHandler(e);
+    globalErrorHandler(e);
   }
 };
 

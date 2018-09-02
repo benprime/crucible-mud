@@ -1,5 +1,6 @@
-import { mockGetRoomById, mockValidDirectionInput, mockShortToLong, mockOppositeDirection } from '../models/room';
+import { mockGetRoomById } from '../models/room';
 import { mockAutocompleteMultiple } from '../core/autocomplete';
+import directions from '../core/directions';
 import { mockGetSocketByCharacterId, mockRoomMessage } from '../core/socketUtil';
 import { when } from 'jest-when';
 import mocks from '../../spec/mocks';
@@ -89,12 +90,10 @@ describe('look', () => {
 
       test('should output room look when lookTarget is a direction', () => {
         // arrange
-        mockValidDirectionInput.mockReturnValue('s');
-        mockShortToLong.mockReturnValueOnce('south').mockReturnValueOnce('north');
         expect.assertions(3);
 
         // act
-        return sut.execute(socket.character, false, 's').then(() => {
+        return sut.execute(socket.character, false, directions.S).then(() => {
 
           // assert
           expect(socket.character.output).toHaveBeenCalledWith('You look to the south...\nmocked room description');
@@ -106,13 +105,10 @@ describe('look', () => {
 
       test('should output a message when lookTarget is a direction with a closed door', () => {
         // arrange
-        mockValidDirectionInput.mockReturnValue('n');
-        mockOppositeDirection.mockReturnValue('s');
-        mockShortToLong.mockReturnValue('south');
         expect.assertions(1);
 
         // act
-        return sut.execute(socket.character, false, 'n').catch(() => {
+        return sut.execute(socket.character, false, directions.N).catch(() => {
           // assert
           expect(socket.character.output).toHaveBeenCalledWith('The door in that direction is closed!');
         });
@@ -124,8 +120,6 @@ describe('look', () => {
     describe('on item', () => {
 
       test('should do nothing when lookTarget is an invalid inventory item', () => {
-        mockValidDirectionInput.mockReturnValue(null);
-        mockAutocompleteMultiple.mockReturnValue(undefined);
         expect.assertions(1);
 
         return sut.execute(socket.character, false, 'boot').catch(() => {
@@ -140,7 +134,6 @@ describe('look', () => {
 
       test('should output description of mob', () => {
         mockAutocompleteMultiple.mockReturnValue({ item: new Item({ desc: 'a practice dummy' }) });
-        mockValidDirectionInput.mockReturnValue(false);
         mockGetSocketByCharacterId.mockReturnValue(socket);
         expect.assertions(1);
 

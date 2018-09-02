@@ -1,56 +1,55 @@
 import lookCommand from './look';
 import commandCategories from '../core/commandCategories';
-
-const commands = [
-  /^go\s+(\w+)$/i,
-  /^walk\s+(\w+)$/i,
-  /^move\s+(\w+)$/i,
-];
-
-const directions = [
-  /^n$/i,
-  /^s$/i,
-  /^e$/i,
-  /^w$/i,
-  /^ne$/i,
-  /^nw$/i,
-  /^se$/i,
-  /^sw$/i,
-  /^u$/i,
-  /^d$/i,
-  /^north$/i,
-  /^south$/i,
-  /^east$/i,
-  /^west$/i,
-  /^northeast$/i,
-  /^northwest$/i,
-  /^southeast$/i,
-  /^southwest$/i,
-  /^up$/i,
-  /^down$/i,
-];
+import {getDirection} from '../core/directions';
 
 export default {
   name: 'move',
   desc: 'move from room to room',
   category: commandCategories.basic,
 
-  patterns: commands.concat(directions),
+  patterns: [
+    /^go\s+(\w+)$/i,
+    /^walk\s+(\w+)$/i,
+    /^move\s+(\w+)$/i,
+    /^n$/i,
+    /^s$/i,
+    /^e$/i,
+    /^w$/i,
+    /^ne$/i,
+    /^nw$/i,
+    /^se$/i,
+    /^sw$/i,
+    /^u$/i,
+    /^d$/i,
+    /^north$/i,
+    /^south$/i,
+    /^east$/i,
+    /^west$/i,
+    /^northeast$/i,
+    /^northwest$/i,
+    /^southeast$/i,
+    /^southwest$/i,
+    /^up$/i,
+    /^down$/i,
+  ],
+
+  parse(character, match) {
+    let dirInput = match.length > 1 ? match[1] : match[0];
+    let dir = getDirection(dirInput);
+    return [character, dir];
+  },
 
   dispatch(socket, match) {
-    // anytime you move on your own, you are leaving a party
-    socket.character.leader = null;
-
-    // Multiple in the array means this matched to a command and not a direction
-    let direction = match.length > 1 ? match[1] : match[0];
-    return this.execute(socket.character, direction).then(() => {
-      // todo: I don't think we want to have commands call other commands...
-      return lookCommand.execute(socket.character);
-    });
+    const params = this.parse(socket.character, match);
+    return this.execute.apply(this, params);
   },
 
   execute(character, dir) {
-    return character.move(dir);
+    return character.move(dir).then(() => {
+      // only leave your party on a successful move
+      character.leader = null;
+      return lookCommand.execute(character);
+    });
   },
 
   help(character) {

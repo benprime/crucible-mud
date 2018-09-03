@@ -59,12 +59,7 @@ db.once('open', () => {
           loginUtil.loginUsername(socket, data);
           break;
         case config.STATES.LOGIN_PASSWORD:
-          loginUtil.loginPassword(socket, data).then(() => {
-            const room = Room.getById(socket.character.roomId);
-            return room.getDesc(socket.character, false).then(response => {
-              socketUtil.output(socket, response);
-            });
-          }).catch(err => socketUtil.output(socket, err));
+          loginUtil.loginPassword(socket, data);
           break;
       }
     });

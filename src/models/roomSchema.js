@@ -43,6 +43,9 @@ const RoomSchema = new mongoose.Schema({
 
   exits: [ExitSchema],
 
+  // this is currently for NPCs only
+  characters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Character' }],
+
   spawner: SpawnerSchema,
   inventory: [ItemSchema],
 }, { usePushEach: true });
@@ -551,7 +554,6 @@ RoomSchema.methods.sendHitWallMessage = function (character, dir) {
   }
   socket.broadcast.to(socket.character.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
   socket.emit('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
-  return Promise.reject();
 };
 
 RoomSchema.methods.sendHitDoorMessage = function (character, dir) {
@@ -568,7 +570,6 @@ RoomSchema.methods.sendHitDoorMessage = function (character, dir) {
   }
   socket.broadcast.to(socket.character.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
   socket.emit('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
-  return Promise.reject();
 };
 
 // emits "You hear movement to the <dir>" to all adjacent rooms

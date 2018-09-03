@@ -73,7 +73,7 @@ const data = [
         "max": 1,
         "timeout": 5000,
         "mobTypes": [
-            "dummy"
+            "enchanted sparring dummy"
         ]
     },
     "inventory": [],

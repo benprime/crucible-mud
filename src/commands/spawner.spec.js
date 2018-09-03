@@ -96,7 +96,7 @@ describe('spawner', () => {
       test('should output error when mob type does not exist on spawner', () => {
         expect.assertions(2);
         // act
-        return sut.execute(socket.character, 'remove', 'dummy').catch(() => {
+        return sut.execute(socket.character, 'remove', 'enchanted sparring dummy').catch(() => {
           // assert
           expect(currentRoom.save).not.toHaveBeenCalled();
           expect(socket.character.output).toHaveBeenCalledWith('Creature not found on spawner.');

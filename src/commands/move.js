@@ -59,7 +59,7 @@ export default {
       // only leave your party on a successful move
       character.leader = null;
       return lookCommand.execute(character);
-    });
+    }).catch(output => character.output(output));
   },
 
   help(character) {

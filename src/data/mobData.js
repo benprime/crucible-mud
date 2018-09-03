@@ -192,6 +192,7 @@ export default {
   {
     name: 'hellhound',
     desc: 'a hellhound',
+    displayTemplate: '${this.adjective} ${this.name}',
     adjectives: [
       {
         name: 'flaming',
@@ -225,7 +226,7 @@ export default {
     ],
   },
   {
-    name: 'dummy',
+    name: 'enchanted sparring dummy',
     desc: 'a sparring dummy',
     attacksPerRound: 0, // no attacks
     hp: 20,

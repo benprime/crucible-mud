@@ -57,7 +57,8 @@ function setRoom(character, prop, value) {
       character.output('This room is already a shop.');
       return Promise.reject();
     }
-    return Promise.resolve(Shop.createShop(character.roomId).then(() => 'Shop created.'));
+    return Promise.resolve(Shop.createShop(character.roomId)
+      .then(() => character.output('Shop created.')));
   }
 
   else if (roomPropertyWhiteList.includes(prop)) {

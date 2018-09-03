@@ -1,6 +1,7 @@
 import autocomplete from '../core/autocomplete';
 import Room from '../models/room';
 import commandCategories from '../core/commandCategories';
+import look from './look';
 
 export default {
   name: 'teleport',
@@ -72,6 +73,7 @@ export default {
     return character.teleport(toRoomId).then(() => {
       character.output('You teleport...\n');
       character.toRoom(`<span class="yellow">${this.name} appears out of thin air!</span>`, [this.id]);
+      look.execute(character, false);
     });
   },
 

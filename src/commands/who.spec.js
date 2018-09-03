@@ -47,7 +47,7 @@ describe('who', () => {
 
     });
 
-    test('should display areas when online users are in rooms that have areas', () => {
+    test('should display areas when online users are in rooms that have areas', async () => {
       mockRoom.areaId = 'areaId';
       mockGetAreaById.mockReturnValueOnce(area);
       mockGetAreaById.mockReturnValueOnce(mocks.getMockRoom(socket.character.roomId));

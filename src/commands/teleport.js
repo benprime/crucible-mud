@@ -69,7 +69,10 @@ export default {
       toRoomId = targetCharacter.roomId;
     }
 
-    return character.teleport(toRoomId);
+    return character.teleport(toRoomId).then(() => {
+      character.output('You teleport...\n');
+      character.toRoom(`<span class="yellow">${this.name} appears out of thin air!</span>`, [this.id]);
+    });
   },
 
   help(character) {

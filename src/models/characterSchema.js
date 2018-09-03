@@ -223,20 +223,20 @@ CharacterSchema.methods.processEndOfRound = function (round) {
     }
   }
 
-  if (this.hasState(characterStates.resting) && this.currentHP >= this.maxHP) {
-    this.removeState(characterStates.resting);
+  if (this.hasState(characterStates.RESTING) && this.currentHP >= this.maxHP) {
+    this.removeState(characterStates.RESTING);
     this.output('<span class="olive">You are fully healed.</span>');
   }
 
   // todo: may need to find a way to remove the incapacitated state
   // when the user gains HP above 0.... (no matter what method that happens in)
   if (this.currentHP > 0) {
-    this.removeState(characterStates.incapacitated);
+    this.removeState(characterStates.INCAPACITATED);
   }
 };
 
 CharacterSchema.methods.isIncapacitated = function () {
-  return this.hasState(characterStates.incapacitated);
+  return this.hasState(characterStates.INCAPACITATED);
 };
 
 CharacterSchema.methods.regen = function () {
@@ -244,7 +244,7 @@ CharacterSchema.methods.regen = function () {
   if (!this.user) return;
 
   if (this.currentHP < this.maxHP) {
-    if (this.states.includes(characterStates.resting)) {
+    if (this.states.includes(characterStates.RESTING)) {
       // poor man's Math.clamp()
       this.currentHP = Math.min(Math.max(this.currentHP + 2, 0), this.maxHP);
     } else {
@@ -276,7 +276,7 @@ CharacterSchema.methods.updateHUD = function () {
 
 CharacterSchema.methods.incapacitate = function () {
   this.break();
-  this.setState(characterStates.incapacitated);
+  this.setState(characterStates.INCAPACITATED);
 };
 
 CharacterSchema.methods.takeDamage = function (damage) {
@@ -365,10 +365,12 @@ CharacterSchema.methods.teleport = function (roomTarget) {
   if (socket) {
     this.save(err => { if (err) throw err; });
   }
-  return Promise.resolve({
-    charMessages: [{ charId: this.id, message: 'You teleport...\n' }],
-    roomMessages: [{ roomId: roomTarget, message: `<span class="yellow">${this.name} appears out of thin air!</span>`, exclude: [this.id] }],
-  });
+
+  return Promise.resolve();
+  // return Promise.resolve({
+  //   charMessages: [{ charId: this.id, message: 'You teleport...\n' }],
+  //   roomMessages: [{ roomId: roomTarget, message: `<span class="yellow">${this.name} appears out of thin air!</span>`, exclude: [this.id] }],
+  // });
 };
 
 CharacterSchema.methods.output = function (msg, options) {
@@ -478,7 +480,7 @@ CharacterSchema.methods.removeState = function (state) {
 };
 
 CharacterSchema.methods.sneakMode = function () {
-  return this.hasState(characterStates.sneaking);
+  return this.hasState(characterStates.SNEAKING);
 };
 
 /**

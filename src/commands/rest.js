@@ -30,7 +30,7 @@ export default {
       return Promise.reject();
     }
 
-    character.setState(characterStates.resting);
+    character.setState(characterStates.RESTING);
 
     const status = character.status();
     let msg = '<span class="silver">';

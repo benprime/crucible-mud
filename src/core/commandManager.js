@@ -93,7 +93,7 @@ function processDispatch(socket, input) {
 
       // emotes are ignored by most states, but in the case of sneaking,
       // it reveals the player in the room.
-      socket.character.removeState(characterStates.sneaking);
+      socket.character.removeState(characterStates.SNEAKING);
 
       return emoteHandler.actionDispatcher(socket.character, action, username)
         .then(response => socketUtil.sendMessages(socket, response))

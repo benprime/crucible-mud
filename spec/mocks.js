@@ -31,6 +31,7 @@ function getMockRoom(roomId) {
   room._id = ObjectId(roomId);
   room.id = roomId || room._id.toString();
   room.mobs = [];
+  room.characters = [];
   room.inventory = [];
   room.x = 10;
   room.y = 10;

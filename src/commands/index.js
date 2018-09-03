@@ -36,6 +36,7 @@ const commandModules = [
   'offer.js',
   'open.js',
   'party.js',
+  'puppet.js',
   'rest.js',
   'roll.js',
   'say.js',

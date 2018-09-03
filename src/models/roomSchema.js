@@ -165,6 +165,72 @@ RoomSchema.methods.createRoom = function (dir) {
   }
 };
 
+RoomSchema.methods.createDoor = function (dir) {
+
+  if (!(dir instanceof Direction)) {
+    return Promise.reject('Invalid direction.');
+  }
+
+  const exit = this.getExit(dir.short);
+
+  if (!exit) {
+    return Promise.reject('No exit exists in that direction.');
+  }
+
+  if (exit.closed !== undefined) {
+    return Promise.reject('Door already exists.');
+  }
+
+  exit.closed = true;
+  this.save(err => { if (err) throw err; });
+  return Promise.resolve();
+};
+
+RoomSchema.methods.openDoor = function (dir) {
+  if (!(dir instanceof Direction)) {
+    return Promise.reject('Invalid direction.');
+  }
+
+  const exit = this.exits.find(e => e.dir === dir.short);
+  if (!exit) {
+    return Promise.reject('There is no exit in that direction!');
+  }
+
+  if (exit.closed === undefined) {
+    return Promise.reject('There is no door in that direction!');
+  }
+
+  if (exit.locked) {
+    return Promise.reject('That door is locked.');
+  }
+
+  if (exit.closed === false) {
+    return Promise.reject('That door is already open.');
+  }
+
+  exit.closed = false;
+  return Promise.resolve();
+};
+
+RoomSchema.methods.closeDoor = function (dir) {
+  if (!(dir instanceof Direction)) {
+    return Promise.reject('Invalid direction.');
+  }
+  
+  const exit = this.exits.find(e => e.dir === dir.short);
+  if (!exit) {
+    return Promise.reject('There is no exit in that direction!');
+  }
+
+  if (exit.closed === undefined) {
+    return Promise.reject('There is no door in that direction!');
+  }
+
+  exit.closed = true;
+  return Promise.resolve();
+};
+
+
 RoomSchema.methods.kick = function (character, item, dir) {
   const exit = this.getExit(dir);
   if (!exit) {
@@ -389,7 +455,10 @@ RoomSchema.methods.enter = function (character, dir, socket) {
     const exclude = socket ? [socket.id] : [];
     const msg = this.getEnteredMessage(dir.short, character.name);
     socketUtil.roomMessage(character.roomId, msg, exclude);
-    this.sendMovementSoundsMessage(dir.short);
+
+    if(dir) {
+      this.sendMovementSoundsMessage(dir.short);
+    }
   }
 
   character.save(err => { if (err) throw err; });

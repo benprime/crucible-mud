@@ -21,22 +21,10 @@ describe('create', () => {
 
     test('should accept valid direction input', () => {
       const dir = getDirection('n');
-      expect.assertions(3);
+      expect.assertions(1);
 
       return sut.execute(socket.character, dir).then(() => {
-        expect(mockRoom.getExit).toBeCalledWith(dir.short);
-        expect(mockRoom.exits.find(r => r.dir === 'n').closed).toBe(true);
-        expect(mockRoom.save).toHaveBeenCalled();
-      });
-    });
-
-    test('should output error message when direction in invalid', () => {
-      const dir = null;
-      expect.assertions(2);
-
-      return sut.execute(socket.character, dir).catch(() => {
-        expect(mockRoom.save).not.toHaveBeenCalled();
-        expect(socket.character.output).toHaveBeenCalledWith('Invalid direction.');
+        expect(mockRoom.createDoor).toBeCalledWith(dir);
       });
     });
 

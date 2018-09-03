@@ -1,5 +1,6 @@
 import Room from '../models/room';
 import commandCategories from '../core/commandCategories';
+import { getDirection } from '../core/directions';
 
 export default {
   name: 'open',
@@ -11,40 +12,24 @@ export default {
     /^op\s+(\w+)$/i,
   ],
 
+
+  parseParams(character, match) {
+    const dir = getDirection(match[1]);
+    return [character, dir];
+  },
+
   dispatch(socket, match) {
-    return this.execute(socket.character, match[1]);
+    const params = this.parseParams(socket.character, match);
+    return this.execute.apply(this, params);
   },
 
   execute(character, dir) {
     const room = Room.getById(character.roomId);
-
-    // valid exit in that direction?
-    const exit = room.exits.find(e => e.dir === dir.short);
-    if (!exit) {
-      character.output('There is no exit in that direction!');
-      return Promise.reject();
-    }
-
-    if (exit.closed === undefined) {
-      character.output('There is no door in that direction!');
-      return Promise.reject();
-    }
-
-    if (exit.locked) {
-      character.output('That door is locked.');
-      return Promise.reject();
-    }
-
-    if (exit.closed === false) {
-      character.output('That door is already open.');
-      return Promise.reject();
-    }
-
-    exit.closed = false;
-
-    character.output('Door opened.');
-    character.toRoom(`${character.name} opens the door to the ${dir.long}.`, [character.id]);
-    return Promise.resolve();
+    return room.openDoor(dir).then(() => {
+      character.output('Door opened.');
+      character.toRoom(`${character.name} opens the door to the ${dir.long}.`, [character.id]);
+      return Promise.resolve();
+    });
   },
 
   help(character) {

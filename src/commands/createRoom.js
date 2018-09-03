@@ -1,6 +1,6 @@
 import Room from '../models/room';
 import commandCategories from '../core/commandCategories';
-import { Direction, getDirection } from '../core/directions';
+import { getDirection } from '../core/directions';
 
 export default {
   name: 'create room',
@@ -18,11 +18,6 @@ export default {
   },
 
   execute(character, dir) {
-    if (!(dir instanceof Direction)) {
-      character.output('Invalid direction!');
-      return Promise.reject();
-    }
-
     const room = Room.getById(character.roomId);
 
     return room.createRoom(dir).then(() => {
@@ -30,7 +25,6 @@ export default {
       character.toRoom(`${character.name} waves his hand and an exit appears to the ${dir.long}!`, [character.id]);
       return Promise.resolve();
     });
-
   },
 
   help(character) {

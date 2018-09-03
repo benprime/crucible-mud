@@ -32,7 +32,8 @@ describe('create', () => {
 
       });
 
-      test('should output error message when direction in invalid', () => {
+      // move test to room schema tests
+      xtest('should output error message when direction in invalid', () => {
         let dir = undefined;
         expect.assertions(1);
 

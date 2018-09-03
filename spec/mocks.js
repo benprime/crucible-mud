@@ -74,6 +74,9 @@ function getMockRoom(roomId) {
   room.enter = jest.fn().mockName('enterRoom');
   room.leave = jest.fn().mockName('leaveRoom');
   room.IsExitPassable = jest.fn().mockImplementation(() => Promise.resolve({}));
+  room.openDoor = jest.fn().mockImplementation(() => Promise.resolve({}));
+  room.closeDoor = jest.fn().mockImplementation(() => Promise.resolve({}));
+  room.createDoor = jest.fn().mockImplementation(() => Promise.resolve({}));
 
   room.reset = function () {
     room.getExit.mockReset();

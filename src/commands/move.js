@@ -1,6 +1,6 @@
 import lookCommand from './look';
 import commandCategories from '../core/commandCategories';
-import {getDirection} from '../core/directions';
+import { getDirection } from '../core/directions';
 
 export default {
   name: 'move',
@@ -33,12 +33,22 @@ export default {
     /^down$/i,
   ],
 
+  /**
+   * Parses params from and prepares params for calling execute command.
+   * @param {Character} character 
+   * @param {String[]} match 
+   */
   parseParams(character, match) {
     let dirInput = match.length > 1 ? match[1] : match[0];
     let dir = getDirection(dirInput);
     return [character, dir];
   },
 
+  /**
+   * Send the intent to move to the room.
+   * @param {Socket} socket 
+   * @param {String[]} match 
+   */
   dispatch(socket, match) {
     const params = this.parseParams(socket.character, match);
     return this.execute.apply(this, params);

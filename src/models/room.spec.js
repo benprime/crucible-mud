@@ -6,6 +6,7 @@ import mocks from '../../spec/mocks';
 import { Types } from 'mongoose';
 const { ObjectId } = Types;
 import sutModel from '../models/room';
+import Room from '../models/room';
 
 jest.mock('../core/socketUtil');
 
@@ -421,6 +422,142 @@ describe('room model', () => {
         expect(room.mobs[2].attack).toHaveBeenCalled();
         expect(room.mobs[2].taunt).toHaveBeenCalled();
       });
+    });
+
+
+    describe('closeDoor', () => {
+      beforeEach(() => {
+        room = new Room();
+        room.save = jest.fn();
+
+        room.exits = [
+          { dir: 'n', roomId: 'nRoomId', closed: true },
+          { dir: 's', roomId: 'sRoomId', closed: false },
+          { dir: 'e', roomId: 'eRoomId' },
+          { dir: 'w', roomId: 'wRoomId' },
+        ];
+      });
+
+      test('should print message on invalid direction', () => {
+        expect.assertions(1);
+        return room.closeDoor(directions.NE).catch((response) => {
+          expect(response).toBe('There is no exit in that direction!');
+        });
+
+      });
+
+      test('should print message when no door exists in valid direction', () => {
+        expect.assertions(1);
+        return room.closeDoor(directions.E).catch(response => expect(response).toBe('There is no door in that direction!'));
+      });
+
+      test('should be succesful when door is open', () => {
+        return room.closeDoor(directions.S);
+      });
+
+      test('should be succesful when door is already closed', () => {
+        return room.closeDoor(directions.N);
+      });
+
+    });
+
+    describe('openDoor', () => {
+
+      beforeEach(() => {
+        room.exits = [
+          { dir: 'n', roomId: 'nRoomId', closed: true },
+          { dir: 's', roomId: 'sRoomId', closed: false },
+          { dir: 'e', roomId: 'eRoomId', keyName: 'someKey', locked: true, closed: true },
+          { dir: 'w', roomId: 'wRoomId', keyName: 'someKey', locked: false, closed: false },
+          { dir: 'se', roomId: 'seRoomId', keyName: 'someKey', locked: false, closed: true },
+          { dir: 'sw', roomId: 'swRoomId' },
+        ];
+      });
+      test('should output message when direction is invalid', () => {
+        expect.assertions(1);
+
+        return room.openDoor(directions.NE).catch((response) => {
+          expect(response).toBe('There is no exit in that direction!');
+        });
+
+      });
+
+      test('should output message when direction has no door', () => {
+        expect.assertions(2);
+
+        return room.openDoor(directions.SW).catch((response) => {
+          const exit = room.exits.find(({ dir }) => dir === 'sw');
+
+          expect(exit.hasOwnProperty('closed')).toBe(false);
+          expect(response).toBe('There is no door in that direction!');
+        });
+      });
+
+      describe('when key is associated', () => {
+        test('should fail and output message when door is locked and closed', () => {
+          expect.assertions(4);
+
+          return room.openDoor(directions.E).catch((response) => {
+            const exit = room.exits.find(({ dir }) => dir === 'e');
+
+            expect(exit.keyName).toBe('someKey');
+            expect(exit.locked).toBe(true);
+            expect(exit.closed).toBe(true);
+            expect(response).toBe('That door is locked.');
+          });
+
+        });
+
+        test('should succeed and output message when door is unlocked and closed', () => {
+          expect.assertions(3);
+
+          return room.openDoor(directions.SE).then(() => {
+            const exit = room.exits.find(({ dir }) => dir === 'se');
+            expect(exit.keyName).toBe('someKey');
+            expect(exit.locked).toBe(false);
+            expect(exit.closed).toBe(false);
+          });
+
+        });
+
+        test('should send messages when door and is unlocked and open', () => {
+          expect.assertions(4);
+
+          return room.openDoor(directions.W).catch((response) => {
+            const exit = room.exits.find(({ dir }) => dir === 'w');
+
+            expect(exit.keyName).toBe('someKey');
+            expect(exit.locked).toBe(false);
+            expect(exit.closed).toBe(false);
+            expect(response).toBe('That door is already open.');
+          });
+
+        });
+      });
+
+      describe('when no key is associated', () => {
+        test('should output message when door is closed', () => {
+          expect.assertions(1);
+
+          return room.openDoor(directions.N).then(() => {
+            const exit = room.exits.find(({ dir }) => dir === 'n');
+
+            expect(exit.closed).toBe(false);
+          });
+
+        });
+
+        test('should output message when door is already open', () => {
+          expect.assertions(1);
+
+          return room.openDoor(directions.S).catch((response) => {
+            expect(response).toBe('That door is already open.');
+          });
+
+        });
+      });
+
+
     });
   });
 });

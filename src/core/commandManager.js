@@ -76,7 +76,8 @@ function processDispatch(socket, input) {
         // check and see if the character is in a state that
         // would prevent them from running this command.
         if (socket.character.processStates(command)) {
-          return command.dispatch(socket, match);
+          return command.dispatch(socket, match)
+            .catch(response => socket.character.output(response));
         }
       }
     }
@@ -103,7 +104,7 @@ function processDispatch(socket, input) {
   // when a command is not found, it defaults to "say"
   socket.character.processStates(defaultCommand);
   return defaultCommand.execute(socket.character, input)
-    .catch(error => globalErrorHandler(error));
+    .catch(response => socket.character.output(response));
 }
 
 export default {

@@ -2,7 +2,7 @@ import Room from '../models/room';
 import autocomplete from '../core/autocomplete';
 import socketUtil from '../core/socketUtil';
 import commandCategories from '../core/commandCategories';
-import directions, {getDirection, Direction} from '../core/directions';
+import { getDirection, Direction } from '../core/directions';
 
 function lookDir(character, { exits }, dir) {
   const exit = exits.find(e => e.dir === dir.short);
@@ -45,7 +45,7 @@ export default {
     /^l\s+(.+)$/i,
   ],
 
-  parse(character, match) {
+  parseParams(character, match) {
     let lookTarget = null;
     const short = (match[0] === '');
     if (match.length > 1) {
@@ -53,18 +53,19 @@ export default {
     }
 
     const dir = getDirection(lookTarget);
-    if(dir) lookTarget = dir;
+    if (dir) lookTarget = dir;
 
     return [character, short, lookTarget];
   },
 
   dispatch(socket, match) {
-    const params = this.parse(socket.character, match);
+    const params = this.parseParams(socket.character, match);
     return this.execute.apply(this, params);
   },
 
   execute(character, short, lookTarget) {
 
+    // look called without parameters (looking at room)
     if (!lookTarget) {
       const room = Room.getById(character.roomId);
       return room.getDesc(character, short).then(output => {
@@ -73,6 +74,7 @@ export default {
       });
     }
 
+    // look called on direction
     if (lookTarget instanceof Direction) {
       const room = Room.getById(character.roomId);
       return lookDir(character, room, lookTarget);
@@ -80,6 +82,7 @@ export default {
 
     lookTarget = lookTarget.toLowerCase();
 
+    // look called on self
     if (lookTarget === 'me' || lookTarget === 'self') {
       return character.getDesc().then(output => {
         character.output(output);
@@ -87,6 +90,7 @@ export default {
       });
     }
 
+    // look called on item, monster, character
     const acResult = autocomplete.multiple(character, ['inventory', 'mob', 'room', 'character'], lookTarget);
     if (!acResult || acResult.item.hidden) {
       character.output('You don\'t see that here.');

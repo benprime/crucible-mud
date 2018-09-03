@@ -1,5 +1,6 @@
 import Room from '../models/room';
 import commandCategories from '../core/commandCategories';
+import { getDirection } from '../core/directions';
 
 export default {
   name: 'close',
@@ -11,32 +12,24 @@ export default {
     /^cl\s+(\w+)$/i,
   ],
 
+  parseParams(character, match) {
+    const dir = getDirection(match[1]);
+    return [character, dir];
+  },
+
   dispatch(socket, match) {
-    return this.execute(socket.character, match[1]);
+    const params = this.parseParams(socket.character, match);
+    return this.execute.apply(this, params);
   },
 
   execute(character, dir) {
-
-    // changes "north" to "n" (just returns "n" if that's what's passed in)
     const room = Room.getById(character.roomId);
 
-    // valid exit in that direction?
-    const exit = room.exits.find(e => e.dir === dir.short);
-    if (!exit) {
-      character.output('There is no exit in that direction!');
-      return Promise.reject();
-    }
-
-    if (exit.closed === undefined) {
-      character.output('There is no door in that direction!');
-      return Promise.reject();
-    }
-
-    exit.closed = true;
-
-    character.output('Door closed.');
-    character.toRoom(`${character.name} closes the door to the ${dir.long}.`, [character.id]);
-    return Promise.resolve();
+    return room.closeDoor(dir).then(() => {
+      character.output('Door closed.');
+      character.toRoom(`${character.name} closes the door to the ${dir.long}.`, [character.id]);
+      return Promise.resolve();
+    });
   },
 
   help(character) {

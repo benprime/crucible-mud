@@ -9,7 +9,12 @@ const commandModules = [
   'buy.js',
   'catalog.js',
   'close.js',
-  'create.js',
+  
+  'createArea.js',
+  'createDoor.js',
+  'createRoom.js',
+  'create.js', // this contains the catch-all for the other create commands and must be last.
+  
   'destroy.js',
   'drag.js',
   'drop.js',

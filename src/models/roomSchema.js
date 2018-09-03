@@ -456,7 +456,7 @@ RoomSchema.methods.enter = function (character, dir, socket) {
 
   if (!character.sneakMode()) {
     const exclude = socket ? [socket.id] : [];
-    const msg = this.getEnteredMessage(dir.short, character.name);
+    const msg = this.getEnteredMessage(dir, character.name);
     socketUtil.roomMessage(character.roomId, msg, exclude);
 
     if(dir) {

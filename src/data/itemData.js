@@ -1,11 +1,22 @@
-
-
-
 const WeaponTypes = {
-  None: 'none',
-  Slashing: 'slashing',
-  Pierce: 'pierce',
-  Bludgeon: 'bludgeoning',
+  NONE: 'none',
+  SLASHING: 'slashing',
+  PIERCING: 'pierce',
+  BLUDGEONING: 'bludgeoning',
+};
+
+const EquipSlots = {
+  HEAD: 'head',
+  NECK: 'neck',
+  BODY: 'body',
+  LEGS: 'legs',
+  ARMS: 'arms',
+  HANDS: 'hands',
+  FEET: 'feet',
+  FINGERMAIN: 'fingerMain',
+  FINGEROFF: 'fingerOff',
+  WEAPONMAIN: 'weaponMain',
+  WEAPONOFF: 'weaponOff',
 };
 
 export default {
@@ -15,10 +26,9 @@ export default {
       desc: 'an iron short sword',
       price: 10,
       type: 'item',
-      //range: 'melee',
-      equipSlots: ['weaponMain'],
+      equipSlots: [EquipSlots.WEAPONMAIN],
       damage: '1d5+1',  //die roll + modifier
-      weaponType: 'slashing',  //piercing, slashing, bludgeoning
+      weaponType: WeaponTypes.SLASHING,  //piercing, slashing, bludgeoning
       //speed: 0,  //scale from -1(slowest) to 1(fastest)
       //bonus: 'damage + 0', //stat + modifier
     },
@@ -27,10 +37,9 @@ export default {
       desc: 'a huge sword requiring both hands to wield',
       price: 10,
       type: 'item',
-      //range: 'melee',
-      equipSlots: ['weaponMain', 'weaponOff'],
+      equipSlots: [EquipSlots.WEAPONMAIN, EquipSlots.WEAPONOFF],
       damage: '1d6+3',  //die roll + modifier
-      weaponType: 'slashing',  //piercing, slashing, bludgeoning
+      weaponType: WeaponTypes.SLASHING,  //piercing, slashing, bludgeoning
       //speed: 0,  //scale from -1(slowest) to 1(fastest)
       //bonus: 'damage + 0', //stat + modifier
     },
@@ -45,12 +54,48 @@ export default {
       desc: 'a flaming stick',
       price: 10,
       type: 'item',
-      //range: 'melee',
-      equipSlots: ['weaponOff'],  //mainHand/offHand/bothHand/eitherHand, head, non, etc
+      equipSlots: [EquipSlots.WEAPONOFF],  //mainHand/offHand/bothHand/eitherHand, head, non, etc
       damage: '1d2',  //die roll (+/-)modifier
-      weaponType: 'bludgeoning',  //piercing, slashing, bludgeoning
+      weaponType: WeaponTypes.BLUDGEONING,  //piercing, slashing, bludgeoning
       //speed: -.5,  //scale from -1(slowest) to 1(fastest)
       //bonus: 'damage + 1d4 fire', //stat + modifier
+    },
+    {
+      name: 'helmet',
+      desc: 'a light combat helmet',
+      price: 10,
+      type: 'item',
+      equipSlots: [EquipSlots.HEAD],  //mainHand/offHand/bothHand/eitherHand, head, non, etc
+      //speed: -.5,  //scale from -1(slowest) to 1(fastest)
+      //bonus: 'damage + 1d4 fire', //stat + modifier
+    },
+    {
+      name: 'padded leather armor',
+      desc: 'padded leather armor',
+      price: 10,
+      type: 'item',
+      equipSlots: [EquipSlots.BODY],
+    },
+    {
+      name: 'padded leather pants',
+      desc: 'padded leather pants',
+      price: 10,
+      type: 'item',
+      equipSlots: [EquipSlots.LEGS],
+    },
+    {
+      name: 'leather boots',
+      desc: 'leather boots',
+      price: 10,
+      type: 'item',
+      equipSlots: [EquipSlots.FEET],
+    },
+    {
+      name: 'leather gloves',
+      desc: 'leather gloves',
+      price: 10,
+      type: 'item',
+      equipSlots: [EquipSlots.HANDS],
     },
     {
       name: 'sign',

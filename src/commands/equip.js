@@ -10,6 +10,7 @@ export default {
     /^eq\s+(.+)$/i,
     /^equip\s+(.+)$/i,
     /^wield\s+(.+)$/i,
+    /^wear\s+(.+)$/i,
     /^equip$/i,
     /^eq$/i,
   ],

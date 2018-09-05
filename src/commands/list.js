@@ -37,6 +37,7 @@ export default {
       return Object.assign(s, { itemType: itemType });
     });
 
+    // todo: add color to this table. We will need to replace ascii-table.
     const table = new AsciiTable();
     table.setHeading('price', 'name', 'desc', 'quantity');
     stockTypes.forEach(st => table.addRow(st.itemType.price, st.itemType.name, st.itemType.desc, st.quantity));

@@ -67,9 +67,13 @@ export default {
   dispatch(socket, input) {
     try {
       commandManager.processDispatch(socket, input)
-        .catch(err => globalErrorHandler(err));
+        .catch(err => {
+          globalErrorHandler(err);
+          socket.character.output('An error occurred.');
+        });
     } catch (err) {
       globalErrorHandler(err);
+      socket.character.output('An error occurred.');
     }
   },
 };

@@ -30,7 +30,7 @@ export default {
     }
 
     const room = Room.getById(character.roomId);
-    return room.track(targetChar);
+    return room.track(targetChar).then(output => character.output(output));
   },
 
   help(character) {

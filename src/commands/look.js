@@ -97,7 +97,11 @@ export default {
       return Promise.reject();
     }
     return acResult.item.getDesc(character).then(output => {
-      character.toRoom(`${character.name} looks at the ${acResult.item}.`);
+      if(acResult.itemType === 'item') {
+        character.toRoom(`${character.name} looks at the ${acResult.item.name}.`);
+      } else if(acResult.itemType === 'character') {
+        character.toRoom(`${character.name} looks at ${acResult.item.name}.`);
+      }
       character.output(output);
     });
   },

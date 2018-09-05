@@ -7,7 +7,7 @@ export const stateMode = Object.freeze({
 
 export default {
   DRAGGING: {
-    name: 'DRAGGING', // HUD display
+    name: 'DRAGGING',
     commandCategories: [
       commandCategories.basic,
       commandCategories.system,
@@ -18,7 +18,7 @@ export default {
     message: '<span class="yellow">You cannot do that while dragging a player!</span>\n<span class="silver">type DROP <PLAYER NAME> to stop dragging them.</span>\n',
   },
   INCAPACITATED: {
-    name: 'INCAPACITATED', // HUD display
+    name: 'INCAPACITATED',
     commandCategories: [
       commandCategories.system,
       commandCategories.character,
@@ -28,17 +28,16 @@ export default {
     message: '<span class="firebrick">You are incompacitated!</span>\n',
   },
   RESTING: {
-    name: 'RESTING', // HUD display
+    name: 'RESTING',
     commandCategories: [
       commandCategories.system,
       commandCategories.character,
       commandCategories.communication,
     ],
     mode: stateMode.DEACTIVATE,
-    message: '',
   },
   SNEAKING: {
-    name: 'SNEAKING', // HUD display
+    name: 'SNEAKING',
     commandCategories: [
       commandCategories.basic,
       commandCategories.system,
@@ -48,7 +47,17 @@ export default {
     message: '<span class="yellow">You are revealed!</span>',
   },
   ENCUMBERED: {
-    name: 'ENCUMBERED', // HUD display
+    name: 'ENCUMBERED',
+    commandCategories: [
+      commandCategories.basic,
+      commandCategories.system,
+      commandCategories.character,
+      commandCategories.communication,
+    ],
+    mode: stateMode.RESTRICT,
+  },
+  POISONED: {
+    name: 'POISONED',
     commandCategories: [
       commandCategories.basic,
       commandCategories.system,

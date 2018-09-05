@@ -44,6 +44,7 @@ export default {
     /^spawn\s+(item)\s+(\w+)$/i,
     /^spawn\s+(key)\s+(\w+)$/i,
     /^spawn\s+/i,
+    /^spawn$/i,
   ],
 
   dispatch(socket, match) {

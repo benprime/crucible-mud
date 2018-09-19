@@ -1,4 +1,4 @@
-import commandManager from '../core/commandManager';
+import commandHandler from '../core/commandHandler';
 import { globalErrorHandler } from '../config';
 
 const commandModules = [
@@ -18,7 +18,7 @@ const commandModules = [
   'destroy.js',
   'drag.js',
   'drop.js',
-  'equip.js',
+  //'equip.js',
   'exp.js',
   'follow.js',
   'gossip.js',
@@ -60,13 +60,13 @@ const commandModules = [
   'yell.js',
 ];
 
-commandManager.loadCommands(commandModules);
-commandManager.setDefaultCommand('say');
+commandHandler.loadCommands(commandModules);
+commandHandler.setDefaultAction('say');
 
 export default {
   dispatch(socket, input) {
     try {
-      commandManager.processDispatch(socket, input)
+      commandHandler.processDispatch(socket, input)
         .catch(err => {
           globalErrorHandler(err);
           socket.character.output('An error occurred.');

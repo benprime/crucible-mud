@@ -1,21 +1,18 @@
-import commandCategories from '../core/commandCategories';
+import commandCategories from '../../../core/commandCategories';
 
 export default {
   name: 'gossip',
   desc: 'chat in a global channel, visible to all rooms',
   category: commandCategories.system,
-  
+
   patterns: [
     /^gossip\s+?(.+)/i,
     /^gos\s+?(.+)/i,
   ],
 
-  dispatch(socket, match) {
-    return this.execute(socket.character, match[1]);
-  },
-
-  execute(character, message) {
-    return character.gossip(message);
+  parseParams(match) {
+    if (match.length != 2) return;
+    return [this.name, match[1]];
   },
 
   help(character) {

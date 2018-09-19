@@ -1,20 +1,8 @@
-import Area from '../models/area';
-import Room from '../models/room';
-import commandCategories from '../core/commandCategories';
+import Area from '../../../models/area';
+import Room from '../../../models/room';
 
 export default {
   name: 'who',
-  desc: 'display the other players currently online',
-  category: commandCategories.system,
-
-  patterns: [
-    /^who$/i,
-  ],
-
-  dispatch(socket) {
-    return this.execute(socket.character);
-  },
-
   execute(character) {
     const characters = Object.values(global.io.sockets.connected)
       .filter(s => s.character).map(s => s.character);
@@ -39,9 +27,4 @@ export default {
     return Promise.resolve();
   },
 
-  help(character) {
-    let output = '';
-    output += '<span class="mediumOrchid">who</span> <span class="purple">-</span> Display list of all connected players.<br />';
-    character.output(output);
-  },
 };

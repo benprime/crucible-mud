@@ -1,21 +1,20 @@
 import express from 'express';
 import http from 'http';
-import commands from './commands/';
-import config from './config';
+//import commands from './commands/';
+import config, { globalErrorHandler } from './config';
 import welcome from './core/welcome';
 import loginUtil from './core/login';
 import ioFactory from 'socket.io';
 import mongoose from 'mongoose';
-import './core/combat';
+//import './core/combat';
 import './core/dayCycle';
 import socketUtil from './core/socketUtil';
-import Room from './models/room';
+import moduleManager from './core/moduleManager';
+import commandHandler from './core/commandHandler';
 
 const app = express();
 const serve = http.createServer(app);
 const io = ioFactory(serve);
-
-// parses command files and prepares them
 
 // environment variables
 const NODE_PORT = process.env.NODE_PORT || 3000;
@@ -24,12 +23,14 @@ const MONGO_PORT = process.env.MONGO_PORT || 27017;
 
 app.set('port', NODE_PORT);
 
-
 const db = mongoose.connection;
 
 global.db = db;
 global.io = io;
 
+
+moduleManager.loadModules();
+let input;
 
 mongoose.connect(`mongodb://localhost:${MONGO_PORT}/${MONGO_DB}`);
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -53,7 +54,20 @@ db.once('open', () => {
       // todo: remove state logic when there is a login process
       switch (socket.state) {
         case config.STATES.MUD:
-          commands.dispatch(socket, data.value);
+          input = data.value;
+          try {
+            commandHandler.processDispatch(socket, input);
+            // .catch(err => {
+            //   globalErrorHandler(err);
+            //   socket.character.output('An error occurred.');
+            // });
+          } catch (err) {
+            globalErrorHandler(err);
+            socket.character.output('An error occurred.');
+          }
+
+
+
           break;
         case config.STATES.LOGIN_USERNAME:
           loginUtil.loginUsername(socket, data);

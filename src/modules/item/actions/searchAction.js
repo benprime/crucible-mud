@@ -1,20 +1,8 @@
-import Room from '../models/room';
-import dice from '../core/dice';
-import commandCategories from '../core/commandCategories';
+import Room from '../../../models/room';
+import dice from '../../../core/dice';
 
 export default {
   name: 'search',
-  desc: 'search the current room for hidden objects',
-  category: commandCategories.item,
-
-  patterns: [
-    /^search$/i,
-  ],
-
-  dispatch(socket) {
-    return this.execute(socket.character);
-  },
-
   execute(character) {
     const room = Room.getById(character.roomId);
     let hExits, hItems, totalHidden;
@@ -72,12 +60,6 @@ export default {
     //figure out how other players in room can see the revealed things and tell them accordingly
 
 
-  },
-
-  help(character) {
-    let output = '';
-    output += '<span class="mediumOrchid">search</span><span class="purple">-</span> If successful, reveal any hidden items and/or exits.<br />';
-    character.output(output);
   },
 
 };

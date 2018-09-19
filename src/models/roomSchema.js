@@ -7,6 +7,7 @@ import SpawnerSchema from './spawnerSchema';
 import socketUtil from '../core/socketUtil';
 import { indefiniteArticle } from '../core/language';
 import { getDirection, Direction } from '../core/directions';
+import gameManager from '../core/gameManager';
 
 const roomCache = {};
 
@@ -68,13 +69,16 @@ RoomSchema.statics.getByCoords = function (coords) {
 };
 
 RoomSchema.statics.populateRoomCache = function () {
-  this.find({}, (err, result) => {
+  return this.find({}, (err, result) => {
     if (err) throw err;
 
     result.forEach(room => {
       room.mobs = [];
       room.tracks = {};
       roomCache[room.id.toString()] = room;
+      gameManager.on('frame', function(now, round, newRound) {
+        room.update(now, round, newRound);
+      });
       if (room.alias)
         roomCache[room.alias] = room;
     });
@@ -84,6 +88,16 @@ RoomSchema.statics.populateRoomCache = function () {
 //============================================================================
 // Instance methods
 //============================================================================
+
+// the game loop frame handler
+RoomSchema.methods.update = function(now, round, newRound) {
+  //console.log('frame', now, round);
+  this.processMobCombatActions(now);
+  this.processPlayerCombatActions(now);
+  if(newRound) {
+    this.processEndOfRound(round);
+  }
+};
 
 /**
  * Returns a list of usernames of other connected players in your room.
@@ -219,7 +233,7 @@ RoomSchema.methods.closeDoor = function (dir) {
   if (!(dir instanceof Direction)) {
     return Promise.reject('Invalid direction.');
   }
-  
+
   const exit = this.exits.find(e => e.dir === dir.short);
   if (!exit) {
     return Promise.reject('There is no exit in that direction!');
@@ -271,7 +285,7 @@ RoomSchema.methods.kick = function (character, item, dir) {
 RoomSchema.methods.getDesc = function (character, short) {
 
   const socket = socketUtil.getSocketByCharacterId(character.id);
-  const debug = socket.user.debug;
+  const debug = socket.character.user.debug;
   let output = `<span class="cyan">${this.name}`;
 
   if (this.areaId) {
@@ -459,15 +473,24 @@ RoomSchema.methods.enter = function (character, dir, socket) {
     const msg = this.getEnteredMessage(dir, character.name);
     socketUtil.roomMessage(character.roomId, msg, exclude);
 
-    if(dir) {
+    if (dir) {
       this.sendMovementSoundsMessage(dir.short);
     }
   }
+
+  character.on('action', () => {
+    // need self?
+    this.handleAction(...arguments);
+  });
 
   character.save(err => { if (err) throw err; });
   if (socket) {
     socket.join(this.id);
   }
+
+};
+
+RoomSchema.methods.handleAction = () => {
 
 };
 

@@ -2,7 +2,6 @@ import socketUtil from './socketUtil';
 import emoteHandler from './emoteHandler';
 import characterStates from './characterStates';
 import commandCategories from './commandCategories';
-import { globalErrorHandler } from '../config';
 
 /**
  * Dictionary of successfully validated and loaded commands.
@@ -12,35 +11,32 @@ let defaultCommand;
 
 /**
  * 
- * @param {Object} command
+ * @param {Object} commandModule
  * @param {String} file 
  */
-function validateCommand(command, file) {
-  if (!command) throw `could not load ${file} when initializing commands`;
-  if (!command.name) throw `command ${file} missing name!`;
-  if (!command.dispatch) throw `command ${file} missing dispatch!`;
-  if (!command.execute) throw `command ${file} missing execute!`;
-  if (!command.patterns) throw `command ${file} missing patterns!`;
-  if (!command.help) throw `command ${file} missing help!`;
-  if (!command.category) throw `command ${file} missing category!`;
-}
-
-function loadCommand(fileName) {
-  let commandHandler = require(`../commands/${fileName}`).default;
-  validateCommand(commandHandler, fileName);
-  commands[commandHandler.name] = commandHandler;
+function validateCommand(commandModule) {
+  if (!commandModule) throw 'null commandModule passed to validateCommand';
+  if (!commandModule.name) throw `command ${commandModule.name} missing name!`;
+  if (!commandModule.patterns) throw `command ${commandModule.name} missing patterns!`;
+  if (!commandModule.parseParams) throw `command ${commandModule.name} missing parseParams!`;
+  if (!commandModule.help) throw `command ${commandModule.name} missing help!`;
+  if (!commandModule.category) throw `command ${commandModule.name} missing category!`;
+  if (commandModule.dispatch) throw `command ${commandModule.name} should not have a dispatch method!`;
 }
 
 function loadCommands(commandModules) {
-  if (Object.values(commands).length !== 0) {
-    throw 'Commands already initialized!';
-  }
-  commandModules.forEach(file => loadCommand(file));
+  commandModules.forEach(commandModule => {
+    if (Object.values(commands).includes(commandModule)) {
+      throw 'Command already loaded!';
+    }
+    validateCommand(commandModule, commandModule.name);
+    commands[commandModule.name] = commandModule;
+  });
 }
 
 function setDefaultCommand(commandName) {
   if (Object.values(commands).length === 0) {
-    throw 'Must call commandManager.loadCommands() first.';
+    throw 'Must call commandHandler.loadCommands() first.';
   }
 
   const defCommand = commands[commandName];
@@ -72,12 +68,22 @@ function processDispatch(socket, input) {
   for (let command of Object.values(commands)) {
     let match = matchPatterns(command.patterns, input);
     if (match) {
-      if (!command.admin || socket.user.admin) {
+      if (!command.admin || socket.character.user.admin) {
         // check and see if the character is in a state that
         // would prevent them from running this command.
         if (socket.character.processStates(command)) {
-          return command.dispatch(socket, match)
-            .catch(response => socket.character.output(response));
+
+          // emit the event from the character
+          const params = command.parseParams(match, socket.character);
+          if (!params) {
+            command.help(socket.character);
+            return;
+          }
+          socket.character.emit('action', socket.character, params);
+          return;
+
+          // return command.dispatch(socket, match)
+          //   .catch(response => socket.character.output(response));
         }
       }
     }
@@ -85,7 +91,7 @@ function processDispatch(socket, input) {
 
   // emote handler
   const emoteRegex = /^(\w+)\s?(.*)$/i;
-  let match = input.match(emoteRegex) || [];
+  let match = input.match(emoteRegex);
   if (match) {
     let action, username;
     [, action, username] = match;
@@ -103,8 +109,10 @@ function processDispatch(socket, input) {
 
   // when a command is not found, it defaults to "say"
   socket.character.processStates(defaultCommand);
-  return defaultCommand.execute(socket.character, input)
-    .catch(response => socket.character.output(response));
+  socket.character.emit(['action', defaultCommand.name, socket.character]);
+
+  // return defaultCommand.execute(socket.character, input)
+  //   .catch(response => socket.character.output(response));
 }
 
 export default {

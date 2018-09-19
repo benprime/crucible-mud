@@ -1,27 +1,30 @@
-import emoteData from '../data/emoteData';
-import { commands } from '../core/commandManager';
-import commandCategories from '../core/commandCategories';
+import emoteData from '../../../data/emoteData';
+import { commands } from '../../../core/commandHandler';
+import commandCategories from '../../../core/commandCategories';
 
 
 function commandListHelp(character) {
   let output = '<span class="mediumOrchid">For specific help on any of these commands: </span><span class="silver">help &lt;command name&gt;</span>\n';
 
   for (let category of Object.values(commandCategories)) {
-    output += `\n<span class="yellow">${category.name}</span>`;
-    //if (category.silent) output += '<span class="silver"> [STEALTHY]</span>';
-    if (category.restricted) output += '<span class="firebrick"> [RESTRICTED]</span>';
-    output += '\n';
-    output += '<span class="olive">===============================================================================</span>\n';
+    let catOutput = `\n<span class="yellow">${category.name}</span>`;
+    if (category.restricted) catOutput += '<span class="firebrick"> [RESTRICTED]</span>';
+    catOutput += '\n';
+    catOutput += '<span class="olive">===============================================================================</span>\n';
 
     let categoryCommands = Object.values(commands).filter(c => c.category === category).sort(function (a, b) {
       return a.name - b.name;
     });
 
-    let nameLength = Math.max(...categoryCommands.map(c => c.name.length));
+    if (categoryCommands.length === 0) continue;
+
+    let catMaxNameLength = Math.max(...categoryCommands.map(c => c.name.length));
 
     for (let command of Object.values(categoryCommands)) {
-      output += `<span class="mediumOrchid" style="white-space:pre">${command.name.padEnd(nameLength, ' ')}</span><span class="purple"> | </span><span class="silver">${command.desc}</span>\n`;
+      catOutput += `<span class="mediumOrchid" style="white-space:pre">${command.name.padEnd(catMaxNameLength, ' ')}</span><span class="purple"> | </span><span class="silver">${command.desc}</span>\n`;
     }
+
+    output += catOutput;
   }
 
   character.output(output);
@@ -107,21 +110,6 @@ function commandHelp(character, commandName) {
 
 export default {
   name: 'help',
-  desc: 'help system',
-  category: commandCategories.system,
-
-  patterns: [
-    /^help$/i,
-    /^h$/i,
-    /^\?$/,
-    /^help\s+(\w+)$/i,
-  ],
-
-  dispatch(socket, match) {
-    const topic = match.length < 2 ? null : match[1];
-    return this.execute(socket.character, topic);
-  },
-
   execute(character, topic) {
     if (topic === 'basic') {
       basicHelp(character);
@@ -131,17 +119,7 @@ export default {
     }
     else if (topic) {
       commandHelp(character, topic);
-    } else {
-      this.help(character);
     }
     return Promise.resolve();
-  },
-
-  help(character) {
-    let output = '';
-    output += '<span class="mediumOrchid">help basic</span> <span class="purple">-</span> Display basic help for playing CrucibleMUD.<br />';
-    output += '<span class="mediumOrchid">help commands</span> <span class="purple">-</span> Display list of available commands.<br />';
-    output += '<span class="mediumOrchid">help &lt;command&gt</span> <span class="purple">-</span> Display detailed help for specified command.<br />';
-    character.output(output);
   },
 };

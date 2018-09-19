@@ -6,12 +6,23 @@ export const globalErrorHandler = function (err) {
 };
 
 export default {
+  // base modules: system/core, map?
+  // system commands don't use the system perhaps? Their parsers could call the functionality directly?
+  modules: [
+    'system',
+    'item',
+    //'combat',
+  ],
+
+  defaultCommand: 'who',
+
   MSG_COLOR: 'darkcyan',
   DMG_COLOR: 'firebrick',
   NOTICE_COLOR: 'yellow',
   TAUNT_COLOR: 'gold',
 
-  COMBAT_INTERVAL: 500, // how often combat logic is run
+  GAME_INTERVAL: 250,
+  COMBAT_INTERVAL: 250, // how often combat logic is run
   ROUND_DURATION: 4000, // how long a round is considered to be
   SPAWNER_INTERVAL: 500,
   DOOR_CLOSE_TIMER: 60 * 1000,

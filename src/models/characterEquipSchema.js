@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { upperCaseWords, indefiniteArticle, pronounSubject, pronounPossessive, oxfordComma } from '../core/language';
+import Item from '../models/item';
 
 const CharacterEquipSchema = new mongoose.Schema({
   // Weapons
@@ -26,6 +27,7 @@ CharacterEquipSchema.statics.slotNames = function () {
 CharacterEquipSchema.methods.unequip = function (item) {
   if (!this.isEquipped(item)) {
     this.$parent.output('You don\'t have that item equipped.');
+    return;
   }
 
   this.unequipSlotsForItem(item);
@@ -57,6 +59,7 @@ CharacterEquipSchema.methods.unequipItemById = function (itemId) {
 };
 
 CharacterEquipSchema.methods.isEquipped = function (item) {
+  if(!(item instanceof Item)) return;
   for (let slot of this.constructor.slotNames()) {
     if (this[slot] === item.id) {
       return true;

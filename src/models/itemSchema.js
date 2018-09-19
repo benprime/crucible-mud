@@ -26,7 +26,7 @@ const ItemSchema = new mongoose.Schema({
 ItemSchema.methods.getDesc = function (character) {
   const socket = socketUtil.getSocketByCharacterId(character.id);
   let output = this.desc;
-  if (socket.user.debug) {
+  if (socket.character.user.debug) {
     output += `\nItem ID: ${this.id}`;
   }
   return Promise.resolve(output);

@@ -11,7 +11,7 @@ export default {
     /^dr\s+(.+)$/i,
     /^drop\s+(.+)$/i,
     /^drop/i,
-    /^dr/i,
+    /^dr$/i,
   ],
 
   parseParams(match, character) {

@@ -9,9 +9,19 @@ export default {
   // base modules: system/core, map?
   // system commands don't use the system perhaps? Their parsers could call the functionality directly?
   modules: [
+    'admin',
+    'basic',
+    'character',
     'system',
     'item',
-    //'combat',
+    'combat',
+    'communication',
+    'door',
+    'party',
+    'shop',
+    'stealth',
+    'special',
+    'worldCrafting',
   ],
 
   defaultCommand: 'who',

@@ -395,7 +395,7 @@ RoomSchema.methods.addExit = function (dir, roomId) {
 };
 
 RoomSchema.methods.IsExitPassable = function (character, dir) {
-  if (!(dir instanceof Direction)) return;
+  if (!(dir instanceof Direction)) return Promise.reject('Dir parameter must be a direction');
 
   // validate direction is valid
   if (!dir) {

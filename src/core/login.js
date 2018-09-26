@@ -63,6 +63,9 @@ function AddUserToRealm(socket, user) {
     character.on('action', (character, params) => {
       const actionName = params.shift();
       const action = actionHandler.actions[actionName];
+      if (!action || !action.execute) {
+        throw (`Cannot find valid action object with name: ${actionName}`);
+      }
 
       // todo: perhaps just execute this through the room
       // the player is in and use the room as the controller.

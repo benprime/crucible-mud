@@ -1,14 +1,14 @@
-import { mockGetRoomById } from '../models/room';
-import { mockRoomMessage, mockGetRoomSockets, mockGetCharacterById, mockGetSocketByCharacterId } from '../core/socketUtil';
-import { mockRoll, mockGetRandomNumber } from '../core/dice';
-import mocks from '../../spec/mocks';
-import sutModel from '../models/mob';
-import config from '../config';
-import mobData from '../data/mobData';
+import { mockGetRoomById } from '../../../models/room';
+import { mockRoomMessage, mockGetRoomSockets, mockGetCharacterById, mockGetSocketByCharacterId } from '../../../core/socketUtil';
+import { mockRoll, mockGetRandomNumber } from '../../../core/dice';
+import mocks from '../../../../spec/mocks';
+import sutModel from '../../../models/mob';
+import config from '../../../config';
+import mobData from '../../../data/mobData';
 
-jest.mock('../models/room');
-jest.mock('../core/socketUtil');
-jest.mock('../core/dice');
+jest.mock('../../../models/room');
+jest.mock('../../../core/socketUtil');
+jest.mock('../../../core/dice');
 
 global.io = new mocks.IOMock();
 let socket = new mocks.SocketMock();

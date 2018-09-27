@@ -1,7 +1,9 @@
 import mongoose from 'mongoose';
 import autocomplete from '../core/autocomplete';
 import itemData from '../data/itemData';
-import { spawnAndGive } from '../commands/spawn';
+
+// TODO: Move this dependency into a shared module in core
+import { spawnAndGive } from '../modules/admin/actions/spawnAction';
 
 const shopCache = {};
 

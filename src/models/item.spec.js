@@ -1,5 +1,5 @@
-import mocks from '../../spec/mocks';
-import Item from '../models/item';
+import mocks from '../../../../spec/mocks';
+import Item from '../../../models/item';
 import { mockGetSocketByCharacterId } from '../core/socketUtil';
 
 jest.mock('../core/socketUtil');

@@ -1,12 +1,11 @@
 import { mockGetRoomSockets, mockGetSocketByCharacterId } from '../core/socketUtil';
 import directions, { getDirection } from '../core/directions';
-import Mob from '../models/mob';
+import Mob from './mob';
 import mobData from '../data/mobData';
 import mocks from '../../spec/mocks';
 import { Types } from 'mongoose';
 const { ObjectId } = Types;
-import sutModel from '../models/room';
-import Room from '../models/room';
+import sutModel from './room';
 
 jest.mock('../core/socketUtil');
 
@@ -427,7 +426,7 @@ describe('room model', () => {
 
     describe('closeDoor', () => {
       beforeEach(() => {
-        room = new Room();
+        room = new sutModel();
         room.save = jest.fn();
 
         room.exits = [

@@ -1,5 +1,5 @@
 import hud from './hud';
-import mocks from '../../spec/mocks';
+import mocks from '../../../../../../spec/mocks';
 
 describe('updateHUD', () => {
   test('emits message with hud type and appropriate parameters', () => {

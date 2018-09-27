@@ -1,14 +1,14 @@
-import { mockGetRoomById } from '../models/room';
+import { mockGetRoomById } from '../../../models/room';
 import { mockGetSocketByCharacterId } from './socketUtil';
 import { mockAutocompleteMultiple, mockAutocompleteCharacter } from './autocomplete';
-import mocks from '../../spec/mocks';
+import mocks from '../../../../../../spec/mocks';
 import { when } from 'jest-when';
 import sut from './emoteHandler';
 
 
-jest.mock('../models/room');
-jest.mock('../core/socketUtil');
-jest.mock('../core/autocomplete');
+jest.mock('../../../models/room');
+jest.mock('../../../core/socketUtil');
+jest.mock('../../../core/autocomplete');
 
 global.io = new mocks.IOMock();
 let mockRoom;

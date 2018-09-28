@@ -88,11 +88,10 @@ describe('character.equipped', () => {
         character.equipped.weaponMain = shortSword.id;
 
         // act
-        character.equipped.getDesc().then(result => {
+        const result = character.equipped.getDesc();
 
-          // assert
-          expect(result).toBe('He is holding a short sword.');
-        });
+        // assert
+        expect(result).toBe('He is holding a short sword.');
       });
 
       test('when only weaponOff slot is equipped', () => {
@@ -100,11 +99,10 @@ describe('character.equipped', () => {
         character.equipped.weaponOff = shield.id;
 
         // act
-        character.equipped.getDesc().then(result => {
+        const result = character.equipped.getDesc();
 
-          // assert
-          expect(result).toBe('He is holding a shield.');
-        });
+        // assert
+        expect(result).toBe('He is holding a shield.');
       });
 
       test('when both weaponMain and weaponOff slots are equipped with different items', () => {
@@ -113,11 +111,10 @@ describe('character.equipped', () => {
         character.equipped.weaponOff = shield.id;
 
         // act
-        character.equipped.getDesc().then(result => {
+        const result = character.equipped.getDesc();
 
-          // assert
-          expect(result).toBe('He is holding a short sword and a shield.');
-        });
+        // assert
+        expect(result).toBe('He is holding a short sword and a shield.');
       });
 
       test('when a two handed weapon is equipped', () => {
@@ -126,24 +123,19 @@ describe('character.equipped', () => {
         character.equipped.weaponOff = greatSword.id;
 
         // act
-        character.equipped.getDesc().then(result => {
+        const result = character.equipped.getDesc();
 
-          // assert
-          expect(result).toBe('He is holding an excalibur clone.');
-        });
+        // assert
+        expect(result).toBe('He is holding an excalibur clone.');
       });
 
       test('when no weapon is equipped', () => {
         // act
-        character.equipped.getDesc().then(result => {
+        const result = character.equipped.getDesc();
 
-          // assert
-          expect(result).toBe('He is unarmed.');
-        });
-
+        // assert
+        expect(result).toBe('He is unarmed.');
       });
-
-
 
       describe('armor and clothing equipped', () => {
         each([
@@ -162,11 +154,10 @@ describe('character.equipped', () => {
           character.equipped[equippedItem.equipSlots[0]] = equippedItem.id;
 
           // act
-          character.equipped.getDesc().then(result => {
+          const result = character.equipped.getDesc();
 
-            // assert
-            expect(result).toMatch(expected);
-          });
+          // assert
+          expect(result).toMatch(expected);
         });
       });
 
@@ -186,11 +177,10 @@ describe('character.equipped', () => {
           // arrange
 
           // act
-          character.equipped.getDesc().then(result => {
+          const result = character.equipped.getDesc();
 
-            // assert
-            expect(result).not.toMatch(expected);
-          });
+          // assert
+          expect(result).not.toMatch(expected);
         });
       });
 
@@ -210,11 +200,10 @@ describe('character.equipped', () => {
         character.equipped.fingerOff = silverRing.id;
 
         // act
-        character.equipped.getDesc().then(result => {
+        const result = character.equipped.getDesc();
 
-          // assert
-          expect(result).toMatch('He is holding a short sword and a shield. On his head he wears a helmet. He is wearing chainmail, bracers, gloves, leggings, and boots. A cloak falls behind him. He is adorned with an amulet, a gold ring, and a silver ring.');
-        });
+        // assert
+        expect(result).toMatch('He is holding a short sword and a shield. On his head he wears a helmet. He is wearing chainmail, bracers, gloves, leggings, and boots. A cloak falls behind him. He is adorned with an amulet, a gold ring, and a silver ring.');
       });
 
     });

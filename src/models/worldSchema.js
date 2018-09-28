@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 const worldCache = {};
 
 const WorldSchema = new mongoose.Schema({
-  name: { type: String },
+  name: String,
+  temporal: Boolean,
 });
 
 WorldSchema.statics.worldCache = worldCache;

@@ -61,7 +61,7 @@ export default {
 
   getSocketByUserId(userId) {
     for (let socket of Object.values(global.io.sockets.connected)) {
-      if (socket.user && socket.user.id == userId) {
+      if (socket.character && socket.character.user.id == userId) {
         return socket;
       }
     }
@@ -70,7 +70,7 @@ export default {
 
   getSocketByCharacterId(characterId) {
     for (let socket of Object.values(global.io.sockets.connected)) {
-      if (socket.user && socket.character.id === characterId) {
+      if (socket.character && socket.character.id === characterId) {
         return socket;
       }
     }

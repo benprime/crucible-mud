@@ -46,6 +46,7 @@ const TypeConfig = Object.freeze({
 });
 
 function escapeRegExp(string) {
+  if(!string) return;
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 

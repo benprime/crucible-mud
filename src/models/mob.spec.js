@@ -1,12 +1,12 @@
-import { mockGetRoomById } from '../models/room';
+import { mockGetRoomById } from './room';
 import { mockRoomMessage, mockGetRoomSockets, mockGetCharacterById, mockGetSocketByCharacterId } from '../core/socketUtil';
 import { mockRoll, mockGetRandomNumber } from '../core/dice';
 import mocks from '../../spec/mocks';
-import sutModel from '../models/mob';
+import sutModel from './mob';
 import config from '../config';
 import mobData from '../data/mobData';
 
-jest.mock('../models/room');
+jest.mock('./room');
 jest.mock('../core/socketUtil');
 jest.mock('../core/dice');
 
@@ -55,11 +55,10 @@ describe('mob model', () => {
       socket.user.admin = false;
 
       // act
-      return mob.getDesc(socket).then(response => {
-        // assert
-        expect(response).toBe(mob.desc);
-      });
-
+      const result = mob.getDesc(socket);
+      
+      // assert
+      expect(result).toBe(mob.desc);
     });
   });
 

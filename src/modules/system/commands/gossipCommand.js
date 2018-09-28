@@ -1,0 +1,23 @@
+import commandCategories from '../../../core/commandCategories';
+
+export default {
+  name: 'gossip',
+  desc: 'chat in a global channel, visible to all rooms',
+  category: commandCategories.system,
+
+  patterns: [
+    /^gossip\s+?(.+)/i,
+    /^gos\s+?(.+)/i,
+  ],
+
+  parseParams(match) {
+    if (match.length != 2) return;
+    return [this.name, match[1]];
+  },
+
+  help(character) {
+    let output = '';
+    output += '<span class="mediumOrchid">gossip &lt;message&gt; </span><span class="purple">-</span> Send messages to all connected players.<br />';
+    character.output(output);
+  },
+};

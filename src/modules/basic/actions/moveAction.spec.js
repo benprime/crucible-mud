@@ -3,8 +3,6 @@ import mocks from '../../../../spec/mocks';
 import sut from './moveAction';
 
 jest.mock('../../../models/room');
-jest.mock('./break');
-jest.mock('./look');
 jest.mock('../../../core/socketUtil');
 
 global.io = new mocks.IOMock();
@@ -26,10 +24,4 @@ describe('move', () => {
     });
   });
 
-  describe('help', () => {
-    test('should print help message', () => {
-      sut.help(socket.character);
-      expect(socket.character.output).toHaveBeenCalled();
-    });
-  });
 });

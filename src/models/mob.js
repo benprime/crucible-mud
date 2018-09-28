@@ -50,7 +50,7 @@ class Mob {
   }
 
   getDesc() {
-    return Promise.resolve(this.desc);
+    return this.desc;
   }
 
   takeDamage(damage) {

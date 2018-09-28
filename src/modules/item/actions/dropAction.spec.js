@@ -72,13 +72,11 @@ describe('drop', () => {
         mockAutocompleteMultiple.mockReturnValueOnce(null);
         expect.assertions(3);
 
-        return sut.execute(socket.character, 'non-existent mockAutocompleteMultiple.mockitem').catch(() => {
-          expect(socket.character.save).not.toHaveBeenCalled();
-          expect(mockRoom.save).not.toHaveBeenCalled();
-          expect(socket.character.output).toHaveBeenCalledWith('You don\'t seem to be carrying that.');
-        });
+        sut.execute(socket.character, null);
 
-
+        expect(socket.character.save).not.toHaveBeenCalled();
+        expect(mockRoom.save).not.toHaveBeenCalled();
+        expect(socket.character.output).toHaveBeenCalledWith('You don\'t seem to be carrying that.');
       });
 
       test('should remove item from user inventory and add to room inventory', () => {
@@ -87,18 +85,15 @@ describe('drop', () => {
           item,
         };
         mockAutocompleteMultiple.mockReturnValueOnce(autocompleteResult);
-        expect.assertions(6);
 
-        return sut.execute(socket.character, 'dropItem').then(() => {
-          expect(socket.character.save).toHaveBeenCalled();
-          expect(mockRoom.save).toHaveBeenCalled();
-          expect(socket.character.inventory).toHaveLength(0);
-          expect(mockRoom.inventory[0].name).toEqual(item.name);
-          expect(socket.character.toRoom).toHaveBeenCalledWith('TestUser drops dropItem.', [socket.character.id]);
-          expect(socket.character.output).toHaveBeenCalledWith('Dropped.');
-        });
+        sut.execute(socket.character, item);
 
-
+        expect(socket.character.save).toHaveBeenCalled();
+        expect(mockRoom.save).toHaveBeenCalled();
+        expect(socket.character.inventory).toHaveLength(0);
+        expect(mockRoom.inventory[0].name).toEqual(item.name);
+        expect(socket.character.toRoom).toHaveBeenCalledWith('TestUser drops dropItem.', [socket.character.id]);
+        expect(socket.character.output).toHaveBeenCalledWith('Dropped.');
       });
     });
 
@@ -110,18 +105,15 @@ describe('drop', () => {
         };
         mockAutocompleteMultiple.mockReturnValueOnce(autocompleteResult);
         socket.character.keys = [autocompleteResult.item];
-        expect.assertions(6);
 
-        return sut.execute(socket.character, 'dropKey').then(() => {
-          expect(socket.character.save).toHaveBeenCalled();
-          expect(mockRoom.save).toHaveBeenCalled();
-          expect(socket.character.keys).toHaveLength(0);
-          expect(mockRoom.inventory[0].name).toEqual(key.name);
-          expect(socket.character.toRoom).toHaveBeenCalledWith('TestUser drops dropKey.', [socket.character.id]);
-          expect(socket.character.output).toHaveBeenCalledWith('Dropped.');
-        });
+        sut.execute(socket.character, key);
 
-
+        expect(socket.character.save).toHaveBeenCalled();
+        expect(mockRoom.save).toHaveBeenCalled();
+        expect(socket.character.keys).toHaveLength(0);
+        expect(mockRoom.inventory[0].name).toEqual(key.name);
+        expect(socket.character.toRoom).toHaveBeenCalledWith('TestUser drops dropKey.', [socket.character.id]);
+        expect(socket.character.output).toHaveBeenCalledWith('Dropped.');
       });
     });
   });

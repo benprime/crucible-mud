@@ -1,4 +1,4 @@
-import mocks from '../../../../../../spec/mocks';
+import mocks from '../../../../spec/mocks';
 import sut from './unequipAction';
 
 jest.mock('../../../models/room');
@@ -13,12 +13,10 @@ describe('unequip', () => {
 
   describe('execute', () => {
     test('should output message when item is not equipped', () => {
-      expect.assertions(1);
 
-      return sut.execute(socket.character, null).catch(() => {
-        expect(socket.character.output).toHaveBeenCalledWith('You don\'t have that equipped.\n');
-      });
-
+      sut.execute(socket.character, null);
+      
+      expect(socket.character.output).toHaveBeenCalledWith('You don\'t have that item equipped.');
     });
 
     // good candidate for that test case custom runner

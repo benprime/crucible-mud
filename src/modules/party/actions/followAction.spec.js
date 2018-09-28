@@ -21,22 +21,17 @@ describe('follow', () => {
   describe('execute', () => {
 
     beforeEach(() => {
-
       socket.emit.mockClear();
-
       socket.character.partyInvites = [mockInvitingSocket.character.id];
     });
 
     test('sets socket leader tracking variable and clears follow invite when user follows user', () => {
       mockGetFollowers.mockReturnValueOnce([]);
       mockAutocompleteCharacter.mockReturnValueOnce(mockInvitingSocket.character);
-      expect.assertions(1);
 
-      return sut.execute(socket.character, mockInvitingSocket.character.name).then(() => {
-        expect(socket.character.partyInvites).toHaveLength(0);
+      sut.execute(socket.character, mockInvitingSocket.character);
 
-      });
-
+      expect(socket.character.partyInvites).toHaveLength(0);
     });
 
     test('transfers any current followers to the new leader\'s party', () => {
@@ -45,14 +40,12 @@ describe('follow', () => {
       const follower3 = mocks.getMockCharacter();
       mockGetFollowers.mockReturnValueOnce([follower1, follower2, follower3]);
       mockAutocompleteCharacter.mockReturnValueOnce(mockInvitingSocket.character);
-      expect.assertions(3);
 
-      return sut.execute(socket.character, mockInvitingSocket.character.name).then(() => {
-        expect(follower1.leader).toBe(mockInvitingSocket.character.id);
-        expect(follower2.leader).toBe(mockInvitingSocket.character.id);
-        expect(follower3.leader).toBe(mockInvitingSocket.character.id);
-      });
+      sut.execute(socket.character, mockInvitingSocket.character);
 
+      expect(follower1.leader).toBe(mockInvitingSocket.character.id);
+      expect(follower2.leader).toBe(mockInvitingSocket.character.id);
+      expect(follower3.leader).toBe(mockInvitingSocket.character.id);
     });
 
   });

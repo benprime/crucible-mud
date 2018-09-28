@@ -204,26 +204,21 @@ describe('room model', () => {
 
       test('should build output string with just title and exits when short parameter is passed', () => {
         mockGetRoomSockets.mockReturnValueOnce([]);
-        return room.getDesc(socket.character, true).then(output => {
-          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n');
-        });
-
+        let output = room.getDesc(socket.character, true);
+        expect(output).toEqual('<span class="cyan">Test sutModel</span>\n');
       });
 
       test('should build output string with description when short parameter is false', () => {
         mockGetRoomSockets.mockReturnValueOnce([]);
-        return room.getDesc(socket.character, false).then(output => {
-          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n');
-        });
+        let output = room.getDesc(socket.character, false);
+        expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n');
       });
 
       test('should include inventory in output when inventory length is not zero', () => {
         mockGetRoomSockets.mockReturnValueOnce([]);
         room.inventory = [{ name: 'An Item' }];
-        return room.getDesc(socket.character).then(output => {
-          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="darkcyan">You notice: An Item.</span>\n');
-        });
-
+        let output = room.getDesc(socket.character);
+        expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="darkcyan">You notice: An Item.</span>\n');
       });
 
       test('should include users in room when the user is not the only user in room', () => {
@@ -233,27 +228,23 @@ describe('room model', () => {
         socket2.character.name = 'TestUser2';
         mockGetRoomSockets.mockReturnValueOnce([socket1, socket2]);
 
-        return room.getDesc(socket.character).then(output => {
-          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="mediumOrchid">Also here: <span class="teal">TestUser1<span class="mediumOrchid">, </span>TestUser2</span>.</span>\n');
-        });
+        let output = room.getDesc(socket.character);
+        expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="mediumOrchid">Also here: <span class="teal">TestUser1<span class="mediumOrchid">, </span>TestUser2</span>.</span>\n');
       });
 
       test('should include exits when there is at least one exit in the room', () => {
         mockGetRoomSockets.mockReturnValueOnce([]);
         room.exits = [{ dir: 'n' }];
-        return room.getDesc(socket.character).then(output => {
-          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="green">Exits: north</span>\n');
-        });
+        let output = room.getDesc(socket.character);
+        expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="green">Exits: north</span>\n');
 
       });
 
       test('should display room id when user is an admin', () => {
         mockGetRoomSockets.mockReturnValueOnce([]);
         socket.user.debug = true;
-        return room.getDesc(socket.character).then(output => {
-          expect(output).toEqual(`<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="gray">Room ID: ${room.id}</span>\n<span class="gray">Room coords: ${room.x}, ${room.y}</span>\n`);
-        });
-
+        let output = room.getDesc(socket.character);
+        expect(output).toEqual(`<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="gray">Room ID: ${room.id}</span>\n<span class="gray">Room coords: ${room.x}, ${room.y}</span>\n`);
       });
     });
 

@@ -25,7 +25,6 @@ describe('lock', () => {
       save: jest.fn().mockName('roomSave'),
     };
     mockGetRoomById.mockReturnValue(mockRoom);
-    mockRoom.mockReset();
   });
 
   test('should output message when direction is invalid', () => {
@@ -48,7 +47,7 @@ describe('lock', () => {
 
   test('should do nothing when key name is invalid', () => {
     expect.assertions(2);
-    return sut.execute(socket.character, directions.E, 'invalid key name').catch(() => {
+    return sut.execute(socket.character, directions.E, null).catch(() => {
       expect(socket.character.output).toHaveBeenCalledWith('Unknown key.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });

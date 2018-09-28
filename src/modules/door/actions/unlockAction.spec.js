@@ -31,14 +31,14 @@ describe('unlock', () => {
 
   beforeAll(() => {
     socket = new mocks.SocketMock();
-
+    socket.reset();
     mockGetRoomById.mockReturnValue(mockRoom);
   });
 
   test('should output message when direction is invalid', () => {
     expect.assertions(2);
 
-    return sut.execute(socket.character, directions.E, 'some key').catch(() => {
+    return sut.execute(socket.character, directions.E, null).catch(() => {
       expect(socket.character.output).toHaveBeenCalledWith('No door in that direction.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
@@ -48,7 +48,7 @@ describe('unlock', () => {
   test('should output message when a door exists but is not locked', () => {
     expect.assertions(2);
 
-    return sut.execute(socket.character, directions.N, 'some key').catch(() => {
+    return sut.execute(socket.character, directions.N, null).catch(() => {
       expect(socket.character.output).toHaveBeenCalledWith('That door is not locked.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
@@ -58,7 +58,7 @@ describe('unlock', () => {
   test('should output no messages when user is not carrying the key', () => {
     expect.assertions(2);
 
-    return sut.execute(socket.character, directions.NW, 'some key').catch(() => {
+    return sut.execute(socket.character, directions.NW, null).catch(() => {
       expect(socket.character.output).toHaveBeenCalledWith('You don\'t seem to be carrying that key.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
@@ -73,7 +73,7 @@ describe('unlock', () => {
     mockAutocompleteMultiple.mockReturnValueOnce({ item: key });
     expect.assertions(2);
 
-    return sut.execute(socket.character, directions.NE, 'Blue').catch(() => {
+    return sut.execute(socket.character, directions.NE, key).catch(() => {
       expect(socket.character.output).toHaveBeenCalledWith('That key does not unlock that door.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
@@ -88,7 +88,7 @@ describe('unlock', () => {
     mockAutocompleteMultiple.mockReturnValueOnce({ item: key });
     expect.assertions(2);
 
-    return sut.execute(socket.character, directions.W, 'Gold').then(() => {
+    return sut.execute(socket.character, directions.W, key).then(() => {
       expect(socket.character.output).toHaveBeenCalledWith('Door unlocked.');
       expect(mockRoom.save).not.toHaveBeenCalled();
     });
@@ -96,10 +96,10 @@ describe('unlock', () => {
   });
 
   describe('asyncTest', () => {
-
+    let key;
     beforeEach(() => {
       global.io.reset();
-      const key = new Item();
+      key = new Item();
       key.itemTypeEnum = 'key';
       key.name = 'Silver';
       mockAutocompleteMultiple.mockReturnValueOnce({ item: key });
@@ -110,7 +110,7 @@ describe('unlock', () => {
       const exit = mockRoom.exits.find(e => e.dir === 'nw');
       expect.assertions(4);
 
-      return sut.execute(socket.character, directions.NW, 'Silver', () => {
+      return sut.execute(socket.character, directions.NW, key, () => {
 
         expect(mockRoomMessage).toHaveBeenCalledWith('bogus', 'The door to the northwest clicks locked!');
         expect(exit.closed).toBe(true);

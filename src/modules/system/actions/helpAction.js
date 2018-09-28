@@ -111,14 +111,14 @@ function commandHelp(character, commandName) {
 export default {
   name: 'help',
   execute(character, topic) {
-    if (topic === 'basic') {
-      basicHelp(character);
-    }
-    else if (topic === 'commands') {
+    if (topic === 'commands') {
       commandListHelp(character);
     }
     else if (topic) {
       commandHelp(character, topic);
+    }
+    else {
+      basicHelp(character);
     }
     return Promise.resolve();
   },

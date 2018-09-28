@@ -29,7 +29,7 @@ ItemSchema.methods.getDesc = function (character) {
   if (socket.character.user.debug) {
     output += `\nItem ID: ${this.id}`;
   }
-  return Promise.resolve(output);
+  return output;
 };
 
 export default ItemSchema;

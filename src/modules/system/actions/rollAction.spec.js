@@ -17,20 +17,18 @@ describe('roll', () => {
       mockRoll.mockReturnValueOnce(1);
       expect.assertions(1);
 
-      return sut.execute(socket.character).then(() => {
-        expect(socket.character.output).toHaveBeenCalledWith('Action Die Roll Result:  1<br />');
-      });
+      sut.execute(socket.character);
 
+      expect(socket.character.output).toHaveBeenCalledWith('Action Die Roll Result:  1<br />');
     });
 
     it('with die type should display die type results', () => {
       mockRoll.mockReturnValueOnce(2);
       expect.assertions(1);
 
-      return sut.execute(socket.character, '1d4').then(() => {
-        expect(socket.character.output).toHaveBeenCalledWith('1d4 Roll Result:  2<br />');
-      });
+      sut.execute(socket.character, '1d4');
 
+      expect(socket.character.output).toHaveBeenCalledWith('1d4 Roll Result:  2<br />');
     });
   });
 });

@@ -36,28 +36,23 @@ describe('invite', () => {
 
     test('users following a party leader may not invite followers', () => {
       socket.character.leader = 'aLeader';
-      let username = 'TargetUser';
       expect.assertions(2);
 
-      return sut.execute(socket.character, username).catch(() => {
-        expect(socket.character.output).toHaveBeenCalledWith('Only the party leader may invite followers.');
-        expect(mockTargetSocket.character.partyInvites).toHaveLength(0);
-      });
+      sut.execute(socket.character, mockTargetSocket.character);
 
+      expect(socket.character.output).toHaveBeenCalledWith('Only the party leader may invite followers.');
+      expect(mockTargetSocket.character.partyInvites).toHaveLength(0);
     });
 
     test('adds invite to socket tracking variable of recipient socket', () => {
       socket.character.leader = undefined;
-      let username = 'TargetUser';
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
-      expect.assertions(3);
 
-      return sut.execute(socket.character, username).then(() => {
-        expect(socket.character.output).toHaveBeenCalledWith('You have invited TargetUser to join your party.');
-        expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser has invited you to join a party.');
-        expect(mockTargetSocket.character.partyInvites).toContain(socket.character.id);
-      });
+      sut.execute(socket.character, mockTargetSocket.character);
 
+      expect(socket.character.output).toHaveBeenCalledWith('You have invited TargetUser to join your party.');
+      expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser has invited you to join a party.');
+      expect(mockTargetSocket.character.partyInvites).toContain(socket.character.id);
     });
 
   });

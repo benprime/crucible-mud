@@ -163,7 +163,7 @@ CharacterEquipSchema.methods.getDesc = function () {
     output.push(`${upSubject} is adorned with ${jeweleryString}.`);
   }
 
-  return Promise.resolve(output.join(' '));
+  return output.join(' ');
 };
 
 export default CharacterEquipSchema;

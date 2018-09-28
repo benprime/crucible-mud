@@ -351,7 +351,7 @@ RoomSchema.methods.getDesc = function (character, short) {
     //output += '<pre>' + JSON.stringify(this, null, 2) + '</pre>';
   }
 
-  return Promise.resolve(output);
+  return output;
 };
 
 RoomSchema.methods.getMobById = function (mobId) {

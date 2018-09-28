@@ -34,20 +34,18 @@ describe('attack', () => {
       mockGetRoomById.mockReturnValueOnce(mockRoom);
       mockAutocompleteMob.mockReturnValueOnce(mockMob);
 
-      expect.assertions(3);
+      sut.execute(socket.character, mockMob);
 
-      return sut.execute(socket.character, 'thing').then(() => {
-        expect(socket.character.output).toHaveBeenCalledWith('<span class="olive">*** Combat Engaged ***</span>');
-        expect(socket.character.toRoom).toHaveBeenCalledWith(`${socket.character.name} moves to attack ${mockMob.displayName}!`, [socket.character.id]);
-        expect(socket.character.attackTarget).toBe(mockMob.id);
-      });
+      expect(socket.character.output).toHaveBeenCalledWith('<span class="olive">*** Combat Engaged ***</span>');
+      expect(socket.character.toRoom).toHaveBeenCalledWith(`${socket.character.name} moves to attack ${mockMob.displayName}!`, [socket.character.id]);
+      expect(socket.character.attackTarget).toBe(mockMob.id);
     });
 
     test('should set state and emit output when no target found', () => {
       mockGetRoomById.mockReturnValueOnce(mockRoom);
       mockAutocompleteMultiple.mockReturnValueOnce(null);
 
-      sut.execute(socket.character, 'thing');
+      sut.execute(socket.character, null);
 
       expect(socket.emit).not.toHaveBeenCalled();
       expect(socket.character.attackTarget).toBeFalsy();

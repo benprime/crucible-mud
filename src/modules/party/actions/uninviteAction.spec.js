@@ -36,39 +36,38 @@ describe('invite', () => {
       mockGetCharacterById.mockReturnValueOnce(leader);
       expect.assertions(3);
 
-      return sut.execute(leader, follower2.name).then(() => {
-        expect(follower1.leader).toBe(leader.id);
-        expect(follower2.leader).toBeUndefined();
-        expect(follower3.leader).toBe(leader.id);
-      });
+      sut.execute(leader, follower2);
+
+      expect(follower1.leader).toBe(leader.id);
+      expect(follower2.leader).toBeUndefined();
+      expect(follower3.leader).toBe(leader.id);
     });
 
     test('non-leader party member cannot remove other party members', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(follower2);
       expect.assertions(4);
 
-      return sut.execute(follower1, follower2.name).catch(() => {
-        expect(follower1.output).toHaveBeenCalledWith(`You are not leading ${follower2.name} in a party.`);
-        expect(follower1.leader).toBe(leader.id);
-        expect(follower2.leader).toBe(leader.id);
-        expect(follower3.leader).toBe(leader.id);
-      });
+      sut.execute(follower1, follower2);
+
+      expect(follower1.output).toHaveBeenCalledWith(`You are not leading ${follower2.name} in a party.`);
+      expect(follower1.leader).toBe(leader.id);
+      expect(follower2.leader).toBe(leader.id);
+      expect(follower3.leader).toBe(leader.id);
     });
 
 
     test('user not in a party gets appropriate error message', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(follower2);
       const character = mocks.getMockCharacter();
-      expect.assertions(4);
 
-      return sut.execute(character, follower1.name).catch(() => {
-        expect(character.output).toHaveBeenCalledWith(`You are not leading ${follower2.name} in a party.`);
+      sut.execute(character, follower1);
 
-        // verify the party is unaffected
-        expect(follower1.leader).toBe(leader.id);
-        expect(follower2.leader).toBe(leader.id);
-        expect(follower3.leader).toBe(leader.id);
-      });
+      expect(character.output).toHaveBeenCalledWith(`You are not leading ${follower1.name} in a party.`);
+
+      // verify the party is unaffected
+      expect(follower1.leader).toBe(leader.id);
+      expect(follower2.leader).toBe(leader.id);
+      expect(follower3.leader).toBe(leader.id);
     });
 
   });

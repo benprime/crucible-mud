@@ -1,6 +1,7 @@
 import commandCategories from '../../../core/commandCategories';
 import { getDirection } from '../../../core/directions';
 import autocomplete from '../../../core/autocomplete';
+import Room from '../../../models/room';
 
 export default {
   name: 'look',
@@ -34,8 +35,9 @@ export default {
           if (dir) lookTarget = dir;
         }
       }
+    } else {
+      lookTarget = Room.getById(character.roomId);
     }
-
     return [this.name, short, lookTarget];
   },
 

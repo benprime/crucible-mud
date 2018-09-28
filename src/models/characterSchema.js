@@ -106,15 +106,14 @@ CharacterSchema.statics.findByUser = function (user) {
 //============================================================================
 CharacterSchema.methods.getDesc = function () {
   // todo: Add character specific details. Currently only returning the description of equipped items.
-  return this.equipped.getDesc().then(output => {
-    const pronoun = upperCaseWords(pronounSubject(this.gender));
-    output += `\n${pronoun} is ${this.status()}.`;
-    if (this.bleeding) {
-      output += `<span class="red">${this.name} is bleeding out!</span>\n`;
-    }
-    output += '\n';
-    return Promise.resolve(output);
-  });
+  let output = this.equipped.getDesc();
+  const pronoun = upperCaseWords(pronounSubject(this.gender));
+  output += `\n${pronoun} is ${this.status()}.`;
+  if (this.bleeding) {
+    output += `<span class="red">${this.name} is bleeding out!</span>\n`;
+  }
+  output += '\n';
+  return output;
 };
 
 CharacterSchema.methods.nextExp = function () {

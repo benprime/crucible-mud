@@ -5,7 +5,6 @@ import setCommand from './commands/setCommand';
 import spawnerCommand from './commands/spawnerCommand';
 
 import createAreaAction from './actions/createAreaAction';
-import createAction from './actions/createAction';
 import createDoorAction from './actions/createDoorAction';
 import setAction from './actions/setAction';
 import spawnerAction from './actions/spawnerAction';
@@ -20,7 +19,6 @@ export const commands = [
 
 export const actions = [
   createAreaAction,
-  createAction,
   createDoorAction,
   setAction,
   spawnerAction,

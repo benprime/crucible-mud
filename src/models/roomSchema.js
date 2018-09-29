@@ -8,6 +8,7 @@ import socketUtil from '../core/socketUtil';
 import { indefiniteArticle } from '../core/language';
 import { getDirection, Direction } from '../core/directions';
 import gameManager from '../core/gameManager';
+import actionHandler from '../core/actionHandler';
 
 const roomCache = {};
 
@@ -478,11 +479,6 @@ RoomSchema.methods.enter = function (character, dir, socket) {
     }
   }
 
-  character.on('action', () => {
-    // need self?
-    this.handleAction(...arguments);
-  });
-
   character.save(err => { if (err) throw err; });
   if (socket) {
     socket.join(this.id);
@@ -490,8 +486,18 @@ RoomSchema.methods.enter = function (character, dir, socket) {
 
 };
 
-RoomSchema.methods.handleAction = () => {
+RoomSchema.methods.handleAction = function() {
+  const params = Array.from(arguments);
+  const character = params.shift();
+  const actionName = params.shift();
+  const action = actionHandler.actions[actionName];
+  if (!action || !action.execute) {
+    throw (`Cannot find valid action object with name: ${actionName}`);
+  }
 
+  // todo: perhaps just execute this through the room
+  // the player is in and use the room as the controller.
+  action.execute(character, ...params);
 };
 
 RoomSchema.methods.track = function (entity) {

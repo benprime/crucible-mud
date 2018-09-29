@@ -10,7 +10,7 @@ export default {
     name: 'DRAGGING',
     commandCategories: [
       commandCategories.basic,
-      commandCategories.system,
+      commandCategories.core,
       commandCategories.character,
       commandCategories.communication,
     ],
@@ -20,17 +20,17 @@ export default {
   INCAPACITATED: {
     name: 'INCAPACITATED',
     commandCategories: [
-      commandCategories.system,
+      commandCategories.core,
       commandCategories.character,
       commandCategories.communication,
     ],
     mode: stateMode.RESTRICT,
-    message: '<span class="firebrick">You are incompacitated!</span>\n',
+    message: '<span class="firebrick">You are incapacitated!</span>\n',
   },
   RESTING: {
     name: 'RESTING',
     commandCategories: [
-      commandCategories.system,
+      commandCategories.core,
       commandCategories.character,
       commandCategories.communication,
     ],
@@ -40,7 +40,7 @@ export default {
     name: 'SNEAKING',
     commandCategories: [
       commandCategories.basic,
-      commandCategories.system,
+      commandCategories.core,
       commandCategories.character,
     ],
     mode: stateMode.DEACTIVATE,
@@ -50,7 +50,7 @@ export default {
     name: 'ENCUMBERED',
     commandCategories: [
       commandCategories.basic,
-      commandCategories.system,
+      commandCategories.core,
       commandCategories.character,
       commandCategories.communication,
     ],
@@ -60,7 +60,7 @@ export default {
     name: 'POISONED',
     commandCategories: [
       commandCategories.basic,
-      commandCategories.system,
+      commandCategories.core,
       commandCategories.character,
       commandCategories.communication,
     ],

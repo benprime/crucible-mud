@@ -8,7 +8,7 @@ export default Object.freeze({
   shop: { name: 'Shop Commands', restricted: false },
   door: { name: 'Door Commands', restricted: false },
   character: { name: 'Character Commands', restricted: false },
-  system: { name: 'System Commands', restricted: false },
+  core: { name: 'Core Commands', restricted: false },
   communication: { name: 'Room Communication Commands', restricted: false },
   party: { name: 'Party Commands', restricted: false },
   basic: { name: 'Basic Commands', restricted: false },

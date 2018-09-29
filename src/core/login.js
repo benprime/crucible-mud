@@ -4,7 +4,6 @@ import hud from './hud';
 import Room from '../models/room';
 import User from '../models/user';
 import Character from '../models/character';
-import actionHandler from './actionHandler';
 
 
 function AddUserToRealm(socket, user) {
@@ -59,30 +58,19 @@ function AddUserToRealm(socket, user) {
 
     hud.updateHUD(socket);
 
-    //todo: add a way to unsubscribe these emitters on logout
-    character.on('action', (character, params) => {
-      const actionName = params.shift();
-      const action = actionHandler.actions[actionName];
-      if (!action || !action.execute) {
-        throw (`Cannot find valid action object with name: ${actionName}`);
-      }
-
-      // todo: perhaps just execute this through the room
-      // the player is in and use the room as the controller.
-      action.execute.call(null, character, ...params);
-    });
+    character.setupEvents();
 
     const currentRoom = Room.getById(character.roomId);
     if (currentRoom) {
       socket.join(character.roomId);
-      currentRoom.getDesc(character, false).then(output => character.output(output));
-      return Promise.resolve();
+      const roomDesc = currentRoom.getDesc(character, false);
+      character.output(roomDesc);
     } else {
       return Room.getByCoords({ x: 0, y: 0, z: 0 }).then(room => {
         character.roomId = room.id;
         socket.join(room.id);
-        room.getDesc(character, false).then(output => character.output(output));
-        return Promise.resolve();
+        const roomDesc = currentRoom.getDesc(character, false);
+        character.output(roomDesc);
       });
     }
   });

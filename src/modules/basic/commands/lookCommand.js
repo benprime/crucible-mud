@@ -6,7 +6,7 @@ import Room from '../../../models/room';
 export default {
   name: 'look',
   desc: 'look around you or examine an item, mob, or player',
-  category: commandCategories.basic,
+  category: commandCategories.core,
 
   patterns: [
     /^$/,

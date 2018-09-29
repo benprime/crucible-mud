@@ -20,7 +20,8 @@
     "process": true,
     "console": true,
     "setInterval": true,
-    "setTimeout": true
+    "setTimeout": true,
+    "arguments": true
   },
   "rules": {
     "indent": [

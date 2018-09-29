@@ -3,7 +3,7 @@ import commandCategories from '../../../core/commandCategories';
 export default {
   name: 'help',
   desc: 'help system',
-  category: commandCategories.system,
+  category: commandCategories.core,
 
   patterns: [
     /^help$/i,

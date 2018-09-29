@@ -4,7 +4,7 @@ import whoAction from '../actions/whoAction';
 export default {
   name: 'who',
   desc: 'display the other players currently online',
-  category: commandCategories.system,
+  category: commandCategories.core,
   action: whoAction.name,
 
   patterns: [

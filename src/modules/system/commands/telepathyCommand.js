@@ -4,7 +4,7 @@ import telepathyAction from '../actions/telepathyAction';
 export default {
   name: 'telepathy',
   desc: 'communicate directly to a single user',
-  category: commandCategories.system,
+  category: commandCategories.core,
   action: telepathyAction.name,
 
   patterns: [

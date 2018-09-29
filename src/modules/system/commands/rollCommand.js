@@ -4,7 +4,7 @@ import rollAction from '../actions/rollAction';
 export default {
   name: 'roll',
   desc: 'roll a dice',
-  category: commandCategories.system,
+  category: commandCategories.core,
   action: rollAction.name,
 
   patterns: [

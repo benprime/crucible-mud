@@ -104,6 +104,14 @@ CharacterSchema.statics.findByUser = function (user) {
 //============================================================================
 // Instance methods
 //============================================================================
+CharacterSchema.methods.setupEvents = function () {
+  //todo: add a way to unsubscribe these emitters on logout
+  this.on('action', (character, params) => {
+    const room = Room.getById(character.roomId);
+    room.handleAction(character, ...params);
+  });
+};
+
 CharacterSchema.methods.getDesc = function () {
   // todo: Add character specific details. Currently only returning the description of equipped items.
   let output = this.equipped.getDesc();
@@ -182,7 +190,7 @@ CharacterSchema.methods.attack = function (mob, now) {
   let weapon;
   if (hit) {
     weapon = this.inventory.id(this.equipped.weaponMain);
-    let diceToRoll = weapon ? dice.roll(weapon.damage) : '1d2';
+    let diceToRoll = weapon ? weapon.damage : '1d2';
     let dmg = dice.roll(diceToRoll); // todo: +STR modifier
     mob.takeDamage(dmg);
 
@@ -284,7 +292,7 @@ CharacterSchema.methods.takeDamage = function (damage) {
   if (this.currentHP <= 0) {
     if (characterDrop) {
       this.incapacitate();
-      this.output('<span class="firebrick">You are incompacitated!</span>\n');
+      this.output('<span class="firebrick">You are incapacitated!</span>\n');
       this.toRoom(`<span class="firebrick">${this.name} drops to the ground!</span>\n`);
     }
     this.bleeding = 1;

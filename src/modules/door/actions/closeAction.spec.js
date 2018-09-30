@@ -10,23 +10,44 @@ describe('close', () => {
   let socket;
   let mockRoom;
 
-  beforeAll(() => {
+  beforeEach(() => {
+    socket = new mocks.SocketMock();
     mockRoom = mocks.getMockRoom();
+    mockRoom.exits = [
+      { dir: 'n', roomId: 'nRoomId', closed: true },
+      { dir: 's', roomId: 'sRoomId', closed: false },
+      { dir: 'e', roomId: 'eRoomId' },
+      { dir: 'w', roomId: 'wRoomId' },
+    ];
     mockGetRoomById.mockReturnValue(mockRoom);
   });
 
-  beforeEach(() => {
-    socket = new mocks.SocketMock();
-  });
+  describe('closeDoor', () => {
 
-  describe('execute', () => {
-    test('should call room.openDoor', () => {
-      expect.assertions(1);
+    test('should print message on invalid direction', () => {
+      const result = sut.execute(socket.character, directions.NE);
 
-      return sut.execute(socket.character, directions.NE).then(() => {
-        expect(mockRoom.closeDoor).toHaveBeenCalled();
-      });
+      expect(result).toBe(false);
+      expect(socket.character.output).toHaveBeenCalledWith('There is no exit in that direction!');
+    });
 
+
+    test('should print message when no door exists in valid direction', () => {
+      const result = sut.execute(socket.character, directions.E);
+      expect(socket.character.output).toHaveBeenCalledWith('There is no door in that direction!');
+      expect(result).toBe(false);
+    });
+
+    test('should be succesful when door is open', () => {
+      const result = sut.execute(socket.character, directions.S);
+
+      expect(result).toBe(true);
+    });
+
+    test('should be succesful when door is already closed', () => {
+      const result = sut.execute(socket.character, directions.N);
+
+      expect(result).toBe(true);
     });
   });
 

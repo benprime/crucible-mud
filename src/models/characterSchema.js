@@ -322,37 +322,7 @@ CharacterSchema.methods.break = function () {
   this.attackTarget = undefined;
 };
 
-CharacterSchema.methods.move = function (dir) {
 
-  const fromRoom = Room.getById(this.roomId);
-  const socket = socketUtil.getSocketByCharacterId(this.id);
-
-  return fromRoom.IsExitPassable(this, dir).then((exit) => {
-    const toRoom = Room.getById(exit.roomId);
-    this.break();
-
-    if (socket) {
-      if (this.isIncapacitated()) this.output(`You are dragged ${dir.long}...`);
-      else if (this.sneakMode()) this.output(`You sneak ${dir.long}...`);
-      else this.output(`You move ${dir.long}...`);
-    }
-
-    fromRoom.leave(this, dir, socket);
-    toRoom.enter(this, dir.opposite, socket);
-
-    let followers = socketUtil.getFollowers(socket.character.id);
-    if (this.dragging) {
-      const drag = socketUtil.getCharacterById(this.dragging);
-      followers.push(drag);
-    }
-
-    followers.forEach(c => {
-      c.move(dir);
-    });
-
-    return Promise.resolve(toRoom);
-  });
-};
 
 CharacterSchema.methods.teleport = function (roomTarget) {
 

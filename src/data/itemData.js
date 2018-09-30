@@ -1,4 +1,4 @@
-const WeaponTypes = {
+const DamageTypes = {
   NONE: 'none',
   SLASHING: 'slashing',
   PIERCING: 'pierce',
@@ -28,7 +28,7 @@ export default {
       type: 'item',
       equipSlots: [EquipSlots.WEAPONMAIN],
       damage: '1d5+1',  //die roll + modifier
-      weaponType: WeaponTypes.SLASHING,  //piercing, slashing, bludgeoning
+      damageType: DamageTypes.SLASHING,  //piercing, slashing, bludgeoning
       //speed: 0,  //scale from -1(slowest) to 1(fastest)
       //bonus: 'damage + 0', //stat + modifier
     },
@@ -39,7 +39,7 @@ export default {
       type: 'item',
       equipSlots: [EquipSlots.WEAPONMAIN, EquipSlots.WEAPONOFF],
       damage: '1d6+3',  //die roll + modifier
-      weaponType: WeaponTypes.SLASHING,  //piercing, slashing, bludgeoning
+      damageType: DamageTypes.SLASHING,  //piercing, slashing, bludgeoning
       //speed: 0,  //scale from -1(slowest) to 1(fastest)
       //bonus: 'damage + 0', //stat + modifier
     },
@@ -56,7 +56,7 @@ export default {
       type: 'item',
       equipSlots: [EquipSlots.WEAPONOFF],  //mainHand/offHand/bothHand/eitherHand, head, non, etc
       damage: '1d2',  //die roll (+/-)modifier
-      weaponType: WeaponTypes.BLUDGEONING,  //piercing, slashing, bludgeoning
+      damageType: DamageTypes.BLUDGEONING,  //piercing, slashing, bludgeoning
       //speed: -.5,  //scale from -1(slowest) to 1(fastest)
       //bonus: 'damage + 1d4 fire', //stat + modifier
     },

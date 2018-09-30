@@ -6,18 +6,18 @@ export default {
     // autocomplete username
     if (!fromCharacter) {
       character.output('You don\'t seem to have a pending offer from that player!');
-      return Promise.reject();
+      return false;
     }
 
     if (character.roomId !== fromCharacter.roomId) {
       character.output(`${fromCharacter.name} is not here!`);
-      return Promise.reject();
+      return false;
     }
 
     const offer = character.offers.find(o => o.fromUserName === fromCharacter.name);
     if (!offer) {
       character.output(`There are no offers from ${fromCharacter.name}.`);
-      return Promise.reject();
+      return false;
     }
 
     if (offer.currency) {
@@ -25,7 +25,7 @@ export default {
       if (fromCharacter.currency < offer.currency) {
         character.offers = character.offers.filter(o => o.fromUserName !== fromCharacter.name);
         character.output(`${fromCharacter.username} no longer has enough money to complete this offer.`);
-        return Promise.reject();
+        return false;
       }
       fromCharacter.currency -= offer.currency;
       character.currency += offer.currency;
@@ -35,7 +35,7 @@ export default {
       if (!item) {
         character.offers = character.offers.filter(o => o.fromUserName !== fromCharacter.name);
         character.output(`${fromCharacter.name} no longer has the offered item in their inventory.`);
-        return Promise.reject();
+        return false;
       }
       fromCharacter.inventory.id(offer.item.id).remove();
       character.inventory.push(item);
@@ -57,6 +57,6 @@ export default {
 
     fromCharacter.output(fromCharacterMessage);
     character.output(toCharacterMessage);
-    return Promise.resolve();
+    return true;
   },
 };

@@ -7,23 +7,27 @@ export default {
     const shop = Shop.getById(character.roomId);
     if (!shop) {
       character.output('This command can only be used in a shop.');
-      return Promise.reject();
+      return false;
     }
 
-    return shop.getItemTypeByAutocomplete(itemName).then(itemType => {
-      // check if user has money
-      if (character.currency < itemType.price) {
-        character.output('You cannot afford that.');
-        return Promise.reject();
-      }
+    const itemType = shop.getItemTypeByAutocomplete(character, itemName);
+    if (!itemType) {
+      character.output('Unknown item type.');
+      return false;
+    }
 
-      const item = shop.buy(character, itemType);
-      if (item) {
-        character.output('Item purchased.');
-        character.toRoom(`${character.name} buys ${item.name} from the shop.`, [character.id]);
+    // check if user has money
+    if (character.currency < itemType.price) {
+      character.output('You cannot afford that.');
+      return false;
+    }
 
-        return Promise.resolve();
-      }
-    });
+    const item = shop.buy(character, itemType);
+    if (item) {
+      character.output('Item purchased.');
+      character.toRoom(`${character.name} buys ${item.name} from the shop.`, [character.id]);
+
+      return true;
+    }
   },
 };

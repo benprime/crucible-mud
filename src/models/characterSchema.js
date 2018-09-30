@@ -174,14 +174,14 @@ return 0;
 
 // TODO: perhaps have miss verbs per weapon type also: "thrusts at, stabs at" in addition to "swings at"
 CharacterSchema.methods.getAttackVerb = function (weapon) {
-  const weaponType = weapon ? weapon.weaponType : 'unarmed';
+  const damageType = weapon ? weapon.damageType : 'unarmed';
   const attackVerbs = {
     'slashing': ['slash', 'stab', 'cut', 'hack', 'chop', 'cleave'],
     'piercing': ['pierce', 'stick', 'stab', 'impale', 'skewer', 'spear', 'lance', 'thrust'],
     'bludgeoning': ['bludgeon', 'club', 'whop', 'swat', 'hit', 'smack', 'smash', 'wallop', 'bash', 'thump'],
     'unarmed': ['uppercut', 'punch', 'sock', 'smack', 'jab', 'slap', 'bash', 'pummel', 'slam', 'slug', 'strike', 'thump'],
   };
-  const verbs = attackVerbs[weaponType];
+  const verbs = attackVerbs[damageType];
   const verbIndex = dice.getRandomNumber(0, verbs.length);
   return verbs[verbIndex];
 };

@@ -37,7 +37,12 @@ const moveCharacter = function (character, dir) {
   let followers = socketUtil.getFollowers(socket.character.id);
   if (character.dragging) {
     const drag = socketUtil.getCharacterById(character.dragging);
-    followers.push(drag);
+    if(!drag.isIncapacitated()) {
+      character.dragging = null;
+      character.output(`You are no longer dragging ${drag.name}.`);
+    } else {
+      followers.push(drag);
+    }
   }
 
   followers.forEach(c => {
@@ -183,7 +188,7 @@ const IsExitPassable = function (character, dir) {
   const room = Room.getById(character.roomId);
   const exit = room.exits.find(e => e.dir === dir.short);
   if (!exit) {
-    sendHitWallMessage(character, dir.short);
+    sendHitWallMessage(character, dir);
     return false;
   }
 
@@ -202,7 +207,7 @@ const IsExitPassable = function (character, dir) {
   // }
 
   if (exit.closed) {
-    sendHitDoorMessage(character, dir.short);
+    sendHitDoorMessage(character, dir);
     return false;
   }
 

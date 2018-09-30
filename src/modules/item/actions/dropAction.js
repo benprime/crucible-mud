@@ -3,7 +3,7 @@ import Room from '../../../models/room';
 
 export default {
   name: 'drop',
-  execute: (character, item) => {
+  execute: (character, item, currency) => {
     const room = Room.getById(character.roomId);
 
     // drop an incapacitated player that is being dragged

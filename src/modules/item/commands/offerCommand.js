@@ -19,8 +19,8 @@ export default {
   parseParams(match, character) {
     if (match.length < 3) return false;
     let item = autocomplete.inventory(character, match[1]);
-    let currency = currencyToInt(match[1]);
-    const toCharacter = autocomplete.character(character, match[1]);
+    let currency = currencyToInt(match[2]);
+    const toCharacter = autocomplete.character(character, match[3]);
     return [this.name, item, currency, toCharacter];
   },
 

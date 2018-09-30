@@ -8,7 +8,7 @@ export const spawn = (itemType) => {
     fixed: itemType.fixed,
     equipSlots: itemType.equipSlots,
     damage: itemType.damage,
-    weaponType: itemType.weaponType,
+    damageType: itemType.damageType,
     speed: itemType.speed,
     bonus: itemType.bonus,
   });

@@ -88,7 +88,7 @@ export const getDirection = (dir) => {
 const handler = {
   get: (obj, prop) => {
     if(!(prop in obj)) {
-      throw new TypeError(`Invalid enum value: ${prop}`);
+      throw new TypeError(`Invalid enum value: ${prop.toString()}`);
     }
     return obj[prop];
   },

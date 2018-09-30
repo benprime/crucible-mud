@@ -14,7 +14,7 @@ export default {
 
   parseParams(match, character) {
     if (match.length < 2) return false;
-    const item = autocomplete.inventory(character, match[1]);
+    const item = autocomplete.equippedItems(character, match[1]);
     return [this.name, item];
   },
 

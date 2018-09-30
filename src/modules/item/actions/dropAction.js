@@ -13,19 +13,19 @@ export default {
         character.dragging = false;
         character.output(`You stop dragging ${item.name}.`);
         character.toRoom(`${character.name} drops ${item.name}.`, [character.id]);
-        return Promise.resolve();
+        return true;
       }
     }
 
     // drop items and keys
     if (!item) {
       character.output('You don\'t seem to be carrying that.');
-      return Promise.reject();
+      return false;
     }
 
     // remove item from users inventory or key ring
     if (item.type === 'item') {
-      if (character.equipped.isEquipped(item)) {
+      if (character.equipped.isEquipped(item.name)) {
         character.equipped.unequip(item);
       }
       character.inventory.remove(item);
@@ -34,7 +34,7 @@ export default {
     } else {
       // just a catch for bad data
       character.output('Unknown item type!');
-      return Promise.reject();
+      return false;
     }
 
     // and place it in the room
@@ -47,6 +47,6 @@ export default {
     character.output('Dropped.');
     character.toRoom(`${character.name} drops ${item.name}.`, [character.id]);
 
-    return Promise.resolve();
+    return true;
   },
 };

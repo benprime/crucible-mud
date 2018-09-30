@@ -1,10 +1,10 @@
 import Room from '../../../models/room';
 import utils from '../../../core/utilities';
-import autocomplete from '../../../core/autocomplete';
 
 export default {
   name: 'take',
-  execute(character, itemName, admin) {
+  execute(character, item, admin) {
+
     function saveItem(item) {
       // and give it to the user
       if (item.type === 'key') {
@@ -15,34 +15,34 @@ export default {
       character.save(err => { if (err) throw err; });
     }
   
-    const acResult = autocomplete.multiple(character, ['room'], itemName);
-    if (acResult) {
-      const roomItem = acResult.item;
+    if (item) {
   
       // fixed items cannot be taken, such as a sign.
-      if (roomItem.fixed) {
+      if (item.fixed) {
         character.output('You cannot take that!');
-        return Promise.reject();
+        return false;
       }
-      if (roomItem.hidden && !admin) {
+
+      if (item.hidden && !admin) {
         //ignore players from unknowingly grabbing a hidden item
         character.output('You don\'t see that here!');
-        return Promise.reject();
+        return false;
       }
+
       // take the item from the room
       const room = Room.getById(character.roomId);
-      utils.removeItem(room.inventory, roomItem);
+      utils.removeItem(room.inventory, item);
   
-      saveItem(roomItem);
+      saveItem(item);
       room.save(err => { if (err) throw err; });
   
-      character.output(`${roomItem.name} taken.`);
-      character.toRoom(`${character.name} takes ${roomItem.name}.`, [character.id]);
-      return Promise.resolve();
+      character.output(`${item.name} taken.`);
+      character.toRoom(`${character.name} takes ${item.name}.`, [character.id]);
+      return true;
     }
   
     character.output('You don\'t see that here!');
-    return Promise.reject();
+    return false;
   },
   
 };

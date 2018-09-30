@@ -30,7 +30,7 @@ export default {
 
     utils.removeItem(character.partyInvites, invitingCharacter.id);
 
-    character.output(`You are now following ${invitingCharacter.username}.`);
+    character.output(`You are now following ${invitingCharacter.name}.`);
     invitingCharacter.output(`${character.name} has started following you.`);
 
     return Promise.resolve();

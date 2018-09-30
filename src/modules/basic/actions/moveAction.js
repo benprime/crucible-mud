@@ -41,7 +41,7 @@ const moveCharacter = function (character, dir) {
   }
 
   followers.forEach(c => {
-    c.move(dir);
+    moveCharacter(c, dir);
   });
 
   return toRoom;

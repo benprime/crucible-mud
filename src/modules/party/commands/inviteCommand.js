@@ -11,8 +11,9 @@ export default {
     /^invite\s.+$/i,
   ],
 
-  parseParams(match) {
-    const targetCharacter = autocomplete.character(match[1]);
+  parseParams(match, character) {
+    if(match.length < 2) return false;
+    const targetCharacter = autocomplete.character(character, match[1]);
     return [this.name, targetCharacter];
   },
 

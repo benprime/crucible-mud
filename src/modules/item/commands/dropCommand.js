@@ -20,7 +20,8 @@ export default {
     if (character.dragging) {
       item = socketUtil.getCharacterById(character.dragging);
     } else {
-      item = autocomplete.multiple(character, ['inventory', 'key'], match[1]);
+      const acResult = autocomplete.multiple(character, ['inventory', 'key'], match[1]);
+      item = acResult ? acResult.item : null;
     }
     return [this.name, item];
   },

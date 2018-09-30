@@ -103,7 +103,7 @@ function processDispatch(socket, input) {
   }
 
   // when a command is not found, it defaults to "say"
-  socket.character.action(defaultCommand.name);
+  socket.character.action(defaultCommand.name, input);
 }
 
 export default {

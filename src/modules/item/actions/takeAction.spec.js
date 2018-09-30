@@ -1,4 +1,5 @@
 import { mockGetRoomById } from '../../../models/room';
+import Item from '../../../models/item';
 import { mockAutocompleteMultiple } from '../../../core/autocomplete';
 import mocks from '../../../../spec/mocks';
 import sut from './takeAction';
@@ -15,25 +16,6 @@ mockGetRoomById.mockReturnValue(mockRoom);
 
 describe('take', () => {
 
-  // describe('dispatch', () => {
-  //   beforeEach(() => {
-  //     jest.spyOn(sut, 'execute');
-  //     socket.emit.mockClear();
-  //   });
-
-  //   test('should call execute with match', () => {
-  //     sut.dispatch(socket, ['take', 'aItem']);
-
-  //     expect(sut.execute).toBeCalledWith(socket, 'aItem');
-  //   });
-
-  //   test('should output message if multiple matches', () => {
-  //     sut.dispatch(socket, 'take', 'aItem', 'anotherItem');
-
-  //     expect(socket.character.output).toHaveBeenCalledWith('What do you want to take?' )
-  //   });
-  // });
-
   describe('execute', () => {
 
     beforeEach(() => {
@@ -43,19 +25,23 @@ describe('take', () => {
     });
 
     test('should output message when item is not found', () => {
+      // arrange
       mockRoom.save.mockClear();
       mockAutocompleteMultiple.mockReturnValueOnce(null);
-      expect.assertions(3);
 
-      return sut.execute(socket.character, 'itemNotThere').catch(() => {
-        expect(socket.character.output).toHaveBeenCalledWith('You don\'t see that here!');
-        expect(mockRoom.save).not.toHaveBeenCalled();
-        expect(socket.character.save).not.toHaveBeenCalled();
-      });
+      // act
+      const result = sut.execute(socket.character, null);
+      
+      // assert
+      expect(result).toBe(false);
+      expect(socket.character.output).toHaveBeenCalledWith('You don\'t see that here!');
+      expect(mockRoom.save).not.toHaveBeenCalled();
+      expect(socket.character.save).not.toHaveBeenCalled();
 
     });
 
     test('should output message when item is fixed', () => {
+      // arrange
       mockRoom.save.mockClear();
       socket.character.inventory.length = 0;
 
@@ -64,37 +50,37 @@ describe('take', () => {
         name: 'aItem',
         fixed: true,
       };
-      mockAutocompleteMultiple.mockReturnValueOnce({ item: fixedItem });
-      expect.assertions(4);
 
-      return sut.execute(socket.character, 'aItem').catch(() => {
-        expect(socket.character.inventory).toHaveLength(0);
-        expect(socket.character.output).toHaveBeenCalledWith('You cannot take that!');
-        expect(mockRoom.save).not.toHaveBeenCalled();
-        expect(socket.character.save).not.toHaveBeenCalled();
-      });
+      // act
+      const result = sut.execute(socket.character, fixedItem);
 
-
+      // assert
+      expect(result).toBe(false);
+      expect(socket.character.inventory).toHaveLength(0);
+      expect(socket.character.output).toHaveBeenCalledWith('You cannot take that!');
+      expect(mockRoom.save).not.toHaveBeenCalled();
+      expect(socket.character.save).not.toHaveBeenCalled();
     });
 
     test('should update the room/user and save room/user to database', () => {
-      const item = {
+      // arrange
+      const item = new Item({
         id: 'aItemId',
         name: 'aItem',
-      };
-      mockRoom.inventory = [item];
-      mockAutocompleteMultiple.mockReturnValueOnce({ item: item });
-      expect.assertions(5);
-
-      return sut.execute(socket.character, 'aItem').then(() => {
-        expect(mockRoom.inventory).not.toContain(item);
-        // THIS IS RAD
-        expect(socket.character.inventory).toContainEqual(expect.objectContaining({ name: 'aItem' }));
-        expect(socket.character.save).toHaveBeenCalled();
-        expect(socket.character.output).toHaveBeenCalledWith(`${item.name} taken.`);
-        expect(socket.character.toRoom).toHaveBeenCalledWith(`${socket.character.name} takes ${item.name}.`, [socket.character.id]);
       });
+      mockRoom.inventory = [item];
 
+      // act
+      const result = sut.execute(socket.character, item);
+
+      // assert
+      expect(socket.character.output).toHaveBeenCalledWith(`${item.name} taken.`);
+      expect(result).toBe(true);
+      expect(mockRoom.inventory).not.toContain(item);
+      // THIS IS RAD
+      expect(socket.character.inventory).toContainEqual(expect.objectContaining({ name: 'aItem' }));
+      expect(socket.character.save).toHaveBeenCalled();
+      expect(socket.character.toRoom).toHaveBeenCalledWith(`${socket.character.name} takes ${item.name}.`, [socket.character.id]);
     });
   });
 

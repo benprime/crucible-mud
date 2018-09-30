@@ -13,8 +13,8 @@ export default {
     /^join\s.+$/i,
   ],
 
-  parseParams(match) {
-    const invitingCharacter = autocomplete.character(match[1]);
+  parseParams(match, character) {
+    const invitingCharacter = autocomplete.character(character, match[1]);
     return [this.name, invitingCharacter];
   },
 

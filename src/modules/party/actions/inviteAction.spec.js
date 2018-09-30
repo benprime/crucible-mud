@@ -51,7 +51,7 @@ describe('invite', () => {
       sut.execute(socket.character, mockTargetSocket.character);
 
       expect(socket.character.output).toHaveBeenCalledWith('You have invited TargetUser to join your party.');
-      expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser has invited you to join a party.');
+      expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser has invited you to join a party. Type \'follow TestUser\' to accept.');
       expect(mockTargetSocket.character.partyInvites).toContain(socket.character.id);
     });
 

@@ -25,7 +25,7 @@ export default {
       targetCharacter.partyInvites.push(character.id);
     }
     
-    targetCharacter.output(`${character.name} has invited you to join a party.`);
+    targetCharacter.output(`${character.name} has invited you to join a party. Type 'follow ${character.name}' to accept.`);
     character.output(`You have invited ${targetCharacter.name} to join your party.`);
 
     return Promise.resolve();

@@ -20,20 +20,27 @@ const TypeConfig = Object.freeze({
     source(character) {
       return character.inventory;
     },
-    propertyNames: ['name', 'name'],
+    propertyNames: ['name'],
+  },
+  // a sub-set of inventory
+  equippedItems: {
+    source(character) {
+      return character.inventory.filter(i => character.equipped.isEquipped(i));
+    },
+    propertyNames: ['name'],
   },
   key: {
     source(character) {
       return character.keys;
     },
-    propertyNames: ['name', 'name'],
+    propertyNames: ['name'],
   },
   room: {
     source(character) {
       const room = Room.getById(character.roomId);
       return room.inventory;
     },
-    propertyNames: ['name', 'name'],
+    propertyNames: ['name'],
   },
   character: {
     source(character) {
@@ -46,7 +53,7 @@ const TypeConfig = Object.freeze({
 });
 
 function escapeRegExp(string) {
-  if(!string) return;
+  if (!string) return;
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
@@ -213,6 +220,16 @@ export default {
    */
   room(character, fragment) {
     var result = this.multiple(character, ['room'], fragment);
+    return result ? result.item : null;
+  },
+
+  /**
+   * Autocomplete equipped items for a character by name fragment.
+   * @param {Character} character - Character performing action and whose inventory will be used.
+   * @param {String} fragment - Name fragment to autocomplete.
+   */
+  equippedItems(character, fragment) {
+    var result = this.multiple(character, ['equippedItems'], fragment);
     return result ? result.item : null;
   },
 };

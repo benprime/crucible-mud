@@ -32,7 +32,7 @@ const moveCharacter = function (character, dir) {
   }
 
   leave(character, dir, socket);
-  enter(character, dir.opposite, socket);
+  enter(toRoom, character, dir.opposite, socket);
 
   let followers = socketUtil.getFollowers(socket.character.id);
   if (character.dragging) {
@@ -82,10 +82,10 @@ const sendHitDoorMessage = function (character, dir) {
 };
 
 // emits "You hear movement to the <dir>" to all adjacent rooms
-const sendMovementSoundsMessage = function (excludeDir) {
+const sendMovementSoundsMessage = function (room, excludeDir) {
 
   // fromRoomId is your current room (before move)
-  for (let exit of this.exits) {
+  for (let exit of room.exits) {
     if (excludeDir && exit.dir === excludeDir) {
       continue;
     }
@@ -120,32 +120,23 @@ const getEnteredMessage = function (dir, charName) {
   return `<span class="yellow">${output}</span>`;
 };
 
-
-
-
-// todo: This may need a more descriptive name, it is for "leaving by exit"
-// it updates games state, generates messages
 const leave = function (character, dir, socket) {
   const exclude = socket ? [socket.id] : [];
 
-  if (character.roomId !== this.id) {
-    // TODO: investigate this. This is only possible because of data duplication that we
-    // may be able to get rid of.
-    throw 'Character leave was called when the character was not assigned the room';
-  }
+  const room = Room.getById(character.roomId);
 
   if (!character.sneakMode()) {
-    sendMovementSoundsMessage(dir.short);
+    sendMovementSoundsMessage(room, dir.short);
   }
 
   // if this is a player
   if (socket) {
     // unsubscribe from Socket.IO room
-    socket.leave(this.id);
+    socket.leave(character.roomId);
   }
 
   // whenever you leave a room, you leave tracks (for tracking command and scripting options)
-  this.tracks[character.id] = {
+  room.tracks[character.id] = {
     dir: dir.short,
     timestamp: new Date().getTime(),
   };
@@ -153,18 +144,12 @@ const leave = function (character, dir, socket) {
   // leaving room message
   if (!character.sneakMode()) {
     const msg = getLeftMessages(dir, character.name);
-    socketUtil.roomMessage(this.id, msg, exclude);
+    socketUtil.roomMessage(character.roomId, msg, exclude);
   }
 };
 
-// todo: This may need a more descriptive name, it is for "entering by exit"
-// it updates games state, generates messages
-const enter = function (character, dir, socket) {
-  const currentRoom = Room.getById(character.roomId);
-  const exit = currentRoom.getExit(dir.short);
-  const targetRoom = Room.getById(exit.roomId);
-
-  character.roomId = targetRoom.id;
+const enter = function (room, character, dir, socket) {
+  character.roomId = room.id;
 
   if (!character.sneakMode()) {
     const exclude = socket ? [socket.id] : [];
@@ -172,13 +157,13 @@ const enter = function (character, dir, socket) {
     socketUtil.roomMessage(character.roomId, msg, exclude);
 
     if (dir) {
-      targetRoom.sendMovementSoundsMessage(dir.short);
+      sendMovementSoundsMessage(room, dir.short);
     }
   }
 
   character.save(err => { if (err) throw err; });
   if (socket) {
-    socket.join(this.id);
+    socket.join(room.id);
   }
 
 };
@@ -195,7 +180,8 @@ const IsExitPassable = function (character, dir) {
     return false;
   }
 
-  const exit = this.exits.find(e => e.dir === dir.short);
+  const room = Room.getById(character.roomId);
+  const exit = room.exits.find(e => e.dir === dir.short);
   if (!exit) {
     sendHitWallMessage(character, dir.short);
     return false;

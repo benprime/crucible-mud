@@ -1,9 +1,9 @@
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'search',
   desc: 'search the current room for hidden objects',
-  category: commandCategories.item,
+
 
   patterns: [
     /^search$/i,

@@ -8,6 +8,8 @@ import inviteAction from './actions/inviteAction';
 import partyAction from './actions/partyAction';
 import uninviteAction from './actions/uninviteAction';
 
+import actionCategories from '../../core/actionCategories';
+
 export const commands = [
   followCommand,
   inviteCommand,
@@ -21,6 +23,9 @@ export const actions = [
   partyAction,
   uninviteAction,
 ];
+
+actions.forEach(a => a.category = actionCategories.party);
+commands.forEach(a => a.category = actionCategories.party);
 
 export default {
   commands,

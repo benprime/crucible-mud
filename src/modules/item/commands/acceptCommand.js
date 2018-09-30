@@ -1,10 +1,10 @@
 import autocomplete from '../../../core/autocomplete';
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'accept',
   desc: 'accept offered currency or item from another player',
-  category: commandCategories.item,
+
 
   patterns: [
     /^accept\s+offer\s+(\w+)$/i,

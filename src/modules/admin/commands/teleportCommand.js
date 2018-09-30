@@ -1,9 +1,6 @@
-import commandCategories from '../../../core/commandCategories';
-
 export default {
   name: 'teleport',
   desc: 'teleport to another user\'s location',
-  category: commandCategories.admin,
   admin: true,
 
   patterns: [

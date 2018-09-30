@@ -1,10 +1,8 @@
-import commandCategories from '../../../core/commandCategories';
 import autocomplete from '../../../core/autocomplete';
 
 export default {
   name: 'drag',
   desc: 'Drag a player who is incapacitated',
-  category: commandCategories.combat,
 
   patterns: [
     /^drag\s+(\w+)$/i,

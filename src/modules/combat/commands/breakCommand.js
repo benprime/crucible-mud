@@ -1,9 +1,6 @@
-import commandCategories from '../../../core/commandCategories';
-
 export default {
   name: 'break',
   desc: 'break off combat',
-  category: commandCategories.combat,
 
   patterns: [
     /^br$/i,

@@ -1,3 +1,6 @@
+
+import actionCategories from '../../core/actionCategories';
+
 import createAreaCommand from './commands/createAreaCommand';
 import createCommand from './commands/createCommand';
 import createDoorCommand from './commands/createDoorCommand';
@@ -23,6 +26,9 @@ export const actions = [
   setAction,
   spawnerAction,
 ];
+
+actions.forEach(a => a.category = actionCategories.world);
+commands.forEach(a => a.category = actionCategories.world);
 
 export default {
   commands,

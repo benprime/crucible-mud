@@ -1,9 +1,6 @@
-import commandCategories from '../../../core/commandCategories';
-
 export default {
   name: 'inventory',
   desc: 'list the items you are currently carrying',
-  category: commandCategories.character,
   
   patterns: [
     /^i$/i,

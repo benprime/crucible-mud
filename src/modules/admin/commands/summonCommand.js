@@ -1,9 +1,6 @@
-import commandCategories from '../../../core/commandCategories';
-
 export default {
   name: 'summon',
   desc: 'teleport another player to your location',
-  category: commandCategories.admin,
   admin: true,
 
   patterns: [

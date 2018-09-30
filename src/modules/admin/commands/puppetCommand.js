@@ -1,10 +1,8 @@
-import commandCategories from '../../../core/commandCategories';
 import autocomplete from '../../../core/autocomplete';
 
 export default {
   name: 'puppet',
   desc: 'cause a cosmetic action by an npc',
-  category: commandCategories.admin,
 
   patterns: [
     /^puppet\s+(\w+)\s+(.+)/i,

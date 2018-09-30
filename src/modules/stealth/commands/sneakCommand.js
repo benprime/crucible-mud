@@ -1,9 +1,9 @@
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'sneak',
   desc: 'Activates stealthy movement.',
-  category: commandCategories.stealth,
+
 
   patterns: [
     /^sneak$/i,

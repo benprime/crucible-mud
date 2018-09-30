@@ -10,6 +10,7 @@ import CharacterEquipSchema from './characterEquipSchema';
 import { updateHUD } from '../core/hud';
 import { pronounSubject, upperCaseWords, verbToThirdPerson } from '../core/language';
 import healthStatus from '../models/enums/healthStatuses';
+import actionHandler from '../core/actionHandler';
 
 /**
  * @constructor
@@ -106,10 +107,20 @@ CharacterSchema.statics.findByUser = function (user) {
 //============================================================================
 CharacterSchema.methods.setupEvents = function () {
   //todo: add a way to unsubscribe these emitters on logout
-  this.on('action', (character, params) => {
-    const room = Room.getById(character.roomId);
-    room.handleAction(character, ...params);
-  });
+  this.on('action', this.action);
+};
+
+CharacterSchema.methods.action = function () {
+  const params = Array.from(arguments);
+  const actionName = params.shift();
+  const action = actionHandler.actions[actionName];
+  if (!action || !action.execute) {
+    throw (`Cannot find valid action with name: ${actionName}`);
+  }
+
+  if (this.processStates(action)) {
+    action.execute(this, ...params);
+  }
 };
 
 CharacterSchema.methods.getDesc = function () {
@@ -496,13 +507,13 @@ CharacterSchema.methods.sneakMode = function () {
  * @param {Object} command
  * @returns {Boolean} - Whether or not the command can continue.
  */
-CharacterSchema.methods.processStates = function (command) {
+CharacterSchema.methods.processStates = function (actionCategory) {
 
   // if any state restricts the action, we will let that trump deactivating other states.
   // For this reason, we must check all states for action prevention first.
   const restrictStates = this.states.filter(s => s.mode === stateMode.RESTRICT);
   for (let state of restrictStates) {
-    if (!state.commandCategories.includes(command.category)) {
+    if (!state.actionCategories.includes(actionCategory)) {
       if (state.message) {
         // treat a regular string as a template literal
         const msg = new Function(`return \`${state.message}\`;`).call(this);
@@ -520,7 +531,7 @@ CharacterSchema.methods.processStates = function (command) {
   for (let i = 0; i < deactivateStates.length; i++) {
     let state = deactivateStates[i];
 
-    if (!state.commandCategories.includes(command.category)) {
+    if (!state.actionCategories.includes(actionCategory)) {
       if (state.message) {
         let msg = new Function(`return \`${state.message}\`;`).call(this);
         this.output(msg);

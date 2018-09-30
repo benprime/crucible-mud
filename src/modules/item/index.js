@@ -18,6 +18,8 @@ import searchAction from './actions/searchAction';
 import takeAction from './actions/takeAction';
 import unequipAction from './actions/unequipAction';
 
+import actionCategories from '../../core/actionCategories';
+
 export const commands = [
   acceptCommand,
   dropCommand,
@@ -41,6 +43,9 @@ export const actions = [
   takeAction,
   unequipAction,
 ];
+
+actions.forEach(a => a.category = actionCategories.item);
+commands.forEach(a => a.category = actionCategories.item);
 
 export default {
   commands,

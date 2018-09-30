@@ -1,10 +1,10 @@
-import commandCategories from '../../../core/commandCategories';
+
 import autocomplete from '../../../core/autocomplete';
 
 export default {
   name: 'uninvite',
   desc: 'Party leader command for removing a player from a party',
-  category: commandCategories.party,
+
 
   patterns: [
     /^uninvite\s+(\w+)$/i,

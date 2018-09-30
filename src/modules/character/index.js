@@ -10,6 +10,8 @@ import inventoryAction from './actions/inventoryAction';
 import keysAction from './actions/keysAction';
 import statsAction from './actions/statsAction';
 
+import actionCategories from '../../core/actionCategories';
+
 export const commands = [
   expCommand,
   healthCommand,
@@ -25,6 +27,9 @@ export const actions = [
   keysAction,
   statsAction,
 ];
+
+actions.forEach(a => a.category = actionCategories.character);
+commands.forEach(a => a.category = actionCategories.character);
 
 export default {
   commands,

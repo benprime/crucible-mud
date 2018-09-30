@@ -1,10 +1,8 @@
-import commandCategories from '../../../core/commandCategories';
 import autocomplete from '../../../core/autocomplete';
 
 export default {
   name: 'attack',
   desc: 'attack a monster',
-  category: commandCategories.combat,
 
   patterns: [
     /^a\s+(.+)$/i,

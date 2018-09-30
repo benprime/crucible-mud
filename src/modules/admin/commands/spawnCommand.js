@@ -1,5 +1,4 @@
 import Item from '../../../models/item';
-import commandCategories from '../../../core/commandCategories';
 
 export const spawn = (itemType) => {
   return new Item({
@@ -30,7 +29,6 @@ export const spawnAndGive = (character, itemType, cb) => {
 export default {
   name: 'spawn',
   desc: 'create mob and item instances of the catalog types',
-  category: commandCategories.admin,
   admin: true,
 
   patterns: [

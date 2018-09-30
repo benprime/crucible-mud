@@ -1,9 +1,9 @@
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'rest',
   desc: 'Gain HP at an increased rate while idle',
-  category: commandCategories.special,
+
 
   patterns: [
     /^rest$/i,

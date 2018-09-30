@@ -1,9 +1,9 @@
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'create',
   desc: 'create a room or door',
-  category: commandCategories.world,
+
   admin: true,
 
   patterns: [

@@ -1,9 +1,9 @@
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'gossip',
   desc: 'chat in a global channel, visible to all rooms',
-  category: commandCategories.core,
+
 
   patterns: [
     /^gossip\s+?(.+)/i,

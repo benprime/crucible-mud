@@ -1,10 +1,10 @@
 import autocomplete from '../../../core/autocomplete';
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'take',
   desc: 'take an item',
-  category: commandCategories.item,
+
 
   patterns: [
     /^take\s+(.+)$/i,

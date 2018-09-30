@@ -1,11 +1,11 @@
 import autocomplete from '../../../core/autocomplete';
-import commandCategories from '../../../core/commandCategories';
+
 import { getDirection } from '../../../core/directions';
 
 export default {
   name: 'lock',
   desc: 'lock a door',
-  category: commandCategories.door,
+
   admin: true,
 
   patterns: [

@@ -1,10 +1,10 @@
-import commandCategories from '../../../core/commandCategories';
+
 import autocomplete from '../../../core/autocomplete';
 
 export default {
   name: 'invite',
   desc: 'invite another player to follow you',
-  category: commandCategories.party,
+
 
   patterns: [
     /^invite\s+(\w+)$/i,

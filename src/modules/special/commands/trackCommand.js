@@ -1,9 +1,9 @@
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'track',
   desc: 'Attempt to track another player',
-  category: commandCategories.special,
+
 
   patterns: [
     /^track\s+(\w+)$/i,

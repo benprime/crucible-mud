@@ -1,9 +1,9 @@
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'list',
   desc: 'list item available for purchase in a shop',
-  category: commandCategories.shop,
+
 
   patterns: [
     /^list$/i,

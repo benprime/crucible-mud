@@ -1,11 +1,11 @@
 import autocomplete from '../../../core/autocomplete';
-import commandCategories from '../../../core/commandCategories';
+
 import { getDirection } from '../../../core/directions';
 
 export default {
   name: 'unlock',
   desc: 'unlock a door with a key',
-  category: commandCategories.door,
+
 
   patterns: [
     /^unlock\s+(\w+)\s+with\s+(.+)$/i,

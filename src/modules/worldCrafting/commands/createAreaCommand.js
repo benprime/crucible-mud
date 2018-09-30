@@ -1,9 +1,9 @@
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'create area',
   desc: 'creates a map area',
-  category: commandCategories.world,
+
   admin: true,
 
   patterns: [

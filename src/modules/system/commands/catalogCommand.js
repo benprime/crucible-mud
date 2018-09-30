@@ -1,9 +1,9 @@
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'catalog',
   desc: 'list catalog of item types for use with spawn command',
-  category: commandCategories.core,
+
   admin: true,
 
   patterns: [

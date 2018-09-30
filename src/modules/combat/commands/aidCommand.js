@@ -1,10 +1,8 @@
-import commandCategories from '../../../core/commandCategories';
 import autocomplete from '../../../core/autocomplete';
 
 export default {
   name: 'aid',
   desc: 'Assist a player who has been incapacitated',
-  category: commandCategories.combat,
 
   patterns: [
     /^aid\s+(\w+)$/i,

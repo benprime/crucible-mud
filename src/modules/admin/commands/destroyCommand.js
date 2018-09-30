@@ -1,9 +1,6 @@
-import commandCategories from '../../../core/commandCategories';
-
 export default {
   name: 'destroy',
   desc: 'destroy an item or mob instance',
-  category: commandCategories.admin,
   admin: true,
 
   patterns: [

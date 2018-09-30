@@ -4,7 +4,7 @@ import config, { globalErrorHandler } from '../../../config';
 import mobData from '../../../data/mobData';
 import dice from '../../../core/dice';
 import socketUtil from '../../../core/socketUtil';
-import commandCategories from '../../../core/commandCategories';
+
 
 // Not sure if the global server code should really be living with
 // the command, but it's okay here for now.
@@ -48,7 +48,7 @@ setInterval(() => {
 export default {
   name: 'spawner',
   desc: 'create and set mob spawner in the current room',
-  category: commandCategories.world,
+
   admin: true,
 
   patterns: [

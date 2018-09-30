@@ -1,10 +1,10 @@
 import autocomplete from '../../../core/autocomplete';
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'follow',
   desc: 'accept an invite to follow another player',
-  category: commandCategories.party,
+
 
   patterns: [
     /^follow\s+(\w+)$/i,

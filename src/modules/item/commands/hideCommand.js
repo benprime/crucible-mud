@@ -1,10 +1,10 @@
 import autocomplete from '../../../core/autocomplete';
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'hide',
   desc: 'hide an item in your current room',
-  category: commandCategories.item,
+
 
   patterns: [
     /^hide$/i,

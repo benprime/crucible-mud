@@ -1,9 +1,9 @@
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'create door',
   desc: 'creates a door on an existing exit',
-  category: commandCategories.world,
+
   admin: true,
 
   patterns: [

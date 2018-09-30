@@ -1,9 +1,9 @@
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'set',
   desc: 'set game object properties',
-  category: commandCategories.world,
+
   admin: true,
 
   patterns: [

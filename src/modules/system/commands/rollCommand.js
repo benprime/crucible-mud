@@ -1,10 +1,10 @@
-import commandCategories from '../../../core/commandCategories';
+
 import rollAction from '../actions/rollAction';
 
 export default {
   name: 'roll',
   desc: 'roll a dice',
-  category: commandCategories.core,
+
   action: rollAction.name,
 
   patterns: [

@@ -1,3 +1,5 @@
+import actionCategories from '../../core/actionCategories';
+
 import destroyCommand from './commands/destroyCommand';
 import puppetCommand from './commands/puppetCommand';
 import spawnCommand from './commands/spawnCommand';
@@ -25,6 +27,9 @@ export const actions = [
   summonAction,
   teleportAction,
 ];
+
+actions.forEach(a => a.category = actionCategories.admin);
+commands.forEach(a => a.category = actionCategories.admin);
 
 export default {
   commands,

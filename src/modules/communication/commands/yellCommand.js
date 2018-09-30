@@ -1,9 +1,6 @@
-import commandCategories from '../../../core/commandCategories';
-
 export default {
   name: 'yell',
   desc: 'shout a message to current and all adjacent rooms',
-  category: commandCategories.communication,
 
   patterns: [
     /^"(.+)"?/,

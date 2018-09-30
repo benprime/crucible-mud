@@ -1,11 +1,11 @@
 import autocomplete from '../../../core/autocomplete';
 import { currencyToInt } from '../../../core/currency';
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'offer',
   desc: 'offer an item to another player',
-  category: commandCategories.item,
+
 
   patterns: [
     /^offer\s+(.+)\s+to\s+(.+)$/i,

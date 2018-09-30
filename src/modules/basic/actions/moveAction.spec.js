@@ -16,11 +16,8 @@ describe('move', () => {
   describe('execute', () => {
 
     test('should call character move method', () => {
-      expect.assertions(1);
-
-      return sut.execute(socket.character, directions.U).then(() => {
-        expect(socket.character.move).toHaveBeenCalledWith(directions.U);
-      });
+      return sut.execute(socket.character, directions.U);
+      expect(socket.character.move).toHaveBeenCalledWith(directions.U);
     });
   });
 

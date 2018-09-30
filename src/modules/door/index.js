@@ -8,6 +8,9 @@ import lockAction from './actions/lockAction';
 import openAction from './actions/openAction';
 import unlockAction from './actions/unlockAction';
 
+import actionCategories from '../../core/actionCategories';
+
+
 export const commands = [
   closeCommand,
   lockCommand,
@@ -21,6 +24,9 @@ export const actions = [
   openAction,
   unlockAction,
 ];
+
+actions.forEach(a => a.category = actionCategories.door);
+commands.forEach(a => a.category = actionCategories.door);
 
 export default {
   commands,

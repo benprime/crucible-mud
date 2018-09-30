@@ -1,9 +1,6 @@
-import commandCategories from '../../../core/commandCategories';
-
 export default {
   name: 'stats',
   desc: 'view your character status and abilities',
-  category: commandCategories.character,
 
   patterns: [
     /^stats$/i,

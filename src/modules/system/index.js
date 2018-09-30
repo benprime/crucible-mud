@@ -1,3 +1,5 @@
+import actionCategories from '../../core/actionCategories';
+
 import catalogCommand from './commands/catalogCommand';
 import gossipCommand from './commands/gossipCommand';
 import helpCommand from './commands/helpCommand';
@@ -29,6 +31,9 @@ export const actions = [
   telepathyAction,
   whoAction,
 ];
+
+actions.forEach(a => a.category = actionCategories.core);
+commands.forEach(a => a.category = actionCategories.core);
 
 export default {
   commands,

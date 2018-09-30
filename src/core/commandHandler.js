@@ -1,7 +1,6 @@
 import socketUtil from './socketUtil';
 import emoteHandler from './emoteHandler';
 import characterStates from './characterStates';
-import commandCategories from './commandCategories';
 
 /**
  * Dictionary of successfully validated and loaded commands.
@@ -69,22 +68,18 @@ function processDispatch(socket, input) {
     let match = matchPatterns(command.patterns, input);
     if (match) {
       if (!command.admin || socket.character.user.admin) {
+
+        // verify the command has been called in the proper format
+        const params = command.parseParams(match, socket.character);
+        if (!params) {
+          command.help(socket.character);
+          return;
+        }
+
         // check and see if the character is in a state that
         // would prevent them from running this command.
-        if (socket.character.processStates(command)) {
-
-          // emit the event from the character
-          const params = command.parseParams(match, socket.character);
-          if (!params) {
-            command.help(socket.character);
-            return;
-          }
-          socket.character.emit('action', socket.character, params);
-          return;
-
-          // return command.dispatch(socket, match)
-          //   .catch(response => socket.character.output(response));
-        }
+        socket.character.action(...params);
+        return;
       }
     }
   }
@@ -108,16 +103,11 @@ function processDispatch(socket, input) {
   }
 
   // when a command is not found, it defaults to "say"
-  socket.character.processStates(defaultCommand);
-  socket.character.emit(['action', defaultCommand.name, socket.character]);
-
-  // return defaultCommand.execute(socket.character, input)
-  //   .catch(response => socket.character.output(response));
+  socket.character.action(defaultCommand.name);
 }
 
 export default {
   commands,
-  commandCategories,
   processDispatch,
   loadCommands,
   setDefaultCommand,

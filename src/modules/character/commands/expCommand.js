@@ -1,9 +1,7 @@
-import commandCategories from '../../../core/commandCategories';
 
 export default {
   name: 'experience',
   desc: 'show you currency experience level',
-  category: commandCategories.character,
   
   patterns: [
     /^experience$/i,

@@ -1,10 +1,8 @@
-import commandCategories from '../../../core/commandCategories';
 import { getDirection } from '../../../core/directions';
 
 export default {
   name: 'move',
   desc: 'move from room to room',
-  category: commandCategories.basic,
 
   patterns: [
     /^go\s+(\w+)$/i,

@@ -1,9 +1,6 @@
-import commandCategories from '../../../core/commandCategories';
-
 export default {
   name: 'say',
   desc: 'communicate with players in the current room',
-  category: commandCategories.communication,
 
   patterns: [
     /^\.(.+)/,

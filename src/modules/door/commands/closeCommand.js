@@ -1,10 +1,10 @@
-import commandCategories from '../../../core/commandCategories';
+
 import { getDirection } from '../../../core/directions';
 
 export default {
   name: 'close',
   desc: 'close a door',
-  category: commandCategories.door,
+
 
   patterns: [
     /^close\s+(\w+)$/i,

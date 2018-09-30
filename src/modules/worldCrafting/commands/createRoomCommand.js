@@ -1,9 +1,9 @@
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'create room',
   desc: 'creates an adjacent room',
-  category: commandCategories.world,
+
   admin: true,
 
   patterns: [

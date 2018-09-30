@@ -1,12 +1,12 @@
 import emoteData from '../../../data/emoteData';
 import { commands } from '../../../core/commandHandler';
-import commandCategories from '../../../core/commandCategories';
+import actionCategories from '../../../core/actionCategories';
 
 
 function commandListHelp(character) {
   let output = '<span class="mediumOrchid">For specific help on any of these commands: </span><span class="silver">help &lt;command name&gt;</span>\n';
 
-  for (let category of Object.values(commandCategories)) {
+  for (let category of Object.values(actionCategories)) {
     let catOutput = `\n<span class="yellow">${category.name}</span>`;
     if (category.restricted) catOutput += '<span class="firebrick"> [RESTRICTED]</span>';
     catOutput += '\n';

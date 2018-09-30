@@ -1,3 +1,6 @@
+
+import actionCategories from '../../core/actionCategories';
+
 import aidCommand from './commands/aidCommand';
 import attackCommand from './commands/attackCommand';
 import breakCommand from './commands/breakCommand';
@@ -21,6 +24,9 @@ export const actions = [
   breakAction,
   dragAction,
 ];
+
+actions.forEach(a => a.category = actionCategories.combat);
+commands.forEach(a => a.category = actionCategories.combat);
 
 export default {
   commands,

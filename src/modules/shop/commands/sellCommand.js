@@ -1,10 +1,10 @@
 import autocomplete from '../../../core/autocomplete';
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'sell',
   desc: 'sell your items at a shop',
-  category: commandCategories.shop,
+
 
   patterns: [
     /^sell\s+(.+)$/i,

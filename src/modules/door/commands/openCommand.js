@@ -1,10 +1,10 @@
-import commandCategories from '../../../core/commandCategories';
+
 import { getDirection } from '../../../core/directions';
 
 export default {
   name: 'open',
   desc: 'open a door',
-  category: commandCategories.door,
+
 
   patterns: [
     /^open\s+(\w+)$/i,
@@ -13,7 +13,7 @@ export default {
 
   parseParams(match) {
     const dir = getDirection(match[1]);
-    return [dir];
+    return [this.name, dir];
   },
 
   help(character) {

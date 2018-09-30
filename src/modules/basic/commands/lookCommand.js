@@ -1,4 +1,3 @@
-import commandCategories from '../../../core/commandCategories';
 import { getDirection } from '../../../core/directions';
 import autocomplete from '../../../core/autocomplete';
 import Room from '../../../models/room';
@@ -6,7 +5,6 @@ import Room from '../../../models/room';
 export default {
   name: 'look',
   desc: 'look around you or examine an item, mob, or player',
-  category: commandCategories.core,
 
   patterns: [
     /^$/,

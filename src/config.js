@@ -24,7 +24,7 @@ export default {
     'worldCrafting',
   ],
 
-  defaultCommand: 'who',
+  defaultCommand: 'say',
 
   MSG_COLOR: 'darkcyan',
   DMG_COLOR: 'firebrick',

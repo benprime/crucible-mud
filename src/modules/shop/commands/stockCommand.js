@@ -1,9 +1,9 @@
-import commandCategories from '../../../core/commandCategories';
+
 
 export default {
   name: 'stock',
   desc: 'add item types to an existing shop',
-  category: commandCategories.shop,
+
   admin: true,
 
   patterns: [

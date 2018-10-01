@@ -121,8 +121,9 @@ class Mob {
     let playerMessage = '';
     let roomMessage = '';
 
-    if (this.attackroll() === 1) {
-      character.takeDamage(dmg);
+    const attackResult = this.attackroll() === 1;
+
+    if (attackResult) {
       playerMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits you for ${dmg} damage!</span>`;
       roomMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits ${character.name} for ${dmg} damage!</span>`;
     } else {
@@ -132,6 +133,11 @@ class Mob {
 
     character.output(playerMessage);
     character.toRoom(roomMessage);
+
+    if(attackResult) {
+      character.takeDamage(dmg);
+    }
+
 
     this.attackTarget = null;
 

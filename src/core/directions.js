@@ -74,20 +74,22 @@ privateDirEnum.U.opposite = privateDirEnum.D;
 privateDirEnum.D.opposite = privateDirEnum.U;
 
 export const getDirection = (dir) => {
-  if(!dir) return;
-  if (dir.length > 2) {
-    // lookup by long direction names
-    return Object.values(privateDirEnum).find(d => d.long === dir.toLowerCase());
-  } else {
-    // lookup by short direction names
-    const key = dir.toUpperCase();
-    return privateDirEnum[key];
+  if (!dir) return;
+
+  // lookup by short direction names
+  let dirObj = privateDirEnum[dir.toUpperCase()];
+
+  // lookup by long direction names
+  if (!dirObj) {
+    dirObj = Object.values(privateDirEnum).find(d => d.long === dir.toLowerCase());
   }
+
+  return dirObj;
 };
 
 const handler = {
   get: (obj, prop) => {
-    if(!(prop in obj)) {
+    if (!(prop in obj)) {
       throw new TypeError(`Invalid enum value: ${prop.toString()}`);
     }
     return obj[prop];

@@ -209,10 +209,10 @@ CharacterSchema.methods.attack = function (mob, now) {
     const verb = this.getAttackVerb(weapon);
     const thirdPersonVerb = verbToThirdPerson(verb);
     actorMessage = `<span class="${config.DMG_COLOR}">You ${verb} the ${mob.displayName} for ${dmg} damage!</span>`;
-    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} ${thirdPersonVerb} ${mob.displayName} for ${dmg} damage!</span>`;
+    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.name} ${thirdPersonVerb} ${mob.displayName} for ${dmg} damage!</span>`;
   } else {
     actorMessage = `<span class="${config.MSG_COLOR}">You swing at the ${mob.displayName} but miss!</span>`;
-    roomMessage = `<span class="${config.MSG_COLOR}">${this.username} swings at the ${mob.displayName} but misses!</span>`;
+    roomMessage = `<span class="${config.MSG_COLOR}">${this.name} swings at the ${mob.displayName} but misses!</span>`;
   }
 
   this.output(actorMessage);

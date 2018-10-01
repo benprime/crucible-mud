@@ -2,7 +2,7 @@
 
 export default {
   name: 'track',
-  desc: 'Attempt to track another player',
+  desc: 'attempt to track another player',
 
 
   patterns: [
@@ -17,7 +17,7 @@ export default {
 
   help(character) {
     let output = '';
-    output += '<span class="mediumOrchid">track</span> <span class="purple">-</span> Attempt to track a player that has passed through your current room.<br />';
+    output += '<span class="mediumOrchid">track</span> <span class="purple">-</span> attempt to track a player that has passed through your current room.<br />';
     character.output(output);
   },
 };

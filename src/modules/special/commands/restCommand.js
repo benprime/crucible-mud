@@ -2,7 +2,7 @@
 
 export default {
   name: 'rest',
-  desc: 'Gain HP at an increased rate while idle',
+  desc: 'gain HP at an increased rate while idle',
 
 
   patterns: [

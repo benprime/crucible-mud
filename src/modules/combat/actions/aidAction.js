@@ -1,3 +1,5 @@
+import characterStates from "../../../core/characterStates";
+
 export default {
   name: 'aid',
   execute(character, targetPlayer) {
@@ -12,12 +14,12 @@ export default {
       return Promise.reject();
     }
 
-    if (!targetPlayer.bleeding) {
+    if (!targetPlayer.hasState(characterStates.BLEEDING)) {
       character.output(`${targetPlayer.name} is not in need of your assistance.`);
       return Promise.reject();
     }
 
-    targetPlayer.bleeding = false;
+    targetPlayer.removeState(characterStates.BLEEDING);
     targetPlayer.output(`<span class="yellow">${character.name} bandages your wounds and stops the bleeding.</span>`);
     character.toRoom(`<span class="silver">${character.name} bandages ${targetPlayer.name}'s wounds, stopping the bleeding.</span>`, [targetPlayer.id]);
     character.output(`<span class="silver">You bandage ${targetPlayer.name}'s wounds and the bleeding stops.</span>`);

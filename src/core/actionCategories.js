@@ -3,6 +3,7 @@
  * commands are "safe" for particular character states (ie, sneaking)
  */
 export default Object.freeze({
+  move: { name: 'Move Commands', restricted: false },
   item: { name: 'Item Commands', restricted: false },
   combat: { name: 'Combat Commands', restricted: false },
   shop: { name: 'Shop Commands', restricted: false },

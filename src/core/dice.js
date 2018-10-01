@@ -40,7 +40,7 @@ export default {
       }
 
       if (match[3] && match[4]) {
-        const modifier = match[4];
+        const modifier = parseInt(match[4]);
         if (match[3] === '+') {
           sum += modifier;
         } else {

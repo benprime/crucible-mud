@@ -25,6 +25,7 @@ function lookDir(character, { exits }, dir) {
 
   const charOutput = `You look to the ${dir.long}...\n` + output;
   character.output(charOutput);
+  character.toRoom(`${character.name} looks to the the ${dir.long}.`);
   socketUtil.roomMessage(lookRoom.id, `<span class="yellow">${character.name} peaks in from the ${dir.opposite.long}.</span>`, [character.id]);
 
   return;

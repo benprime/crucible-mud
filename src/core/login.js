@@ -4,6 +4,7 @@ import hud from './hud';
 import Room from '../models/room';
 import User from '../models/user';
 import Character from '../models/character';
+import characterStates from './characterStates';
 
 
 function AddUserToRealm(socket, user) {
@@ -26,7 +27,6 @@ function AddUserToRealm(socket, user) {
     // state tracking
     socket.character.offers = [];
     //socket.character.sneakMode = 0;
-    socket.character.bleeding = false;
     socket.character.attackInterval = undefined;
     socket.character.lastAttack = undefined;
     socket.character.attackTarget = undefined;
@@ -43,8 +43,8 @@ function AddUserToRealm(socket, user) {
     // Note: tried a lean() query here, but that also stripped away the model
     // instance methods.
     // TODO: is this still necessary?
-    const objInventory = character.inventory.map(i => i.toObject());
-    character.inventory = objInventory;
+    const objInventory = socket.character.inventory.map(i => i.toObject());
+    socket.character.inventory = objInventory;
 
     // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
     socket.state = config.STATES.MUD;
@@ -60,14 +60,20 @@ function AddUserToRealm(socket, user) {
 
     character.setupEvents();
 
+    if(character.currentHP <= 0) {
+      character.setState(characterStates.INCAPACITATED);
+    }
+
     const currentRoom = Room.getById(character.roomId);
     if (currentRoom) {
       socket.join(character.roomId);
+      currentRoom.characters.push(character);
       const roomDesc = currentRoom.getDesc(character, false);
       character.output(roomDesc);
     } else {
       return Room.getByCoords({ x: 0, y: 0, z: 0 }).then(room => {
         character.roomId = room.id;
+        currentRoom.characters.push(character);
         socket.join(room.id);
         const roomDesc = currentRoom.getDesc(character, false);
         character.output(roomDesc);

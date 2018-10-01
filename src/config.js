@@ -8,6 +8,7 @@ export const globalErrorHandler = function (err) {
 export default {
 
   modules: [
+    'move',
     'admin',
     'basic',
     'character',

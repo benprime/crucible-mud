@@ -2,7 +2,7 @@
 
 export default {
   name: 'sneak',
-  desc: 'Activates stealthy movement.',
+  desc: 'activates stealthy movement.',
 
 
   patterns: [

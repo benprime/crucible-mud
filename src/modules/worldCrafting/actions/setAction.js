@@ -4,6 +4,7 @@ import Shop from '../../../models/shop';
 import autocomplete from '../../../core/autocomplete';
 import socketUtil from '../../../core/socketUtil';
 import { updateHUD } from '../../../core/hud';
+import characterStates from '../../../core/characterStates';
 
 function setCurrency(character, amount) {
   character.currency = amount;
@@ -16,11 +17,6 @@ function setHp(character, amount) {
   character.currentHP = amount;
   const socket = socketUtil.getSocketByCharacterId(character.id);
   updateHUD(socket);
-  return character.save();
-}
-
-function setBleeding(character, amount) {
-  character.bleeding = amount;
   return character.save();
 }
 
@@ -94,7 +90,8 @@ export default {
     } else if (type === 'currency') {
       return setCurrency(character, prop); // prop is 'value' in this case
     } else if (type === 'bleeding') {
-      return setBleeding(character, prop); // prop is 'value' in this case
+      character.setState(characterStates.BLEEDING);
+      return;
     } else if (type === 'hp') {
       return setHp(character, prop); // prop is 'value' in this case
     } else if (type === 'debug') {

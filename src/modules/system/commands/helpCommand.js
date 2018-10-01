@@ -19,7 +19,7 @@ export default {
 
   help(character) {
     let output = '';
-    output += '<span class="mediumOrchid">help basic</span> <span class="purple">-</span> Display basic help for playing CrucibleMUD.<br />';
+    output += '<span class="mediumOrchid">help </span> <span class="purple">-</span> Display basic help for playing CrucibleMUD.<br />';
     output += '<span class="mediumOrchid">help commands</span> <span class="purple">-</span> Display list of available commands.<br />';
     output += '<span class="mediumOrchid">help &lt;command&gt</span> <span class="purple">-</span> Display detailed help for specified command.<br />';
     character.output(output);

@@ -3,7 +3,7 @@ import autocomplete from '../../../core/autocomplete';
 
 export default {
   name: 'uninvite',
-  desc: 'Party leader command for removing a player from a party',
+  desc: 'party leader command for removing a player from a party',
 
 
   patterns: [

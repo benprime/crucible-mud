@@ -2,7 +2,7 @@ import autocomplete from '../../../core/autocomplete';
 
 export default {
   name: 'aid',
-  desc: 'Assist a player who has been incapacitated',
+  desc: 'assist a player who has been incapacitated',
 
   patterns: [
     /^aid\s+(\w+)$/i,

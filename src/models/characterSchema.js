@@ -118,7 +118,7 @@ CharacterSchema.methods.action = function () {
     throw (`Cannot find valid action with name: ${actionName}`);
   }
 
-  if (this.processStates(action)) {
+  if (this.processStates(action.category)) {
     action.execute(this, ...params);
   }
 };
@@ -128,7 +128,7 @@ CharacterSchema.methods.getDesc = function () {
   let output = this.equipped.getDesc();
   const pronoun = upperCaseWords(pronounSubject(this.gender));
   output += `\n${pronoun} is ${this.status()}.`;
-  if (this.bleeding) {
+  if (this.hasState(characterStates.BLEEDING)) {
     output += `<span class="red">${this.name} is bleeding out!</span>\n`;
   }
   output += '\n';
@@ -220,37 +220,11 @@ CharacterSchema.methods.attack = function (mob, now) {
 };
 
 CharacterSchema.methods.processEndOfRound = function (round) {
-
-  if (this.bleeding) {
-
-    // take damage every number of rounds configured
-    if (round % config.BLEED_ROUNDS === 0) {
-      this.output('<span class="firebrick">You are bleeding!</span>');
-      this.toRoom(`<span class="firebrick">${this.name} is bleeding out!</span>`);
-      this.takeDamage(1);
-      this.save();
+  this.states.forEach(cs => {
+    if (cs.endOfRound) {
+      cs.endOfRound(this, round);
     }
-    //this.bleeding++;
-  } else {
-
-    // this is on a global 'timer' and probably should be changed to
-    // track a counter for each character (every 4 rounds after you break of combat)
-    if (!this.attackTarget && round % config.REGEN_ROUNDS === 0) {
-      this.regen();
-      this.save();
-    }
-  }
-
-  if (this.hasState(characterStates.RESTING) && this.currentHP >= this.maxHP) {
-    this.removeState(characterStates.RESTING);
-    this.output('<span class="olive">You are fully healed.</span>');
-  }
-
-  // todo: may need to find a way to remove the incapacitated state
-  // when the user gains HP above 0.... (no matter what method that happens in)
-  if (this.currentHP > 0) {
-    this.removeState(characterStates.INCAPACITATED);
-  }
+  });
 };
 
 CharacterSchema.methods.isIncapacitated = function () {
@@ -278,7 +252,7 @@ CharacterSchema.methods.die = function () {
   Room.getByCoords({ x: 0, y: 0, z: 0 }).then(room => {
     this.teleport(room.id);
     this.currentHP = this.maxHP;
-    this.bleeding = false;
+    this.removeState(characterStates.BLEEDING);
     this.output('\n<span class="red">You have died!</span>\n');
     this.output('<span class="yellow">You have been resurrected.</span>\n');
     this.updateHUD();
@@ -292,21 +266,17 @@ CharacterSchema.methods.updateHUD = function () {
   }
 };
 
-CharacterSchema.methods.incapacitate = function () {
-  this.break();
-  this.setState(characterStates.INCAPACITATED);
-};
-
 CharacterSchema.methods.takeDamage = function (damage) {
   const characterDrop = this.currentHP > 0;
   this.currentHP -= damage;
   if (this.currentHP <= 0) {
     if (characterDrop) {
-      this.incapacitate();
+      this.break();
+      this.setState(characterStates.INCAPACITATED);
       this.output('<span class="firebrick">You are incapacitated!</span>\n');
       this.toRoom(`<span class="firebrick">${this.name} drops to the ground!</span>\n`);
     }
-    this.bleeding = 1;
+    this.setState(characterStates.BLEEDING);
   }
   this.updateHUD();
   if (this.currentHP <= -15) {
@@ -321,8 +291,6 @@ CharacterSchema.methods.break = function () {
   this.lastAttack = undefined;
   this.attackTarget = undefined;
 };
-
-
 
 CharacterSchema.methods.teleport = function (roomTarget) {
 
@@ -469,6 +437,14 @@ CharacterSchema.methods.removeState = function (state) {
 
 CharacterSchema.methods.sneakMode = function () {
   return this.hasState(characterStates.SNEAKING);
+};
+
+CharacterSchema.methods.update = function () {
+  this.states.forEach(cs => {
+    if (cs.update) {
+      cs.update(this);
+    }
+  });
 };
 
 /**

@@ -34,7 +34,7 @@ export default {
     output += '<span class="mediumOrchid">set room shop </span><span class="purple">-</span> Generate a shop for the current room.<br />';
     output += '<span class="mediumOrchid">set currency &lt;amount&gt; </span><span class="purple">-</span> Add money to your character.<br />';
     output += '<span class="mediumOrchid">set hp &lt;amount&gt; </span><span class="purple">-</span> Set the hp amount for your character.<br />';
-    output += '<span class="mediumOrchid">set blleding &lt;value&gt; </span><span class="purple">-</span> Set the bleeding value for your character.<br />';
+    output += '<span class="mediumOrchid">set blleding &lt;value&gt; </span><span class="purple">-</span> Set the bleeding state for your character.<br />';
     output += '<span class="mediumOrchid">set debug &lt;on|off&gt; </span><span class="purple">-</span> Enable debug view.<br />';
     character.output(output);
   },

@@ -1,6 +1,7 @@
 import Room from '../../../models/room';
 import socketUtil from '../../../core/socketUtil';
 import { getDirection, Direction } from '../../../core/directions';
+import characterStates from '../../../core/characterStates';
 
 export default {
   name: 'move',
@@ -26,7 +27,7 @@ const moveCharacter = function (character, dir) {
   character.break();
 
   if (socket) {
-    if (character.isIncapacitated()) character.output(`You are dragged ${dir.long}...`);
+    if (character.hasState(characterStates.INCAPACITATED)) character.output(`You are dragged ${dir.long}...`);
     else if (character.sneakMode()) character.output(`You sneak ${dir.long}...`);
     else character.output(`You move ${dir.long}...`);
   }
@@ -37,12 +38,7 @@ const moveCharacter = function (character, dir) {
   let followers = socketUtil.getFollowers(socket.character.id);
   if (character.dragging) {
     const drag = socketUtil.getCharacterById(character.dragging);
-    if(!drag.isIncapacitated()) {
-      character.dragging = null;
-      character.output(`You are no longer dragging ${drag.name}.`);
-    } else {
-      followers.push(drag);
-    }
+    followers.push(drag);
   }
 
   followers.forEach(c => {
@@ -129,6 +125,8 @@ const leave = function (character, dir, socket) {
   const exclude = socket ? [socket.id] : [];
 
   const room = Room.getById(character.roomId);
+  const index = room.characters.findIndex(c => c.id === character.id);
+  room.characters.splice(index, 1);
 
   if (!character.sneakMode()) {
     sendMovementSoundsMessage(room, dir.short);
@@ -155,6 +153,7 @@ const leave = function (character, dir, socket) {
 
 const enter = function (room, character, dir, socket) {
   character.roomId = room.id;
+  room.characters.push(character);
 
   if (!character.sneakMode()) {
     const exclude = socket ? [socket.id] : [];

@@ -21,7 +21,8 @@
     "console": true,
     "setInterval": true,
     "setTimeout": true,
-    "arguments": true
+    "arguments": true,
+    "exports": true
   },
   "rules": {
     "indent": [

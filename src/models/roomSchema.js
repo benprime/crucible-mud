@@ -45,7 +45,7 @@ const RoomSchema = new mongoose.Schema({
   exits: [ExitSchema],
 
   // this is currently for NPCs only
-  characters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Character' }],
+  // characters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Character' }],
 
   spawner: SpawnerSchema,
   inventory: [ItemSchema],
@@ -75,8 +75,9 @@ RoomSchema.statics.populateRoomCache = function () {
     result.forEach(room => {
       room.mobs = [];
       room.tracks = {};
+      room.characters = [];
       roomCache[room.id.toString()] = room;
-      gameManager.on('frame', function(now, round, newRound) {
+      gameManager.on('frame', function (now, round, newRound) {
         room.update(now, round, newRound);
       });
       if (room.alias)
@@ -90,11 +91,15 @@ RoomSchema.statics.populateRoomCache = function () {
 //============================================================================
 
 // the game loop frame handler
-RoomSchema.methods.update = function(now, round, newRound) {
-  //console.log('frame', now, round);
+RoomSchema.methods.update = function (now, round, newRound) {
+
+  this.characters.forEach(c => c.update(now, round, newRound));
+
+  // todo: these "process" methods will get refactored into the standard "update" methods
   this.processMobCombatActions(now);
   this.processPlayerCombatActions(now);
-  if(newRound) {
+  
+  if (newRound) {
     this.processEndOfRound(round);
   }
 };
@@ -311,7 +316,7 @@ RoomSchema.methods.addExit = function (dir, roomId) {
   return e;
 };
 
-RoomSchema.methods.handleAction = function() {
+RoomSchema.methods.handleAction = function () {
   const params = Array.from(arguments);
   const character = params.shift();
   const actionName = params.shift();
@@ -333,7 +338,7 @@ RoomSchema.methods.processPlayerCombatActions = function (now) {
 
   for (let c of characters) {
     if (!c.attackTarget) continue;
-    let mob = this.mobs.find(({ id }) => id === c.attackTarget)
+    let mob = this.mobs.find(({ id }) => id === c.attackTarget);
     if (!mob) continue;
     c.attack(mob, now);
   }

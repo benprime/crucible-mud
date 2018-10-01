@@ -120,6 +120,6 @@ export default {
     else {
       basicHelp(character);
     }
-    return Promise.resolve();
+    return true;
   },
 };

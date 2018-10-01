@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import { upperCaseWords, indefiniteArticle, pronounSubject, pronounPossessive, oxfordComma } from '../core/language';
-import Item from '../models/item';
 
 const CharacterEquipSchema = new mongoose.Schema({
   // Weapons

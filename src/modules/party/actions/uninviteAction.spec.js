@@ -34,7 +34,6 @@ describe('invite', () => {
     test('user is removed from party on valid username', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(follower2);
       mockGetCharacterById.mockReturnValueOnce(leader);
-      expect.assertions(3);
 
       sut.execute(leader, follower2);
 
@@ -45,7 +44,7 @@ describe('invite', () => {
 
     test('non-leader party member cannot remove other party members', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(follower2);
-      expect.assertions(4);
+
 
       sut.execute(follower1, follower2);
 

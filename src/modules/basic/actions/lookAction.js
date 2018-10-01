@@ -8,12 +8,12 @@ function lookDir(character, { exits }, dir) {
   const exit = exits.find(e => e.dir === dir.short);
   if (!exit || exit.hidden) {
     character.output('There is no exit in that direction!');
-    return Promise.reject();
+    return false;
   }
 
   if (exit.closed) {
     character.output('The door in that direction is closed!');
-    return Promise.reject();
+    return false;
   }
 
   const lookRoom = Room.getById(exit.roomId);

@@ -27,29 +27,27 @@ describe('telepathy', () => {
       // arrange
       const msg = 'This is a telepath message!';
       mockAutocompleteCharacter.mockReturnValueOnce(null);
-      expect.assertions(1);
 
       // act
-      return sut.execute(socket.character, 'Wrong', msg).catch(() => {
-        // assert
-        expect(socket.character.output).toHaveBeenCalledWith('Invalid username.');
-      });
+      const result = sut.execute(socket.character, 'Wrong', msg);
 
+      // assert
+      expect(result).toBe(false);
+      expect(socket.character.output).toHaveBeenCalledWith('Invalid username.');
     });
 
     test('should output messages when command is successful', () => {
       // arrange
       const msg = 'This is a telepath message!';
       mockAutocompleteCharacter.mockReturnValueOnce(otherSocket.character);
-      expect.assertions(2);
 
       // act
-      return sut.execute(socket.character, otherSocket.character.name, msg).then(() => {
-        // assert
-        expect(socket.character.output).toHaveBeenCalledWith(`Telepath to ${otherSocket.character.name}: <span class="silver">This is a telepath message!</span>`);
-        expect(otherSocket.character.output).toHaveBeenCalledWith(`${socket.character.name} telepaths: <span class="silver">This is a telepath message!</span>`);
-      });
+      const result = sut.execute(socket.character, otherSocket.character.name, msg);
 
+      // assert
+      expect(result).toBe(true);
+      expect(socket.character.output).toHaveBeenCalledWith(`Telepath to ${otherSocket.character.name}: <span class="silver">This is a telepath message!</span>`);
+      expect(otherSocket.character.output).toHaveBeenCalledWith(`${socket.character.name} telepaths: <span class="silver">This is a telepath message!</span>`);
     });
   });
 });

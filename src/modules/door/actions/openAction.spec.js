@@ -61,6 +61,7 @@ describe('open', () => {
       test('should succeed and output message when door is unlocked and closed', () => {
         const result = sut.execute(socket.character, directions.SE);
         const exit = mockRoom.exits.find(({ dir }) => dir === 'se');
+        expect(result).toBe(true);
         expect(exit.keyName).toBe('someKey');
         expect(exit.locked).toBe(false);
         expect(exit.closed).toBe(false);
@@ -84,6 +85,7 @@ describe('open', () => {
       test('should output message when door is closed', () => {
         const result = sut.execute(socket.character, directions.N);
         const exit = mockRoom.exits.find(({ dir }) => dir === 'n');
+        expect(result).toBe(true);
         expect(exit.closed).toBe(false);
       });
 

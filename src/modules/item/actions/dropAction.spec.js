@@ -70,7 +70,7 @@ describe('drop', () => {
 
       test('should output error message whmockAutocompleteMultiple.mocken item is not found in user inventory', () => {
         mockAutocompleteMultiple.mockReturnValueOnce(null);
-        expect.assertions(3);
+
 
         sut.execute(socket.character, null);
 

@@ -49,7 +49,7 @@ describe('look', () => {
       xtest('should output short room look when short param is true', () => {
         
         if(currentRoom instanceof Room) {
-          console.log('test')
+          console.log('test');
         }
 
         sut.execute(socket.character, true, currentRoom);

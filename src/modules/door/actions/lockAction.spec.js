@@ -28,49 +28,42 @@ describe('lock', () => {
   });
 
   test('should output message when direction is invalid', () => {
-    return sut.execute(socket.character, directions.W, 'some key').catch(() => {
-      expect(socket.character.output).toHaveBeenCalledWith('No door in that direction.');
-      expect(mockRoom.save).not.toHaveBeenCalled();
-    });
+    const result = sut.execute(socket.character, directions.W, 'some key');
+    expect(result).toBe(false);
+    expect(socket.character.output).toHaveBeenCalledWith('No door in that direction.');
+    expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
   test('should output message when direction is not a door', () => {
-    expect.assertions(2);
-
-    return sut.execute(socket.character, directions.S, 'some key').catch(() => {
-      expect(socket.character.output).toHaveBeenCalledWith('No door in that direction.');
-      expect(mockRoom.save).not.toHaveBeenCalled();
-    });
-
-
+    const result = sut.execute(socket.character, directions.S, 'some key');
+    expect(result).toBe(false);
+    expect(socket.character.output).toHaveBeenCalledWith('No door in that direction.');
+    expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
   test('should do nothing when key name is invalid', () => {
-    expect.assertions(2);
-    return sut.execute(socket.character, directions.E, null).catch(() => {
-      expect(socket.character.output).toHaveBeenCalledWith('Unknown key.');
-      expect(mockRoom.save).not.toHaveBeenCalled();
-    });
-
+    const result = sut.execute(socket.character, directions.E, null);
+    expect(result).toBe(false);
+    expect(socket.character.output).toHaveBeenCalledWith('Unknown key.');
+    expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
 
   test('should succeed on valid direction with door', () => {
     // arrange
     mockAutocompleteMultiple.mockReturnValueOnce({ item: { name: 'some key' } });
-    expect.assertions(4);
+
 
     // act
-    return sut.execute(socket.character, directions.N, 'some key').then(() => {
-      const exit = mockRoom.exits.find(({ dir }) => dir === 'n');
+    const result = sut.execute(socket.character, directions.N, 'some key');
+    const exit = mockRoom.exits.find(({ dir }) => dir === 'n');
 
-      // assert
-      expect(socket.character.output).toHaveBeenCalledWith('Door locked.');
-      expect(mockRoom.save).toHaveBeenCalledTimes(1);
-      expect(exit.closed).toBe(true);
-      expect(exit.locked).toBe(true);
-    });
-
+    // assert
+    expect(result).toBe(true);
+    expect(socket.character.output).toHaveBeenCalledWith('Door locked.');
+    expect(mockRoom.save).toHaveBeenCalledTimes(1);
+    expect(exit.closed).toBe(true);
+    expect(exit.locked).toBe(true);
   });
 
 });

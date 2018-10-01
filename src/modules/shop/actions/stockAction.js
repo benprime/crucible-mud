@@ -8,14 +8,14 @@ export default {
     const shop = Shop.getById(character.roomId);
     if (!shop) {
       character.output('This command can only be used in a shop.');
-      return Promise.reject();
+      return false;
     }
 
     // this does not yet use autocomplate, because catalog data will be moved to the database
     const createType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'item');
     if (!createType) {
       character.output('Unknown item type.');
-      return Promise.reject();
+      return false;
     }
 
     // see if the shop already carries this item
@@ -33,7 +33,7 @@ export default {
       if (err) throw err;
     }).then(() => {
       character.output('Items created and added to shop.');
-      return Promise.resolve();
+      return true;
     });
   },
 };

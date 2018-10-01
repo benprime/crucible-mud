@@ -9,6 +9,6 @@ export default {
     output += `<span class='silver'>${character.nextExp()}</span>\n`;
 
     character.output(output);
-    return Promise.resolve();
+    return true;
   },
 };

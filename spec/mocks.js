@@ -192,6 +192,7 @@ function getMockCharacter(name) {
   character.attack = jest.fn().mockName('userAttack');
   character.output = jest.fn().mockName('output');
   character.toRoom = jest.fn().mockName('toRoom');
+  character.toParty = jest.fn().mockName('toParty');
   character.actionDie = '1d20';
   character.equipped = {};
   character.inventory = [];

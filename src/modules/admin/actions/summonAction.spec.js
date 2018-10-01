@@ -34,11 +34,9 @@ describe('summon', () => {
 
   describe('execute', () => {
     test('should output message when user is not found', () => {
-      expect.assertions(1);
-      return sut.execute(socket.character, 'Wrong').catch(() => {
-        expect(socket.character.output).toHaveBeenCalledWith('Player not found.');
-      });
-
+      const result = sut.execute(socket.character, 'Wrong');
+      expect(result).toBe(false);
+      expect(socket.character.output).toHaveBeenCalledWith('Player not found.');
     });
 
     test('should join target user to admin room and leave current room', () => {
@@ -46,28 +44,28 @@ describe('summon', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
       mockGetSocketByCharacterId.mockReturnValueOnce(mockTargetSocket);
       mockTargetSocket.character.roomId = otherRoom.id;
-      expect.assertions(1);
 
       // act
-      return sut.execute(socket.character, 'OtherUser').then(() => {
-        // assert
-        expect(mockTargetSocket.character.teleport).toHaveBeenCalledWith(socket.character.roomId);
-      });
+      const result = sut.execute(socket.character, 'OtherUser');
 
+      // assert
+      expect(result).toBe(true);
+      expect(mockTargetSocket.character.teleport).toHaveBeenCalledWith(socket.character.roomId);
     });
+
 
     test('should output messages when command successful', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
       const oldRoomId = mockTargetSocket.character.roomId = 'oldRoomId';
-      expect.assertions(3);
 
       // act
-      return sut.execute(socket.character, 'OtherUser').then(() => {
-        // assert
-        expect(mockTargetSocket.character.output).toHaveBeenCalledWith('You were summoned to TestUser\'s room!');
-        expect(mockRoomMessage).toHaveBeenCalledWith(oldRoomId, 'OtherUser vanishes!');
-        expect(socket.character.toRoom).toHaveBeenCalledWith('OtherUser appears out of thin air!', [mockTargetSocket.character.id] );
-      });
+      const result = sut.execute(socket.character, 'OtherUser');
+      
+      // assert
+      expect(result).toBe(true);
+      expect(mockTargetSocket.character.output).toHaveBeenCalledWith('You were summoned to TestUser\'s room!');
+      expect(mockRoomMessage).toHaveBeenCalledWith(oldRoomId, 'OtherUser vanishes!');
+      expect(socket.character.toRoom).toHaveBeenCalledWith('OtherUser appears out of thin air!', [mockTargetSocket.character.id]);
 
     });
 

@@ -36,7 +36,7 @@ describe('invite', () => {
 
     test('users following a party leader may not invite followers', () => {
       socket.character.leader = 'aLeader';
-      expect.assertions(2);
+
 
       sut.execute(socket.character, mockTargetSocket.character);
 

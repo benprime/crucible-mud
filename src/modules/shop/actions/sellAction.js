@@ -9,13 +9,13 @@ export default {
     const acResult = autocomplete.multiple(character, ['inventory'], itemName);
     if (!acResult) {
       character.output('You don\'t seem to be carrying that.');
-      return Promise.reject();
+      return false;
     }
 
     const shop = Shop.getById(character.roomId);
     if (!shop) {
       character.output('This command can only be used in a shop.');
-      return Promise.reject();
+      return false;
     }
 
     const itemType = shop.getItemTypeByAutocomplete(itemName);
@@ -24,13 +24,13 @@ export default {
     const stockType = shop.stock.find(st => st.itemTypeName === itemType.name);
     if (!stockType) {
       character.output('This shop does not deal in those types of items.');
-      return Promise.reject();
+      return false;
     }
 
     // check if item can be sold
     if (!itemType.price) {
       character.output('You cannot sell this item.');
-      return Promise.reject();
+      return false;
     }
 
     const sellPrice = shop.getSellPrice(itemType);
@@ -38,7 +38,7 @@ export default {
     // check if shop has money
     if (shop.currency < sellPrice) {
       character.output('The shop cannot afford to buy that from you.');
-      return Promise.reject();
+      return false;
     }
 
     shop.sell(character, itemType);
@@ -47,6 +47,6 @@ export default {
       // todo: is item type enough here? There may be adjectives on items
       character.toRoom(`${character.name} sells ${itemType.name} to the shop.`, [character.id]);
     }
-    return Promise.resolve();
+    return true;
   },
 };

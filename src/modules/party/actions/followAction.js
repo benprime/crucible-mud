@@ -6,17 +6,17 @@ export default {
   execute(character, invitingCharacter) {
     if (!invitingCharacter) {
       character.output('unknown player.');
-      return Promise.reject();
+      return false;
     }
 
     if (invitingCharacter.roomId !== character.roomId) {
       character.output('That player doesn\'t appear to be in the room.');
-      return Promise.reject();
+      return false;
     }
 
     if (!Array.isArray(character.partyInvites) || !character.partyInvites.includes(invitingCharacter.id)) {
       character.output('You must be invited.');
-      return Promise.reject();
+      return false;
     }
 
     character.leader = invitingCharacter.id;
@@ -33,6 +33,6 @@ export default {
     character.output(`You are now following ${invitingCharacter.name}.`);
     invitingCharacter.output(`${character.name} has started following you.`);
 
-    return Promise.resolve();
+    return true;
   },
 };

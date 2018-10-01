@@ -4,17 +4,17 @@ export default {
 
     if (character.leader) {
       character.output('Only the party leader may invite followers.');
-      return Promise.reject();
+      return false;
     }
 
     if (!targetCharacter) {
       character.output('unknown player');
-      return Promise.reject();
+      return false;
     }
 
     if (character.roomId !== targetCharacter.roomId) {
       character.output('That player does not appear to be in the room.');
-      return Promise.reject();
+      return false;
     }
 
     if (!targetCharacter.partyInvites) {
@@ -28,7 +28,7 @@ export default {
     targetCharacter.output(`${character.name} has invited you to join a party. Type 'follow ${character.name}' to accept.`);
     character.output(`You have invited ${targetCharacter.name} to join your party.`);
 
-    return Promise.resolve();
+    return true;
 
     // TODO: make party invites timeout
     // setTimeout(() => {

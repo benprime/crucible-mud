@@ -4,6 +4,6 @@ export default {
   name: 'puppet',
   execute(character, mob, actionString) {
     socketUtil.roomMessage(character.roomId, `${mob.displayName} ${actionString}`);
-    return Promise.resolve();
+    return true;
   },
 };

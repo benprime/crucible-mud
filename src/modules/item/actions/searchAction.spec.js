@@ -32,71 +32,71 @@ describe('search', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
     mockRoll.mockReturnValueOnce(1);
-    expect.assertions(4);
 
-    return sut.execute(socket.character).then(() => {
-      //expect(socket.character.output).toHaveBeenCalledWith('Search Roll: admin<br />You have spotted something!<br />');
-      expect(socket.character.output).toHaveBeenCalledWith(expect.stringContaining('You have spotted something!<br />'));
-      expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(false);
-      expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(false);
-      expect(mockRoom.save).toHaveBeenCalled();
-    });
+
+    const result = sut.execute(socket.character);
+    expect(result).toBe(true);
+    //expect(socket.character.output).toHaveBeenCalledWith('Search Roll: admin<br />You have spotted something!<br />');
+    expect(socket.character.output).toHaveBeenCalledWith(expect.stringContaining('You have spotted something!<br />'));
+    expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(false);
+    expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(false);
+    expect(mockRoom.save).toHaveBeenCalled();
   });
 
   test('should output message when no hidden items exist in room', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = false;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = false;
     mockRoll.mockReturnValueOnce(1);
-    expect.assertions(4);
 
-    return sut.execute(socket.character).then(() => {
-      expect(socket.character.output).toHaveBeenCalledWith('Search Roll: 1<br />You find nothing special.<br />');
-      expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(false);
-      expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(false);
-      expect(mockRoom.save).not.toHaveBeenCalled();
-    });
+
+    const result = sut.execute(socket.character);
+    expect(result).toBe(true);
+    expect(socket.character.output).toHaveBeenCalledWith('Search Roll: 1<br />You find nothing special.<br />');
+    expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(false);
+    expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(false);
+    expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
   test('should output message if skill check fails to find anything', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
     mockRoll.mockReturnValueOnce(3);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
-    expect.assertions(4);
 
-    return sut.execute(socket.character).then(() => {
-      expect(socket.character.output).toHaveBeenCalledWith('Search Roll: 3<br />You find nothing special.<br />');
-      expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(true);
-      expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(true);
-      expect(mockRoom.save).not.toHaveBeenCalled();
-    });
+
+    const result = sut.execute(socket.character);
+    expect(result).toBe(true);
+    expect(socket.character.output).toHaveBeenCalledWith('Search Roll: 3<br />You find nothing special.<br />');
+    expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(true);
+    expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(true);
+    expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
   test('should only reveal some items/exits if skill check doesn\'t fully succeed', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
     mockRoll.mockReturnValueOnce(3);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
-    expect.assertions(4);
 
-    return sut.execute(socket.character).then(() => {
-      expect(socket.character.output).toHaveBeenCalledWith('Search Roll: 3<br />You find nothing special.<br />');
-      expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(true);
-      expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(true);
-      expect(mockRoom.save).not.toHaveBeenCalled();
-    });
+
+    const result = sut.execute(socket.character);
+    expect(result).toBe(true);
+    expect(socket.character.output).toHaveBeenCalledWith('Search Roll: 3<br />You find nothing special.<br />');
+    expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(true);
+    expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(true);
+    expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
   test('should reveal hidden targets and output message when skill fully succeeds seach test', function () {
     mockRoom.exits.find(e => e.dir === 'n').hidden = true;
     mockRoom.inventory.find(i => i.name === 'ring').hidden = true;
     mockRoll.mockReturnValueOnce(6);  //default room DC was (4 + numHidden) to find everything, so mockroom DC is 6
-    expect.assertions(4);
 
-    return sut.execute(socket.character).then(() => {
-      expect(socket.character.output).toHaveBeenCalledWith('Search Roll: 6<br />You have spotted something!<br />');
-      expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(false);
-      expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(false);
-      expect(mockRoom.save).toHaveBeenCalled();
-    });
+
+    const result = sut.execute(socket.character);
+    expect(result).toBe(true);
+    expect(socket.character.output).toHaveBeenCalledWith('Search Roll: 6<br />You have spotted something!<br />');
+    expect(mockRoom.exits.find(e => e.dir === 'n').hidden).toEqual(false);
+    expect(mockRoom.inventory.find(i => i.name === 'ring').hidden).toEqual(false);
+    expect(mockRoom.save).toHaveBeenCalled();
   });
 
 });

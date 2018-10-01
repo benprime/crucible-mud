@@ -41,13 +41,13 @@ export default {
 
       if (!createType) {
         character.output('Unknown mob type.');
-        return Promise.reject();
+        return false;
       }
 
       const room = Room.getById(character.roomId);
       if (!room) {
         character.output(`no room found for current user room: ${character.roomId}`);
-        return Promise.reject();
+        return false;
       }
 
       // clone the create type and give it an id
@@ -57,7 +57,7 @@ export default {
 
       character.output('Summoning successful.');
       character.toRoom(`${character.name} waves his hand and a ${mob.displayName} appears!`, [character.id]);
-      return Promise.resolve();
+      return true;
 
       // Item
       //---------------------
@@ -66,14 +66,14 @@ export default {
       const itemType = itemData.catalog.find(item => item.name.toLowerCase() === name.toLowerCase() && item.type === 'item');
       if (!itemType) {
         character.output(`Attempted to spawn unknown item type: ${name}`);
-        return Promise.reject();
+        return false;
       }
 
       spawnAndGive(character, itemType);
 
       character.output('Item created.');
       character.toRoom(`${character.name} emits a wave of energy!`, [character.id]);
-      return Promise.resolve();
+      return true;
 
       // Key
       //---------------------
@@ -82,7 +82,7 @@ export default {
 
       if (!keyType) {
         character.output('Unknown key type.');
-        return Promise.reject();
+        return false;
       }
 
       let key = new Item({
@@ -94,14 +94,14 @@ export default {
       character.keys.push(key);
       character.save(err => { if (err) throw err; });
       character.output('Key created.');
-      return Promise.resolve();
+      return true;
     }
 
     // Invalid
     //---------------------
     else {
       character.output('Unknown object type.');
-      return Promise.reject();
+      return false;
     }
   },
 };

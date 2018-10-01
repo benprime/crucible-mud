@@ -46,36 +46,36 @@ describe('teleport', () => {
   describe('execute', () => {
 
     test('should teleport to another user\'s room if parameter is a username', () => {
+      // arrange
       mockAutocompleteCharacter.mockReturnValueOnce(otherSocket.character);
-      expect.assertions(1);
 
-      // teleport to user
-      return sut.execute(socket.character, otherSocket.character.name).then(() => {
-        // check current room
-        expect(socket.character.teleport).toHaveBeenCalled();
-      });
+      // act
+      const result = sut.execute(socket.character, otherSocket.character.name);
+      
+      // assert
+      expect(result).toBe(true);
+      expect(socket.character.teleport).toHaveBeenCalled();
     });
 
     test('should teleport to room if parameter is a room', () => {
-      expect.assertions(1);
+      // act
+      const result = sut.execute(socket.character, otherRoom.id);
 
-      // teleport to room
-      return sut.execute(socket.character, otherRoom.id).then(() => {
-        // check current room
-        expect(socket.character.teleport).toHaveBeenCalled();
-      });
+      // assert
+      expect(result).toBe(true);
+      expect(socket.character.teleport).toHaveBeenCalled();
     });
 
     test('should output messages when target is invalid user', () => {
       // arrange
       mockAutocompleteCharacter.mockReturnValueOnce(null);
-      expect.assertions(1);
 
       // act
-      return sut.execute(socket.character, 'Bobby').catch(() => {
-        // assert
-        expect(socket.character.output).toHaveBeenCalledWith('Target not found.');
-      });
+      const result = sut.execute(socket.character, 'Bobby');
+      
+      // assert
+      expect(result).toBe(false);
+      expect(socket.character.output).toHaveBeenCalledWith('Target not found.');
 
     });
 

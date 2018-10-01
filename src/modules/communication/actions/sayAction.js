@@ -7,6 +7,6 @@ export default {
 
     character.output(`You say "<span class="silver">${safeMessage}</span>"`);
     character.toRoom(`${character.name} says "<span class="silver">${safeMessage}</span>"`, [character.id]);
-    return Promise.resolve();
+    return true;
   },
 };

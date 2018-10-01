@@ -7,12 +7,12 @@ export default {
     let exit = room.getExit(dir.short);
     if (!exit || !('closed' in exit)) {
       character.output('No door in that direction.');
-      return Promise.reject();
+      return false;
     }
 
     if (!key) {
       character.output('Unknown key.');
-      return Promise.reject();
+      return false;
     }
 
     exit.closed = true;
@@ -20,6 +20,6 @@ export default {
     exit.locked = true;
     room.save(err => { if (err) throw err; });
     character.output('Door locked.');
-    return Promise.resolve();
+    return true;
   },
 };

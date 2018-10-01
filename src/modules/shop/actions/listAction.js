@@ -9,12 +9,12 @@ export default {
     const shop = Shop.getById(character.roomId);
     if (!shop) {
       character.output('This command can only be used in a shop.');
-      return Promise.reject();
+      return false;
     }
 
     if (!shop.stock || shop.stock.length === 0) {
       character.output('This shop currently has no items.');
-      return Promise.reject();
+      return false;
     }
 
     const stockTypes = shop.stock.map(s => {
@@ -30,6 +30,6 @@ export default {
     stockTypes.forEach(st => table.addRow(st.itemType.price, st.itemType.name, st.itemType.desc, st.quantity));
 
     character.output(`<pre>${table.toString()}</pre>`, { pre: true });
-    return Promise.resolve();
+    return true;
   },
 };

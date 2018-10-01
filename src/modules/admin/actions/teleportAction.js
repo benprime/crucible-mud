@@ -11,7 +11,7 @@ export default {
       const room = Object.values(Room.roomCache).find(r => r.x == teleportTo.x && r.y == teleportTo.y && r.z == teleportTo.z);
       if (!room) {
         character.output('room not found in cache by coordinates');
-        return Promise.reject();
+        return false;
       }
       toRoomId = room.id;
 
@@ -25,18 +25,17 @@ export default {
       const targetCharacter = autocomplete.character(character, teleportTo);
       if (!targetCharacter) {
         character.output('Target not found.');
-        return Promise.reject();
+        return false;
       } else if (targetCharacter === character) {
         character.output('You cannot teleport to yourself.');
-        return Promise.reject();
+        return false;
       }
       toRoomId = targetCharacter.roomId;
     }
 
-    return character.teleport(toRoomId).then(() => {
-      character.output('You teleport...\n');
-      character.toRoom(`<span class="yellow">${this.name} appears out of thin air!</span>`, [this.id]);
-      //look.execute(character, false);
-    });
+    character.teleport(toRoomId);
+    character.output('You teleport...\n');
+    character.toRoom(`<span class="yellow">${this.name} appears out of thin air!</span>`, [this.id]);
+    return true;
   },
 };

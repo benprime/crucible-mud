@@ -202,7 +202,7 @@ const IsExitPassable = function (character, dir) {
   // if (exit.hidden && !character.user.admin) {
   //   const msg = GetHitWallMessage(character, dir);
   //   roomMessages.push({roomId: this.id, message: msg});
-  //   return Promise.reject();
+  //   return false;
   // }
 
   if (exit.closed) {

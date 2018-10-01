@@ -24,7 +24,7 @@ export default {
     });
     output += '</div>';
     character.output(output);
-    return Promise.resolve();
+    return true;
   },
 
 };

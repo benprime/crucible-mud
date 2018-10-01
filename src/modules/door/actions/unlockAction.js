@@ -9,23 +9,23 @@ export default {
     let exit = room.getExit(dir.short);
     if (!exit) {
       character.output('No door in that direction.');
-      return Promise.reject();
+      return false;
     }
 
     if (!exit.locked) {
       character.output('That door is not locked.');
-      return Promise.reject();
+      return false;
     }
 
     if (!key) {
       character.output('You don\'t seem to be carrying that key.');
-      return Promise.reject();
+      return false;
     }
 
 
     if (key.name != exit.keyName) {
       character.output('That key does not unlock that door.');
-      return Promise.reject();
+      return false;
     }
 
     setTimeout(() => {
@@ -56,7 +56,7 @@ export default {
     // todo: "To the down?"
     character.toRoom(`${character.name} unlocks the door to the ${dir.long}.`);
 
-    return Promise.resolve();
+    return true;
   },
 
 };

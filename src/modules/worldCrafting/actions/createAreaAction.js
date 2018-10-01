@@ -6,9 +6,10 @@ export default {
     let area = Area.getByName(param);
     if (area) {
       character.output(`Area already exists: ${area.id}`);
-      return Promise.reject();
+      return false;
     }
     Area.addArea(param);
-    return Promise.resolve('Area created.');
+    character.output('Area created.');
+    return true;
   },
 };

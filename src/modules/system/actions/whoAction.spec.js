@@ -39,12 +39,9 @@ describe('who', () => {
 
   describe('execute', () => {
     test('should display online users', () => {
-      expect.assertions(1);
-
-      return sut.execute(socket.character).then(() => {
-        expect(socket.character.output).toHaveBeenCalledWith('<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1<br />Test2<br /></div>');
-      });
-
+      const result = sut.execute(socket.character);
+      expect(result).toBe(true);
+      expect(socket.character.output).toHaveBeenCalledWith('<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1<br />Test2<br /></div>');
     });
 
     test('should display areas when online users are in rooms that have areas', async () => {
@@ -52,12 +49,10 @@ describe('who', () => {
       mockGetAreaById.mockReturnValueOnce(area);
       mockGetAreaById.mockReturnValueOnce(mocks.getMockRoom(socket.character.roomId));
       t2.character.roomId = 'room without area';
-      expect.assertions(1);
 
-      return sut.execute(socket.character).then(() => {
-        expect(socket.character.output).toHaveBeenCalledWith('<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1 (A dangerous area)<br />Test2<br /></div>');
-      });
-
+      const result = sut.execute(socket.character);
+      expect(result).toBe(true);
+      expect(socket.character.output).toHaveBeenCalledWith('<span class="cyan"> -=- 2 Players Online -=-</span><br /><div class="mediumOrchid">Test1 (A dangerous area)<br />Test2<br /></div>');
     });
   });
 });

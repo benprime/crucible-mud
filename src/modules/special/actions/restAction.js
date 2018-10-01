@@ -9,13 +9,13 @@ export default {
 
     if (character.currentHP >= character.maxHP) {
       character.output('You are fully healed! Don\'t be lazy!');
-      return Promise.reject();
+      return false;
     }
 
     const room = Room.getById(character.roomId);
     if (room.mobs.length > 0) {
       character.output('<span class="red">You cannot rest with enemies in the room!</span>\n');
-      return Promise.reject();
+      return false;
     }
 
     character.setState(characterStates.RESTING);
@@ -37,6 +37,6 @@ export default {
     msg += '</span>\n';
 
     room.output(msg);
-    return Promise.resolve();
+    return true;
   },
 };

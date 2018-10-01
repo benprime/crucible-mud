@@ -26,6 +26,6 @@ export default {
     socketUtil.roomMessage(room.id, `${character.name} yells '${message}'`, [character.id]);
     character.output(`You yell '${message}'`);
 
-    return Promise.resolve();
+    return true;
   },
 };

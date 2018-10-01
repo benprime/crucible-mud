@@ -66,66 +66,66 @@ export default {
         addMobType = mobData.catalog.find(({ name }) => name.toLowerCase() === param.toLowerCase());
         if (!addMobType) {
           character.output('Invalid mobType.');
-          return Promise.reject();
+          return false;
         }
         room.spawner.mobTypes.push(addMobType.name);
         room.save(err => { if (err) throw err; });
         character.output('Creature added to spawner.');
-        return Promise.resolve();
+        return true;
       case 'remove':
         removeMobType = mobData.catalog.find(({ name }) => name.toLowerCase() === param.toLowerCase());
         if (!removeMobType) {
           character.output('Invalid mobType.');
-          return Promise.reject();
+          return false;
         }
         index = room.spawner.mobTypes.indexOf(removeMobType.name);
         if (index !== -1) {
           room.spawner.mobTypes.splice(index);
           room.save(err => { if (err) throw err; });
           character.output('Creature removed from spawner.');
-          return Promise.resolve();
+          return true;
         } else {
           character.output('Creature not found on spawner.');
-          return Promise.reject();
+          return false;
         }
       case 'max':
         maxVal = parseInt(param);
         if (isNaN(maxVal)) {
           character.output('Invalid max value - must be an integer.');
-          return Promise.reject();
+          return false;
         }
         room.spawner.max = maxVal;
         room.save(err => { if (err) throw err; });
         character.output(`Max creatures updated to ${maxVal}.`);
-        return Promise.resolve();
+        return true;
       case 'timeout':
         timeoutVal = parseInt(param);
         if (isNaN(timeoutVal)) {
           character.output('Invalid max value - must be an integer.');
-          return Promise.reject();
+          return false;
         }
         room.spawner.timeout = timeoutVal;
         room.save(err => { if (err) throw err; });
         character.output(`Timeout updated to ${timeoutVal}.`);
-        return Promise.resolve();
+        return true;
       case 'clear':
         room.spawner = null;
         room.save(err => { if (err) throw err; });
         character.output('Spawner cleared.');
-        return Promise.resolve();
+        return true;
       case 'copy':
         character.spawnerClipboard = room.spawner;
         character.output('Spawner copied.');
-        return Promise.resolve();
+        return true;
       case 'paste':
         room.spawner = character.spawnerClipboard;
         character.output('Spawner pasted.');
-        return Promise.resolve();
+        return true;
       default:
         desc = room.spawner ? room.spawner.toString() : 'None.';
         character.output(desc);
         character.output();
-        return Promise.resolve();
+        return true;
     }
   },
 };

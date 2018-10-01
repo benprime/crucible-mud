@@ -36,22 +36,24 @@ function setRoom(character, prop, value) {
     const areas = autocomplete.byProperty(Object.values(Area.areaCache), 'name', value);
     if (areas.length > 1) {
       character.output(`Multiple areas match that param:\n${JSON.stringify(areas)}`);
-      return Promise.reject();
+      return false;
     } else if (areas.length === 0) {
       character.output('Unknown area.');
-      return Promise.reject();
+      return false;
     }
 
     room.areaId = areas[0].id;
-    return Promise.resolve('Area created');
+    character.output('Area created.');
+    return true;
   }
 
   else if (prop === 'shop') {
     const shop = Shop.getById(character.roomId);
     if (shop) {
       character.output('This room is already a shop.');
-      return Promise.reject();
+      return false;
     }
+
     return Promise.resolve(Shop.createShop(character.roomId)
       .then(() => character.output('Shop created.')));
   }
@@ -71,12 +73,12 @@ function setRoom(character, prop, value) {
     // todo: add a type of message that is for the room, not just a broadcast
     character.output(`${character.name} has altered the fabric of reality.`);
     character.toRoom(`${character.name} has altered the fabric of reality.`, [character.id]);
-    return Promise.resolve();
+    return true;
   }
 
   else {
     character.output('Invalid property.');
-    return Promise.reject();
+    return false;
   }
 }
 
@@ -99,7 +101,7 @@ export default {
     }
     else {
       character.output('Invalid type.');
-      return Promise.reject();
+      return false;
     }
   },
 };

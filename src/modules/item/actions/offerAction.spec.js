@@ -43,7 +43,7 @@ describe('offer', () => {
     test('should return when item is not in inventory', () => {
       mockAutocompleteCharacter.mockReturnValueOnce(mockTargetSocket.character);
       mockAutocompleteMultiple.mockReturnValueOnce(null);
-      expect.assertions(1);
+
 
       sut.execute(socket.character, 'aItem', 'aUser');
 
@@ -76,18 +76,16 @@ describe('offer', () => {
 
       let expectedOffer = {
         fromUserName: socket.character.name,
-        toUserName: 'aUser',
+        toUserName: mockTargetSocket.character.name,
         item: item,
       };
 
-      sut.execute(socket.character, 'aItem', 'aUser').then(() => {
-        expect(mockTargetSocket.character.offers[0]).toHaveProperty('fromUserName', expectedOffer.fromUserName);
-        expect(mockTargetSocket.character.offers[0]).toHaveProperty('toUserName', expectedOffer.toUserName);
-        expect(mockTargetSocket.character.offers[0].item.id).toBe(expectedOffer.item.id);
-        expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser');
-        expect(socket.character.output).toHaveBeenCalledWith('You offer your aItem to aUser.');
-      });
-
+      sut.execute(socket.character, item, 0, mockTargetSocket.character);
+      expect(mockTargetSocket.character.offers[0]).toHaveProperty('fromUserName', expectedOffer.fromUserName);
+      expect(mockTargetSocket.character.offers[0]).toHaveProperty('toUserName', expectedOffer.toUserName);
+      expect(mockTargetSocket.character.offers[0].item.id).toBe(expectedOffer.item.id);
+      expect(mockTargetSocket.character.output).toHaveBeenCalledWith('TestUser offers you a aItem.\nTo accept the offer: accept offer TestUser');
+      expect(socket.character.output).toHaveBeenCalledWith(`You offer your ${item.name} to ${mockTargetSocket.character.name}.`);
     });
 
     test('should replace offer to other user if offering user makes a second offer while first offer still pending', () => {
@@ -135,7 +133,7 @@ describe('offer', () => {
       };
 
       mockTargetSocket.character.offers = [existingOffer];
-      expect.assertions(9);
+
 
       sut.execute(socket.character, item, 0, mockTargetSocket.character);
 
@@ -161,7 +159,7 @@ describe('offer', () => {
 
       socket.character.name = 'TestUser';
       socket.inventory = [item];
-      expect.assertions(1);
+
 
       sut.execute(socket.character, item, 0, mockTargetSocket.character);
 

@@ -1,4 +1,4 @@
-import characterStates from "../../../core/characterStates";
+import characterStates from '../../../core/characterStates';
 
 export default {
   name: 'stats',
@@ -10,6 +10,6 @@ export default {
     }
 
     character.output(output);
-    return Promise.resolve();
+    return true;
   },
 };

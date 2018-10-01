@@ -36,34 +36,25 @@ describe('unlock', () => {
   });
 
   test('should output message when direction is invalid', () => {
-    expect.assertions(2);
-
-    return sut.execute(socket.character, directions.E, null).catch(() => {
-      expect(socket.character.output).toHaveBeenCalledWith('No door in that direction.');
-      expect(mockRoom.save).not.toHaveBeenCalled();
-    });
-
+    const result = sut.execute(socket.character, directions.E, null);
+    expect(result).toBe(false);
+    expect(socket.character.output).toHaveBeenCalledWith('No door in that direction.');
+    expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
   test('should output message when a door exists but is not locked', () => {
-    expect.assertions(2);
-
-    return sut.execute(socket.character, directions.N, null).catch(() => {
-      expect(socket.character.output).toHaveBeenCalledWith('That door is not locked.');
-      expect(mockRoom.save).not.toHaveBeenCalled();
-    });
+    const result = sut.execute(socket.character, directions.N, null);
+    expect(result).toBe(false);
+    expect(socket.character.output).toHaveBeenCalledWith('That door is not locked.');
+    expect(mockRoom.save).not.toHaveBeenCalled();
 
   });
 
   test('should output no messages when user is not carrying the key', () => {
-    expect.assertions(2);
-
-    return sut.execute(socket.character, directions.NW, null).catch(() => {
-      expect(socket.character.output).toHaveBeenCalledWith('You don\'t seem to be carrying that key.');
-      expect(mockRoom.save).not.toHaveBeenCalled();
-    });
-
-
+    const result = sut.execute(socket.character, directions.NW, null);
+    expect(result).toBe(false);
+    expect(socket.character.output).toHaveBeenCalledWith('You don\'t seem to be carrying that key.');
+    expect(mockRoom.save).not.toHaveBeenCalled();
   });
 
   test('should output message when key is the wrong key for the door', () => {
@@ -71,12 +62,12 @@ describe('unlock', () => {
     key.itemTypeEnum = 'key';
     key.name = 'Blue';
     mockAutocompleteMultiple.mockReturnValueOnce({ item: key });
-    expect.assertions(2);
 
-    return sut.execute(socket.character, directions.NE, key).catch(() => {
-      expect(socket.character.output).toHaveBeenCalledWith('That key does not unlock that door.');
-      expect(mockRoom.save).not.toHaveBeenCalled();
-    });
+
+    const result = sut.execute(socket.character, directions.NE, key);
+    expect(result).toBe(false);
+    expect(socket.character.output).toHaveBeenCalledWith('That key does not unlock that door.');
+    expect(mockRoom.save).not.toHaveBeenCalled();
 
 
   });
@@ -86,12 +77,12 @@ describe('unlock', () => {
     key.itemTypeEnum = 'key';
     key.name = 'Gold';
     mockAutocompleteMultiple.mockReturnValueOnce({ item: key });
-    expect.assertions(2);
 
-    return sut.execute(socket.character, directions.W, key).then(() => {
-      expect(socket.character.output).toHaveBeenCalledWith('Door unlocked.');
-      expect(mockRoom.save).not.toHaveBeenCalled();
-    });
+
+    const result = sut.execute(socket.character, directions.W, key);
+    expect(result).toBe(true);
+    expect(socket.character.output).toHaveBeenCalledWith('Door unlocked.');
+    expect(mockRoom.save).not.toHaveBeenCalled();
 
   });
 
@@ -105,21 +96,22 @@ describe('unlock', () => {
       mockAutocompleteMultiple.mockReturnValueOnce({ item: key });
     });
 
-    test('should automatically relock door after timeout', (done) => {
+    test('should automatically relock door after timeout', done => {
 
-      const exit = mockRoom.exits.find(e => e.dir === 'nw');
-      expect.assertions(4);
-
-      return sut.execute(socket.character, directions.NW, key, () => {
-
+      const callback = () => {
         expect(mockRoomMessage).toHaveBeenCalledWith('bogus', 'The door to the northwest clicks locked!');
         expect(exit.closed).toBe(true);
         expect(exit.keyName).toBe('Silver');
         expect(mockRoom.save).not.toHaveBeenCalled();
-
         done();
-      });
+      };
 
+      const exit = mockRoom.exits.find(e => e.dir === 'nw');
+
+
+      const result = sut.execute(socket.character, directions.NW, key, callback);
+
+      expect(result).toBe(true);
     });
   });
 });

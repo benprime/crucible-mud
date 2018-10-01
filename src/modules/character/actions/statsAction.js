@@ -39,6 +39,6 @@ export default {
     }
 
     character.output(output);
-    return Promise.resolve(output);
+    return true;
   },
 };

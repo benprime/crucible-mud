@@ -8,6 +8,6 @@ export default {
     }
     character.break();
 
-    return Promise.resolve();
+    return true;
   },
 };

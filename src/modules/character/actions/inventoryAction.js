@@ -34,6 +34,6 @@ export default {
     output += '<span class="cyan">Currency: </span>';
     output += `<span class="silver">${currencyToString(character.currency)}</span>\n`;
     character.output(output);
-    return Promise.resolve();
+    return true;
   },
 };

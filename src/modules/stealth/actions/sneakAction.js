@@ -22,6 +22,6 @@ export default {
     // for now we'll just put them into sneak mode
     character.setState(characterStates.SNEAKING);
 
-    return Promise.resolve();
+    return true;
   },
 };

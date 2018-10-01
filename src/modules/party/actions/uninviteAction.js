@@ -4,17 +4,17 @@ export default {
 
     if (!targetChar) {
       character.output('Unknown player.');
-      return Promise.reject();
+      return false;
     }
 
     if (targetChar.leader !== character.id) {
       character.output(`You are not leading ${targetChar.name} in a party.`);
-      return Promise.reject();
+      return false;
     }
 
     const partyMsg = `<span class="yellow">${targetChar.name} has been removed from ${character.name}'s party.\n`;
     targetChar.toParty(partyMsg);
     targetChar.leader = undefined;
-    return Promise.resolve();
+    return true;
   },
 };

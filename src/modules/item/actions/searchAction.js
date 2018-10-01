@@ -28,14 +28,14 @@ export default {
       if (hExits.length < 1 && hItems.length < 1) {
         output += 'You find nothing special.<br />';
         character.output(output);
-        return Promise.resolve();
+        return true;
       }
 
       //if skill+dice roll < all hidden DCs, return "You find nothing special.<br />"
       if (searchRoll < roomDC) {
         output += 'You find nothing special.<br />';
         character.output(output);
-        return Promise.resolve();
+        return true;
       }
 
       //cull lists down to only the hidden things with DC lower than skill roll
@@ -53,7 +53,7 @@ export default {
     //tell player that they found something
     output += 'You have spotted something!<br />';
     character.output(output);
-    return Promise.resolve();
+    return true;
 
     //either set a reveal timer or make sure revealed things become hidden again after player leaves area
 

@@ -23,34 +23,30 @@ describe('yell', () => {
   describe('execute', () => {
 
     test('should send message to actioning player', () => {
-      expect.assertions(1);
-      return sut.execute(socket.character, msg).then(() => {
-        expect(socket.character.output).toHaveBeenCalledWith('You yell \'This is a yelled message!\'');
-      });
+      const result = sut.execute(socket.character, msg);
+      expect(result).toBe(true);
+      expect(socket.character.output).toHaveBeenCalledWith('You yell \'This is a yelled message!\'');
     });
 
     test('should send message to local rooms', () => {
-      expect.assertions(1);
-      return sut.execute(socket.character, msg).then(() => {
-        expect(mockRoomMessage).toHaveBeenCalledWith(socket.character.roomId, `${socket.character.name} yells 'This is a yelled message!'`, [socket.character.id]);
-      });
+      const result = sut.execute(socket.character, msg);
+      expect(result).toBe(true);
+      expect(mockRoomMessage).toHaveBeenCalledWith(socket.character.roomId, `${socket.character.name} yells 'This is a yelled message!'`, [socket.character.id]);
     });
 
     test('should send message to surrounding rooms', () => {
-      expect.assertions(10);
-      return sut.execute(socket.character, msg).then(() => {
-        expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.u, 'Someone yells from below  \'This is a yelled message!\'');
-        expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.d, 'Someone yells from above  \'This is a yelled message!\'');
-        expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.n, 'Someone yells from the south  \'This is a yelled message!\'');
-        expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.s, 'Someone yells from the north  \'This is a yelled message!\'');
-        expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.e, 'Someone yells from the west  \'This is a yelled message!\'');
-        expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.w, 'Someone yells from the east  \'This is a yelled message!\'');
-        expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.ne, 'Someone yells from the southwest  \'This is a yelled message!\'');
-        expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.se, 'Someone yells from the northwest  \'This is a yelled message!\'');
-        expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.nw, 'Someone yells from the southeast  \'This is a yelled message!\'');
-        expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.sw, 'Someone yells from the northeast  \'This is a yelled message!\'');
-      });
-
+      const result = sut.execute(socket.character, msg);
+      expect(result).toBe(true);
+      expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.u, 'Someone yells from below  \'This is a yelled message!\'');
+      expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.d, 'Someone yells from above  \'This is a yelled message!\'');
+      expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.n, 'Someone yells from the south  \'This is a yelled message!\'');
+      expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.s, 'Someone yells from the north  \'This is a yelled message!\'');
+      expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.e, 'Someone yells from the west  \'This is a yelled message!\'');
+      expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.w, 'Someone yells from the east  \'This is a yelled message!\'');
+      expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.ne, 'Someone yells from the southwest  \'This is a yelled message!\'');
+      expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.se, 'Someone yells from the northwest  \'This is a yelled message!\'');
+      expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.nw, 'Someone yells from the southeast  \'This is a yelled message!\'');
+      expect(mockRoomMessage).toHaveBeenCalledWith(mockRoom.roomIds.sw, 'Someone yells from the northeast  \'This is a yelled message!\'');
     });
 
   });

@@ -8,7 +8,7 @@ export default {
     const target = autocomplete.character(character, name);
     if (!target) {
       character.output('Unknown player.');
-      return Promise.reject();
+      return false;
     }
 
     let tracks = this.tracks[target.id];

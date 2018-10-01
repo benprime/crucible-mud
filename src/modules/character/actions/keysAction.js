@@ -13,6 +13,6 @@ export default {
     output += '</span>';
 
     character.output(output);
-    return Promise.resolve();
+    return true;
   },
 };

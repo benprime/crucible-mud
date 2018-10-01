@@ -7,12 +7,12 @@ export default {
 
     if (!toCharacter) {
       character.output('Unknown user or user not connected.');
-      return Promise.reject();
+      return false;
     }
 
     if (toCharacter.roomId !== character.roomId) {
       character.output(`${toCharacter.name} is not here!`);
-      return Promise.reject();
+      return false;
     }
 
     // check if the offer is currency
@@ -20,13 +20,13 @@ export default {
       if (character.currency < currency) {
         toCharacter.offers = toCharacter.offers.filter(o => o.fromUserName !== character.name);
         character.output('You do not have enough money.');
-        return Promise.reject();
+        return false;
       }
     }
 
     if (!currency && !item) {
       character.output('You don\'t seem to be carrying that.');
-      return Promise.reject();
+      return false;
     }
 
     // build offer
@@ -60,7 +60,7 @@ export default {
 
     toCharacter.output(offerMessage);
     character.output(feedbackMessage);
-    return Promise.resolve();
+    return true;
   },
 
 };

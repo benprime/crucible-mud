@@ -16,13 +16,13 @@ export default {
     const targetCharacter = autocomplete.character(character, username);
     if (!targetCharacter) {
       character.output('Invalid username.');
-      return Promise.reject();
+      return false;
     }
 
     targetCharacter.output(`${character.name} telepaths: <span class="silver">${safeMessage}</span>`);
     character.output(`Telepath to ${targetCharacter.name}: <span class="silver">${safeMessage}</span>`);
 
-    return Promise.resolve();
+    return true;
   },
 
 };

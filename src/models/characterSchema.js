@@ -363,14 +363,13 @@ CharacterSchema.methods.getPartyCharacters = function () {
     followers.push(this);
     followers = followers.concat(this.getFollowers());
   }
-  return Promise.resolve(followers);
+  return followers;
 };
 
 CharacterSchema.methods.toParty = function (msg) {
-  return this.getPartyCharacters().then(characters => {
-    characters.forEach(c => c.output(msg));
-    return Promise.resolve();
-  });
+  const characters = this.getPartyCharacters();
+  characters.forEach(c => c.output(msg));
+  return true;
 };
 
 CharacterSchema.methods.status = function () {

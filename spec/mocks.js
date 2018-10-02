@@ -27,7 +27,7 @@ if (!JSON.orderedStringify) {
 }
 
 function getMockRoom(roomId) {
-  var room = new Room();
+  let room = new Room();
   room._id = ObjectId(roomId);
   room.id = roomId || room._id.toString();
   room.mobs = [];
@@ -66,7 +66,7 @@ function getMockRoom(roomId) {
   room.createRoom = jest.fn(() => Promise.resolve({}));
   room.getExit = jest.fn().mockName('getExit').mockImplementation((dir) => room.exits.find(r => r.dir === dir));
   room.save = jest.fn().mockName('save').mockImplementation(() => Promise.resolve(room));
-  room.getDesc = jest.fn().mockName('getDesc').mockImplementation(() => Promise.resolve('mocked room description'));
+  room.getDesc = jest.fn().mockName('getDesc').mockImplementation(() => 'mocked room description');
   room.getCharacters = jest.fn();
   room.getCharacterNames = jest.fn().mockName('getCharacterNames');
   room.userInRoom = jest.fn().mockName('userInRoom');
@@ -170,6 +170,7 @@ class SocketMock {
       this.on.mockClear();
       this.character.save.mockClear();
       Object.keys(this.roomSpies).forEach(rs => this.roomSpies[rs].mockClear());
+      this.character.reset();
     };
   }
 }
@@ -181,6 +182,7 @@ function getMockUser() {
 }
 
 function getMockCharacter(name) {
+
   const character = new Character();
   character.break = jest.fn();
   character.name = name ? name : 'TestUser';
@@ -190,6 +192,7 @@ function getMockCharacter(name) {
   character.attack = jest.fn().mockName('userAttack');
   character.output = jest.fn().mockName('output');
   character.toRoom = jest.fn().mockName('toRoom');
+  character.toParty = jest.fn().mockName('toParty');
   character.actionDie = '1d20';
   character.equipped = {};
   character.inventory = [];
@@ -230,6 +233,15 @@ function getMockCharacter(name) {
     refresh: 0,
     endure: 0,
     resist: 0,
+  };
+
+  character.reset = function() {
+    character.break.mockReset();
+    character.save.mockReset();
+    character.addExp.mockReset();
+    character.attack.mockReset();
+    character.output.mockReset();
+    character.toRoom.mockReset();
   };
 
   return character;

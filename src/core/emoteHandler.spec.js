@@ -7,8 +7,8 @@ import sut from './emoteHandler';
 
 
 jest.mock('../models/room');
-jest.mock('../core/socketUtil');
-jest.mock('../core/autocomplete');
+jest.mock('./socketUtil');
+jest.mock('./autocomplete');
 
 global.io = new mocks.IOMock();
 let mockRoom;

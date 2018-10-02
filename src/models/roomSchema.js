@@ -5,8 +5,9 @@ import Exit from './exit';
 import Area from './area';
 import SpawnerSchema from './spawnerSchema';
 import socketUtil from '../core/socketUtil';
-import { indefiniteArticle } from '../core/language';
 import { getDirection, Direction } from '../core/directions';
+import gameManager from '../core/gameManager';
+import actionHandler from '../core/actionHandler';
 
 const roomCache = {};
 
@@ -44,7 +45,7 @@ const RoomSchema = new mongoose.Schema({
   exits: [ExitSchema],
 
   // this is currently for NPCs only
-  characters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Character' }],
+  // characters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Character' }],
 
   spawner: SpawnerSchema,
   inventory: [ItemSchema],
@@ -68,13 +69,17 @@ RoomSchema.statics.getByCoords = function (coords) {
 };
 
 RoomSchema.statics.populateRoomCache = function () {
-  this.find({}, (err, result) => {
+  return this.find({}, (err, result) => {
     if (err) throw err;
 
     result.forEach(room => {
       room.mobs = [];
       room.tracks = {};
+      room.characters = [];
       roomCache[room.id.toString()] = room;
+      gameManager.on('frame', function (now, round, newRound) {
+        room.update(now, round, newRound);
+      });
       if (room.alias)
         roomCache[room.alias] = room;
     });
@@ -84,6 +89,20 @@ RoomSchema.statics.populateRoomCache = function () {
 //============================================================================
 // Instance methods
 //============================================================================
+
+// the game loop frame handler
+RoomSchema.methods.update = function (now, round, newRound) {
+
+  this.characters.forEach(c => c.update(now, round, newRound));
+
+  // todo: these "process" methods will get refactored into the standard "update" methods
+  this.processMobCombatActions(now);
+  this.processPlayerCombatActions(now);
+  
+  if (newRound) {
+    this.processEndOfRound(round);
+  }
+};
 
 /**
  * Returns a list of usernames of other connected players in your room.
@@ -189,89 +208,11 @@ RoomSchema.methods.createDoor = function (dir) {
   return Promise.resolve();
 };
 
-RoomSchema.methods.openDoor = function (dir) {
-  if (!(dir instanceof Direction)) {
-    return Promise.reject('Invalid direction.');
-  }
-
-  const exit = this.exits.find(e => e.dir === dir.short);
-  if (!exit) {
-    return Promise.reject('There is no exit in that direction!');
-  }
-
-  if (exit.closed === undefined) {
-    return Promise.reject('There is no door in that direction!');
-  }
-
-  if (exit.locked) {
-    return Promise.reject('That door is locked.');
-  }
-
-  if (exit.closed === false) {
-    return Promise.reject('That door is already open.');
-  }
-
-  exit.closed = false;
-  return Promise.resolve();
-};
-
-RoomSchema.methods.closeDoor = function (dir) {
-  if (!(dir instanceof Direction)) {
-    return Promise.reject('Invalid direction.');
-  }
-  
-  const exit = this.exits.find(e => e.dir === dir.short);
-  if (!exit) {
-    return Promise.reject('There is no exit in that direction!');
-  }
-
-  if (exit.closed === undefined) {
-    return Promise.reject('There is no door in that direction!');
-  }
-
-  exit.closed = true;
-  return Promise.resolve();
-};
-
-
-RoomSchema.methods.kick = function (character, item, dir) {
-  const exit = this.getExit(dir);
-  if (!exit) {
-    return Promise.reject('There is no exit in that direction!');
-  }
-
-  const targetRoom = this.constructor.getById(exit.roomId);
-  this.inventory.id(item.id).remove();
-  this.save(err => { if (err) throw err; });
-  targetRoom.inventory.push(item);
-  targetRoom.save(err => { if (err) throw err; });
-
-  // for scripting
-  this.tracks[item.id] = {
-    dir: dir,
-    timestamp: new Date().getTime(),
-  };
-
-  const dirName = dir.long;
-  const msg = `<span class="yellow">${character.name} kicks the ${item.name} to the ${dirName}</span>`;
-  socketUtil.roomMessage(this.id, msg);
-
-  const targetDirName = dir.opposite.long;
-
-  // language, determining A or An
-  let article = indefiniteArticle(item.name);
-  article = article.replace(/^\w/, c => c.toUpperCase());
-
-  const targetMsg = `<span class="yellow">${article} ${item.name} enters from the ${targetDirName}.</yellow>`;
-  socketUtil.roomMessage(targetRoom.id, targetMsg);
-
-  return Promise.resolve(item);
-};
 
 RoomSchema.methods.getDesc = function (character, short) {
 
   const socket = socketUtil.getSocketByCharacterId(character.id);
-  const debug = socket.user.debug;
+  const debug = socket.character.user.debug;
   let output = `<span class="cyan">${this.name}`;
 
   if (this.areaId) {
@@ -337,25 +278,20 @@ RoomSchema.methods.getDesc = function (character, short) {
     //output += '<pre>' + JSON.stringify(this, null, 2) + '</pre>';
   }
 
-  return Promise.resolve(output);
+  return output;
 };
 
-RoomSchema.methods.getMobById = function (mobId) {
-  if (!this.mobs) return;
-  return this.mobs.find(({ id }) => id === mobId);
-};
-
-RoomSchema.methods.dirToCoords = function (dir) {
+RoomSchema.methods.dirToCoords = function (dirShort) {
   let x = this.x;
   let y = this.y;
   let z = this.z;
 
-  if (dir.includes('e')) x += 1;
-  if (dir.includes('w')) x -= 1;
-  if (dir.includes('n')) y += 1;
-  if (dir.includes('s')) y -= 1;
-  if (dir.includes('u')) z += 1;
-  if (dir.includes('d')) z -= 1;
+  if (dirShort.includes('e')) x += 1;
+  if (dirShort.includes('w')) x -= 1;
+  if (dirShort.includes('n')) y += 1;
+  if (dirShort.includes('s')) y -= 1;
+  if (dirShort.includes('u')) z += 1;
+  if (dirShort.includes('d')) z -= 1;
 
   return { x, y, z };
 };
@@ -380,123 +316,18 @@ RoomSchema.methods.addExit = function (dir, roomId) {
   return e;
 };
 
-RoomSchema.methods.IsExitPassable = function (character, dir) {
-  if (!(dir instanceof Direction)) return;
-
-  // validate direction is valid
-  if (!dir) {
-    return Promise.reject('<span class="yellow">That is not a valid direction!</span>');
+RoomSchema.methods.handleAction = function () {
+  const params = Array.from(arguments);
+  const character = params.shift();
+  const actionName = params.shift();
+  const action = actionHandler.actions[actionName];
+  if (!action || !action.execute) {
+    throw (`Cannot find valid action object with name: ${actionName}`);
   }
 
-  const exit = this.exits.find(e => e.dir === dir.short);
-  if (!exit) {
-    this.sendHitWallMessage(character, dir.short);
-    return Promise.reject();
-  }
-
-  // custom scripting exit disabler
-  if (exit.disabledMessage) {
-    return Promise.reject(`<span class="yellow">${exit.disabledMessage}</span>`);
-  }
-
-  // general public cannot enter hidden rooms.
-  // admin can enter a hidden room, even if it is not revealed.
-  // if (exit.hidden && !character.user.admin) {
-  //   const msg = GetHitWallMessage(character, dir);
-  //   roomMessages.push({roomId: this.id, message: msg});
-  //   return Promise.reject();
-  // }
-
-  if (exit.closed) {
-    this.sendHitDoorMessage(character, dir.short);
-    return Promise.reject();
-  }
-
-  return Promise.resolve(exit);
-};
-
-// todo: This may need a more descriptive name, it is for "leaving by exit"
-// it updates games state, generates messages
-RoomSchema.methods.leave = function (character, dir, socket) {
-  const exclude = socket ? [socket.id] : [];
-
-  if (character.roomId !== this.id) {
-    // TODO: investigate this. This is only possible because of data duplication that we
-    // may be able to get rid of.
-    throw 'Character leave was called when the character was not assigned the room';
-  }
-
-  if (!character.sneakMode()) {
-    this.sendMovementSoundsMessage(dir.short);
-  }
-
-  // if this is a player
-  if (socket) {
-    // unsubscribe from Socket.IO room
-    socket.leave(this.id);
-  }
-
-  // whenever you leave a room, you leave tracks (for tracking command and scripting options)
-  this.tracks[character.id] = {
-    dir: dir.short,
-    timestamp: new Date().getTime(),
-  };
-
-  // leaving room message
-  if (!character.sneakMode()) {
-    const msg = this.getLeftMessages(dir, character.name);
-    socketUtil.roomMessage(this.id, msg, exclude);
-  }
-};
-
-// todo: This may need a more descriptive name, it is for "entering by exit"
-// it updates games state, generates messages
-RoomSchema.methods.enter = function (character, dir, socket) {
-  character.roomId = this.id;
-
-  if (!character.sneakMode()) {
-    const exclude = socket ? [socket.id] : [];
-    const msg = this.getEnteredMessage(dir, character.name);
-    socketUtil.roomMessage(character.roomId, msg, exclude);
-
-    if(dir) {
-      this.sendMovementSoundsMessage(dir.short);
-    }
-  }
-
-  character.save(err => { if (err) throw err; });
-  if (socket) {
-    socket.join(this.id);
-  }
-
-};
-
-RoomSchema.methods.track = function (entity) {
-  let output;
-  let tracks = this.tracks[entity.id];
-  if (tracks) {
-    const dir = getDirection(tracks.dir);
-
-    const now = new Date().getTime();
-    const rawSeconds = Math.floor((now - tracks.timestamp) / 1000);
-    const minutes = Math.floor(rawSeconds / 60);
-    const seconds = Math.floor(rawSeconds % 60);
-    let displayString;
-    if (minutes > 1) {
-      displayString = `${minutes} minutes ago`;
-    } else if (minutes == 1) {
-      displayString = 'a minute ago';
-    } else if (seconds > 1) {
-      displayString = `${seconds} seconds ago`;
-    } else {
-      displayString = 'a second ago';
-    }
-
-    output = `<span class="yellow">${entity.name} last left to the ${dir.long} ${displayString}.</span>`;
-  } else {
-    output = `${entity.name} has not passed through here recently.`;
-  }
-  return Promise.resolve(output);
+  // todo: perhaps just execute this through the room
+  // the player is in and use the room as the controller.
+  action.execute(character, ...params);
 };
 
 //============================================================================
@@ -507,7 +338,7 @@ RoomSchema.methods.processPlayerCombatActions = function (now) {
 
   for (let c of characters) {
     if (!c.attackTarget) continue;
-    let mob = this.getMobById(c.attackTarget);
+    let mob = this.mobs.find(({ id }) => id === c.attackTarget);
     if (!mob) continue;
     c.attack(mob, now);
   }
@@ -535,80 +366,6 @@ RoomSchema.methods.processMobCombatActions = function (now) {
       }
     });
   }
-};
-
-//============================================================================
-// Helper methods for socket output, these will likely be moved.
-//============================================================================
-RoomSchema.methods.sendHitWallMessage = function (character, dir) {
-  let message = '';
-  const socket = socketUtil.getSocketByCharacterId(character.id);
-
-  // send message to everyone in current room that player is running into stuff.
-  if (dir.short === 'u') {
-    message = `${character.name} runs into the ceiling.`;
-  } else if (dir.short === 'd') {
-    message = `${character.name} runs into the floor.`;
-  } else {
-    message = `${character.name} runs into the wall to the ${dir.long}.`;
-  }
-  socket.broadcast.to(socket.character.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
-  socket.emit('output', { message: '<span class="yellow">There is no exit in that direction!</span>' });
-};
-
-RoomSchema.methods.sendHitDoorMessage = function (character, dir) {
-  let message = '';
-  const socket = socketUtil.getSocketByCharacterId(character.id);
-
-  // send message to everyone in current room that player is running into stuff.
-  if (dir.short === 'u') {
-    message = `${character.name} runs into the closed door above.`;
-  } else if (dir.short === 'd') {
-    message = `${character.name} runs into the trapdoor on the floor.`;
-  } else {
-    message = `${character.name} runs into the door to the ${dir.long}.`;
-  }
-  socket.broadcast.to(socket.character.roomId).emit('output', { message: `<span class="silver">${message}</span>` });
-  socket.emit('output', { message: '<span class="yellow">The door in that direction is not open!</span>' });
-};
-
-// emits "You hear movement to the <dir>" to all adjacent rooms
-RoomSchema.methods.sendMovementSoundsMessage = function (excludeDir) {
-
-  // fromRoomId is your current room (before move)
-  for (let exit of this.exits) {
-    if (excludeDir && exit.dir === excludeDir) {
-      continue;
-    }
-
-    let dir = getDirection(exit.dir);
-    const message = `You hear movement ${dir.opposite.desc}.`;
-    global.io.to(exit.roomId).emit('output', { message });
-  }
-};
-
-RoomSchema.methods.getLeftMessages = function (dir, charName) {
-  let output = '';
-  if (dir.short === 'u') {
-    output = `${charName} has gone above.`;
-  } else if (dir.short === 'd') {
-    output = `${charName} has gone below.`;
-  } else {
-    output = `${charName} has left to the ${dir.long}.`;
-  }
-  return `<span class="yellow">${output}</span>`;
-};
-
-RoomSchema.methods.getEnteredMessage = function (dir, charName) {
-  let output = '';
-  if (dir.short === 'u') {
-    output = `${charName} has entered from below.`;
-  } else if (dir.short === 'd') {
-    output = `${charName} has entered from above.`;
-  } else {
-    output = `${charName} has entered from the ${dir.long}.`;
-  }
-  return `<span class="yellow">${output}</span>`;
 };
 
 RoomSchema.methods.output = function (msg, exclude) {

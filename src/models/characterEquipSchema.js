@@ -24,8 +24,9 @@ CharacterEquipSchema.statics.slotNames = function () {
 };
 
 CharacterEquipSchema.methods.unequip = function (item) {
-  if (!this.isEquipped(item)) {
+  if (!item || !this.isEquipped(item)) {
     this.$parent.output('You don\'t have that item equipped.');
+    return;
   }
 
   this.unequipSlotsForItem(item);
@@ -42,6 +43,8 @@ CharacterEquipSchema.methods.unequipSlotsForItem = function (item) {
     }
   });
 
+  // when unequipping slots to equip a multi-slot item,
+  // print out unequip messages for each unique item.
   itemIds.forEach(itemId => {
     let itemName = this.$parent.inventory.find(i => i.id === itemId).name;
     this.$parent.output(`${itemName} unequipped.`);
@@ -160,7 +163,7 @@ CharacterEquipSchema.methods.getDesc = function () {
     output.push(`${upSubject} is adorned with ${jeweleryString}.`);
   }
 
-  return Promise.resolve(output.join(' '));
+  return output.join(' ');
 };
 
 export default CharacterEquipSchema;

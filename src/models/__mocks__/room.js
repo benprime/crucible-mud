@@ -5,10 +5,7 @@ export const mockGetCharacters = jest.fn();
 
 // mock must be a function for when constructing new model instances
 const mock = jest.fn().mockImplementation(() => {
-  return {
-    // getById: mockGetRoomById,
-    // validDirectionInput: mockValidDirectionInput,
-  };
+  return {};
 });
 
 mock.getById = mockGetRoomById;

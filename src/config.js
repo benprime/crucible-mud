@@ -6,12 +6,33 @@ export const globalErrorHandler = function (err) {
 };
 
 export default {
+
+  modules: [
+    'move',
+    'admin',
+    'basic',
+    'character',
+    'system',
+    'item',
+    'combat',
+    'communication',
+    'door',
+    'party',
+    'shop',
+    'stealth',
+    'special',
+    'worldCrafting',
+  ],
+
+  defaultCommand: 'say',
+
   MSG_COLOR: 'darkcyan',
   DMG_COLOR: 'firebrick',
   NOTICE_COLOR: 'yellow',
   TAUNT_COLOR: 'gold',
 
-  COMBAT_INTERVAL: 500, // how often combat logic is run
+  GAME_INTERVAL: 250,
+  COMBAT_INTERVAL: 250, // how often combat logic is run
   ROUND_DURATION: 4000, // how long a round is considered to be
   SPAWNER_INTERVAL: 500,
   DOOR_CLOSE_TIMER: 60 * 1000,

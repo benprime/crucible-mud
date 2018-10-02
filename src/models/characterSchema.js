@@ -10,6 +10,7 @@ import CharacterEquipSchema from './characterEquipSchema';
 import { updateHUD } from '../core/hud';
 import { pronounSubject, upperCaseWords, verbToThirdPerson } from '../core/language';
 import healthStatus from '../models/enums/healthStatuses';
+import actionHandler from '../core/actionHandler';
 
 /**
  * @constructor
@@ -104,17 +105,34 @@ CharacterSchema.statics.findByUser = function (user) {
 //============================================================================
 // Instance methods
 //============================================================================
+CharacterSchema.methods.setupEvents = function () {
+  //todo: add a way to unsubscribe these emitters on logout
+  this.on('action', this.action);
+};
+
+CharacterSchema.methods.action = function () {
+  const params = Array.from(arguments);
+  const actionName = params.shift();
+  const action = actionHandler.actions[actionName];
+  if (!action || !action.execute) {
+    throw (`Cannot find valid action with name: ${actionName}`);
+  }
+
+  if (this.processStates(action.category)) {
+    action.execute(this, ...params);
+  }
+};
+
 CharacterSchema.methods.getDesc = function () {
   // todo: Add character specific details. Currently only returning the description of equipped items.
-  return this.equipped.getDesc().then(output => {
-    const pronoun = upperCaseWords(pronounSubject(this.gender));
-    output += `\n${pronoun} is ${this.status()}.`;
-    if (this.bleeding) {
-      output += `<span class="red">${this.name} is bleeding out!</span>\n`;
-    }
-    output += '\n';
-    return Promise.resolve(output);
-  });
+  let output = this.equipped.getDesc();
+  const pronoun = upperCaseWords(pronounSubject(this.gender));
+  output += `\n${pronoun} is ${this.status()}.`;
+  if (this.hasState(characterStates.BLEEDING)) {
+    output += `<span class="red">${this.name} is bleeding out!</span>\n`;
+  }
+  output += '\n';
+  return output;
 };
 
 CharacterSchema.methods.nextExp = function () {
@@ -156,14 +174,14 @@ return 0;
 
 // TODO: perhaps have miss verbs per weapon type also: "thrusts at, stabs at" in addition to "swings at"
 CharacterSchema.methods.getAttackVerb = function (weapon) {
-  const weaponType = weapon ? weapon.weaponType : 'unarmed';
+  const damageType = weapon ? weapon.damageType : 'unarmed';
   const attackVerbs = {
     'slashing': ['slash', 'stab', 'cut', 'hack', 'chop', 'cleave'],
     'piercing': ['pierce', 'stick', 'stab', 'impale', 'skewer', 'spear', 'lance', 'thrust'],
     'bludgeoning': ['bludgeon', 'club', 'whop', 'swat', 'hit', 'smack', 'smash', 'wallop', 'bash', 'thump'],
     'unarmed': ['uppercut', 'punch', 'sock', 'smack', 'jab', 'slap', 'bash', 'pummel', 'slam', 'slug', 'strike', 'thump'],
   };
-  const verbs = attackVerbs[weaponType];
+  const verbs = attackVerbs[damageType];
   const verbIndex = dice.getRandomNumber(0, verbs.length);
   return verbs[verbIndex];
 };
@@ -183,7 +201,7 @@ CharacterSchema.methods.attack = function (mob, now) {
   let weapon;
   if (hit) {
     weapon = this.inventory.id(this.equipped.weaponMain);
-    let diceToRoll = weapon ? dice.roll(weapon.damage) : '1d2';
+    let diceToRoll = weapon ? weapon.damage : '1d2';
     let dmg = dice.roll(diceToRoll); // todo: +STR modifier
     mob.takeDamage(dmg);
 
@@ -191,10 +209,10 @@ CharacterSchema.methods.attack = function (mob, now) {
     const verb = this.getAttackVerb(weapon);
     const thirdPersonVerb = verbToThirdPerson(verb);
     actorMessage = `<span class="${config.DMG_COLOR}">You ${verb} the ${mob.displayName} for ${dmg} damage!</span>`;
-    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.username} ${thirdPersonVerb} ${mob.displayName} for ${dmg} damage!</span>`;
+    roomMessage = `<span class="${config.DMG_COLOR}">The ${this.name} ${thirdPersonVerb} ${mob.displayName} for ${dmg} damage!</span>`;
   } else {
     actorMessage = `<span class="${config.MSG_COLOR}">You swing at the ${mob.displayName} but miss!</span>`;
-    roomMessage = `<span class="${config.MSG_COLOR}">${this.username} swings at the ${mob.displayName} but misses!</span>`;
+    roomMessage = `<span class="${config.MSG_COLOR}">${this.name} swings at the ${mob.displayName} but misses!</span>`;
   }
 
   this.output(actorMessage);
@@ -202,37 +220,11 @@ CharacterSchema.methods.attack = function (mob, now) {
 };
 
 CharacterSchema.methods.processEndOfRound = function (round) {
-
-  if (this.bleeding) {
-
-    // take damage every number of rounds configured
-    if (round % config.BLEED_ROUNDS === 0) {
-      this.output('<span class="firebrick">You are bleeding!</span>');
-      this.toRoom(`<span class="firebrick">${this.name} is bleeding out!</span>`);
-      this.takeDamage(1);
-      this.save();
+  this.states.forEach(cs => {
+    if (cs.endOfRound) {
+      cs.endOfRound(this, round);
     }
-    //this.bleeding++;
-  } else {
-
-    // this is on a global 'timer' and probably should be changed to
-    // track a counter for each character (every 4 rounds after you break of combat)
-    if (!this.attackTarget && round % config.REGEN_ROUNDS === 0) {
-      this.regen();
-      this.save();
-    }
-  }
-
-  if (this.hasState(characterStates.RESTING) && this.currentHP >= this.maxHP) {
-    this.removeState(characterStates.RESTING);
-    this.output('<span class="olive">You are fully healed.</span>');
-  }
-
-  // todo: may need to find a way to remove the incapacitated state
-  // when the user gains HP above 0.... (no matter what method that happens in)
-  if (this.currentHP > 0) {
-    this.removeState(characterStates.INCAPACITATED);
-  }
+  });
 };
 
 CharacterSchema.methods.isIncapacitated = function () {
@@ -260,7 +252,7 @@ CharacterSchema.methods.die = function () {
   Room.getByCoords({ x: 0, y: 0, z: 0 }).then(room => {
     this.teleport(room.id);
     this.currentHP = this.maxHP;
-    this.bleeding = false;
+    this.removeState(characterStates.BLEEDING);
     this.output('\n<span class="red">You have died!</span>\n');
     this.output('<span class="yellow">You have been resurrected.</span>\n');
     this.updateHUD();
@@ -274,21 +266,17 @@ CharacterSchema.methods.updateHUD = function () {
   }
 };
 
-CharacterSchema.methods.incapacitate = function () {
-  this.break();
-  this.setState(characterStates.INCAPACITATED);
-};
-
 CharacterSchema.methods.takeDamage = function (damage) {
   const characterDrop = this.currentHP > 0;
   this.currentHP -= damage;
   if (this.currentHP <= 0) {
     if (characterDrop) {
-      this.incapacitate();
-      this.output('<span class="firebrick">You are incompacitated!</span>\n');
+      this.break();
+      this.setState(characterStates.INCAPACITATED);
+      this.output('<span class="firebrick">You are incapacitated!</span>\n');
       this.toRoom(`<span class="firebrick">${this.name} drops to the ground!</span>\n`);
     }
-    this.bleeding = 1;
+    this.setState(characterStates.BLEEDING);
   }
   this.updateHUD();
   if (this.currentHP <= -15) {
@@ -302,38 +290,6 @@ CharacterSchema.methods.break = function () {
   this.attackInterval = undefined;
   this.lastAttack = undefined;
   this.attackTarget = undefined;
-};
-
-CharacterSchema.methods.move = function (dir) {
-
-  const fromRoom = Room.getById(this.roomId);
-  const socket = socketUtil.getSocketByCharacterId(this.id);
-
-  return fromRoom.IsExitPassable(this, dir).then((exit) => {
-    const toRoom = Room.getById(exit.roomId);
-    this.break();
-
-    if (socket) {
-      if (this.isIncapacitated()) this.output(`You are dragged ${dir.long}...`);
-      else if (this.sneakMode()) this.output(`You sneak ${dir.long}...`);
-      else this.output(`You move ${dir.long}...`);
-    }
-
-    fromRoom.leave(this, dir, socket);
-    toRoom.enter(this, dir.opposite, socket);
-
-    let followers = socketUtil.getFollowers(socket.character.id);
-    if (this.dragging) {
-      const drag = socketUtil.getCharacterById(this.dragging);
-      followers.push(drag);
-    }
-
-    followers.forEach(c => {
-      c.move(dir);
-    });
-
-    return Promise.resolve(toRoom);
-  });
 };
 
 CharacterSchema.methods.teleport = function (roomTarget) {
@@ -407,14 +363,13 @@ CharacterSchema.methods.getPartyCharacters = function () {
     followers.push(this);
     followers = followers.concat(this.getFollowers());
   }
-  return Promise.resolve(followers);
+  return followers;
 };
 
 CharacterSchema.methods.toParty = function (msg) {
-  return this.getPartyCharacters().then(characters => {
-    characters.forEach(c => c.output(msg));
-    return Promise.resolve();
-  });
+  const characters = this.getPartyCharacters();
+  characters.forEach(c => c.output(msg));
+  return true;
 };
 
 CharacterSchema.methods.status = function () {
@@ -483,19 +438,27 @@ CharacterSchema.methods.sneakMode = function () {
   return this.hasState(characterStates.SNEAKING);
 };
 
+CharacterSchema.methods.update = function () {
+  this.states.forEach(cs => {
+    if (cs.update) {
+      cs.update(this);
+    }
+  });
+};
+
 /**
  * Checks if a command being executed affects a character's current states.
  * @param {Character} character
  * @param {Object} command
  * @returns {Boolean} - Whether or not the command can continue.
  */
-CharacterSchema.methods.processStates = function (command) {
+CharacterSchema.methods.processStates = function (actionCategory) {
 
   // if any state restricts the action, we will let that trump deactivating other states.
   // For this reason, we must check all states for action prevention first.
   const restrictStates = this.states.filter(s => s.mode === stateMode.RESTRICT);
   for (let state of restrictStates) {
-    if (!state.commandCategories.includes(command.category)) {
+    if (!state.actionCategories.includes(actionCategory)) {
       if (state.message) {
         // treat a regular string as a template literal
         const msg = new Function(`return \`${state.message}\`;`).call(this);
@@ -513,7 +476,7 @@ CharacterSchema.methods.processStates = function (command) {
   for (let i = 0; i < deactivateStates.length; i++) {
     let state = deactivateStates[i];
 
-    if (!state.commandCategories.includes(command.category)) {
+    if (!state.actionCategories.includes(actionCategory)) {
       if (state.message) {
         let msg = new Function(`return \`${state.message}\`;`).call(this);
         this.output(msg);

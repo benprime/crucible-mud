@@ -1,7 +1,9 @@
 import mongoose from 'mongoose';
 import autocomplete from '../core/autocomplete';
 import itemData from '../data/itemData';
-import { spawnAndGive } from '../commands/spawn';
+
+// TODO: Move this dependency into a shared module in core
+import { spawnAndGive } from '../modules/admin/actions/spawnAction';
 
 const shopCache = {};
 
@@ -48,22 +50,24 @@ ShopSchema.methods.getStockTypes = function () {
   });
 };
 
-ShopSchema.methods.getItemTypeByAutocomplete = function (itemName) {
+ShopSchema.methods.getItemTypeByAutocomplete = function (character, itemName) {
   const stockTypes = this.getStockTypes();
   const itemTypes = stockTypes.map(st => st.itemType);
 
   const acResult = autocomplete.byProperty(itemTypes, 'name', itemName);
   if (Array.isArray(acResult) && acResult.length > 1) {
     const names = acResult.map(i => i.name);
-    return Promise.reject(`Which ${itemName} did you mean?\n` + names.join('\n'));
+    character.output(`Which ${itemName} did you mean?\n` + names.join('\n'));
+    return false;
   }
 
   if (Array.isArray(acResult) && acResult.length === 1) {
-    return Promise.resolve(acResult[0]);
+    return acResult[0];
   }
 
   if (Array.isArray(acResult) && acResult.length === 0) {
-    return Promise.reject('This shop does not deal in those types of items.');
+    character.output('This shop does not deal in those types of items.');
+    return false;
   }
 };
 
@@ -75,7 +79,7 @@ ShopSchema.methods.buy = function (character, itemType) {
   }
 
   // item is out of stock
-  if (stockType.quantity === 0) {
+  if (stockType.quantity <= 0) {
     return;
   }
 

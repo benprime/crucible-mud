@@ -1,12 +1,11 @@
 import { mockGetRoomSockets, mockGetSocketByCharacterId } from '../core/socketUtil';
 import directions, { getDirection } from '../core/directions';
-import Mob from '../models/mob';
+import Mob from './mob';
 import mobData from '../data/mobData';
 import mocks from '../../spec/mocks';
 import { Types } from 'mongoose';
 const { ObjectId } = Types;
-import sutModel from '../models/room';
-import Room from '../models/room';
+import sutModel from './room';
 
 jest.mock('../core/socketUtil');
 
@@ -168,10 +167,9 @@ describe('room model', () => {
           room.x = 5;
           room.y = 5;
           room.z = 5;
-          const targetCoords = room.dirToCoords('s');
-          resultRoom.x = targetCoords.x;
-          resultRoom.y = targetCoords.y;
-          resultRoom.z = targetCoords.z;
+          resultRoom.x = 5;
+          resultRoom.y = 4;
+          resultRoom.z = 5;
           sutModel.roomCache = {};
           sutModel.roomCache[resultRoom.id] = resultRoom;
 
@@ -205,26 +203,21 @@ describe('room model', () => {
 
       test('should build output string with just title and exits when short parameter is passed', () => {
         mockGetRoomSockets.mockReturnValueOnce([]);
-        return room.getDesc(socket.character, true).then(output => {
-          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n');
-        });
-
+        let output = room.getDesc(socket.character, true);
+        expect(output).toEqual('<span class="cyan">Test sutModel</span>\n');
       });
 
       test('should build output string with description when short parameter is false', () => {
         mockGetRoomSockets.mockReturnValueOnce([]);
-        return room.getDesc(socket.character, false).then(output => {
-          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n');
-        });
+        let output = room.getDesc(socket.character, false);
+        expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n');
       });
 
       test('should include inventory in output when inventory length is not zero', () => {
         mockGetRoomSockets.mockReturnValueOnce([]);
         room.inventory = [{ name: 'An Item' }];
-        return room.getDesc(socket.character).then(output => {
-          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="darkcyan">You notice: An Item.</span>\n');
-        });
-
+        let output = room.getDesc(socket.character);
+        expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="darkcyan">You notice: An Item.</span>\n');
       });
 
       test('should include users in room when the user is not the only user in room', () => {
@@ -234,51 +227,25 @@ describe('room model', () => {
         socket2.character.name = 'TestUser2';
         mockGetRoomSockets.mockReturnValueOnce([socket1, socket2]);
 
-        return room.getDesc(socket.character).then(output => {
-          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="mediumOrchid">Also here: <span class="teal">TestUser1<span class="mediumOrchid">, </span>TestUser2</span>.</span>\n');
-        });
+        let output = room.getDesc(socket.character);
+        expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="mediumOrchid">Also here: <span class="teal">TestUser1<span class="mediumOrchid">, </span>TestUser2</span>.</span>\n');
       });
 
       test('should include exits when there is at least one exit in the room', () => {
         mockGetRoomSockets.mockReturnValueOnce([]);
         room.exits = [{ dir: 'n' }];
-        return room.getDesc(socket.character).then(output => {
-          expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="green">Exits: north</span>\n');
-        });
+        let output = room.getDesc(socket.character);
+        expect(output).toEqual('<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="green">Exits: north</span>\n');
 
       });
 
       test('should display room id when user is an admin', () => {
         mockGetRoomSockets.mockReturnValueOnce([]);
         socket.user.debug = true;
-        return room.getDesc(socket.character).then(output => {
-          expect(output).toEqual(`<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="gray">Room ID: ${room.id}</span>\n<span class="gray">Room coords: ${room.x}, ${room.y}</span>\n`);
-        });
-
+        let output = room.getDesc(socket.character);
+        expect(output).toEqual(`<span class="cyan">Test sutModel</span>\n<span class="silver">Test sutModel Description</span>\n<span class="gray">Room ID: ${room.id}</span>\n<span class="gray">Room coords: ${room.x}, ${room.y}</span>\n`);
       });
     });
-
-    describe('getMobById', () => {
-      test('should return mob by in the room', () => {
-        let mob = Object.create(Mob.prototype);
-        mob.displayName = 'Test Mob';
-        room.mobs = [mob];
-
-        let result = room.getMobById(mob.id);
-
-        expect(result).toBe(mob);
-      });
-
-      test('should return falsy when mob not found', () => {
-        let mob = Object.create(Mob.prototype);
-        mob.displayName = 'Test Mob';
-
-        let result = room.getMobById(mob.id);
-
-        expect(result).toBeFalsy();
-      });
-    });
-
 
     describe('getExit', () => {
       test('should return undefined if exit does not exists', () => {
@@ -423,141 +390,6 @@ describe('room model', () => {
         expect(room.mobs[2].taunt).toHaveBeenCalled();
       });
     });
-
-
-    describe('closeDoor', () => {
-      beforeEach(() => {
-        room = new Room();
-        room.save = jest.fn();
-
-        room.exits = [
-          { dir: 'n', roomId: 'nRoomId', closed: true },
-          { dir: 's', roomId: 'sRoomId', closed: false },
-          { dir: 'e', roomId: 'eRoomId' },
-          { dir: 'w', roomId: 'wRoomId' },
-        ];
-      });
-
-      test('should print message on invalid direction', () => {
-        expect.assertions(1);
-        return room.closeDoor(directions.NE).catch((response) => {
-          expect(response).toBe('There is no exit in that direction!');
-        });
-
-      });
-
-      test('should print message when no door exists in valid direction', () => {
-        expect.assertions(1);
-        return room.closeDoor(directions.E).catch(response => expect(response).toBe('There is no door in that direction!'));
-      });
-
-      test('should be succesful when door is open', () => {
-        return room.closeDoor(directions.S);
-      });
-
-      test('should be succesful when door is already closed', () => {
-        return room.closeDoor(directions.N);
-      });
-
-    });
-
-    describe('openDoor', () => {
-
-      beforeEach(() => {
-        room.exits = [
-          { dir: 'n', roomId: 'nRoomId', closed: true },
-          { dir: 's', roomId: 'sRoomId', closed: false },
-          { dir: 'e', roomId: 'eRoomId', keyName: 'someKey', locked: true, closed: true },
-          { dir: 'w', roomId: 'wRoomId', keyName: 'someKey', locked: false, closed: false },
-          { dir: 'se', roomId: 'seRoomId', keyName: 'someKey', locked: false, closed: true },
-          { dir: 'sw', roomId: 'swRoomId' },
-        ];
-      });
-      test('should output message when direction is invalid', () => {
-        expect.assertions(1);
-
-        return room.openDoor(directions.NE).catch((response) => {
-          expect(response).toBe('There is no exit in that direction!');
-        });
-
-      });
-
-      test('should output message when direction has no door', () => {
-        expect.assertions(2);
-
-        return room.openDoor(directions.SW).catch((response) => {
-          const exit = room.exits.find(({ dir }) => dir === 'sw');
-
-          expect(exit.hasOwnProperty('closed')).toBe(false);
-          expect(response).toBe('There is no door in that direction!');
-        });
-      });
-
-      describe('when key is associated', () => {
-        test('should fail and output message when door is locked and closed', () => {
-          expect.assertions(4);
-
-          return room.openDoor(directions.E).catch((response) => {
-            const exit = room.exits.find(({ dir }) => dir === 'e');
-
-            expect(exit.keyName).toBe('someKey');
-            expect(exit.locked).toBe(true);
-            expect(exit.closed).toBe(true);
-            expect(response).toBe('That door is locked.');
-          });
-
-        });
-
-        test('should succeed and output message when door is unlocked and closed', () => {
-          expect.assertions(3);
-
-          return room.openDoor(directions.SE).then(() => {
-            const exit = room.exits.find(({ dir }) => dir === 'se');
-            expect(exit.keyName).toBe('someKey');
-            expect(exit.locked).toBe(false);
-            expect(exit.closed).toBe(false);
-          });
-
-        });
-
-        test('should send messages when door and is unlocked and open', () => {
-          expect.assertions(4);
-
-          return room.openDoor(directions.W).catch((response) => {
-            const exit = room.exits.find(({ dir }) => dir === 'w');
-
-            expect(exit.keyName).toBe('someKey');
-            expect(exit.locked).toBe(false);
-            expect(exit.closed).toBe(false);
-            expect(response).toBe('That door is already open.');
-          });
-
-        });
-      });
-
-      describe('when no key is associated', () => {
-        test('should output message when door is closed', () => {
-          expect.assertions(1);
-
-          return room.openDoor(directions.N).then(() => {
-            const exit = room.exits.find(({ dir }) => dir === 'n');
-
-            expect(exit.closed).toBe(false);
-          });
-
-        });
-
-        test('should output message when door is already open', () => {
-          expect.assertions(1);
-
-          return room.openDoor(directions.S).catch((response) => {
-            expect(response).toBe('That door is already open.');
-          });
-
-        });
-      });
-
-
-    });
   });
+
 });

@@ -6,7 +6,7 @@ export class Direction {
   }
 }
 
-const directions = {
+const privateDirEnum = {
   N: new Direction({
     short: 'n',
     long: 'north',
@@ -62,29 +62,42 @@ const directions = {
 };
 
 // add opposite directions
-directions.N.opposite = directions.S;
-directions.S.opposite = directions.N;
-directions.E.opposite = directions.W;
-directions.W.opposite = directions.E;
-directions.NE.opposite = directions.SW;
-directions.NW.opposite = directions.SE;
-directions.SE.opposite = directions.NW;
-directions.SW.opposite = directions.NE;
-directions.U.opposite = directions.D;
-directions.D.opposite = directions.U;
-
-Object.freeze(directions);
+privateDirEnum.N.opposite = privateDirEnum.S;
+privateDirEnum.S.opposite = privateDirEnum.N;
+privateDirEnum.E.opposite = privateDirEnum.W;
+privateDirEnum.W.opposite = privateDirEnum.E;
+privateDirEnum.NE.opposite = privateDirEnum.SW;
+privateDirEnum.NW.opposite = privateDirEnum.SE;
+privateDirEnum.SE.opposite = privateDirEnum.NW;
+privateDirEnum.SW.opposite = privateDirEnum.NE;
+privateDirEnum.U.opposite = privateDirEnum.D;
+privateDirEnum.D.opposite = privateDirEnum.U;
 
 export const getDirection = (dir) => {
-  if(!dir) return;
-  if (dir.length > 2) {
-    // lookup by long direction names
-    return Object.values(directions).find(d => d.long === dir.toLowerCase());
-  } else {
-    // lookup by short direction names
-    const key = dir.toUpperCase();
-    return directions[key];
+  if (!dir) return;
+
+  // lookup by short direction names
+  let dirObj = privateDirEnum[dir.toUpperCase()];
+
+  // lookup by long direction names
+  if (!dirObj) {
+    dirObj = Object.values(privateDirEnum).find(d => d.long === dir.toLowerCase());
   }
+
+  return dirObj;
 };
 
+const handler = {
+  get: (obj, prop) => {
+    if (!(prop in obj)) {
+      throw new TypeError(`Invalid enum value: ${prop.toString()}`);
+    }
+    return obj[prop];
+  },
+  set: () => {
+    throw new TypeError('Cannot set value of enum');
+  },
+};
+
+const directions = new Proxy(privateDirEnum, handler);
 export default directions;

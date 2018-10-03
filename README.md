@@ -2,8 +2,8 @@
 CrucibleMUD is a web socket framework for creating massively multiplayer text-based games.
 
 
-- Production: www.cruciblemud.com
-- Development: develop.cruciblemud.com
+Environments:
+[Development](http://develop.cruciblemud.com)
 
 
 Necessary environment variables:

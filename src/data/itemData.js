@@ -29,6 +29,7 @@ export default {
       equipSlots: [EquipSlots.WEAPONMAIN],
       damage: '1d5+1',  //die roll + modifier
       damageType: DamageTypes.SLASHING,  //piercing, slashing, bludgeoning
+      attackStat: 'STR',
       //speed: 0,  //scale from -1(slowest) to 1(fastest)
       //bonus: 'damage + 0', //stat + modifier
     },
@@ -40,6 +41,7 @@ export default {
       equipSlots: [EquipSlots.WEAPONMAIN, EquipSlots.WEAPONOFF],
       damage: '1d6+3',  //die roll + modifier
       damageType: DamageTypes.SLASHING,  //piercing, slashing, bludgeoning
+      attackStat: 'STR',
       //speed: 0,  //scale from -1(slowest) to 1(fastest)
       //bonus: 'damage + 0', //stat + modifier
     },
@@ -57,6 +59,7 @@ export default {
       equipSlots: [EquipSlots.WEAPONOFF],  //mainHand/offHand/bothHand/eitherHand, head, non, etc
       damage: '1d2',  //die roll (+/-)modifier
       damageType: DamageTypes.BLUDGEONING,  //piercing, slashing, bludgeoning
+      attackStat: 'STR',
       //speed: -.5,  //scale from -1(slowest) to 1(fastest)
       //bonus: 'damage + 1d4 fire', //stat + modifier
     },

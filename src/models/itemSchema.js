@@ -14,7 +14,7 @@ const ItemSchema = new mongoose.Schema({
     enum: itemTypeEnum,
   },
   hidden: Boolean,
-  range: String,
+  attackStat: String,  //STR,DEX,INT
   fixed: Boolean,
   equipSlots: [String],
   damage: String,

@@ -153,24 +153,10 @@ CharacterSchema.methods.readyToAttack = function (now) {
   return this.attackTarget && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
 };
 
-CharacterSchema.methods.attackroll = () => /*
-/* UserSchema.methods.attackroll = weapon =>
-var wdParts = weapon.damage.spltest(" ");
-
-if(!weapon) {
-  return this.strengh + (dice.roll(this.actionDie) - 2);  --bare fist
-}
-if(weapon.range = 'melee') {
-  return this.strengh + dice.roll(wdParts[0]) + wdParts[1];
-}
-console.log('attackroll weapon resolution error');
-return 0;
-*/
-
-  // just return 0 or 1 for now
-  dice.roll('1d2');
-
-
+CharacterSchema.methods.attackroll = function () {
+  //for now characters will only fail to hit on a natural 1 roll with their action die
+  return dice.roll(this.actionDie);
+};
 
 // TODO: perhaps have miss verbs per weapon type also: "thrusts at, stabs at" in addition to "swings at"
 CharacterSchema.methods.getAttackVerb = function (weapon) {
@@ -195,14 +181,42 @@ CharacterSchema.methods.attack = function (mob, now) {
   let roomMessage = '';
 
   let attackResult = this.attackroll();
-  const hit = attackResult === 2;
+  const hit = attackResult >= 2;  //currently only fail on nat 1
 
   // a successful attack
-  let weapon;
   if (hit) {
+    let weapon, weapon2, dmg;
+
     weapon = this.inventory.id(this.equipped.weaponMain);
-    let diceToRoll = weapon ? weapon.damage : '1d2';
-    let dmg = dice.roll(diceToRoll); // todo: +STR modifier
+    weapon2 = this.inventory.id(this.equipped.weaponOff);
+    dmg = 0;
+
+    if (!weapon && !weapon2) {
+      dmg = this.stats.strength * (dice.roll(this.actionDie) - 1);  //bare fisted attacks deal damage of either STR (action die roll > 1) or 0 (action die roll = 1)
+    }
+    else {  //weapon hits deal damage of relevant skill stat + action die roll
+      let diceToRoll = weapon.damage ? weapon.damage : '1d2';
+
+      if (weapon.attackStat == 'STR')
+        dmg = this.stats.strength + dice.roll(diceToRoll);
+      else if (weapon.attackStat == 'DEX')
+        dmg = this.stats.dexterity + dice.roll(diceToRoll);
+      else if (weapon.attackStat == 'INT')
+        dmg = this.stats.intelligence + dice.roll(diceToRoll);
+
+      if (weapon2) { //if offhand weapon is equipped, add relevant damage
+
+        let diceToRoll2 = weapon2.damage ? weapon2.damage : '1d2';
+
+        if (weapon2.attackStat == 'STR')
+          dmg += this.stats.strength + dice.roll(diceToRoll2);
+        else if (weapon2.attackStat == 'DEX')
+          dmg += this.stats.dexterity + dice.roll(diceToRoll2);
+        else if (weapon2.attackStat == 'INT')
+          dmg += this.stats.intelligence + dice.roll(diceToRoll2);
+      }
+    }
+
     mob.takeDamage(dmg);
 
     // messages

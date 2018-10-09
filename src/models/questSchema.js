@@ -20,7 +20,7 @@ Step 2 from above: Kill a pig
 Name: "Kill a pig"
 Synopsis: "Find a meat source"
 Steps: 1) Kill pig
-Current Step: 1
+//Current Step: 1
 Success:
   Action: Kill something
   Target: Pig

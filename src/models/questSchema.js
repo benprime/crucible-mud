@@ -4,7 +4,7 @@ export default new mongoose.Schema({
   name: [String], //"Bringing home the bacon"
   synopsis: [String], //"Your mom needs more bacon to cook breakfast tommorow"
   steps: [this], //1) Find a pig 2) Kill a pig 3) Collect meat from pig 4) Bring bacon home
-  currentStep: Number, //2) Kill a pig
+  //currentStep: Number, //2) Kill a pig  - this will be marked elsewhere
   success: {
     actionType: [String], //2) Complete quest step
     target: [String], //step 4

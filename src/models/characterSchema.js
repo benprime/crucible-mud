@@ -192,7 +192,7 @@ CharacterSchema.methods.attack = function (mob, now) {
     dmg = 0;
 
     if (!weapon && !weapon2) {
-      dmg = this.stats.strength * (dice.roll(this.actionDie) - 1);  //bare fisted attacks deal damage of either STR (action die roll > 1) or 0 (action die roll = 1)
+      dmg = this.stats.strength * (dice.roll(this.actionDie) % 2);  //bare fisted attacks deal damage of either STR (action die roll = odd) or 0 (action die roll = even)
     }
     else {  //weapon hits deal damage of relevant skill stat + action die roll
       let diceToRoll = weapon.damage ? weapon.damage : '1d2';

@@ -32,9 +32,9 @@ export default {
   admin: true,
 
   patterns: [
-    /^spawn\s+(mob)\s+(\w+)$/i,
-    /^spawn\s+(item)\s+(\w+)$/i,
-    /^spawn\s+(key)\s+(\w+)$/i,
+    /^spawn\s+(mob)\s+(.+)$/i,
+    /^spawn\s+(item)\s+(.+)$/i,
+    /^spawn\s+(key)\s+(.+)$/i,
     /^spawn\s+/i,
     /^spawn$/i,
   ],

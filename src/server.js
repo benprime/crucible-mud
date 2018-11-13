@@ -59,14 +59,12 @@ db.once('open', () => {
             commandHandler.processDispatch(socket, input);
             // .catch(err => {
             //   globalErrorHandler(err);
-            //   socket.character.output('An error occurred.');
+            //   socket.character.output(err);
             // });
           } catch (err) {
             globalErrorHandler(err);
-            socket.character.output('An error occurred.');
+            socket.character.output(err);
           }
-
-
 
           break;
         case config.STATES.LOGIN_USERNAME:

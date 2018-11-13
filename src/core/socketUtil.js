@@ -107,7 +107,7 @@ export default {
   },
 
   getAllSockets() {
-    return Object.values(global.io.sockets.connected).filter(s => s.user);
+    return Object.values(global.io.sockets.connected).filter(s => s.character);
   },
 
 };

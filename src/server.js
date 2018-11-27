@@ -11,6 +11,8 @@ import './core/dayCycle';
 import socketUtil from './core/socketUtil';
 import moduleManager from './core/moduleManager';
 import commandHandler from './core/commandHandler';
+import jwt from 'jsonwebtoken';
+const secret = 'SUPER-SECRET';
 
 const app = express();
 const serve = http.createServer(app);
@@ -28,7 +30,6 @@ const db = mongoose.connection;
 global.db = db;
 global.io = io;
 
-
 moduleManager.loadModules();
 let input;
 
@@ -37,12 +38,26 @@ db.on('error', console.error.bind(console, 'connection error:'));
 
 db.once('open', () => {
 
-  io.on('connection', (socket) => {
-
+  io.use((socket, next) => {
     socket.state = config.STATES.LOGIN_USERNAME;
+
+    let token = socket.handshake.query.token;
+    if (!token) return next();
+
+    let tokenData = jwt.verify(token, secret);
+    if (tokenData) {
+      let userId = mongoose.Types.ObjectId(tokenData.data);
+      loginUtil.loginUserId(socket, userId);
+      socket.state = config.STATES.MUD;
+      return next();
+    }
+  }).on('connection', (socket) => {
     socket.emit('output', { message: 'Connected.' });
     welcome.WelcomeMessage(socket);
-    socket.emit('output', { message: 'Enter username:' });
+
+    if (socket.state === 0) {
+      socket.emit('output', { message: 'Enter username:' });
+    }
 
     socket.on('disconnect', () => {
       if (socket.character) {

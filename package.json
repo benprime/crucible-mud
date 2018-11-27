@@ -4,8 +4,10 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "@types/jsonwebtoken": "^8.3.0",
     "ascii-table": "0.0.9",
     "express": "^4.16.1",
+    "jsonwebtoken": "^8.4.0",
     "mongodb": "^2.2.19",
     "mongoose": "^4.13.17",
     "mongoose-data-seed": "^1.0.6",

@@ -5,7 +5,8 @@ import Room from '../models/room';
 import User from '../models/user';
 import Character from '../models/character';
 import characterStates from './characterStates';
-
+import jwt from 'jsonwebtoken';
+const secret = 'SUPER-SECRET';
 
 function AddUserToRealm(socket, user) {
   return Character.findByUser(user).then(character => {
@@ -83,6 +84,16 @@ function AddUserToRealm(socket, user) {
 }
 
 export default {
+  loginUserId(socket, userId) {
+    return User.findOne({ _id: userId }).then(user => {
+      if (!user) {
+        return Promise.reject('Unknown user, please try again.');
+      }
+
+      return AddUserToRealm(socket, user);
+    });
+  },
+
   loginUsername(socket, { value }) {
     if (socket.state == config.STATES.LOGIN_USERNAME) {
       Character.findByName(value).then(character => {
@@ -106,6 +117,12 @@ export default {
         if (!user) {
           return Promise.reject('Wrong password, please try again.');
         }
+
+        var token = jwt.sign({
+          data: user.id,
+        }, secret, { expiresIn: '1h' });
+
+        socket.emit('authentication', {token: token});
 
         delete socket.tempEmail;
 

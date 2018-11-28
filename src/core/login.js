@@ -6,6 +6,8 @@ import User from '../models/user';
 import Character from '../models/character';
 import characterStates from './characterStates';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+import welcome from './welcome';
 const secret = 'SUPER-SECRET';
 
 function AddUserToRealm(socket, user) {
@@ -61,7 +63,7 @@ function AddUserToRealm(socket, user) {
 
     character.setupEvents();
 
-    if(character.currentHP <= 0) {
+    if (character.currentHP <= 0) {
       character.setState(characterStates.INCAPACITATED);
     }
 
@@ -84,6 +86,34 @@ function AddUserToRealm(socket, user) {
 }
 
 export default {
+
+  verifyToken(socket) {
+    socket.state = config.STATES.LOGIN_USERNAME;
+
+    let token = socket.handshake.query.token;
+    if (!token) return false;
+    let tokenData;
+    try {
+      tokenData = jwt.verify(token, secret);
+    } catch (e) {
+      console.log(e);
+    }
+    if (tokenData) {
+      let userId = mongoose.Types.ObjectId(tokenData.data);
+      this.loginUserId(socket, userId);
+      socket.state = config.STATES.MUD;
+      return true;
+    }
+  },
+
+  logout(socket) {
+    socket.userId = null;
+    socket.character = null;
+    socket.state = config.STATES.LOGIN_USERNAME;
+    welcome.WelcomeMessage(socket);
+    socket.emit('output', { message: 'Enter username:' });
+  },
+
   loginUserId(socket, userId) {
     return User.findOne({ _id: userId }).then(user => {
       if (!user) {
@@ -122,7 +152,7 @@ export default {
           data: user.id,
         }, secret, { expiresIn: '1h' });
 
-        socket.emit('authentication', {token: token});
+        socket.emit('authentication', { token: token });
 
         delete socket.tempEmail;
 

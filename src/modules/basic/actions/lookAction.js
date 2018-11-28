@@ -42,6 +42,9 @@ export default {
 
     if (lookTarget instanceof Room) {
       let output = lookTarget.getDesc(character, short);
+      if(short) {
+        output = `\n${output}`;
+      }
       character.output(output);
       return;
     }

@@ -1,18 +1,15 @@
 import express from 'express';
 import http from 'http';
-//import commands from './commands/';
 import config, { globalErrorHandler } from './config';
 import welcome from './core/welcome';
-import loginUtil from './core/login';
+import login from './core/login';
 import ioFactory from 'socket.io';
 import mongoose from 'mongoose';
-//import './core/combat';
 import './core/dayCycle';
 import socketUtil from './core/socketUtil';
 import moduleManager from './core/moduleManager';
 import commandHandler from './core/commandHandler';
-import jwt from 'jsonwebtoken';
-const secret = 'SUPER-SECRET';
+
 
 const app = express();
 const serve = http.createServer(app);
@@ -39,18 +36,8 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
 
   io.use((socket, next) => {
-    socket.state = config.STATES.LOGIN_USERNAME;
-
-    let token = socket.handshake.query.token;
-    if (!token) return next();
-
-    let tokenData = jwt.verify(token, secret);
-    if (tokenData) {
-      let userId = mongoose.Types.ObjectId(tokenData.data);
-      loginUtil.loginUserId(socket, userId);
-      socket.state = config.STATES.MUD;
-      return next();
-    }
+    login.verifyToken(socket);
+    return next();
   }).on('connection', (socket) => {
     socket.emit('output', { message: 'Connected.' });
     welcome.WelcomeMessage(socket);
@@ -83,10 +70,10 @@ db.once('open', () => {
 
           break;
         case config.STATES.LOGIN_USERNAME:
-          loginUtil.loginUsername(socket, data);
+          login.loginUsername(socket, data);
           break;
         case config.STATES.LOGIN_PASSWORD:
-          loginUtil.loginPassword(socket, data);
+          login.loginPassword(socket, data);
           break;
       }
     });

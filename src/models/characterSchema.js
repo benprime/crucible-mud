@@ -374,20 +374,27 @@ CharacterSchema.methods.toParty = function (msg) {
 
 CharacterSchema.methods.status = function () {
 
-  let status = healthStatus.UNHARMED;
+  let status = {
+    text : healthStatus.UNHARMED,
+    style : 'green',
+  };
 
   const quotient = this.currentHP / this.maxHP;
   if (quotient <= 0) {
-    status = `<span class="red">${healthStatus.INCAPACITATED}</span>`;
+    status.text = healthStatus.INCAPACITATED;
+    status.style = 'red';
   }
   else if (quotient <= 0.33) {
-    status = `<span class="firebrick">${healthStatus.SEVERELY_WOUNDED}</span>`;
+    status.text = healthStatus.SEVERELY_WOUNDED;
+    status.style = 'firebrick';
   }
   else if (quotient <= 0.66) {
-    status = `<span class="yellow">${healthStatus.MODERATELY_WOUNDED}</span>`;
+    status.text = healthStatus.MODERATELY_WOUNDED;
+    status.style = 'yellow';
   }
   else if (quotient < 1) {
-    status = `<span class="olive">${healthStatus.LIGHTLY_WOUNDED}</span>`;
+    status.text = healthStatus.LIGHTLY_WOUNDED;
+    status.style = 'olive';
   }
   return status;
 };

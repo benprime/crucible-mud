@@ -36,7 +36,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
 
   io.use((socket, next) => {
-    login.verifyToken(socket);
+    login.tokenLogin(socket);
     return next();
   }).on('connection', (socket) => {
     socket.emit('output', { message: 'Connected.' });

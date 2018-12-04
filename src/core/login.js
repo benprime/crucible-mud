@@ -8,7 +8,12 @@ import characterStates from './characterStates';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import welcome from './welcome';
+
 const secret = 'SUPER-SECRET';
+
+// TODO: tokens should expire out of the cache.
+// add config value to use for both token expiration and cache expiration.
+const tokenCache = {};
 
 function AddUserToRealm(socket, user) {
   return Character.findByUser(user).then(character => {
@@ -87,11 +92,14 @@ function AddUserToRealm(socket, user) {
 
 export default {
 
-  verifyToken(socket) {
+  tokenLogin(socket) {
     socket.state = config.STATES.LOGIN_USERNAME;
 
     let token = socket.handshake.query.token;
     if (!token) return false;
+    if(!(token in tokenCache)) return false;
+    socket.token = token;
+
     let tokenData;
     try {
       tokenData = jwt.verify(token, secret);
@@ -107,8 +115,10 @@ export default {
   },
 
   logout(socket) {
-    socket.userId = null;
-    socket.character = null;
+    delete socket.userId;
+    delete socket.character;
+    delete tokenCache[socket.token];
+    delete socket.token;
     socket.state = config.STATES.LOGIN_USERNAME;
     welcome.WelcomeMessage(socket);
     socket.emit('output', { message: 'Enter username:' });
@@ -148,10 +158,12 @@ export default {
           return Promise.reject('Wrong password, please try again.');
         }
 
-        var token = jwt.sign({
+        let token = jwt.sign({
           data: user.id,
         }, secret, { expiresIn: '1h' });
 
+        tokenCache[token] = true;
+        socket.token = token;
         socket.emit('authentication', { token: token });
 
         delete socket.tempEmail;

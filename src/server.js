@@ -1,16 +1,15 @@
 import express from 'express';
 import http from 'http';
-//import commands from './commands/';
 import config, { globalErrorHandler } from './config';
 import welcome from './core/welcome';
-import loginUtil from './core/login';
+import login from './core/login';
 import ioFactory from 'socket.io';
 import mongoose from 'mongoose';
-//import './core/combat';
 import './core/dayCycle';
 import socketUtil from './core/socketUtil';
 import moduleManager from './core/moduleManager';
 import commandHandler from './core/commandHandler';
+
 
 const app = express();
 const serve = http.createServer(app);
@@ -28,7 +27,6 @@ const db = mongoose.connection;
 global.db = db;
 global.io = io;
 
-
 moduleManager.loadModules();
 let input;
 
@@ -37,12 +35,16 @@ db.on('error', console.error.bind(console, 'connection error:'));
 
 db.once('open', () => {
 
-  io.on('connection', (socket) => {
-
-    socket.state = config.STATES.LOGIN_USERNAME;
+  io.use((socket, next) => {
+    login.tokenLogin(socket);
+    return next();
+  }).on('connection', (socket) => {
     socket.emit('output', { message: 'Connected.' });
     welcome.WelcomeMessage(socket);
-    socket.emit('output', { message: 'Enter username:' });
+
+    if (socket.state === 0) {
+      socket.emit('output', { message: 'Enter username:' });
+    }
 
     socket.on('disconnect', () => {
       if (socket.character) {
@@ -68,10 +70,10 @@ db.once('open', () => {
 
           break;
         case config.STATES.LOGIN_USERNAME:
-          loginUtil.loginUsername(socket, data);
+          login.loginUsername(socket, data);
           break;
         case config.STATES.LOGIN_PASSWORD:
-          loginUtil.loginPassword(socket, data);
+          login.loginPassword(socket, data);
           break;
       }
     });

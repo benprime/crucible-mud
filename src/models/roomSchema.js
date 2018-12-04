@@ -337,6 +337,7 @@ RoomSchema.methods.processPlayerCombatActions = function (now) {
   const characters = this.getCharacters();
 
   for (let c of characters) {
+    if(!c) return; // incase someone logs out while this loop is running
     if (!c.attackTarget) continue;
     let mob = this.mobs.find(({ id }) => id === c.attackTarget);
     if (!mob) continue;
@@ -347,6 +348,7 @@ RoomSchema.methods.processPlayerCombatActions = function (now) {
 RoomSchema.methods.processEndOfRound = function (round) {
   const characters = this.getCharacters();
   characters.forEach(c => {
+    if(!c) return;
     c.processEndOfRound(round);
   });
 };

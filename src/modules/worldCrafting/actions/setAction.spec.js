@@ -34,7 +34,7 @@ describe('set', () => {
         expect(result).toBe(true);
         expect(mockRoom.name).toBe('new name value');
         expect(mockRoom.save).toHaveBeenCalled();
-        expect(socket.character.toRoom).toHaveBeenCalledWith('TestUser has altered the fabric of reality.', [socket.character.id]);
+        expect(mockRoom.output).toHaveBeenCalledWith('TestUser has altered the fabric of reality.');
 
       });
     });

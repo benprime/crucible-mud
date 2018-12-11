@@ -1,4 +1,4 @@
-
+import { getDirection } from '../../../core/directions';
 
 export default {
   name: 'create room',
@@ -11,7 +11,8 @@ export default {
   ],
 
   parseParams(match) {
-    return [this.name, match[1]];
+    const dir = getDirection(match[1]);
+    return [this.name, dir];
   },
 
   help(character) {

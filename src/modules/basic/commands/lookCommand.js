@@ -25,12 +25,12 @@ export default {
       if (lookTarget === 'me' || lookTarget === 'self') {
         lookTarget = character;
       } else {
-        const acResult = autocomplete.multiple(character, ['inventory', 'room', 'mob', 'character'], lookTarget);
-        if (acResult) {
-          lookTarget = acResult.item;
+        const dir = getDirection(lookTarget);
+        if(dir) {
+          lookTarget = dir;
         } else {
-          const dir = getDirection(lookTarget);
-          if (dir) lookTarget = dir;
+          const acResult = autocomplete.multiple(character, ['inventory', 'room', 'mob', 'character'], lookTarget);
+          lookTarget = acResult.item;
         }
       }
     } else {

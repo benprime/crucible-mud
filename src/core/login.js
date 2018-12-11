@@ -5,7 +5,15 @@ import Room from '../models/room';
 import User from '../models/user';
 import Character from '../models/character';
 import characterStates from './characterStates';
+import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+import welcome from './welcome';
 
+const secret = 'SUPER-SECRET';
+
+// TODO: tokens should expire out of the cache.
+// add config value to use for both token expiration and cache expiration.
+const tokenCache = {};
 
 function AddUserToRealm(socket, user) {
   return Character.findByUser(user).then(character => {
@@ -60,7 +68,7 @@ function AddUserToRealm(socket, user) {
 
     character.setupEvents();
 
-    if(character.currentHP <= 0) {
+    if (character.currentHP <= 0) {
       character.setState(characterStates.INCAPACITATED);
     }
 
@@ -83,6 +91,49 @@ function AddUserToRealm(socket, user) {
 }
 
 export default {
+
+  tokenLogin(socket) {
+    socket.state = config.STATES.LOGIN_USERNAME;
+
+    let token = socket.handshake.query.token;
+    if (!token) return false;
+    if(!(token in tokenCache)) return false;
+    socket.token = token;
+
+    let tokenData;
+    try {
+      tokenData = jwt.verify(token, secret);
+    } catch (e) {
+      console.log(e);
+    }
+    if (tokenData) {
+      let userId = mongoose.Types.ObjectId(tokenData.data);
+      this.loginUserId(socket, userId);
+      socket.state = config.STATES.MUD;
+      return true;
+    }
+  },
+
+  logout(socket) {
+    delete socket.userId;
+    delete socket.character;
+    delete tokenCache[socket.token];
+    delete socket.token;
+    socket.state = config.STATES.LOGIN_USERNAME;
+    welcome.WelcomeMessage(socket);
+    socket.emit('output', { message: 'Enter username:' });
+  },
+
+  loginUserId(socket, userId) {
+    return User.findOne({ _id: userId }).then(user => {
+      if (!user) {
+        return Promise.reject('Unknown user, please try again.');
+      }
+
+      return AddUserToRealm(socket, user);
+    });
+  },
+
   loginUsername(socket, { value }) {
     if (socket.state == config.STATES.LOGIN_USERNAME) {
       Character.findByName(value).then(character => {
@@ -106,6 +157,14 @@ export default {
         if (!user) {
           return Promise.reject('Wrong password, please try again.');
         }
+
+        let token = jwt.sign({
+          data: user.id,
+        }, secret, { expiresIn: '1h' });
+
+        tokenCache[token] = true;
+        socket.token = token;
+        socket.emit('authentication', { token: token });
 
         delete socket.tempEmail;
 

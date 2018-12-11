@@ -69,10 +69,10 @@ function setRoom(character, prop, value) {
     }
     room[prop] = value;
 
-    room.save(err => { if (err) throw err; });
-    // todo: add a type of message that is for the room, not just a broadcast
-    character.output(`${character.name} has altered the fabric of reality.`);
-    character.toRoom(`${character.name} has altered the fabric of reality.`, [character.id]);
+    room.save(err => {
+      if (err) throw err;
+    });
+    room.output(`${character.name} has altered the fabric of reality.`);
     return true;
   }
 

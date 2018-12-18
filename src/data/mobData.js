@@ -226,6 +226,77 @@ export default {
     ],
   },
   {
+    name: 'pig',
+    desc: 'Dirty. Filthy. Delicious.',
+    damage: '1d2',
+    displayTemplate: '${this.adjective} ${this.class} ${this.name}',
+    adjectives: [
+      {
+        name: 'big',
+        modifiers: {
+          hp: 10,
+          xp: 0,
+          hitDice: 0,
+          attacksPerRound: 0.25,
+          tauntsPerRound: 0.25,
+        },
+      },
+      {
+        name: 'strong',
+        modifiers: {
+          hp: 5,
+          xp: 30,
+          hitDice: 0,
+          attacksPerRound: 0.25,
+          tauntsPerRound: 0.25,
+        },
+      },
+      {
+        name: 'quick',
+        modifiers: {
+          hp: 0,
+          xp: 0,
+          hitDice: 0,
+          attacksPerRound: -0.25,
+          tauntsPerRound: -0.25,
+        },
+      },
+      {
+        name: 'small',
+        modifiers: {
+          hp: -5,
+          xp: -5,
+          hitDice: 0,
+          attacksPerRound: -0.125,
+          tauntsPerRound: -0.125,
+        },
+      },
+      {
+        name: 'ferocious',
+        modifiers: {
+          hp: 0,
+          xp: 50,
+          hitDice: 1,
+          attacksPerRound: 0.50,
+          tauntsPerRound: 0.50,
+        },
+      },
+    ],
+
+    attacksPerRound: 1,
+    hitDice: '1d4',
+    hp: 10,
+    xp: 5,
+    tauntsPerRound: 3,
+    deathMessage: 'The {0} squeals and collapses.',
+    taunts: [
+      'The {0} oinks at {1} aggressively!',
+      'The {0} hops around {1}, looking for an opening!',
+      'The {0} squeals angrily!',
+    ],
+
+  },
+  {
     name: 'enchanted sparring dummy',
     desc: 'a sparring dummy',
     attacksPerRound: 0, // no attacks

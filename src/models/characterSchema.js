@@ -2,6 +2,7 @@
 import mongoose from 'mongoose';
 import config from '../config';
 import ItemSchema from './itemSchema';
+import QuestSchema from './questSchema';
 import Room from './room';
 import dice from '../core/dice';
 import socketUtil from '../core/socketUtil';
@@ -24,6 +25,7 @@ const CharacterSchema = new mongoose.Schema({
 
   inventory: [ItemSchema],
   keys: [ItemSchema],
+  quests: [QuestSchema],
   currency: Number,
 
   equipped: {

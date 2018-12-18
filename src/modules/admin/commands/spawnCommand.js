@@ -35,6 +35,7 @@ export default {
     /^spawn\s+(mob)\s+(.+)$/i,
     /^spawn\s+(item)\s+(.+)$/i,
     /^spawn\s+(key)\s+(.+)$/i,
+    /^spawn\s+(quest)\s+(.+)$/i,
     /^spawn\s+/i,
     /^spawn$/i,
   ],
@@ -50,6 +51,7 @@ export default {
     let output = '';
     output += '<span class="mediumOrchid">spawn mob &lt;mob name&gt; </span><span class="purple">-</span> Create <mob> in current room.<br />';
     output += '<span class="mediumOrchid">spawn item &lt;item name&gt; </span><span class="purple">-</span> Create <item> in inventory.<br />';
+    output += '<span class="mediumOrchid">spawn quest &lt;quest name&gt; </span><span class="purple">-</span> Create <quest> for character.<br />';
     character.output(output);
   },
 };

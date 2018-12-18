@@ -1,5 +1,6 @@
-export default {
+import ItemSchema from '../models/itemSchema';
 
+export default {
   // NEED MODES: Attack when attacked
   // need flags for "currently in combat" for both parties
   // -do we need to keep a list of all currently attacking people?
@@ -8,6 +9,7 @@ export default {
 
   // eventually, when the game gets more complicated, these monsters
   // will have stats.
+
   catalog: [{
     name: 'kobold',
     class: 'sentry',
@@ -239,6 +241,19 @@ export default {
           hitDice: 0,
           attacksPerRound: 0.25,
           tauntsPerRound: 0.25,
+          drops: {
+            items: [
+              new ItemSchema({
+                name: 'pork belly',
+                desc: 'layers of raw fat and muscle from a pig',
+                type: {
+                  type: 'item',
+                  enum: 'item',
+                },
+                hidden: false,
+              }),
+            ],
+          },
         },
       },
       {

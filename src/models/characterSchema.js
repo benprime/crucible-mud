@@ -143,6 +143,11 @@ CharacterSchema.methods.nextExp = function () {
   return BASE_XP * ((1 + BASE_RATE) ** (this.level - 1));
 };
 
+CharacterSchema.method.addItem = function(item) {
+  this.inventory.add(item);
+  this.save(err => { if (err) throw err; });
+}
+
 CharacterSchema.methods.addExp = function (amount) {
   this.xp += amount;
   while (this.xp >= this.nextExp()) {

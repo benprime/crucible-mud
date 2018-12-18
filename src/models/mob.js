@@ -27,6 +27,7 @@ class Mob {
       this.adjective = adjective.name;
       instance.hp += adjective.modifiers.hp;
       instance.xp += adjective.modifiers.xp;
+      instance.drops = [...adjective.drops];
       instance.hitDice += adjective.modifiers.hitDice;
       instance.attacksPerRound += adjective.modifiers.attacksPerRound;
       instance.tauntsPerRound += adjective.modifiers.tauntsPerRound;
@@ -65,7 +66,21 @@ class Mob {
     room.spawnTimer = new Date();
     global.io.to(room.id).emit('output', { message: `<span class="yellow">The ${this.displayName} collapses.</span>` });
     utils.removeItem(room.mobs, this);
+    this.awardDrops();
     this.awardExperience();
+  }
+
+  awardDrops() {
+    let sockets = socketUtil.getRoomSockets(this.roomId);
+
+    sockets.forEach((s) => {
+      this.drops.forEach((drop) => {
+        drop.items.forEach((item) => {
+          s.character.addItem(item);
+          s.emit('output', { message: `You pick up a ${item}.` });
+        });
+      });
+    });
   }
 
   awardExperience() {
@@ -134,7 +149,7 @@ class Mob {
     character.output(playerMessage);
     character.toRoom(roomMessage);
 
-    if(attackResult) {
+    if (attackResult) {
       character.takeDamage(dmg);
     }
 

@@ -1,10 +1,7 @@
 const ActionTypes = {
-  Choice: 'choice',
   Equip: 'equip',
   Kill: 'kill',
-  Moxie: 'moxie',
-  Move: 'move',
-  Skill: 'skill',
+  Fetch: 'fetch',
 };
 
 const RewardTypes = {
@@ -21,7 +18,7 @@ export default {
       steps: [],
       currentStep: 0,
       success: {
-        actionType: ActionTypes.Kill,
+        actionType: ActionTypes.Fetch,
         target: 'pig',
         message: 'Congratulations, you now get to have bacon for breakfast!',
         reward: {

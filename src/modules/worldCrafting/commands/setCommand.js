@@ -23,11 +23,12 @@ export default {
 
   parseParams(match) {
     if (match.length < 3) return false;
-    return [this.name, match[1], match[2]];
+    return [this.name, match[1], match[2], match[3]];
   },
 
   help(character) {
     let output = '';
+    output += '<span class="mediumOrchid">set room area &lt;area to assign&gt; </span><span class="purple">-</span> Change area of current room.<br />';
     output += '<span class="mediumOrchid">set room name &lt;new room name&gt; </span><span class="purple">-</span> Change name of current room.<br />';
     output += '<span class="mediumOrchid">set room desc &lt;new room desc&gt; </span><span class="purple">-</span> Change description of current room.<br />';
     output += '<span class="mediumOrchid">set room alias &lt;new room alias&gt; </span><span class="purple">-</span> Change admin alias of current room. Set alias to "null" to clear it.<br />';

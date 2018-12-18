@@ -5,11 +5,11 @@ export default {
   execute(character, param) {
     let area = Area.getByName(param);
     if (area) {
-      character.output(`Area already exists: ${area.id}`);
+      character.output(`Area already assigned: ${area.id}`);
       return false;
     }
     Area.addArea(param);
-    character.output('Area created.');
+    character.output('Area assigned.');
     return true;
   },
 };

@@ -24,7 +24,7 @@ QuestSchema.methods.isComplete = function(character) {
 };
 
 export default QuestSchema;
-/*  Example quest step (steps are just sub quests)
+/* Example quest step (steps are just sub quests)
 
 Step 2 from above: Kill a pig
 

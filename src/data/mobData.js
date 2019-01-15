@@ -1,4 +1,4 @@
-import ItemSchema from '../models/itemSchema';
+import Item from '../models/item';
 
 export default {
   // NEED MODES: Attack when attacked
@@ -231,69 +231,26 @@ export default {
     name: 'pig',
     desc: 'Dirty. Filthy. Delicious.',
     damage: '1d2',
-    displayTemplate: '${this.adjective} ${this.class} ${this.name}',
+    displayTemplate: '${this.adjective} ${this.name}',
     adjectives: [
       {
-        name: 'big',
-        modifiers: {
-          hp: 10,
-          xp: 0,
-          hitDice: 0,
-          attacksPerRound: 0.25,
-          tauntsPerRound: 0.25,
-          drops: {
-            items: [
-              new ItemSchema({
-                name: 'pork belly',
-                desc: 'layers of raw fat and muscle from a pig',
-                type: {
-                  type: 'item',
-                  enum: 'item',
-                },
-                hidden: false,
-              }),
-            ],
-          },
-        },
-      },
-      {
-        name: 'strong',
+        name: 'naughty',
         modifiers: {
           hp: 5,
-          xp: 30,
+          xp: 0,
           hitDice: 0,
           attacksPerRound: 0.25,
           tauntsPerRound: 0.25,
-        },
-      },
-      {
-        name: 'quick',
-        modifiers: {
-          hp: 0,
-          xp: 0,
-          hitDice: 0,
-          attacksPerRound: -0.25,
-          tauntsPerRound: -0.25,
-        },
-      },
-      {
-        name: 'small',
-        modifiers: {
-          hp: -5,
-          xp: -5,
-          hitDice: 0,
-          attacksPerRound: -0.125,
-          tauntsPerRound: -0.125,
-        },
-      },
-      {
-        name: 'ferocious',
-        modifiers: {
-          hp: 0,
-          xp: 50,
-          hitDice: 1,
-          attacksPerRound: 0.50,
-          tauntsPerRound: 0.50,
+          drops: [new Item({
+            name: 'pork belly',
+            desc: 'layers of raw fat and muscle from a pig',
+            type: {
+              type: 'item',
+              enum: 'item',
+            },
+            hidden: false,
+          }),
+          ],
         },
       },
     ],
@@ -309,7 +266,6 @@ export default {
       'The {0} hops around {1}, looking for an opening!',
       'The {0} squeals angrily!',
     ],
-
   },
   {
     name: 'enchanted sparring dummy',

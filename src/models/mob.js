@@ -27,7 +27,7 @@ class Mob {
       this.adjective = adjective.name;
       instance.hp += adjective.modifiers.hp;
       instance.xp += adjective.modifiers.xp;
-      instance.drops = [...adjective.drops];
+      instance.drops = adjective.modifiers.drops ? [...adjective.modifiers.drops] : instance.drops || [];
       instance.hitDice += adjective.modifiers.hitDice;
       instance.attacksPerRound += adjective.modifiers.attacksPerRound;
       instance.tauntsPerRound += adjective.modifiers.tauntsPerRound;
@@ -74,14 +74,14 @@ class Mob {
     let sockets = socketUtil.getRoomSockets(this.roomId);
 
     sockets.forEach((s) => {
-      this.drops.forEach((drop) => {
-        drop.items.forEach((item) => {
-          s.character.addItem(item);
-          s.emit('output', { message: `You pick up a ${item}.` });
-        });
+      if(!this.drops) return;
+      this.drops.forEach((item) => {
+        s.character.addItem(item);
+        s.emit('output', { message: `You pick up a ${item.name}.` });
       });
     });
   }
+  
 
   awardExperience() {
     let sockets = socketUtil.getRoomSockets(this.roomId);

@@ -28,8 +28,10 @@ QuestSchema.methods.updateStatus = function(character) {
     
     if(isSuccess) {
       this.status = 'completed';
+      this.save(err => { if (err) throw err; });
+      
       const socket = socketUtil.getSocketByCharacterId(character.id);
-      socket.emit('output', { message: `You have completed the ${this.name} quest!` });
+      socket.emit('output', { message: this.success.message });
       return;
     }
 

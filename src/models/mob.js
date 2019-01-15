@@ -82,7 +82,6 @@ class Mob {
     });
   }
   
-
   awardExperience() {
     let sockets = socketUtil.getRoomSockets(this.roomId);
     sockets.forEach((s) => {

@@ -10,6 +10,12 @@ const RewardTypes = {
   Item: 'item',
 };
 
+const QuestStatusTypes = {
+  Completed: 'completed',
+  Failed: 'failed',
+  InProgress: 'in progress',
+};
+
 export default {
   catalog: [
     {
@@ -17,9 +23,10 @@ export default {
       synopsis: 'Your mom needs more bacon to cook breakfast tommorow',
       steps: [],
       currentStep: 0,
+      status: QuestStatusTypes.InProgress,
       success: {
         actionType: ActionTypes.Fetch,
-        target: 'pig',
+        target: 'pork belly',
         message: 'Congratulations, you now get to have bacon for breakfast!',
         reward: {
           type: RewardTypes.XP,

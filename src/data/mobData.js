@@ -244,13 +244,14 @@ export default {
           drops: [new Item({
             name: 'pork belly',
             desc: 'layers of raw fat and muscle from a pig',
-            type: {
-              type: 'item',
-              enum: 'item',
-            },
+            type: 'item',
             hidden: false,
-          }),
-          ],
+          }), new Item({
+            name: 'handkerchief',
+            desc: 'a square piece of thin fabric',
+            type: 'item',
+            hidden: false,
+          })],
         },
       },
     ],

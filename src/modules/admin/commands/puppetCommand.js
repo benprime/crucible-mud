@@ -13,7 +13,7 @@ export default {
   parseParams(match, character) {
     if(match.length < 3) return false;
     const mob = autocomplete.mob(character, match[1]);
-    return [this.name, character, mob, match[2]];
+    return [this.name, mob, match[2]];
   },
 
   help(character) {

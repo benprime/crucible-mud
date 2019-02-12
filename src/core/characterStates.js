@@ -122,7 +122,7 @@ export default {
     endOfRound: function(character, round) {
       if (round % config.BLEED_ROUNDS === 0) {
         character.output('<span class="firebrick">You are bleeding!</span>');
-        character.toRoom(`<span class="firebrick">${this.name} is bleeding out!</span>`);
+        character.toRoom(`<span class="firebrick">${character.name} is bleeding out!</span>`);
         character.takeDamage(1);
         character.save();
       }

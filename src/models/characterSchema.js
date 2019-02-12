@@ -248,6 +248,8 @@ CharacterSchema.methods.regen = function () {
 
 CharacterSchema.methods.die = function () {
   this.break();
+  this.toRoom(`<span class="firebrick">${this.name} has died!</span>\n`);
+
   // regenerate user at coordinate location
   Room.getByCoords({ x: 0, y: 0, z: 0 }).then(room => {
     this.teleport(room.id);

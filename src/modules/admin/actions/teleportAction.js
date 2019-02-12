@@ -35,7 +35,7 @@ export default {
 
     character.teleport(toRoomId);
     character.output('You teleport...\n');
-    character.toRoom(`<span class="yellow">${this.name} appears out of thin air!</span>`, [this.id]);
+    character.toRoom(`<span class="yellow">${character.name} appears out of thin air!</span>`, [this.id]);
     return true;
   },
 };

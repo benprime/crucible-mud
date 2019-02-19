@@ -43,7 +43,7 @@ export default {
     if (match.length != 3) return false;
     let typeName = match[1];
     let itemTypeName = match[2];
-    return [this.name, typeName, itemTypeName];
+    return {actionName: this.name, actionParams: [typeName, itemTypeName]};
   },
 
   help(character) {

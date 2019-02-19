@@ -15,7 +15,7 @@ export default {
   parseParams(match) {
     if(match.length < 2) return false;
     const dir = getDirection(match[1]);
-    return [this.name, dir];
+    return {actionName: this.name, actionParams: [dir]};
   },
 
   help(character) {

@@ -10,7 +10,7 @@ export default {
     // only leave your party on a successful move
     character.leader = null;
     const room = Room.getById(character.roomId);
-    character.action('look', false, room);
+    character.action({actionName: 'look', actionParams: [false, room]});
   },
 };
 

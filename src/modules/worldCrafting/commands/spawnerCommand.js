@@ -65,7 +65,7 @@ export default {
 
   parseParams(match) {
     if(match.length < 3) return false;
-    return [this.name];
+    return {actionName: this.name, actionParams: []};
   },
 
   help(character) {

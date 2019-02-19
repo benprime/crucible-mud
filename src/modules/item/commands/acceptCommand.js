@@ -15,7 +15,7 @@ export default {
   parseParams(match, character) {
     if (match.length < 2) return false;
     const fromCharacter = autocomplete.character(character, match[1]);
-    return [this.name, fromCharacter];
+    return {actionName: this.name, actionParams: [fromCharacter]};
   },
 
   help(character) {

@@ -19,7 +19,7 @@ var QuestSchema = new mongoose.Schema({
 
 QuestSchema.add({steps: [QuestSchema]}); //1) Find a pig 2) Kill a pig 3) Collect meat from pig 4) Bring bacon home
 
-QuestSchema.methods.updateStatus = function(character) {
+QuestSchema.methods.update = function(character) {
   if(this.status === 'completed' || this.status === 'failed')
     return;
 

@@ -454,7 +454,7 @@ CharacterSchema.methods.sneakMode = function () {
 
 CharacterSchema.methods.update = function () {
   this.quests.forEach(quest => {
-    quest.updateStatus(this);
+    quest.update(this);
   });
   
   this.states.forEach(cs => {

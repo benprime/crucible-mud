@@ -13,8 +13,8 @@ export default {
   ],
 
   parseParams(match) {
-    if (match.length < 2) return [this.name];
-    return [this.name, match[1]];
+    if (match.length < 2) return {actionName: this.name, actionParams: []};
+    return {actionName: this.name, actionParams: [match[1]]};
   },
 
   help(character) {

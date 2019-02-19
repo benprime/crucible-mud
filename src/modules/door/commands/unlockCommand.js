@@ -17,7 +17,7 @@ export default {
     if(match.length != 3) return;
     const dir = getDirection(match[1]);
     const key = autocomplete.key(character, match[2]);
-    return [this.name, dir, key];
+    return {actionName: this.name, actionParams: [dir, key]};
   },
 
   help(character) {

@@ -30,7 +30,7 @@ export default {
     } else {
       param = match[1];
     }
-    return [this.name, param];
+    return {actionName: this.name, actionParams: [param]};
   },
 
   help(character) {

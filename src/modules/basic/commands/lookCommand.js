@@ -36,7 +36,7 @@ export default {
     } else {
       lookTarget = Room.getById(character.roomId);
     }
-    return [this.name, short, lookTarget];
+    return {actionName: this.name, actionParams: [short, lookTarget]};
   },
 
   help(character) {

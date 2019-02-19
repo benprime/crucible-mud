@@ -11,7 +11,7 @@ export default {
   ],
 
   parseParams() {
-    return [this.name];
+    return {actionName: this.name, actionParams: []};
   },
 
   help(character) {

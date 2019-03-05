@@ -48,7 +48,7 @@
     "start": "nodemon src/server.js --exec babel-node",
     "eslint": "node node_modules/eslint/bin/eslint.js -c .eslintrc.json src/**",
     "db": "mongod --dbpath c:/dev/mongo/data",
-    "better_db": "mkdir -p ./mongo/data && mongod --dbpath ./mongo/data",
+    "mac_db": "mongod --dbpath ./data/mongo",
     "open": "concurrently \"mongod --dbpath c:/dev/mongo/data\" \"nodemon server.js\"",
     "seed": "md-seed run --dropdb",
     "clean": "rm -rf dist && mkdir dist",

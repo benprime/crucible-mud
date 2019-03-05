@@ -52,3 +52,7 @@ dist/
 
 # jsdoc output
 out/
+
+
+# mongo db artifact on macos - ewp
+data/4/mongo

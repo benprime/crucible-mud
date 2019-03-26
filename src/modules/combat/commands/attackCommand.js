@@ -14,7 +14,7 @@ export default {
   parseParams(match, character) {
     if(match.length < 2) return false;
     const targetPlayer = autocomplete.mob(character, match[1]);
-    return [this.name, targetPlayer];
+    return {actionName: this.name, actionParams: [targetPlayer]};
   },
 
   help(character) {

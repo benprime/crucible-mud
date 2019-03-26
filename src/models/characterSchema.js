@@ -110,16 +110,14 @@ CharacterSchema.methods.setupEvents = function () {
   this.on('action', this.action);
 };
 
-CharacterSchema.methods.action = function () {
-  const params = Array.from(arguments);
-  const actionName = params.shift();
-  const action = actionHandler.actions[actionName];
+CharacterSchema.methods.action = function (actionInfo) {
+  const action = actionHandler.actions[actionInfo.actionName];
   if (!action || !action.execute) {
-    throw (`Cannot find valid action with name: ${actionName}`);
+    throw (`Cannot find valid action with name: ${actionInfo.actionName}`);
   }
 
   if (this.processStates(action.category)) {
-    action.execute(this, ...params);
+    action.execute(this, ...actionInfo.actionParams);
   }
 };
 

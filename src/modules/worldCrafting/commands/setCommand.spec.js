@@ -19,12 +19,11 @@ describe('set command', () => {
         'new name value',
       ];
       const result = sut.parseParams(match);
-      expect(result).toEqual([
-        'set',
-        'room',
-        'name',
-        'new name value',
-      ]);
+      expect(result).toEqual({
+        'actionName': 'set',
+        'actionParams': ['room', 'name', 'new name value'],
+      });
+
     });
   });
 });

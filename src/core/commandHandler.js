@@ -70,15 +70,15 @@ function processDispatch(socket, input) {
       if (!command.admin || socket.character.user.admin) {
 
         // verify the command has been called in the proper format
-        const params = command.parseParams(match, socket.character);
-        if (!params) {
+        const actionInfo = command.parseParams(match, socket.character);
+        if (!actionInfo) {
           command.help(socket.character);
           return;
         }
 
         // check and see if the character is in a state that
         // would prevent them from running this command.
-        socket.character.action(...params);
+        socket.character.action(actionInfo);
         return;
       }
     }
@@ -103,7 +103,7 @@ function processDispatch(socket, input) {
   }
 
   // when a command is not found, it defaults to "say"
-  socket.character.action(defaultCommand.name, input);
+  socket.character.action({actionName: defaultCommand.name, actionParams: input});
 }
 
 export default {

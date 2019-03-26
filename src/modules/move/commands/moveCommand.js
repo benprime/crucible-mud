@@ -38,7 +38,7 @@ export default {
   parseParams(match) {
     let dirInput = match.length > 1 ? match[1] : match[0];
     let dir = getDirection(dirInput);
-    return [this.name, dir];
+    return {actionName: this.name, actionParams: [dir]};
   },
 
   help(character) {

@@ -21,7 +21,7 @@ export default {
     let item = autocomplete.inventory(character, match[1]);
     let currency = currencyToInt(match[1]);
     const toCharacter = autocomplete.character(character, match[2]);
-    return [this.name, item, currency, toCharacter];
+    return {actionName: this.name, actionParams: [item, currency, toCharacter]};
   },
 
   help(character) {

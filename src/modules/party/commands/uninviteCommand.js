@@ -13,7 +13,7 @@ export default {
 
   parseParams(match) {
     const targetCharacter = autocomplete.character(match[1]);
-    return [this.name, targetCharacter];
+    return {actionName: this.name, actionParams: [targetCharacter]};
   },
 
   help(character) {

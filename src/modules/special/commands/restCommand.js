@@ -10,7 +10,7 @@ export default {
   ],
 
   parseParams(match) {
-    return [this.name, match[1]];
+    return {actionName: this.name, actionParams: [match[1]]};
   },
 
   help(character) {

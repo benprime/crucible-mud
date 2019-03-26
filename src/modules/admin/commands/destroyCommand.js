@@ -16,7 +16,7 @@ export default {
     if(match.length != 3) return false;
     let typeName = match[1];
     let objectID = match[2];
-    return [this.name, typeName, objectID];
+    return {actionName: this.name, actionParams: [typeName, objectID]};
   },
 
   help(character) {

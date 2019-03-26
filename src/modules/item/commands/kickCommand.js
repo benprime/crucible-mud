@@ -17,7 +17,7 @@ export default {
     if (match.length < 3) return false;
     const item = autocomplete.room(character, match[1]);
     const dir = getDirection(match[2]);
-    return [this.name, item, dir];
+    return {actionName: this.name, actionParams: [item, dir]};
   },
 
   help(character) {

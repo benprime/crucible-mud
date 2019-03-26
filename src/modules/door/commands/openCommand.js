@@ -13,7 +13,7 @@ export default {
 
   parseParams(match) {
     const dir = getDirection(match[1]);
-    return [this.name, dir];
+    return {actionName: this.name, actionParams: [dir]};
   },
 
   help(character) {

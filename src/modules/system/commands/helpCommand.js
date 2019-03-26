@@ -14,7 +14,7 @@ export default {
 
   parseParams(match) {
     if(match.length < 2) return;
-    return [this.name, match[1]];
+    return {actionName: this.name, actionParams: [match[1]]};
   },
 
   help(character) {

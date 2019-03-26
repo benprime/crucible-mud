@@ -17,7 +17,7 @@ export default {
     if(match.length < 3) return;
     // telepath command currently overloaded for party chat. (so no lookup of character here)
     // TODO: create a separate party chat command and parse /par <message> pattern before telepathy.
-    return [this.name, match[1], match[2]];
+    return {actionName: this.name, actionParams: [match[1], match[2]]};
   },
 
   help(character) {

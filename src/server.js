@@ -19,6 +19,7 @@ const io = ioFactory(serve);
 const NODE_PORT = process.env.NODE_PORT || 3000;
 const MONGO_DB = process.env.MONGO_DB || 'mud';
 const MONGO_PORT = process.env.MONGO_PORT || 27017;
+const MONGO_HOST = process.env.MONGO_HOST || 'localhost';
 
 app.set('port', NODE_PORT);
 
@@ -30,7 +31,7 @@ global.io = io;
 moduleManager.loadModules();
 let input;
 
-mongoose.connect(`mongodb://localhost:${MONGO_PORT}/${MONGO_DB}`);
+mongoose.connect(`mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}`);
 db.on('error', console.error.bind(console, 'connection error:'));
 
 db.once('open', () => {

@@ -56,5 +56,10 @@ out/
 
 # mongo db artifact on macos - ewp
 data/mongo
+data
 
-data/
+.git
+.gitignore
+README.md
+Dockerfile
+Dockerfile.dev

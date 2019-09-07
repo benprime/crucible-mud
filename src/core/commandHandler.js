@@ -9,9 +9,9 @@ export const commands = {};
 let defaultCommand;
 
 /**
- * 
+ *
  * @param {Object} commandModule
- * @param {String} file 
+ * @param {String} file
  */
 function validateCommand(commandModule) {
   if (!commandModule) throw 'null commandModule passed to validateCommand';
@@ -103,7 +103,7 @@ function processDispatch(socket, input) {
   }
 
   // when a command is not found, it defaults to "say"
-  socket.character.action({actionName: defaultCommand.name, actionParams: input});
+  socket.character.action({actionName: defaultCommand.name, actionParams: [input]});
 }
 
 export default {

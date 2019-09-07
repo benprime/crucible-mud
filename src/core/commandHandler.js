@@ -102,6 +102,7 @@ function processDispatch(socket, input) {
     }
   }
 
+
   // when a command is not found, it defaults to "say"
   socket.character.action({actionName: defaultCommand.name, actionParams: [input]});
 }

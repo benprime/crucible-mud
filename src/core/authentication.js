@@ -1,22 +1,17 @@
 import socketUtil from './socketUtil';
-import config from '../config';
 import hud from './hud';
 import Room from '../models/room';
-import User from '../models/user';
 import Character from '../models/character';
 import characterStates from './characterStates';
 import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
-import welcome from './welcome';
-
-const secret = 'SUPER-SECRET';
+import config from '../config';
 
 // TODO: tokens should expire out of the cache.
 // add config value to use for both token expiration and cache expiration.
-const tokenCache = {};
+export const tokenCache = {};
 
-function AddUserToRealm(socket, user) {
-  return Character.findByUser(user).then(character => {
+exports.addUserToRealm = (socket, userId) => {
+  return Character.findByUserId(userId).populate('user').then(character => {
     if (!character) {
       return Promise.reject('No character associated with this user.');
     }
@@ -30,7 +25,7 @@ function AddUserToRealm(socket, user) {
 
     // database objects
     socket.character = character;
-    socket.character.user = user;
+    //socket.character.user = user;
 
     // state tracking
     socket.character.offers = [];
@@ -53,9 +48,6 @@ function AddUserToRealm(socket, user) {
     // TODO: is this still necessary?
     const objInventory = socket.character.inventory.map(i => i.toObject());
     socket.character.inventory = objInventory;
-
-    // TODO: THIS CAN GO AWAY ONCE AN AUTH SYSTEM IS ADDED
-    socket.state = config.STATES.MUD;
 
     socket.emit('output', { message: '<br><span class="mediumOrchid">Welcome to CrucibleMUD!</span><br>' });
 
@@ -88,88 +80,24 @@ function AddUserToRealm(socket, user) {
       });
     }
   });
-}
+};
 
-export default {
+exports.verifyToken = (token) => {
+  if (!token) return false;
+  if (!(token in tokenCache)) return false;
 
-  tokenLogin(socket) {
-    socket.state = config.STATES.LOGIN_USERNAME;
-
-    let token = socket.handshake.query.token;
-    if (!token) return false;
-    if(!(token in tokenCache)) return false;
-    socket.token = token;
-
-    let tokenData;
-    try {
-      tokenData = jwt.verify(token, secret);
-    } catch (e) {
-      console.log(e);
+  try {
+    return jwt.verify(token, config.TOKEN_SECRET);
+  } catch (e) {
+    // delete expired tokens
+    if (token in tokenCache) {
+      delete tokenCache[token];
     }
-    if (tokenData) {
-      let userId = mongoose.Types.ObjectId(tokenData.data);
-      this.loginUserId(socket, userId);
-      socket.state = config.STATES.MUD;
-      return true;
-    }
-  },
+    console.log(e);
+    return false;
+  }
+};
 
-  logout(socket) {
-    delete socket.userId;
-    delete socket.character;
-    delete tokenCache[socket.token];
-    delete socket.token;
-    socket.state = config.STATES.LOGIN_USERNAME;
-    welcome.WelcomeMessage(socket);
-    socket.emit('output', { message: 'Enter username:' });
-  },
-
-  loginUserId(socket, userId) {
-    return User.findOne({ _id: userId }).then(user => {
-      if (!user) {
-        return Promise.reject('Unknown user, please try again.');
-      }
-
-      return AddUserToRealm(socket, user);
-    });
-  },
-
-  loginUsername(socket, { value }) {
-    if (socket.state == config.STATES.LOGIN_USERNAME) {
-      Character.findByName(value).then(character => {
-        if (!character) {
-          socket.emit('output', { message: 'Unknown user, please try again.' });
-        } else {
-          socket.tempEmail = character.user.email;
-          socket.state = config.STATES.LOGIN_PASSWORD;
-          socket.emit('output', { message: 'Enter password:' });
-        }
-      }).catch(err => {
-        socket.emit('output', { message: `Error: ${err}` });
-      });
-    }
-  },
-
-  loginPassword(socket, { value }) {
-    if (socket.state == config.STATES.LOGIN_PASSWORD) {
-
-      return User.findOne({ email: socket.tempEmail, password: value }).then(user => {
-        if (!user) {
-          return Promise.reject('Wrong password, please try again.');
-        }
-
-        let token = jwt.sign({
-          data: user.id,
-        }, secret, { expiresIn: '1h' });
-
-        tokenCache[token] = true;
-        socket.token = token;
-        socket.emit('authentication', { token: token });
-
-        delete socket.tempEmail;
-
-        return AddUserToRealm(socket, user);
-      });
-    }
-  },
+exports.logout = (socket) => {
+  delete tokenCache[socket.token];
 };

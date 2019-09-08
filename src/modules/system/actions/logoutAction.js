@@ -1,4 +1,4 @@
-import login from '../../../core/login';
+import authentication from '../../../core/authentication';
 import socketUtil from '../../../core/socketUtil';
 
 export default {
@@ -6,7 +6,7 @@ export default {
   execute(character) {
 
     let socket = socketUtil.getSocketByCharacterId(character.id);
-    login.logout(socket);
+    authentication.logout(socket);
   },
 
 };

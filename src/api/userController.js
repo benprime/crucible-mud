@@ -5,6 +5,8 @@ import config from '../config';
 import bcrypt from 'bcrypt';
 import { sendMail } from './mailUtility';
 import { randomBytes } from 'crypto';
+import jwt from 'jsonwebtoken';
+import { tokenCache } from '../core/authentication';
 
 exports.createUser = async (req, res, next) => {
 
@@ -14,10 +16,7 @@ exports.createUser = async (req, res, next) => {
   }
 
   try {
-
-    const salt = await bcrypt.genSalt(config.BCRYPT_SALT_ROUNDS);
-    const passHash = await bcrypt.hash(req.body.password, salt);
-
+    const passHash = await bcrypt.hash(req.body.password, config.BCRYPT_SALT_ROUNDS);
     const emailHash = randomBytes(48).toString('hex');
 
     const user = await User.create({
@@ -79,6 +78,12 @@ exports.validateCreateUser = () => {
 };
 
 exports.verifyUser = async (req, res, next) => {
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
   var user = await User.findOne({ verifyHash: req.params.verifyHash });
   if (user) {
     user.verifyHash = null;
@@ -94,4 +99,58 @@ exports.verifyUser = async (req, res, next) => {
     return res.status(409)
       .json({ status: false, message: 'User already verified.' });
   }
+};
+
+exports.login = async (req, res, next) => {
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return res.status(400).json({ status: false, message: 'Unknown user.' });
+  }
+
+  if (!user.verified) {
+    return res.status(400).json({ status: false, message: 'This user must be verified.' });
+  }
+
+  var passResult = await bcrypt.compare(req.body.password, user.password);
+  if (!passResult) {
+    return res.status(400).json({ status: false, message: 'Password authentication failed.' });
+  }
+
+  let token = jwt.sign({
+    data: user.id,
+  }, config.TOKEN_SECRET, { expiresIn: '1h' });
+
+  tokenCache[token] = user;
+
+  res.json({
+    status: true,
+    token: token,
+  });
+};
+
+exports.validateLogin = () => {
+  return [
+    check('email', 'Email is required.').exists(),
+    check('email', 'Invalid email').isEmail(),
+    check('password', 'Password is required.').exists(),
+  ];
+};
+
+exports.logout = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
+  delete tokenCache[req.body.token];
+
+  res.json({
+    status: true,
+  });
 };

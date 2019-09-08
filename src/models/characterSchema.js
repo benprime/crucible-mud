@@ -98,8 +98,8 @@ CharacterSchema.statics.findByName = function (name) {
   return this.findOne({ name: userRegEx }).populate('user');
 };
 
-CharacterSchema.statics.findByUser = function (user) {
-  return this.findOne({ user: user });
+CharacterSchema.statics.findByUserId = function (userId) {
+  return this.findOne({ user: userId });
 };
 
 //============================================================================

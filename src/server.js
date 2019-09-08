@@ -2,7 +2,7 @@ import express from 'express';
 import http from 'http';
 import config, { globalErrorHandler } from './config';
 import welcome from './core/welcome';
-import login from './core/login';
+import { verifyToken, addUserToRealm } from './core/authentication';
 import ioFactory from 'socket.io';
 import mongoose from 'mongoose';
 import './core/dayCycle';
@@ -21,6 +21,13 @@ const serve = http.createServer(app);
 const io = ioFactory(serve);
 
 app.set('port', config.NODE_PORT);
+
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*'); // update to match the domain you will make the request from
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
+
 
 const db = mongoose.connection;
 
@@ -47,23 +54,37 @@ db.once('open', () => {
     userController.createUser,
   );
 
+  app.post(
+    '/api/user/login',
+    userController.validateLogin(),
+    userController.login,
+  );
+
   // add api routes
   app.get(
     '/api/user/verify/:verifyHash',
     userController.verifyUser,
   );
 
-  // setup socket server
+  // authentication middleware function
   io.use((socket, next) => {
-    login.tokenLogin(socket);
-    return next();
+    let token = socket.handshake.query.token;
+    if (verifyToken(token)) return next();
+    next(new Error('Authentication required'));
   }).on('connection', (socket) => {
+
+    let token = socket.handshake.query.token;
+    let tokenData = verifyToken(token);
+    if(!tokenData) {
+      // disconnect?
+      console.log('ERRORS!!!!!');
+      return;
+    }
+
     socket.emit('output', { message: 'Connected.' });
     welcome.WelcomeMessage(socket);
+    addUserToRealm(socket, tokenData.data);
 
-    if (socket.state === 0) {
-      socket.emit('output', { message: 'Enter username:' });
-    }
 
     socket.on('disconnect', () => {
       if (socket.character) {
@@ -72,28 +93,12 @@ db.once('open', () => {
     });
 
     socket.on('command', (data) => {
-      // todo: remove state logic when there is a login process
-      switch (socket.state) {
-        case config.STATES.MUD:
-          input = data.value;
-          try {
-            commandHandler.processDispatch(socket, input);
-            // .catch(err => {
-            //   globalErrorHandler(err);
-            //   socket.character.output(err);
-            // });
-          } catch (err) {
-            globalErrorHandler(err);
-            socket.character.output(err);
-          }
-
-          break;
-        case config.STATES.LOGIN_USERNAME:
-          login.loginUsername(socket, data);
-          break;
-        case config.STATES.LOGIN_PASSWORD:
-          login.loginPassword(socket, data);
-          break;
+      input = data.value;
+      try {
+        commandHandler.processDispatch(socket, input);
+      } catch (err) {
+        globalErrorHandler(err);
+        socket.character.output(err);
       }
     });
   });

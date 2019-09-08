@@ -12,6 +12,7 @@ export default {
   MONGO_DB: process.env.MONGO_DB || 'mud',
   MONGO_PORT: process.env.MONGO_PORT || 27017,
   APP_URL: process.env.APP_URL || 'http://localhost:3001',
+  TOKEN_SECRET: process.env.TOKEN_SECRET || 'SUPER-SECRET',
 
   BCRYPT_SALT_ROUNDS: 10,
 
@@ -52,11 +53,4 @@ export default {
   BLEED_ROUNDS: 4,
   REGEN_ROUNDS: 4,
   TESTING_MODE: false,
-
-  // todo: remove this when login functionality exists
-  STATES: {
-    LOGIN_USERNAME: 0,
-    LOGIN_PASSWORD: 1,
-    MUD: 2,
-  },
 };

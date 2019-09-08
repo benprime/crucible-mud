@@ -4,6 +4,7 @@ mongooseLib.Promise = global.Promise;
 import Areas from './seeders/areas.seeder';
 import Characters from './seeders/characters.seeder';
 import Rooms from './seeders/rooms.seeder';
+import Shops from './seeders/shops.seeder';
 import Users from './seeders/users.seeder';
 import Worlds from './seeders/worlds.seeder';
 

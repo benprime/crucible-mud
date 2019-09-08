@@ -5,16 +5,14 @@ const UserSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
-  // todo: hash this
-  password: {
-    type: String,
-  },
-  admin: {
+  verified: {
     type: Boolean,
+    default: false,
   },
-  debug: {
-    type: Boolean,
-  },
+  verifyHash: String,
+  password: String,
+  admin: Boolean,
+  debug: Boolean,
 });
 
 UserSchema.statics.findByName = function (name) {

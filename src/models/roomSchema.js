@@ -51,6 +51,7 @@ const RoomSchema = new mongoose.Schema({
   inventory: [ItemSchema],
 }, { usePushEach: true });
 
+// Adding mutli-column unique index
 RoomSchema.index({ worldId: 1, x: 1, y: 1, z: 1 }, { unique: true });
 
 //============================================================================
@@ -98,7 +99,7 @@ RoomSchema.methods.update = function (now, round, newRound) {
   // todo: these "process" methods will get refactored into the standard "update" methods
   this.processMobCombatActions(now);
   this.processPlayerCombatActions(now);
-  
+
   if (newRound) {
     this.processEndOfRound(round);
   }

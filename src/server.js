@@ -9,18 +9,18 @@ import './core/dayCycle';
 import socketUtil from './core/socketUtil';
 import moduleManager from './core/moduleManager';
 import commandHandler from './core/commandHandler';
-
+import bodyParser from 'body-parser';
+import userController from './api/userController';
 
 const app = express();
+
+// api validation middleware
+app.use(bodyParser.json());
+
 const serve = http.createServer(app);
 const io = ioFactory(serve);
 
-// environment variables
-const NODE_PORT = process.env.NODE_PORT || 3000;
-const MONGO_DB = process.env.MONGO_DB || 'mud';
-const MONGO_PORT = process.env.MONGO_PORT || 27017;
-
-app.set('port', NODE_PORT);
+app.set('port', config.NODE_PORT);
 
 const db = mongoose.connection;
 
@@ -30,11 +30,30 @@ global.io = io;
 moduleManager.loadModules();
 let input;
 
-mongoose.connect(`mongodb://localhost:${MONGO_PORT}/${MONGO_DB}`);
+mongoose.connect(`mongodb://localhost:${config.MONGO_PORT}/${config.MONGO_DB}`, { useNewUrlParser: true });
 db.on('error', console.error.bind(console, 'connection error:'));
 
 db.once('open', () => {
 
+  // just a status page
+  app.get('/', function (req, res) {
+    res.send('OK');
+  });
+
+  // add api routes
+  app.post(
+    '/api/user/signup',
+    userController.validateCreateUser(),
+    userController.createUser,
+  );
+
+  // add api routes
+  app.get(
+    '/api/user/verify/:verifyHash',
+    userController.verifyUser,
+  );
+
+  // setup socket server
   io.use((socket, next) => {
     login.tokenLogin(socket);
     return next();

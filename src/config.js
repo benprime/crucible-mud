@@ -7,6 +7,14 @@ export const globalErrorHandler = function (err) {
 
 export default {
 
+  NODE_PORT: process.env.NODE_PORT || 3000,
+  MONGO_HOST: process.env.MONGO_DB || 'localhost',
+  MONGO_DB: process.env.MONGO_DB || 'mud',
+  MONGO_PORT: process.env.MONGO_PORT || 27017,
+  APP_URL: process.env.APP_URL || 'http://localhost:3001',
+
+  BCRYPT_SALT_ROUNDS: 10,
+
   modules: [
     'move',
     'admin',
@@ -26,11 +34,13 @@ export default {
 
   defaultCommand: 'say',
 
+  // presentation config
   MSG_COLOR: 'darkcyan',
   DMG_COLOR: 'firebrick',
   NOTICE_COLOR: 'yellow',
   TAUNT_COLOR: 'gold',
 
+  // game config
   GAME_INTERVAL: 250,
   COMBAT_INTERVAL: 250, // how often combat logic is run
   ROUND_DURATION: 4000, // how long a round is considered to be

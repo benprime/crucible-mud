@@ -22,7 +22,10 @@ const app = express();
 // api validation middleware
 app.use(bodyParser.json());
 
-const devMode = (process.env.NODE_ENV && process.env.NODE_ENV.trim() === 'development');
+const devMode = (!process.env.NODE_ENV || process.env.NODE_ENV.trim() === 'development');
+
+console.log('Environment:', process.env.NODE_ENV);
+console.log('Development Mode:', devMode);
 
 // SSL certificates
 let serve;

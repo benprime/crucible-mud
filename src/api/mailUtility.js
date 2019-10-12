@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import mailgun from 'mailgun-js';
 
 let transporter;
-const devMode = (process.env.NODE_ENV && process.env.NODE_ENV.trim() === 'development');
+const devMode = (!process.env.NODE_ENV || process.env.NODE_ENV.trim() === 'development');
 
 const mailGunApiKey = process.env.MAIL_GUN_API_KEY;
 const mailGunDomain = process.env.MAIL_GUN_DOMAIN;

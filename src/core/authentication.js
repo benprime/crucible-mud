@@ -71,13 +71,13 @@ exports.addUserToRealm = (socket, userId) => {
       const roomDesc = currentRoom.getDesc(character, false);
       character.output(roomDesc);
     } else {
-      return Room.getByCoords({ x: 0, y: 0, z: 0 }).then(room => {
-        character.roomId = room.id;
-        currentRoom.characters.push(character);
-        socket.join(room.id);
-        const roomDesc = currentRoom.getDesc(character, false);
-        character.output(roomDesc);
-      });
+      const room = Room.getByCoords({ x: 0, y: 0, z: 0 });
+      character.roomId = room.id;
+      if(!room.characters) room.characters = [];
+      room.characters.push(character);
+      socket.join(room.id);
+      const roomDesc = room.getDesc(character, false);
+      character.output(roomDesc);
     }
   });
 };

@@ -47,23 +47,6 @@ describe('room model', () => {
       });
     });
 
-    describe('getByCoords', () => {
-
-      test('should call findOne with coordinates', () => {
-        const coords = {
-          x: 1,
-          y: 2,
-          z: 3,
-        };
-
-        sutModel.findOne = jest.fn().mockReturnValueOnce(Promise.resolve({}));
-
-        sutModel.getByCoords(coords).then(() => {
-          expect(sutModel.findOne).toBeCalledWith(coords);
-        });
-
-      });
-    });
   });
 
   describe('instance method', () => {

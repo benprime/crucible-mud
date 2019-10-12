@@ -66,7 +66,7 @@ RoomSchema.statics.getById = roomId => {
 };
 
 RoomSchema.statics.getByCoords = function (coords) {
-  return this.findOne(coords);
+  return Object.values(roomCache).find(r => r.x == coords.x && r.y == coords.y && r.z == coords.z);
 };
 
 RoomSchema.statics.populateRoomCache = function () {

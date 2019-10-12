@@ -249,14 +249,13 @@ CharacterSchema.methods.die = function () {
   this.toRoom(`<span class="firebrick">${this.name} has died!</span>\n`);
 
   // regenerate user at coordinate location
-  Room.getByCoords({ x: 0, y: 0, z: 0 }).then(room => {
-    this.teleport(room.id);
-    this.currentHP = this.maxHP;
-    this.removeState(characterStates.BLEEDING);
-    this.output('\n<span class="red">You have died!</span>\n');
-    this.output('<span class="yellow">You have been resurrected.</span>\n');
-    this.updateHUD();
-  });
+  const room = Room.getByCoords({ x: 0, y: 0, z: 0 });
+  this.teleport(room.id);
+  this.currentHP = this.maxHP;
+  this.removeState(characterStates.BLEEDING);
+  this.output('\n<span class="red">You have died!</span>\n');
+  this.output('<span class="yellow">You have been resurrected.</span>\n');
+  this.updateHUD();
 };
 
 CharacterSchema.methods.updateHUD = function () {

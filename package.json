@@ -63,7 +63,7 @@
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://github.com/benprime/crucible-mud#readme",
+  "homepage": ".",
   "jest": {
     "transform": {
       ".*": "<rootDir>/node_modules/babel-jest"

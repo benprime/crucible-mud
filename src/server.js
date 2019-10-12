@@ -11,18 +11,34 @@ import moduleManager from './core/moduleManager';
 import commandHandler from './core/commandHandler';
 import bodyParser from 'body-parser';
 import userController from './api/userController';
+import https from 'https';
+import fs from 'fs';
 
 const app = express();
+
+// allow express to work with let's encrypt
+//app.use(express.static(__dirname + '/static', { dotfiles: 'allow' } ));
 
 // api validation middleware
 app.use(bodyParser.json());
 
-const serve = http.createServer(app);
-const io = ioFactory(serve);
+const devMode = (process.env.NODE_ENV.trim() === 'development');
 
+// SSL certificates
+let serve;
+if (!devMode) {
+  app.key = fs.readFileSync('/etc/letsencrypt/live/develop.cruciblemud.com/privatekey.pem');
+  app.cert = fs.readFileSync('/etc/letsencrypt/live/develop.cruciblemud.com/cert.pem');
+  app.ca = fs.readFileSync('/etc/letsencrypt/live/develop.cruciblemud.com/chain.pem');
+  serve = https.createServer(app);
+} else {
+  serve = http.createServer(app);
+}
+
+const io = ioFactory(serve);
 app.set('port', config.NODE_PORT);
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*'); // update to match the domain you will make the request from
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
@@ -75,7 +91,7 @@ db.once('open', () => {
 
     let token = socket.handshake.query.token;
     let tokenData = verifyToken(token);
-    if(!tokenData) {
+    if (!tokenData) {
       // disconnect?
       console.log('ERRORS!!!!!');
       return;

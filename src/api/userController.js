@@ -90,14 +90,19 @@ exports.verifyUser = async (req, res, next) => {
     user.verified = true;
     user.save();
 
-    // TODO: redirect them to the game, rather than returning status.
+    // TODO: Add a toast that they have been successfully verified
+    // perhaps log them in?
+
+    // redirect and drop port (from socket server to webserver)
+    res.redirect(`${req.protocol}://${req.hostname}`);
+
     res.json({
       status: true,
     });
   } else {
     // TODO: redirect to client page with error
-    return res.status(409)
-      .json({ status: false, message: 'User already verified.' });
+    return res.status(404)
+      .json({ status: false, message: 'Not found.' });
   }
 };
 

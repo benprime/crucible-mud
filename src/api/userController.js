@@ -46,7 +46,8 @@ exports.createUser = async (req, res, next) => {
       },
     });
 
-    const emailContents = `Verify it already! http://localhost:3000/api/user/verify/${emailHash}`;
+    const baseUrl = req.protocol + '://' + req.get('host');
+    const emailContents = `Verify it already! ${baseUrl}/api/user/verify/${emailHash}`;
     sendMail({
       from: 'noreply@cruciblemud.com',
       to: user.email,

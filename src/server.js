@@ -28,10 +28,10 @@ const devMode = (process.env.NODE_ENV && process.env.NODE_ENV.trim() === 'develo
 let serve;
 if (!devMode) {
   const credential = {
-    key = fs.readFileSync('/etc/letsencrypt/live/develop.cruciblemud.com/privkey.pem'),
-    cert = fs.readFileSync('/etc/letsencrypt/live/develop.cruciblemud.com/cert.pem'),
-    ca = fs.readFileSync('/etc/letsencrypt/live/develop.cruciblemud.com/chain.pem')
-  }
+    key: fs.readFileSync('/etc/letsencrypt/live/develop.cruciblemud.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/develop.cruciblemud.com/cert.pem'),
+    ca: fs.readFileSync('/etc/letsencrypt/live/develop.cruciblemud.com/chain.pem'),
+  };
   serve = https.createServer(credential, app);
 } else {
   serve = http.createServer(app);

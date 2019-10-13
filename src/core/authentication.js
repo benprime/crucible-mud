@@ -49,8 +49,6 @@ exports.addUserToRealm = (socket, userId) => {
     const objInventory = socket.character.inventory.map(i => i.toObject());
     socket.character.inventory = objInventory;
 
-    socket.emit('output', { message: '<br><span class="mediumOrchid">Welcome to CrucibleMUD!</span><br>' });
-
     socket.join('realm');
     socket.broadcast.to('realm').emit('output', { message: `<span class="mediumOrchid">${character.name} has entered the realm.</span>\n` });
 

@@ -102,7 +102,6 @@ db.once('open', () => {
       return;
     }
 
-    socket.emit('output', { message: 'Connected.' });
     welcome.WelcomeMessage(socket);
     addUserToRealm(socket, tokenData.data);
 

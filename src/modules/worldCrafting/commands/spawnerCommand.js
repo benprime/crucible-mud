@@ -53,8 +53,8 @@ export default {
 
   patterns: [
     /^spawner$/i,
-    /^spawner\s+(add)\s+(\w+)$/i,
-    /^spawner\s+(remove)\s+(\w+)$/i,
+    /^spawner\s+(add)\s+(.+)$/i,
+    /^spawner\s+(remove)\s+(.+)$/i,
     /^spawner\s+(max)\s+(\d+)$/i,
     /^spawner\s+(timeout)\s+(\d+)$/i,
     /^spawner\s+(clear)$/i,

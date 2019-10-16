@@ -76,9 +76,6 @@ RoomSchema.statics.populateRoomCache = function () {
     result.forEach(room => {
       room.initialize();
       roomCache[room.id.toString()] = room;
-      gameManager.on('frame', function (now, round, newRound) {
-        room.update(now, round, newRound);
-      });
       if (room.alias)
         roomCache[room.alias] = room;
     });
@@ -93,6 +90,11 @@ RoomSchema.methods.initialize = function () {
   this.mobs = [];
   this.tracks = {};
   this.characters = [];
+
+  const self = this;
+  gameManager.on('frame', function (now, round, newRound) {
+    self.update(now, round, newRound);
+  });
 };
 
 // the game loop frame handler

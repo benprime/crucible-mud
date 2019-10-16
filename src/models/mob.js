@@ -30,11 +30,11 @@ class Mob {
       instance.hitDice += adjective.modifiers.hitDice;
       instance.attacksPerRound += adjective.modifiers.attacksPerRound;
       instance.tauntsPerRound += adjective.modifiers.tauntsPerRound;
-
-      // state variables
-      instance.attackInterval = instance.attacksPerRound * config.ROUND_DURATION;
-      instance.tauntInterval = instance.tauntsPerRound * config.ROUND_DURATION;
     }
+
+    // state variables
+    instance.attackInterval = instance.attacksPerRound * config.ROUND_DURATION;
+    instance.tauntInterval = instance.tauntsPerRound * config.ROUND_DURATION;
 
     instance.roomId = roomId;
 
@@ -134,7 +134,7 @@ class Mob {
     character.output(playerMessage);
     character.toRoom(roomMessage);
 
-    if(attackResult) {
+    if (attackResult) {
       character.takeDamage(dmg);
     }
 

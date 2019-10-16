@@ -33,6 +33,7 @@ function getMockRoom(roomId) {
   room.mobs = [];
   room.characters = [];
   room.inventory = [];
+  room.worldId = 'some-guid';
   room.x = 10;
   room.y = 10;
   room.z = 10;

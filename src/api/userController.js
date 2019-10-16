@@ -96,10 +96,6 @@ exports.verifyUser = async (req, res, next) => {
 
     // redirect and drop port (from socket server to webserver)
     res.redirect(`${req.protocol}://${req.hostname}`);
-
-    res.json({
-      status: true,
-    });
   } else {
     // TODO: redirect to client page with error
     return res.status(404)

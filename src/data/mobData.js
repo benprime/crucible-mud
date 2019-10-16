@@ -248,11 +248,12 @@ export default {
   {
     name: 'flesh golem',
     desc: 'hideous patchwork of lumbering flesh stitched together by twine and animated by necromancy.',
-    attacksPerRound: 0.5, // 1 attack every 2 rounds
+    attacksPerRound: 0.5,
+    tauntsPerRound: 1,
+    damage: '1d3+1',
+    hitDice: '4d6',
     hp: 500,
     xp: 800,
-    hitDice: '', // not used yet
-    tauntsPerRound: 4,
     taunts: [
       'The {0} gurgles menacingly!',
       'The {0} lumbers in your direction.',

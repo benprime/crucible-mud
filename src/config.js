@@ -51,5 +51,4 @@ export default {
   DAY_LENGTH: 10 * 60 * 1000, // ten minutes
   BLEED_ROUNDS: 4,
   REGEN_ROUNDS: 4,
-  TESTING_MODE: false,
 };

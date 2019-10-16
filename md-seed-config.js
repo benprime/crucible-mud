@@ -30,3 +30,6 @@ export const seedersList = {
   Users,
   Worlds,
 };
+
+export const connect = async () => await mongoose.connect(mongoURL, { useNewUrlParser: true });
+export const dropdb = async () => mongoose.connection.db.dropDatabase();

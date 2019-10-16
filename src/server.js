@@ -5,14 +5,17 @@ import welcome from './core/welcome';
 import { verifyToken, addUserToRealm } from './core/authentication';
 import ioFactory from 'socket.io';
 import mongoose from 'mongoose';
-import './core/dayCycle';
 import socketUtil from './core/socketUtil';
 import moduleManager from './core/moduleManager';
 import commandHandler from './core/commandHandler';
 import bodyParser from 'body-parser';
 import userController from './api/userController';
+import { initializeDayInterval } from './core/dayCycle';
 import https from 'https';
 import fs from 'fs';
+import gameManager from './core/gameManager';
+import { initializeSpawnerActions } from './modules/worldCrafting/actions/spawnerAction';
+import Room from './models/room';
 
 const app = express();
 
@@ -127,3 +130,8 @@ db.once('open', () => {
     console.log(`CrucibleMUD server running on port ${app.get('port')}`);
   });
 });
+
+Room.populateRoomCache();
+initializeDayInterval();
+gameManager.setupGameLoop();
+initializeSpawnerActions();

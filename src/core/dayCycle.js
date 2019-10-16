@@ -19,7 +19,8 @@ let currentIndex = 0;
 let phaseLength = config.DAY_LENGTH / 6;
 export let dayPhase = phaseLabels[0];
 
-if (!config.TESTING_MODE) {
+export const initializeDayInterval = function () {
+
   setInterval(() => {
     currentIndex = currentIndex % phaseLabels.length;
 
@@ -32,8 +33,9 @@ if (!config.TESTING_MODE) {
     socketUtil.getAllSockets().forEach(s => updateHUD(s));
   }, phaseLength);
 
-}
+};
 
 export default {
   dayPhase,
+  initializeDayInterval
 };

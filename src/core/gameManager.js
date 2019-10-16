@@ -5,9 +5,8 @@ let lastRound = new Date();
 let round = 0;
 
 class GameManager extends EventEmitter {
-  constructor() {
-    super();
 
+  setupGameLoop() {
     const self = this;
     setInterval(function () {
       const now = new Date().getTime();

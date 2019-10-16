@@ -66,6 +66,7 @@
   "license": "ISC",
   "homepage": ".",
   "jest": {
+    "testEnvironment": "node",
     "transform": {
       ".*": "<rootDir>/node_modules/babel-jest"
     },

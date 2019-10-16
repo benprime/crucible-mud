@@ -238,11 +238,25 @@ export default {
       'The {0} looks around hopefully.',
       'The {0} asks "Want to punch me in the face?"',
     ],
-    tauntsPerRound: 12000,
+    tauntsPerRound: 4,
     taunts: [
       'The {0} shouts "You really could do better!"',
       'The {0} shrugs.',
       'The {0} whines "Oh sure, beat up on the dummy!"',
+    ],
+  },
+  {
+    name: 'flesh golem',
+    desc: 'hideous patchwork of lumbering flesh stitched together by twine and animated by necromancy.',
+    attacksPerRound: 0.5, // 1 attack every 2 rounds
+    hp: 500,
+    xp: 800,
+    hitDice: '', // not used yet
+    tauntsPerRound: 4,
+    taunts: [
+      'The {0} gurgles menacingly!',
+      'The {0} lumbers in your direction.',
+      'The {0} roars a throaty howl of pain and rage.',
     ],
   }],
 };

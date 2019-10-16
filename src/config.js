@@ -1,8 +1,7 @@
 export const globalErrorHandler = function (err) {
   const errorOut = err instanceof Error ? err.stack : err;
   console.log('--------------------------------------------');
-  console.log(`AN ERROR OCCURED!\n${errorOut}`);
-  console.log('--------------------------------------------');
+  console.log(`${new Date().toISOString()}\n${errorOut}`);
 };
 
 export default {

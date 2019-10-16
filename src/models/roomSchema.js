@@ -147,13 +147,14 @@ RoomSchema.methods.createRoom = function (dir) {
   let targetRoom = Object.values(roomCache).find(r =>
     r.x === targetCoords.x
     && r.y === targetCoords.y
-    && r.z === targetCoords.z);
+    && r.z === targetCoords.z
+    && r.worldId == this.worldId);
 
   if (targetRoom) {
     // room already exists, just link the rooms with a new exit in each room
     this.addExit(dir, targetRoom.id);
-    targetRoom.addExit(dir.opposite.short, this.id);
     this.save(err => { if (err) throw err; });
+    targetRoom.addExit(dir.opposite, this.id);
     targetRoom.save(err => { if (err) throw err; });
     return Promise.resolve(targetRoom);
   } else {
@@ -306,7 +307,7 @@ RoomSchema.methods.getExit = function (dirShort) {
 };
 
 RoomSchema.methods.addExit = function (dir, roomId) {
-  if (!(dir instanceof Direction)) return;
+  if (!(dir instanceof Direction)) throw 'Room.AddExit: dir must be of type Direction';
   const exit = this.getExit(dir.short);
   if (exit) {
     return false;
@@ -341,7 +342,7 @@ RoomSchema.methods.processPlayerCombatActions = function (now) {
   const characters = this.getCharacters();
 
   for (let c of characters) {
-    if(!c) return; // incase someone logs out while this loop is running
+    if (!c) return; // incase someone logs out while this loop is running
     if (!c.attackTarget) continue;
     let mob = this.mobs.find(({ id }) => id === c.attackTarget);
     if (!mob) continue;
@@ -352,7 +353,7 @@ RoomSchema.methods.processPlayerCombatActions = function (now) {
 RoomSchema.methods.processEndOfRound = function (round) {
   const characters = this.getCharacters();
   characters.forEach(c => {
-    if(!c) return;
+    if (!c) return;
     c.processEndOfRound(round);
   });
 };

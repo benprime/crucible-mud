@@ -74,9 +74,7 @@ RoomSchema.statics.populateRoomCache = function () {
     if (err) throw err;
 
     result.forEach(room => {
-      room.mobs = [];
-      room.tracks = {};
-      room.characters = [];
+      room.initialize();
       roomCache[room.id.toString()] = room;
       gameManager.on('frame', function (now, round, newRound) {
         room.update(now, round, newRound);
@@ -90,6 +88,12 @@ RoomSchema.statics.populateRoomCache = function () {
 //============================================================================
 // Instance methods
 //============================================================================
+
+RoomSchema.methods.initialize = function () {
+  this.mobs = [];
+  this.tracks = {};
+  this.characters = [];
+};
 
 // the game loop frame handler
 RoomSchema.methods.update = function (now, round, newRound) {
@@ -170,8 +174,7 @@ RoomSchema.methods.createRoom = function (dir) {
     });
 
     // state tracking member (not included in schema)
-    newRoom.tracks = [];
-    newRoom.mobs = [];
+    newRoom.initialize();
     roomCache[newRoom.id] = newRoom;
 
     if (this.area) {

@@ -21,11 +21,11 @@ before_deploy:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: rsync -am --stats --delete-after $TRAVIS_BUILD_DIR/ root@cruciblemud.com:/root/develop && ssh root@cruciblemud.com '/usr/local/lib/nodejs/node-v9.8.0/bin/forever restart ~/develop/dist/server.js'
+    script: rsync -am --stats --delete-after $TRAVIS_BUILD_DIR/dist/ root@cruciblemud.com:/root/dev && ssh root@cruciblemud.com '~/startdev.sh'
     on:
       branch: develop
   - provider: script
     skip_cleanup: true
-    script: rsync -am --stats --delete-after $TRAVIS_BUILD_DIR/ root@cruciblemud.com:/root/mud && ssh root@cruciblemud.com '/usr/local/lib/nodejs/node-v9.8.0/bin/forever restart ~/mud/dist/server.js'
+    script: rsync -am --stats --delete-after $TRAVIS_BUILD_DIR/dist/ root@cruciblemud.com:/root/prod && ssh root@cruciblemud.com '~/startprod.sh'
     on:
       branch: master

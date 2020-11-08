@@ -25,18 +25,17 @@ const app = express();
 // api validation middleware
 app.use(bodyParser.json());
 
-const devMode = (!process.env.NODE_ENV || process.env.NODE_ENV.trim() === 'development');
+const localMode = (!process.env.NODE_ENV || process.env.NODE_ENV.trim() === 'local');
 
 console.log('Environment:', process.env.NODE_ENV);
-console.log('Development Mode:', devMode);
 
 // SSL certificates
 let serve;
-if (!devMode) {
+if (!localMode) {
   const credential = {
-    key: fs.readFileSync('/etc/letsencrypt/live/develop.cruciblemud.com/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/develop.cruciblemud.com/cert.pem'),
-    ca: fs.readFileSync('/etc/letsencrypt/live/develop.cruciblemud.com/chain.pem'),
+    key: fs.readFileSync('/etc/letsencrypt/live/cruciblemud.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/cruciblemud.com/cert.pem'),
+    ca: fs.readFileSync('/etc/letsencrypt/live/cruciblemud.com/chain.pem'),
   };
   serve = https.createServer(credential, app);
 } else {

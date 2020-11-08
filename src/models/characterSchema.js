@@ -28,7 +28,7 @@ const CharacterSchema = new mongoose.Schema({
 
   equipped: {
     type: CharacterEquipSchema,
-    default: CharacterEquipSchema,
+    default: () => ({}),
   },
 
   armorRating: Number,

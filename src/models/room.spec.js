@@ -102,7 +102,12 @@ describe('room model', () => {
       beforeEach(() => {
         socket.reset();
         global.io.reset();
-        room = new sutModel();
+        room = new sutModel({
+          worldId: 'testWorldId',
+          x: 0,
+          y: 0,
+          z: 0,
+        });
       });
 
       test('should return false if direction is invalid', () => {

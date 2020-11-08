@@ -25,7 +25,7 @@ const app = express();
 // api validation middleware
 app.use(bodyParser.json());
 
-const localMode = (!process.env.NODE_ENV || process.env.NODE_ENV.trim() === 'local');
+const localMode = (!process.env.NODE_ENV || process.env.NODE_ENV.trim() === 'development');
 
 console.log('Environment:', process.env.NODE_ENV);
 

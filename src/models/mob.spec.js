@@ -1,12 +1,12 @@
-import { mockGetById } from '../models/room';
-import { mockSocketInRoom, mockRoomMessage, mockGetRoomSockets } from '../core/socketUtil';
+import { mockGetRoomById } from './room';
+import { mockRoomMessage, mockGetRoomSockets, mockGetCharacterById, mockGetSocketByCharacterId } from '../core/socketUtil';
 import { mockRoll, mockGetRandomNumber } from '../core/dice';
 import mocks from '../../spec/mocks';
-import sutModel from '../models/mob';
+import sutModel from './mob';
 import config from '../config';
 import mobData from '../data/mobData';
 
-jest.mock('../models/room');
+jest.mock('./room');
 jest.mock('../core/socketUtil');
 jest.mock('../core/dice');
 
@@ -14,6 +14,7 @@ global.io = new mocks.IOMock();
 let socket = new mocks.SocketMock();
 let mockRoom = mocks.getMockRoom();
 
+mockGetRandomNumber.mockReturnValue(0);
 
 describe('mob model', () => {
   let mobType;
@@ -21,14 +22,14 @@ describe('mob model', () => {
 
   beforeEach(() => {
     socket.reset();
-    mockRoom.id = socket.user.roomId;
+    mockRoom.id = socket.character.roomId;
     mockRoom.reset();
-    mockGetById.mockReturnValue(mockRoom);
+    mockGetRoomById.mockReturnValue(mockRoom);
     global.io.reset();
 
     mobType = mobData.catalog[0];
 
-    mob = new sutModel(mobType, mockRoom.roomId, 0);
+    mob = new sutModel(mobType, mockRoom.id, 0);
     mob.die = jest.fn().mockName('mobDie');
 
     mockGetRoomSockets.mockReturnValue([socket]);
@@ -39,8 +40,7 @@ describe('mob model', () => {
     test('should initialize properties', () => {
       expect(mob.hp).not.toBeNull();
       expect(mob.xp).not.toBeNull();
-      expect(mob.minDamage).not.toBeNull();
-      expect(mob.maxDamage).not.toBeNull();
+      expect(mob.damage).not.toBeNull();
       expect(mob.hitDice).not.toBeNull();
       expect(mob.attackInterval).not.toBeNull();
       expect(mob.roomId).not.toBeNull();
@@ -48,30 +48,17 @@ describe('mob model', () => {
     });
   });
 
-  describe('look', () => {
+  describe('getDesc', () => {
 
     test('should output mob description', () => {
       // arrange
       socket.user.admin = false;
 
       // act
-      mob.look(socket);
-
+      const result = mob.getDesc(socket);
+      
       // assert
-      expect(socket.emit).toBeCalledWith('output', { message: mob.desc });
-      expect(socket.emit).not.toBeCalledWith('output', { message: `Mob ID: ${mob.id}` });
-    });
-
-    test('should output mob id if logged in user is admin', () => {
-      // arrange
-      socket.user.admin = true;
-
-      // act
-      mob.look(socket);
-
-      // assert
-      expect(socket.emit).toBeCalledWith('output', { message: mob.desc });
-      expect(socket.emit).toBeCalledWith('output', { message: `Mob ID: ${mob.id}` });
+      expect(result).toBe(mob.desc);
     });
   });
 
@@ -82,7 +69,7 @@ describe('mob model', () => {
       mob.hp = 10;
 
       // act
-      mob.takeDamage(socket, 2);
+      mob.takeDamage(2);
 
       // assert
       expect(mob.hp).toBe(8);
@@ -95,7 +82,7 @@ describe('mob model', () => {
       mob.hp = 2;
 
       // act
-      mob.takeDamage(socket, 2);
+      mob.takeDamage(2);
 
       // assert
       expect(mob.hp).toBe(0);
@@ -126,7 +113,7 @@ describe('mob model', () => {
       mob.die(socket);
 
       // assert
-      expect(global.io.to(mockRoom.id).emit).toBeCalledWith('output', { message: `The ${mob.displayName} collapses.` });
+      expect(global.io.to(mockRoom.id).emit).toBeCalledWith('output', { message: `<span class="yellow">The ${mob.displayName} collapses.</span>` });
     });
 
     test('should remove mob from room', () => {
@@ -142,7 +129,7 @@ describe('mob model', () => {
 
     beforeEach(() => {
       mob = new sutModel(mobType, mockRoom.roomId, 0);
-      socket.user.attackTarget = mob.id;
+      socket.character.attackTarget = mob.id;
     });
 
     test('should award experience to each player currently attacking mob', () => {
@@ -153,9 +140,9 @@ describe('mob model', () => {
       mob.die(socket);
 
       // assert
-      expect(socket.user.addExp).toBeCalledWith(mob.xp);
-      expect(socket.emit).toBeCalledWith('output', { message: `You gain ${mob.xp} experience.` });
-      expect(socket.emit).toBeCalledWith('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
+      expect(socket.character.addExp).toBeCalledWith(mob.xp);
+      // expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: `You gain ${mob.xp} experience.` });
+      // expect(response.charMessages).toContainEqual({ charId: socket.character.id, message: '<span class="olive">*** Combat Disengaged ***</span>' });
     });
   });
 
@@ -165,7 +152,6 @@ describe('mob model', () => {
 
       beforeEach(() => {
         socket = new mocks.SocketMock();
-        mockGetRandomNumber.mockReturnValueOnce(0);
         const sockets = {};
         sockets[socket.id] = socket;
         global.io.sockets.adapter.rooms[mockRoom.id] = {
@@ -175,14 +161,18 @@ describe('mob model', () => {
       });
 
       test('and mob attack target is null, mob should move to attack', () => {
+        mockGetSocketByCharacterId.mockReturnValueOnce(socket);
+        mockRoom.getCharacters.mockReturnValueOnce([socket.character]);
+
         mob.attackTarget = null;
         mob.selectTarget(mockRoom.id);
 
-        expect(socket.to(mockRoom.id).emit).toBeCalledWith('output', { message: `The ${mob.displayName} moves to attack ${socket.user.username}!` });
-        expect(socket.emit).toBeCalledWith('output', { message: `The ${mob.displayName} moves to attack you!` });
+        expect(mob.attackTarget).toBe(socket.character.id);
       });
 
       test('and mob attack target is populated, select target should do nothing', () => {
+        mockRoom.getCharacters.mockReturnValueOnce([socket.character]);
+
         mob.attackTarget = {};
         mob.selectTarget(mockRoom.id);
 
@@ -201,6 +191,7 @@ describe('mob model', () => {
 
       test('if no player is in room, mob should do nothing', () => {
         mob.attackTarget = null;
+        mockRoom.getCharacters.mockReturnValueOnce([socket.character]);
         mob.selectTarget(mockRoom.id);
 
         expect(socket.to(mockRoom.id).emit).not.toHaveBeenCalled();
@@ -218,6 +209,7 @@ describe('mob model', () => {
 
     beforeEach(() => {
       global.io.sockets.connected[socket.id] = socket;
+      jest.resetAllMocks();
     });
 
     test('should return false when mob has no attack target', () => {
@@ -235,7 +227,7 @@ describe('mob model', () => {
     test('should set attackTarget to null if target socket is not in room', () => {
       // arrange
       mob.attackTarget = 'non existant socket';
-      mockSocketInRoom.mockReturnValueOnce(false);
+      mockGetCharacterById.mockReturnValueOnce(socket);
 
       // act
       const result = mob.attack(new Date());
@@ -249,94 +241,100 @@ describe('mob model', () => {
 
     test('should update lastAttack and return true on every successful attack', () => {
       // arrange
-      mockSocketInRoom.mockReturnValueOnce(true);
-      mob.attackTarget = socket.id;
+      mockGetCharacterById.mockReturnValueOnce(socket.character);
+      mockGetSocketByCharacterId.mockReturnValueOnce(socket);
+      mob.attackTarget = socket.character.id;
+      mob.lastAttack = null;
       mockRoll.mockReturnValueOnce(0);
 
       // act
       const result = mob.attack(new Date());
 
       // assert
-      expect(mob.attackTarget).toBe(socket.id);
-      expect(socket.emit).toHaveBeenCalled();
-      expect(mockRoomMessage).toHaveBeenCalled();
+      expect(mob.attackTarget).toBeNull();
+      expect(mob.lastAttack).not.toBeNull();
+      expect(socket.character.output).toHaveBeenCalled();
+      expect(socket.character.toRoom).toHaveBeenCalled();
       expect(result).toBe(true);
     });
 
     test('should output hit messages if attack roll successful', () => {
       // arrange
-      mockSocketInRoom.mockReturnValueOnce(true);
-      mockRoll.mockReturnValueOnce(1);
-      mob.attackTarget = socket.id;
-      const playerMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits you for 0 damage!</span>`;
-      const roomMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits ${socket.user.username} for 0 damage!</span>`;
+      mockGetCharacterById.mockReturnValueOnce(socket.character);
+      mockGetSocketByCharacterId.mockReturnValueOnce(socket);
+      mockRoll.mockReturnValueOnce(1).mockReturnValueOnce(1);
+      mob.attackTarget = socket.character.id;
+      const playerMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits you for 1 damage!</span>`;
+      const roomMessage = `<span class="${config.DMG_COLOR}">The ${mob.displayName} hits ${socket.character.name} for 1 damage!</span>`;
 
       // act
       mob.attack(new Date());
 
       // assert
-      expect(socket.emit).toBeCalledWith('output', { message: playerMessage });
-      expect(mockRoomMessage).toBeCalledWith(socket.user.roomId, roomMessage, [socket.id]);
+      expect(socket.character.output).toBeCalledWith(playerMessage);
+      expect(socket.character.toRoom).toBeCalledWith(roomMessage);
     });
 
     test('should output miss messages if attack roll fails', () => {
       // arrange
-      mockSocketInRoom.mockReturnValueOnce(true);
+      mockGetCharacterById.mockReturnValueOnce(socket.character);
+      mockGetSocketByCharacterId.mockReturnValueOnce(socket);
 
-      mockRoll.mockReturnValueOnce(0);
-      mob.attackTarget = socket.id;
+      mockRoll.mockReturnValueOnce(0).mockReturnValueOnce(0);
+      mob.attackTarget = socket.character.id;
       const playerMessage = `<span class="${config.MSG_COLOR}">The ${mob.displayName} swings at you, but misses!</span>`;
-      const roomMessage = `<span class="${config.MSG_COLOR}">The ${mob.displayName} swings at ${socket.user.username}, but misses!</span>`;
+      const roomMessage = `<span class="${config.MSG_COLOR}">The ${mob.displayName} swings at ${socket.character.name}, but misses!</span>`;
 
       // act
       mob.attack(new Date());
 
       // assert
-      expect(socket.emit).toBeCalledWith('output', { message: playerMessage });
-      expect(mockRoomMessage).toBeCalledWith(socket.user.roomId, roomMessage, [socket.id]);
+      expect(socket.character.output).toBeCalledWith(playerMessage);
+      expect(socket.character.toRoom).toBeCalledWith(roomMessage);
     });
   });
 
   describe('taunt', () => {
 
+    beforeEach(() => {
+      socket.emit.mockReset();
+    });
+
     test('should return if no attack target', () => {
       // arrange
-      mob.attackTarget = null;
+      mockRoom.getCharacters.mockReturnValueOnce([]);
 
       // act
       mob.taunt(new Date());
 
       // assert
       expect(socket.emit).not.toHaveBeenCalled();
-      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
     });
 
     test('should return if user has left room', () => {
       // arrange
-      mob.attackTarget = 'ANOTHER SOCKET ID';
+      mockRoom.getCharacters.mockReturnValueOnce([]);
+      mockGetSocketByCharacterId.mockReturnValueOnce(socket);
 
       // act
       mob.taunt(new Date());
 
       // assert
       expect(socket.emit).not.toHaveBeenCalled();
-      expect(socket.broadcast.to(socket.user.roomId).emit).not.toHaveBeenCalled();
     });
 
-    test('should send an individual message and a room message', () => {
+    xtest('should send an individual message and a room message', () => {
       // arrange
-      mockGetRandomNumber.mockReturnValueOnce(0);
-      mockSocketInRoom.mockReturnValueOnce(true);
-
-      global.io.sockets.connected[socket.id] = socket;
-      mob.attackTarget = socket.id;
+      mockRoom.getCharacters.mockReturnValueOnce([socket.character]);
+      mockGetSocketByCharacterId.mockReturnValueOnce(socket);
+      mockGetRandomNumber.mockReturnValue(0);
 
       // act
       mob.taunt(new Date());
 
       // assert
       expect(socket.emit).toHaveBeenCalled();
-      expect(socket.broadcast.to(socket.user.roomId).emit).toHaveBeenCalled();
+      expect(socket.broadcast.to(socket.character.roomId).emit).toHaveBeenCalled();
     });
   });
 
@@ -345,6 +343,7 @@ describe('mob model', () => {
     test('should return false if no attackInterval is set', () => {
       // arrange
       mob.attackInterval = null;
+      mob.attackTarget = {};
 
       // act
       const result = mob.readyToAttack(Date.now());
@@ -357,6 +356,7 @@ describe('mob model', () => {
       // arrange
       mob.attackInterval = 2000;
       mob.lastAttack = null;
+      mob.attackTarget = {};
 
       // act
       const result = mob.readyToAttack(Date.now());
@@ -369,6 +369,7 @@ describe('mob model', () => {
       // arrange
       mob.lastAttack = Date.now();
       mob.attackInterval = 3000;
+      mob.attackTarget = {};
 
       // act
       const result = mob.readyToAttack(Date.now());
@@ -381,6 +382,7 @@ describe('mob model', () => {
       // arrange
       mob.lastAttack = Date.now();
       mob.attackInterval = -3000;
+      mob.attackTarget = {};
 
       // act
       const result = mob.readyToAttack(Date.now());

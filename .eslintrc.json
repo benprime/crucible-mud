@@ -4,7 +4,7 @@
     "plugin:jest/recommended"
   ],
   "parserOptions": {
-    "ecmaVersion": 6,
+    "ecmaVersion": 8,
     "sourceType": "module"
   },
   "plugins": [
@@ -12,6 +12,7 @@
     "jest"
   ],
   "env": {
+    "es6": true,
     "jest": true
   },
   "globals": {
@@ -19,7 +20,9 @@
     "process": true,
     "console": true,
     "setInterval": true,
-    "setTimeout": true
+    "setTimeout": true,
+    "arguments": true,
+    "exports": true
   },
   "rules": {
     "indent": [

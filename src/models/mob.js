@@ -1,111 +1,97 @@
 import socketUtil from '../core/socketUtil';
 import config from '../config';
 import utils from '../core/utilities';
-
-/* State only model */
-import { Types } from 'mongoose';
-const { ObjectId } = Types;
-
 import Room from '../models/room';
 import dice from '../core/dice';
+import { Types } from 'mongoose';
+const { ObjectId } = Types;
 
 class Mob {
   constructor(mobType, roomId, adjectiveIndex) {
 
-    // TODO: When we refactor this, the mob instance does
-    // not need to contain the entire mobType.
     const instance = Object.assign(this, mobType);
     if (!this.id) {
       this.id = new ObjectId();
     }
 
-    let adjIndex;
-    if (Number.isInteger(adjectiveIndex)) {
-      adjIndex = adjectiveIndex;
-    } else {
-      adjIndex = dice.getRandomNumber(0, mobType.adjectives.length);
+    if (mobType.adjectives) {
+      let adjIndex;
+      if (Number.isInteger(adjectiveIndex)) {
+        adjIndex = adjectiveIndex;
+      } else {
+        adjIndex = dice.getRandomNumber(0, mobType.adjectives.length);
+      }
+
+      // apply modifiers
+      const adjective = mobType.adjectives[adjIndex];
+      this.adjective = adjective.name;
+      instance.hp += adjective.modifiers.hp;
+      instance.xp += adjective.modifiers.xp;
+      instance.hitDice += adjective.modifiers.hitDice;
+      instance.attacksPerRound += adjective.modifiers.attacksPerRound;
+      instance.tauntsPerRound += adjective.modifiers.tauntsPerRound;
     }
 
-    // apply modifiers
-    const adjective = mobType.adjectives[adjIndex];
-    instance.hp += adjective.modifiers.hp;
-    instance.xp += adjective.modifiers.xp;
-    instance.minDamage += adjective.modifiers.minDamage;
-    instance.maxDamage += adjective.modifiers.maxDamage;
-    instance.hitDice += adjective.modifiers.hitDice;
-    instance.attackInterval += adjective.modifiers.attackInterval;
+    // state variables
+    instance.attackInterval = instance.attacksPerRound * config.ROUND_DURATION;
+    instance.tauntInterval = instance.tauntsPerRound * config.ROUND_DURATION;
 
     instance.roomId = roomId;
 
-    instance.displayName = `${adjective.name} ${instance.displayName}`;
+    this.displayName = this.buildDisplayName();
 
     return instance;
   }
 
-  look(socket) {
-    socket.emit('output', { message: this.desc });
-    if (socket.user.admin) {
-      socket.emit('output', { message: `Mob ID: ${this.id}` });
-    }
+  buildDisplayName() {
+    //const template = this.displayTemplate || '${this.adjective} ${this.name} ${this.class}';
+    const template = this.displayTemplate || '${this.name}';
+    return new Function(`return \`${template}\`;`).call(this);
   }
 
-  takeDamage(socket, damage) {
+  getDesc() {
+    return this.desc;
+  }
+
+  takeDamage(damage) {
     this.hp -= damage;
     if (this.hp <= 0) {
-      this.die(socket);
+      this.die();
     }
   }
 
-  die(socket) {
-    const room = Room.getById(socket.user.roomId);
+  die() {
+    const room = Room.getById(this.roomId);
     room.spawnTimer = new Date();
-    global.io.to(room.id).emit('output', { message: `The ${this.displayName} collapses.` });
+    global.io.to(room.id).emit('output', { message: `<span class="yellow">The ${this.displayName} collapses.</span>` });
     utils.removeItem(room.mobs, this);
-    this.awardExperience(socket);
+    this.awardExperience();
   }
 
-  // todo: cleaning up for current room. This may need some rework when the mobs
-  // can move from room to room.
-  awardExperience({ user }) {
-    const room = Room.getById(user.roomId);
-    let sockets = socketUtil.getRoomSockets(room.id);
+  awardExperience() {
+    let sockets = socketUtil.getRoomSockets(this.roomId);
     sockets.forEach((s) => {
-      if (s.user.attackTarget === this.id) {
-        s.user.attackTarget = null;
-        s.user.addExp(this.xp);
+      if (s.character.attackTarget === this.id) {
+        s.character.attackTarget = null;
+        s.character.addExp(this.xp);
         s.emit('output', { message: `You gain ${this.xp} experience.` });
         s.emit('output', { message: '<span class="olive">*** Combat Disengaged ***</span>' });
       }
     });
   }
 
-  selectTarget(roomid) {
+  selectTarget() {
 
-    if (!roomid) return;
+    if (this.attackInterval === 0) return;
 
-    // if everyone has disconnected from a room (but mobs still there) the room will not be defined.
-    const ioRoom = global.io.sockets.adapter.rooms[roomid];
+    const room = Room.getById(this.roomId);
+    const charactersInRoom = room.getCharacters();
 
-    // if there is at least one player in the room
-    if (ioRoom) {
-      // todo: check if this player has left or died or whatever.
-      if (!this.attackTarget) {
-        // select random player to attack
-        const socketsInRoom = Object.keys(ioRoom.sockets);
-        if (socketsInRoom.length == 0) return;
-        const targetIndex = dice.getRandomNumber(0, socketsInRoom.length);
-        const socketId = socketsInRoom[targetIndex];
-
-        // get player socket
-        const socket = global.io.sockets.connected[socketId];
-
-        this.attackTarget = socketId;
-        const username = socket.user.username;
-
-        socket.broadcast.to(roomid).emit('output', { message: `The ${this.displayName} moves to attack ${username}!` });
-        socket.emit('output', { message: `The ${this.displayName} moves to attack you!` });
-      }
-    }
+    // select random player to attack
+    if (charactersInRoom.length == 0) return;
+    const targetIndex = dice.getRandomNumber(0, charactersInRoom.length);
+    const targetCharacter = charactersInRoom[targetIndex];
+    this.attackTarget = targetCharacter.id;
   }
 
   attackroll() {
@@ -122,31 +108,38 @@ class Mob {
       return false;
     }
 
-    if (!socketUtil.socketInRoom(this.roomId, this.attackTarget)) {
+    let character = socketUtil.getCharacterById(this.attackTarget);
+    if (!character) return false;
+
+    if (character.roomId !== this.roomId) {
       this.attackTarget = null;
       return false;
     }
 
     this.lastAttack = now;
-    const dmg = 0;
-    let socketId = this.attackTarget;
+    const dmg = dice.roll(this.damage);
     let playerMessage = '';
     let roomMessage = '';
 
-    let playerSocket = global.io.sockets.connected[socketId];
-    if (!playerSocket) return false;
-    let playerName = playerSocket.user.username;
+    const attackResult = this.attackroll() === 1;
 
-    if (this.attackroll() == 1) {
+    if (attackResult) {
       playerMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits you for ${dmg} damage!</span>`;
-      roomMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits ${playerName} for ${dmg} damage!</span>`;
+      roomMessage = `<span class="${config.DMG_COLOR}">The ${this.displayName} hits ${character.name} for ${dmg} damage!</span>`;
     } else {
       playerMessage = `<span class="${config.MSG_COLOR}">The ${this.displayName} swings at you, but misses!</span>`;
-      roomMessage = `<span class="${config.MSG_COLOR}">The ${this.displayName} swings at ${playerName}, but misses!</span>`;
+      roomMessage = `<span class="${config.MSG_COLOR}">The ${this.displayName} swings at ${character.name}, but misses!</span>`;
     }
 
-    playerSocket.emit('output', { message: playerMessage });
-    socketUtil.roomMessage(playerSocket.user.roomId, roomMessage, [playerSocket.id]);
+    character.output(playerMessage);
+    character.toRoom(roomMessage);
+
+    if (attackResult) {
+      character.takeDamage(dmg);
+    }
+
+
+    this.attackTarget = null;
 
     return true;
   }
@@ -155,14 +148,16 @@ class Mob {
     if (!this.readyToTaunt(now)) return;
     this.lastTaunt = now;
 
+    this.selectTarget();
+
     if (!this.attackTarget) return;
 
-    const socket = global.io.sockets.connected[this.attackTarget];
+    const socket = socketUtil.getSocketByCharacterId(this.attackTarget);
     if (!socket) {
       return;
     }
 
-    if (!socketUtil.socketInRoom(this.roomId, this.attackTarget)) {
+    if (socket.character.roomId !== this.roomId) {
       this.attackTarget = null;
       return;
     }
@@ -170,18 +165,29 @@ class Mob {
     const tauntIndex = dice.getRandomNumber(0, this.taunts.length);
     let taunt = this.taunts[tauntIndex];
     taunt = utils.formatMessage(taunt, this.displayName, 'you');
-    let username = socket.user.username;
-    let roomTaunt = utils.formatMessage(this.taunts[tauntIndex], this.displayName, username);
+    let charName = socket.character.name;
+    let roomTaunt = utils.formatMessage(this.taunts[tauntIndex], this.displayName, charName);
     socket.emit('output', { message: taunt });
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: roomTaunt });
+    socket.broadcast.to(socket.character.roomId).emit('output', { message: roomTaunt });
+  }
+
+  idle(now) {
+    if (this.attackTarget) return;
+    if (!this.readyToIdle(now)) return;
+    this.lastIdle = now;
+
+    const idleIndex = dice.getRandomNumber(0, this.idleActions.length);
+    let idleTemplate = this.idleActions[idleIndex];
+    let roomIdleAction = utils.formatMessage(idleTemplate, this.displayName);
+    global.io.to(this.roomId).emit('output', { message: roomIdleAction });
   }
 
   readyToAttack(now) {
-    return !!this.attackInterval && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
+    return !!this.attackInterval && this.attackTarget && (!this.lastAttack || this.lastAttack + this.attackInterval <= now);
   }
 
   readyToTaunt(now) {
-    return !!this.tauntInterval && this.attackTarget && (!this.lastTaunt || this.lastTaunt + this.tauntInterval <= now);
+    return !!this.tauntInterval && (!this.lastTaunt || this.lastTaunt + this.tauntInterval <= now);
   }
 
   readyToIdle(now) {

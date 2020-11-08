@@ -1,45 +1,23 @@
 # CrucibleMUD
-CrucibleMUD is a web socket framework for creating massively multiplayer text-based games.
+CrucibleMUD is a massively multiplayer online text game, utilizing web sockets for realtime player interaction. Game elements are data-driven to support in-game world crafting via in-game commands. The intent is to provide privileged users with the ability to create game environments, interactions, and events with no programming required.
 
-Necessary environment variables:
+## Environments
+CrucibleMUD environments are auto-deployed upon merging to their respective branches.
+
+| Environment | Branch |
+| - | - |
+| [Production](http://www.cruciblemud.com) | [master](https://github.com/benprime/crucible-mud/tree/master) |
+| [Development](http://develop.cruciblemud.com) | [develop](https://github.com/benprime/crucible-mud/tree/develop) |
+
+## Configuration
+
+The following environment variables can be set to override the CrucibleMUD default configuration.
+
 ```
 NODE_PORT=3000
+MONGO_HOST=localhost
 MONGO_DB=mud
 MONGO_PORT=27017
-```
-
-An example command object:
-```C#
-{
-  name: 'scream',
-
-  // the ways your command can be entered
-  patterns: [
-    /^scream\s+(\w+)$/i,
-    /^scream$/i,
-  ],
-
-  // Dispatch exists so you can inspect your parsed parameters and
-  // perhaps do some additional processing on them before calling
-  // the command's logic.
-  dispatch(socket, match) {
-
-    if(match[1] == "bloody murder") {
-      console.log("Someone is screaming bloody murder on your server.");
-    }
-
-    // call the command
-    module.exports.execute(socket, match[1]);
-  },
-
-  // core logic of command
-  execute(socket, message) {
-    socket.broadcast.to(socket.user.roomId).emit('output', { message: `${socket.user.username} is screaming his head off!`});
-  },
-
-  // printed when someone types 'help scream'
-  help(socket) {
-    socket.emit('output', { message: 'Usage: scream <message>' });
-  },
-}
+APP_URL=http://localhost:3001
+TOKEN_SECRET=SUPER-SECRET
 ```

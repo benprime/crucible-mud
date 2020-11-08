@@ -11,8 +11,15 @@ describe('updateHUD', () => {
 
     // assert
     expect(socket.emit).toBeCalledWith('hud', {
-      currentHP: socket.user.currentHP,
-      maxHP: socket.user.maxHP,
+      currency: 0,
+      currentHP: socket.character.currentHP,
+      maxHP: socket.character.maxHP,
+      dayPhase: 'early morning',
+      states: [],
+      status: {
+        'style': 'green',
+        'text': 'unharmed',
+      },
     });
   });
 });

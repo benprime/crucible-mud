@@ -10,18 +10,19 @@ export default {
   // will have stats.
   catalog: [{
     name: 'kobold',
+    class: 'sentry',
     desc: 'an ugly kobold',
-    displayName: 'kobold sentry',
+    displayTemplate: '${this.adjective} ${this.name} ${this.class}',
+    damage: '1d2',
     adjectives: [
       {
         name: 'big',
         modifiers: {
           hp: 10,
           xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
-          attackInterval: 250,
+          attacksPerRound: 0.25,
+          tauntsPerRound: 0.25,
         },
       },
       {
@@ -29,10 +30,9 @@ export default {
         modifiers: {
           hp: 5,
           xp: 30,
-          minDamage: 4,
-          maxDamage: 0,
           hitDice: 0,
-          attackInterval: 0,
+          attacksPerRound: 0.25,
+          tauntsPerRound: 0.25,
         },
       },
       {
@@ -40,10 +40,9 @@ export default {
         modifiers: {
           hp: 0,
           xp: 0,
-          minDamage: -2,
-          maxDamage: 0,
           hitDice: 0,
-          attackInterval: -1000,
+          attacksPerRound: -0.25,
+          tauntsPerRound: -0.25,
         },
       },
       {
@@ -51,10 +50,9 @@ export default {
         modifiers: {
           hp: -5,
           xp: -5,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
-          attackInterval: -500,
+          attacksPerRound: -0.125,
+          tauntsPerRound: -0.125,
         },
       },
       {
@@ -62,10 +60,9 @@ export default {
         modifiers: {
           hp: 0,
           xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
-          attackInterval: 0,
+          attacksPerRound: -0.25,
+          tauntsPerRound: -0.25,
         },
       },
       {
@@ -73,10 +70,9 @@ export default {
         modifiers: {
           hp: 0,
           xp: 0,
-          minDamage: 0,
-          maxDamage: 0,
           hitDice: 0,
-          attackInterval: 0,
+          attacksPerRound: 0.25,
+          tauntsPerRound: 0.25,
         },
       },
       {
@@ -84,45 +80,184 @@ export default {
         modifiers: {
           hp: 0,
           xp: 50,
-          minDamage: 2,
-          maxDamage: 2,
           hitDice: 1,
-          attackInterval: 0,
+          attacksPerRound: 0.50,
+          tauntsPerRound: 0.50,
         },
       },
     ],
-    attackInterval: 4000,
+    attacksPerRound: 1,
     hitDice: '1d4',
     hp: 10,
     xp: 20,
-    minDamage: 1,
-    maxDamage: 3,
-    tauntInterval: 12000, // every 3 rounds
+    tauntsPerRound: 3,
     deathMessage: 'The {0} crumbles to dust.',
     taunts: [
       'The {0} growls at {1} aggressively!',
       'The {0} circles {1}, looking for an opening!',
       'The {0} bellows a challenge!',
     ],
-  }, {
-    name: 'dummy',
+  },
+  {
+    name: 'cultist',
+    class: 'robed',
+    desc: 'a robed cultist',
+    damage: '1d2',
+    displayTemplate: '${this.adjective} ${this.class} ${this.name}',
+    adjectives: [
+      {
+        name: 'big',
+        modifiers: {
+          hp: 10,
+          xp: 0,
+          hitDice: 0,
+          attacksPerRound: 0.25,
+          tauntsPerRound: 0.25,
+        },
+      },
+      {
+        name: 'strong',
+        modifiers: {
+          hp: 5,
+          xp: 30,
+          hitDice: 0,
+          attacksPerRound: 0.25,
+          tauntsPerRound: 0.25,
+        },
+      },
+      {
+        name: 'quick',
+        modifiers: {
+          hp: 0,
+          xp: 0,
+          hitDice: 0,
+          attacksPerRound: -0.25,
+          tauntsPerRound: -0.25,
+        },
+      },
+      {
+        name: 'small',
+        modifiers: {
+          hp: -5,
+          xp: -5,
+          hitDice: 0,
+          attacksPerRound: -0.125,
+          tauntsPerRound: -0.125,
+        },
+      },
+      {
+        name: 'short',
+        modifiers: {
+          hp: 0,
+          xp: 0,
+          hitDice: 0,
+          attacksPerRound: -0.25,
+          tauntsPerRound: -0.25,
+        },
+      },
+      {
+        name: 'tall',
+        modifiers: {
+          hp: 0,
+          xp: 0,
+          hitDice: 0,
+          attacksPerRound: 0.25,
+          tauntsPerRound: 0.25,
+        },
+      },
+      {
+        name: 'ferocious',
+        modifiers: {
+          hp: 0,
+          xp: 50,
+          hitDice: 1,
+          attacksPerRound: 0.50,
+          tauntsPerRound: 0.50,
+        },
+      },
+    ],
+
+    attacksPerRound: 1,
+    hitDice: '1d4',
+    hp: 10,
+    xp: 20,
+    tauntsPerRound: 3,
+    deathMessage: 'The {0} crumbles to dust.',
+    taunts: [
+      'The {0} growls at {1} aggressively!',
+      'The {0} circles {1}, looking for an opening!',
+      'The {0} bellows a challenge!',
+    ],
+  },
+  {
+    name: 'hellhound',
+    desc: 'a hellhound',
+    displayTemplate: '${this.adjective} ${this.name}',
+    adjectives: [
+      {
+        name: 'flaming',
+        modifiers: {
+          hp: 10,
+          xp: 0,
+          hitDice: 0,
+          attacksPerRound: 250,
+        },
+      },
+      {
+        name: 'smoldering',
+        modifiers: {
+          hp: 10,
+          xp: 0,
+          hitDice: 0,
+          attacksPerRound: 250,
+        },
+      },
+    ],
+    attacksPerRound: 1,
+    hitDice: '1d4',
+    hp: 10,
+    xp: 20,
+    tauntsPerRound: 3,
+    deathMessage: 'The {0} crumbles to dust.',
+    taunts: [
+      'The {0} growls at {1} aggressively!',
+      'The {0} circles {1}, looking for an opening!',
+      'The {0} bellows a challenge!',
+    ],
+  },
+  {
+    name: 'enchanted sparring dummy',
     desc: 'a sparring dummy',
-    displayName: 'enchanted sparring dummy',
-    attackInterval: 0, // no attacks
+    attacksPerRound: 0, // no attacks
     hp: 20,
     xp: 20,
     hitDice: '4d6',
     idleInterval: 60000, // every minute
     idleActions: [
       'The {0} sighs.',
-      'The {0} looks at {1} hopefully.',
+      'The {0} looks around hopefully.',
       'The {0} asks "Want to punch me in the face?"',
     ],
-    tauntInterval: 12000,
+    tauntsPerRound: 4,
     taunts: [
       'The {0} shouts "You really could do better!"',
       'The {0} shrugs.',
       'The {0} whines "Oh sure, beat up on the dummy!"',
+    ],
+  },
+  {
+    name: 'flesh golem',
+    desc: 'hideous patchwork of lumbering flesh stitched together by twine and animated by necromancy.',
+    attacksPerRound: 0.5,
+    tauntsPerRound: 1,
+    damage: '1d3+1',
+    hitDice: '4d6',
+    hp: 500,
+    xp: 800,
+    taunts: [
+      'The {0} gurgles menacingly!',
+      'The {0} lumbers in your direction.',
+      'The {0} roars a throaty howl of pain and rage.',
     ],
   }],
 };

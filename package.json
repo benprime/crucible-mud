@@ -4,50 +4,77 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
-    "express": "^4.16.1",
-    "mongodb": "^2.2.19",
-    "mongoose": "^4.12.0",
-    "mongoose-data-seed": "^1.0.6",
-    "npm": "^5.10.0",
-    "socket.io": "^1.7.2"
+    "@types/jsonwebtoken": "^8.3.5",
+    "ascii-table": "0.0.9",
+    "bcrypt": "^5.0.0",
+    "canvas": "^2.6.1",
+    "express": "^4.17.1",
+    "express-validator": "^6.2.0",
+    "jsonwebtoken": "^8.4.0",
+    "mailgun-js": "^0.22.0",
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.7.5",
+    "mongoose-data-seed": "^2.1.6",
+    "nodemailer": "^6.3.1",
+    "npm": "^7.0.9",
+    "socket.io": "^2.3.0"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.1",
+    "@types/express": "^4.16.0",
+    "@types/jest": "^23.3.2",
+    "@types/mongodb": "^3.3.6",
+    "@types/mongoose": "^5.5.21",
+    "@types/npm": "^2.0.31",
+    "@types/socket.io": "^1.4.38",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
-    "babel-jest": "^23.4.2",
+    "babel-jest": "^25.0.0",
     "babel-preset-env": "^1.7.0",
     "cjson": "^0.5.0",
     "editorconfig": "^0.15.0",
-    "eslint": "^5.3.0",
-    "eslint-config-airbnb-base": "^11.3.2",
-    "eslint-plugin-import": "^2.13.0",
-    "eslint-plugin-jest": "^21.18.0",
-    "http-server": "^0.10.0",
-    "jest": "^23.4.2",
-    "jest-cli": "^23.4.2",
-    "jest-when": "^1.1.0",
-    "nodemon": "^1.17.2",
+    "eslint": "^5.6.1",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^21.24.0",
+    "http-server": "^0.12.3",
+    "jest": "^25.0.0",
+    "jest-cli": "^25.0.0",
+    "jest-each": "^23.6.0",
+    "jest-resolve": "^26.6.2",
+    "jest-when": "^2.7.0",
+    "jsdoc": "^3.5.5",
+    "nodemon": "^1.19.4",
     "regenerator-runtime": "^0.12.0",
     "rewire": "^2.5.2"
   },
   "scripts": {
-    "test": "node_modules/jest/bin/jest.js --config jest.config.json",
-    "test:watch": "node_modules/jest/bin/jest.js --watch --config jest.config.json",
-    "coverage": "jest --coverage && google-chrome ./coverage/lcov-report/index.html --config jest.config.json",
+    "test": "node node_modules/jest/bin/jest.js",
+    "test:watch": "node node_modules/jest/bin/jest.js --watch",
+    "coverage": "node node_modules/jest/bin/jest.js --coverage && google-chrome ./coverage/lcov-report/index.html",
+    "debug": "babel-node --nolazy --inspect-brk=9229 ./src/server.js",
     "start": "nodemon src/server.js --exec babel-node",
-    "eslint": "node_modules/eslint/bin/eslint.js -c .eslintrc.json src/**",
+    "eslint": "node node_modules/eslint/bin/eslint.js -c .eslintrc.json src/**",
     "db": "mongod --dbpath c:/dev/mongo/data",
     "open": "concurrently \"mongod --dbpath c:/dev/mongo/data\" \"nodemon server.js\"",
+    "seed": "md-seed run --dropdb",
     "clean": "rm -rf dist && mkdir dist",
-    "build": "./node_modules/babel-cli/bin/babel.js src -d dist",
+    "build": "node node_modules/babel-cli/bin/babel.js src -d dist --source-maps",
     "serve": "node dist/server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org/slashben/mud.git"
+    "url": "git+ssh://git@github.com:benprime/crucible-mud.git"
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/slashben/mud#readme"
+  "homepage": ".",
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      ".*": "<rootDir>/node_modules/babel-jest"
+    },
+    "testURL": "http://localhost",
+    "roots": [
+      "src/"
+    ]
+  }
 }

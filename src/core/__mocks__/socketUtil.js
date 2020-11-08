@@ -1,30 +1,21 @@
-export const mockUsersInRoom = jest.fn();
-export const mockSocketInRoom = jest.fn();
+export const mockgetCharacterNames = jest.fn();
 export const mockRoomMessage = jest.fn();
 export const mockGetRoomSockets = jest.fn();
-export const mockValidUserInRoom = jest.fn();
-export const mockGetFollowingSockets = jest.fn();
+export const mockGetFollowers = jest.fn();
 export const mockGetSocketByUserId = jest.fn();
-export const mockGetSocketByUsername = jest.fn();
-
-
-
-
-// const mock = jest.fn().mockImplementation(() => {
-//   return {
-//     autocompleteTypes: mockAutocompleteTypes
-//   };
-// });
+export const mockGetSocketByCharacterId = jest.fn();
+export const mockGetCharacterById = jest.fn();
+export const mockGetAllSockets = jest.fn();
 
 const mock = {
-  usersInRoom: mockUsersInRoom,
-  socketInRoom: mockSocketInRoom,
+  getCharacterNames: mockgetCharacterNames,
   roomMessage: mockRoomMessage,
   getRoomSockets: mockGetRoomSockets,
-  validUserInRoom: mockValidUserInRoom,
-  getFollowingSockets: mockGetFollowingSockets,
+  getFollowers: mockGetFollowers,
   getSocketByUserId: mockGetSocketByUserId,
-  getSocketByUsername: mockGetSocketByUsername,
+  getSocketByCharacterId: mockGetSocketByCharacterId,
+  getCharacterById: mockGetCharacterById,
+  getAllSockets: mockGetAllSockets,
 };
 
 export default mock;

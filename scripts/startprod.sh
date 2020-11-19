@@ -1,6 +1,8 @@
 export NODE_PORT=3000
 export MONGO_DB=mud
 export MONGO_PORT=27017
+export MAIL_GUN_API_KEY=
+export MAIL_GUN_DOMAIN=
 
 # Used by the socker server to determind development mode (not used by frontend)
 export NODE_ENV=prod

@@ -5,6 +5,9 @@ const NodeTypes = {
 };
 
 class BehaviorTreeAction {
+	public type: any;
+	public action: any;
+
   constructor(actionObj) {
     this.type = NodeTypes.ACTION;
     this.action = actions[actionObj.name];
@@ -19,6 +22,9 @@ class BehaviorTreeAction {
 }
 
 class BehaviorTreeSelector {
+	public type: any;
+	public nodes: any;
+
   constructor() {
     this.type = NodeTypes.SELECTOR;
   }
@@ -34,6 +40,9 @@ class BehaviorTreeSelector {
 }
 
 class BehaviorTreeSequence {
+	public type: any;
+	public nodes: any;
+
   constructor() {
     this.type = NodeTypes.SEQUENCE;
   }
@@ -155,6 +164,8 @@ const actions = {
 
 
 class BehaviorTree {
+	public _tree: any;
+
   constructor(treeData) {
     this._tree = buildNode(treeData);
   }

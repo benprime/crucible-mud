@@ -95,6 +95,13 @@ function getMockRoom(roomId) {
 }
 
 class IOMock {
+	public roomSpies: any;
+	public ioEmitSpy: any;
+	public to: any;
+	public sockets: any;
+	public addCharacterToIORoom: any;
+	public reset: any;
+
   constructor() {
     const ioMock = this;
     this.roomSpies = {};
@@ -134,6 +141,18 @@ class IOMock {
 }
 
 class SocketMock {
+	public id: any;
+	public roomSpies: any;
+	public emit: any;
+	public on: any;
+	public leave: any;
+	public join: any;
+	public to: any;
+	public broadcast: any;
+	public user: any;
+	public character: any;
+	public reset: any;
+
   constructor(username) {
     let sm = this;
     // this is mocking the SocketIO socket, and is not a mongoose object.()

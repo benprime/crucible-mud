@@ -47,7 +47,7 @@ export const initializeSpawnerActions = function() {
 
 export default {
   name: 'spawner',
-  execute(character, action, param) {
+  execute(character, action, param?) {
     const room = Room.getById(character.roomId);
     action = action ? action.toLowerCase() : null;
 

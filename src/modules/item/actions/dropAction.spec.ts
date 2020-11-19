@@ -22,7 +22,7 @@ describe('drop', () => {
     jasmine.addMatchers({
       toBeJsonEqual() {
         return {
-          compare(actual, expected) {
+          compare(actual, expected?) {
             let result = {};
             let jsonActual = JSON.orderedStringify(actual);
             let jsonExpected = JSON.orderedStringify(expected);

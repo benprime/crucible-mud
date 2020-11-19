@@ -3,7 +3,7 @@ import config from '../../../config';
 
 export default {
   name: 'offer',
-  execute(character, item, currency, toCharacter) {
+  execute(character, item, currency, toCharacter?) {
 
     if (!toCharacter) {
       character.output('Unknown user or user not connected.');

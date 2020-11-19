@@ -110,7 +110,7 @@ function commandHelp(character, commandName) {
 
 export default {
   name: 'help',
-  execute(character, topic) {
+  execute(character, topic?) {
     if (topic === 'commands') {
       commandListHelp(character);
     }

@@ -4,7 +4,7 @@ import Room from '../../../models/room';
 
 export default {
   name: 'unlock',
-  execute(character, dir, key, cb) {
+  execute(character, dir, key, cb?) {
     const room = Room.getById(character.roomId);
     let exit = room.getExit(dir.short);
     if (!exit) {

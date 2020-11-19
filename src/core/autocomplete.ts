@@ -178,7 +178,7 @@ export default {
    * @param {Character} character - Character performing this operation.
    * @param {String} fragment - Name fragment to autocomplete.
    */
-  character(character, fragment) {
+  character(character, fragment?) {
     var result = this.multiple(character, ['character'], fragment);
     return result ? result.item : null;
   },

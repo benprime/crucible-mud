@@ -9,7 +9,7 @@ import characterStates, { stateMode } from '../core/characterStates';
 import CharacterEquipSchema from './characterEquipSchema';
 import { updateHUD } from '../core/hud';
 import { pronounSubject, upperCaseWords, verbToThirdPerson } from '../core/language';
-import healthStatus from '../models/enums/healthStatuses';
+import { HealthStatus } from '../models/enums/healthStatuses';
 import actionHandler from '../core/actionHandler';
 
 /**

@@ -5,6 +5,7 @@ let lastRound = new Date();
 let round = 0;
 
 class GameManager extends EventEmitter {
+	public emit: any;
 
   setupGameLoop() {
     const self = this;

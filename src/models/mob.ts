@@ -7,7 +7,26 @@ import { Types } from 'mongoose';
 const { ObjectId } = Types;
 
 class Mob {
-  constructor(mobType, roomId, adjectiveIndex) {
+	public id: any;
+	public adjective: any;
+	public displayName: any;
+	public displayTemplate: any;
+	public desc: any;
+	public hp: any;
+	public roomId: any;
+	public xp: any;
+	public attackInterval: any;
+	public attackTarget: any;
+	public lastAttack: any;
+	public damage: any;
+	public lastTaunt: any;
+	public taunts: any;
+	public lastIdle: any;
+	public idleActions: any;
+	public tauntInterval: any;
+	public idleInterval: any;
+
+  constructor(mobType, roomId, adjectiveIndex?) {
 
     const instance = Object.assign(this, mobType);
     if (!this.id) {

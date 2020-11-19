@@ -3,7 +3,7 @@ import utils from '../../../core/utilities';
 
 export default {
   name: 'take',
-  execute(character, item, admin) {
+  execute(character, item, admin?) {
 
     function saveItem(item) {
       // and give it to the user

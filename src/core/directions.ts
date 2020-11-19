@@ -1,4 +1,8 @@
 export class Direction {
+	public short: any;
+	public long: any;
+	public desc: any;
+
   constructor(obj) {
     this.short = obj.short;
     this.long = obj.long;

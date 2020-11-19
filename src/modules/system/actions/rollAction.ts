@@ -3,7 +3,7 @@ import dice from '../../../core/dice';
 export default {
   name: 'roll',
 
-  execute(character, dieType) {
+  execute(character, dieType?) {
     let rollValue = '';
     let output = '';
 

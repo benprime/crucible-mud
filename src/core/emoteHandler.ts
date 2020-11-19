@@ -18,7 +18,7 @@ export default {
    * @param {String} emote - Emote name to perform.
    * @param {String} [username] - Username that is the target of the emote action.
    */
-  actionDispatcher(character, emote, username) {
+  actionDispatcher(character, emote, username?) {
     // autocomplete username
     let targetCharacter = character;
     if (username) {

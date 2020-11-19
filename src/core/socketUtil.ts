@@ -1,7 +1,7 @@
 import socketUtil from '../core/socketUtil';
 
 export default {
-  roomMessage(roomId, message, exclude) {
+  roomMessage(roomId, message, exclude?) {
     const ioRoom = global.io.sockets.adapter.rooms[roomId];
     if (!ioRoom) return;
     for (let socketId in ioRoom.sockets) {

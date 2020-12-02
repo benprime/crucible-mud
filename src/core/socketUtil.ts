@@ -1,11 +1,35 @@
+import { Socket, Server } from 'socket.io';
 import socketUtil from '../core/socketUtil';
 
+let io: Server;
+
+
+interface SocketExt extends Socket {
+  character: CharacterModel,
+  user: UserModel,
+
+  // socket is used to store our users' stateful data.
+  // Anything we need to track but don't need to save to the
+  // database is here.
+  attackInterval: number,
+  attackTarget: string,
+  lastAttack: Date,
+  leader: string,
+  states: string[]
+}
+
+export { SocketExt };
+
 export default {
+  setGlobalSocketServer(p_io: Server) {
+    io = p_io
+  },
+
   roomMessage(roomId, message, exclude?) {
-    const ioRoom = global.io.sockets.adapter.rooms[roomId];
+    const ioRoom = io.sockets.adapter.rooms[roomId];
     if (!ioRoom) return;
     for (let socketId in ioRoom.sockets) {
-      let socket = global.io.sockets.connected[socketId];
+      let socket = io.sockets.connected[socketId];
       if (Array.isArray(exclude) && exclude.includes(socket.character.id)) continue;
       if (!socket) continue;
       socket.emit('output', { message });
@@ -13,7 +37,7 @@ export default {
   },
 
   sendMessages(socket, output) {
-    if(!output) return;
+    if (!output) return;
     if (typeof output === 'string' || output instanceof String) {
       socket.emit('output', { message: output });
     }
@@ -29,10 +53,8 @@ export default {
       if (Array.isArray(output.roomMessages) && output.roomMessages.length > 0) {
         for (let msg of output.roomMessages) {
 
-          // if there is only one character to exlude, use Socket.IO's
+          // if there is only one character to exclude, use Socket.IO's
           // built-in broadcast functionality.
-          // TODO: review this. Is it a good idea to broadcast from a
-          // player socket? What if they disconnect mid-processing?
           if (Array.isArray(msg.exclude) && msg.exclude.length === 1) {
             const charSocket = socketUtil.getSocketByCharacterId(msg.exclude[0]);
             if (!charSocket) throw 'Invalid character id';
@@ -41,14 +63,14 @@ export default {
           // if there are multiple characters being excluded,
           // loop through the room sockets manually.
           else if (Array.isArray(msg.exclude) && msg.exclude.length > 0) {
-            const socketRoom = global.io.sockets.adapter.rooms[msg.roomId];
+            const socketRoom = io.sockets.adapter.rooms[msg.roomId];
             for (let socketId of Object.keys(socketRoom.sockets)) {
-              let charSocket = global.io.sockets.connected[socketId];
-              if (msg.exclude.includes(charSocket.character.id)) continue;
+              let charSocket = io.sockets.connected[socketId];
+              if (msg.exclude.includes(charSocket['character'].id)) continue;
               charSocket.emit('output', { message: msg.message });
             }
           } else {
-            global.io.to(msg.roomId).emit('output', { message: msg.message });
+            io.to(msg.roomId).emit('output', { message: msg.message });
           }
         }
       }
@@ -60,7 +82,7 @@ export default {
   },
 
   getSocketByUserId(userId) {
-    for (let socket of Object.values(global.io.sockets.connected)) {
+    for (let socket of Object.values(io.sockets.connected)) {
       if (socket.character && socket.character.user.id == userId) {
         return socket;
       }
@@ -68,8 +90,8 @@ export default {
     return null;
   },
 
-  getSocketByCharacterId(characterId) {
-    for (let socket of Object.values(global.io.sockets.connected)) {
+  getSocketByCharacterId(characterId: string): Socket {
+    for (let socket of Object.values(io.sockets.connected)) {
       if (socket.character && socket.character.id === characterId) {
         return socket;
       }
@@ -78,7 +100,7 @@ export default {
   },
 
   getCharacterById(characterId) {
-    for (let socket of Object.values(global.io.sockets.connected)) {
+    for (let socket of Object.values(io.sockets.connected)) {
       if (socket.character && socket.character.id == characterId) {
         return socket.character;
       }
@@ -88,7 +110,7 @@ export default {
 
   getFollowers(characterId) {
     const followers = [];
-    for (let socket of Object.values(global.io.sockets.connected)) {
+    for (let socket of Object.values(io.sockets.connected)) {
       if (socket.character && socket.character.leader === characterId) {
         followers.push(socket.character);
       }
@@ -97,21 +119,17 @@ export default {
   },
 
   getSocket(socketId) {
-    return global.io.sockets.connected[socketId];
+    return io.sockets.connected[socketId];
   },
 
   getRoomSockets(roomId) {
-    const ioRoom = global.io.sockets.adapter.rooms[roomId];
+    const ioRoom = io.sockets.adapter.rooms[roomId];
     if (!ioRoom) return [];
-    return Object.keys(ioRoom.sockets).map((socketId) => global.io.sockets.connected[socketId]);
+    return Object.keys(ioRoom.sockets).map((socketId) => io.sockets.connected[socketId]);
   },
 
   getAllSockets() {
-    return Object.values(global.io.sockets.connected).filter(s => s.character);
+    return Object.values(io.sockets.connected).filter(s => s.character);
   },
 
 };
-
-
-
-

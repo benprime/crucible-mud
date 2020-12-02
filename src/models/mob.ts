@@ -4,6 +4,7 @@ import utils from '../core/utilities';
 import Room from '../models/room';
 import dice from '../core/dice';
 import { Types } from 'mongoose';
+import {RoomModel} from './room';
 const { ObjectId } = Types;
 
 class Mob {
@@ -80,7 +81,7 @@ class Mob {
   }
 
   die() {
-    const room = Room.getById(this.roomId);
+    const room = RoomModel.getById(this.roomId);
     room.spawnTimer = new Date();
     global.io.to(room.id).emit('output', { message: `<span class="yellow">The ${this.displayName} collapses.</span>` });
     utils.removeItem(room.mobs, this);

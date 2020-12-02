@@ -1,65 +1,42 @@
-import mongoose from 'mongoose';
-//import AreaSchema from './areaSchema';
+import { prop, getModelForClass, ReturnModelType } from '@typegoose/typegoose';
 
-import { model, Schema, Document, Types, Model } from 'mongoose'
+const areaCache = new Map<string, AreaDocument>();
 
+class AreaDocument {
+  @prop()
+  public name: string;
 
-const areaCache = new Map<string, IArea>();
+  @prop()
+  public parentId: string;
 
-interface IArea {
-  name: string,
-  parentId: string,
-}
-
-interface IAreaDoc extends IArea, Document {
-    // instance methods
-}
-
-interface IAreaModel extends Model<IAreaDoc> {
-    // static methods
-    areaCache: IAreaDoc[];
-    getById(areaId: string): Promise<IAreaDoc>;
-    addArea(areaName: string): Promise<IAreaDoc>;
-    populateAreaCache(): void;
-}
-
-const AreaSchemaFields: Record<keyof IArea, any> = {
-    name: { type: String },
-    parentId: { type: String },
-  };
-
-  const AreaSchema = new mongoose.Schema(AreaSchemaFields);
-
-  AreaSchema.statics.areaCache = areaCache;
-
-  AreaSchema.statics.getById = (areaId: string) => {
+  public static async getById(this: ReturnModelType<typeof AreaDocument>, areaId: string): Promise<AreaDocument> {
     return areaCache[areaId];
-  };
+  }
 
-  AreaSchema.statics.getByName = (areaName: string) => {
-    return Object.values(areaCache).find(a => a.name.toLowerCase() === areaName);
-  };
+  public static async getByName(this: ReturnModelType<typeof AreaDocument>, areaName: string): Promise<AreaDocument> {
+    return Object.values(areaCache).find(a => a.name.toLowerCase() === areaName)
+  }
 
-  AreaSchema.statics.addArea = function (areaName) {
+  public static async addArea(this: ReturnModelType<typeof AreaDocument>, areaName: string): Promise<AreaDocument> {
     const area = new this({ name: areaName });
-    area.save(err => { if (err) throw err; });
+    await area.save(err => { if (err) throw err; });
     areaCache[area.id] = area;
     return area;
-  };
+  }
 
-  // todo: this should return a promise
-  AreaSchema.statics.populateAreaCache = function () {
+  public static async populateAreaCache(this: ReturnModelType<typeof AreaDocument>): Promise<void> {
     this.find({}, (err, result) => {
       if (err) throw err;
 
       result.forEach(area => {
         areaCache[area.id.toString()] = area;
       });
-
     });
-  };
+  }
 
-const Area = model<IAreaDoc, IAreaModel>('Area', AreaSchema);
-Area.populateAreaCache();
+}
 
-export { Area, IArea }
+const AreaModel = getModelForClass(AreaDocument);
+AreaModel.populateAreaCache();
+
+export { AreaModel }

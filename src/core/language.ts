@@ -1,6 +1,6 @@
 /**
  * Returns an indefinite article 'a'/'an' for an object name.
- * @param {String} name 
+ * @param {String} name
  * @returns {String} - 'a' or 'an'
  */
 export const indefiniteArticle = (name) => {

@@ -1,6 +1,5 @@
 export default {
-  formatMessage () {
-    const args = Array.prototype.slice.call(arguments);
+  formatMessage (...args: string[]) {
     const string = args.shift();
     return string.replace(/{(\d+)}/g, (match, number) => (typeof args[number] !== 'undefined') ? args[number] : match);
   },

@@ -1,4 +1,4 @@
-import socketUtil from './socketUtil';
+import socketUtil, { SocketExt } from './socketUtil';
 import hud from './hud';
 import Room from '../models/room';
 import Character from '../models/character';
@@ -10,7 +10,7 @@ import config from '../config';
 // add config value to use for both token expiration and cache expiration.
 export const tokenCache = {};
 
-exports.addUserToRealm = (socket, userId) => {
+exports.addUserToRealm = (socket: SocketExt, userId: string) => {
   return Character.findByUserId(userId).populate('user').then(character => {
     if (!character) {
       return Promise.reject('No character associated with this user.');

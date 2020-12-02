@@ -1,9 +1,35 @@
-import mongoose from 'mongoose';
-import UserSchema from './userSchema';
+import { prop, getModelForClass, index, ReturnModelType } from '@typegoose/typegoose';
 
-const User = mongoose.model('User', UserSchema);
+@index({ email: 1 }, { unique: true })
+class UserDocument {
+    @prop()
+    public email: string;
 
-// Working around a mongoose issue where the indexes aren't getting created.
-User.createIndexes();
+    @prop()
+    public verified: boolean;
 
-export default User;
+    @prop()
+    public verifyHash: string;
+
+    @prop()
+    public password: string;
+
+    @prop()
+    public admin: boolean;
+
+    @prop()
+    public debug: boolean;
+
+    public static async findByName(this: ReturnModelType<typeof UserDocument>, name: string): Promise<UserDocument> {
+      const userRegEx = new RegExp(`^${name}$`, 'i');
+      return this.findOne({ username: userRegEx });
+    }
+}
+
+const UserModel = getModelForClass(UserDocument);
+
+// TODO: is this necessary?
+UserModel.createIndexes();
+
+export { UserModel, UserDocument }
+

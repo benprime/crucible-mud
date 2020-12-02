@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import ItemSchema from './itemSchema';
-import ExitSchema from './exitSchema';
+import ExitSchema from './exit';
 import Exit from './exit';
 import Area from './area';
 import SpawnerSchema from './spawnerSchema';

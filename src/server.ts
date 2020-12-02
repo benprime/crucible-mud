@@ -5,7 +5,7 @@ import welcome from './core/welcome';
 import { verifyToken, addUserToRealm } from './core/authentication';
 import ioFactory from 'socket.io';
 import mongoose from 'mongoose';
-import socketUtil from './core/socketUtil';
+import socketUtil, {SocketExt} from './core/socketUtil';
 import moduleManager from './core/moduleManager';
 import commandHandler from './core/commandHandler';
 import bodyParser from 'body-parser';
@@ -16,6 +16,8 @@ import fs from 'fs';
 import gameManager from './core/gameManager';
 import { initializeSpawnerActions } from './modules/worldCrafting/actions/spawnerAction';
 import Room from './models/room';
+import {setGlobals} from './socketManager';
+
 
 const app = express();
 
@@ -54,8 +56,8 @@ app.use(function (req, res, next) {
 
 const db = mongoose.connection;
 
-global.db = db;
-global.io = io;
+socketUtil.setGlobalSocketServer(io);
+setGlobals(db);
 
 moduleManager.loadModules();
 let input;
@@ -94,7 +96,7 @@ db.once('open', () => {
     let token = socket.handshake.query.token;
     if (verifyToken(token)) return next();
     next(new Error('Authentication required'));
-  }).on('connection', (socket) => {
+  }).on('connection', (socket: SocketExt) => {
 
     let token = socket.handshake.query.token;
     let tokenData = verifyToken(token);

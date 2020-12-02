@@ -12,7 +12,6 @@
     "express-validator": "^6.2.0",
     "jsonwebtoken": "^8.4.0",
     "mongodb": "^3.6.3",
-    "mongoose": "^5.7.5",
     "mongoose-data-seed": "^2.1.6",
     "nodemailer": "^6.3.1",
     "npm": "^7.0.9",
@@ -20,6 +19,7 @@
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.12.1",
+    "@typegoose/typegoose": "^7.4.2",
     "@types/express": "^4.16.0",
     "@types/jest": "^23.3.2",
     "@types/mongodb": "^3.3.6",

@@ -35,7 +35,7 @@ export default {
   name: 'look',
   execute(character, short, lookTarget) {
 
-    if (!lookTarget) {
+    if (!lookTarget || lookTarget.hidden) {
       character.output('You don\'t see that here.');
       return;
     }
@@ -55,10 +55,6 @@ export default {
       return lookDir(character, room, lookTarget);
     }
 
-    // look called on item, monster, character
-    if (!lookTarget || lookTarget.hidden) {
-      character.output('You don\'t see that here.');
-    }
     let output = lookTarget.getDesc(character);
     if (lookTarget instanceof Item) {
       character.toRoom(`${character.name} looks at the ${lookTarget.name}.`);

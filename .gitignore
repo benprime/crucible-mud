@@ -52,3 +52,6 @@ dist/
 
 # jsdoc output
 out/
+
+# npm package lock
+package-lock.json

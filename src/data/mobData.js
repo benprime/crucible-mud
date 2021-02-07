@@ -1,5 +1,6 @@
-export default {
+import Item from '../models/item';
 
+export default {
   // NEED MODES: Attack when attacked
   // need flags for "currently in combat" for both parties
   // -do we need to keep a list of all currently attacking people?
@@ -8,6 +9,7 @@ export default {
 
   // eventually, when the game gets more complicated, these monsters
   // will have stats.
+
   catalog: [{
     name: 'kobold',
     class: 'sentry',
@@ -223,6 +225,47 @@ export default {
       'The {0} growls at {1} aggressively!',
       'The {0} circles {1}, looking for an opening!',
       'The {0} bellows a challenge!',
+    ],
+  },
+  {
+    name: 'pig',
+    desc: 'Dirty. Filthy. Delicious.',
+    damage: '1d2',
+    displayTemplate: '${this.adjective} ${this.name}',
+    adjectives: [
+      {
+        name: 'naughty',
+        modifiers: {
+          hp: 5,
+          xp: 0,
+          hitDice: 0,
+          attacksPerRound: 0.25,
+          tauntsPerRound: 0.25,
+          drops: [new Item({
+            name: 'pork belly',
+            desc: 'layers of raw fat and muscle from a pig',
+            type: 'item',
+            hidden: false,
+          }), new Item({
+            name: 'handkerchief',
+            desc: 'a square piece of thin fabric',
+            type: 'item',
+            hidden: false,
+          })],
+        },
+      },
+    ],
+
+    attacksPerRound: 1,
+    hitDice: '1d4',
+    hp: 10,
+    xp: 5,
+    tauntsPerRound: 3,
+    deathMessage: 'The {0} squeals and collapses.',
+    taunts: [
+      'The {0} oinks at {1} aggressively!',
+      'The {0} hops around {1}, looking for an opening!',
+      'The {0} squeals angrily!',
     ],
   },
   {

@@ -2,6 +2,7 @@
 import mongoose from 'mongoose';
 import config from '../config';
 import ItemSchema from './itemSchema';
+import QuestSchema from './questSchema';
 import Room from './room';
 import dice from '../core/dice';
 import socketUtil from '../core/socketUtil';
@@ -24,6 +25,7 @@ const CharacterSchema = new mongoose.Schema({
 
   inventory: [ItemSchema],
   keys: [ItemSchema],
+  quests: [QuestSchema],
   currency: Number,
 
   equipped: {
@@ -137,6 +139,11 @@ CharacterSchema.methods.nextExp = function () {
   const BASE_XP = 300;
   const BASE_RATE = 1;
   return BASE_XP * ((1 + BASE_RATE) ** (this.level - 1));
+};
+
+CharacterSchema.methods.addItem = function(item) {
+  this.inventory.push(item);
+  this.save(err => { if (err) throw err; });
 };
 
 CharacterSchema.methods.addExp = function (amount) {
@@ -445,6 +452,10 @@ CharacterSchema.methods.sneakMode = function () {
 };
 
 CharacterSchema.methods.update = function () {
+  this.quests.forEach(quest => {
+    quest.update(this);
+  });
+  
   this.states.forEach(cs => {
     if (cs.update) {
       cs.update(this);

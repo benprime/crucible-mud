@@ -3,8 +3,10 @@ import mobData from '../../../data/mobData';
 import Mob from '../../../models/mob';
 import itemData from '../../../data/itemData';
 import Item from '../../../models/item';
+import questData from '../../../data/questData';
+import Quest from '../../../models/quest';
 
-export const spawn = (itemType) => {
+export const spawnItem = (itemType) => {
   return new Item({
     name: itemType.name,
     desc: itemType.desc,
@@ -18,9 +20,28 @@ export const spawn = (itemType) => {
   });
 };
 
-export const spawnAndGive = (character, itemType, cb) => {
+export const spawnQuest = (questType) => {
+  return new Quest({
+    name: questType.name,
+    synopsis: questType.desc,
+    currentStep: questType.currentStep,
+    success: questType.success,
+    steps: questType.steps,
+  });
+};
 
-  const item = spawn(itemType);
+export const spawnAndGiveQuest = (character, questType, cb) => {
+  const quest = spawnQuest(questType);
+
+  character.quests.push(quest);
+  character.save((err, character) => {
+    if (err) throw err;
+    if (cb) cb(character);
+  });
+};
+
+export const spawnAndGiveItem = (character, itemType, cb) => {
+  const item = spawnItem(itemType);
 
   character.inventory.push(item);
   character.save((err, character) => {
@@ -69,7 +90,7 @@ export default {
         return false;
       }
 
-      spawnAndGive(character, itemType);
+      spawnAndGiveItem(character, itemType);
 
       character.output('Item created.');
       character.toRoom(`${character.name} emits a wave of energy!`, [character.id]);
@@ -94,6 +115,18 @@ export default {
       character.keys.push(key);
       character.save(err => { if (err) throw err; });
       character.output('Key created.');
+      return true;
+    } else if (type === 'quest') {
+      const quest = questData.catalog.find(quest => quest.name.toLowerCase() === name.toLowerCase());
+      if (!quest) {
+        character.output(`Attempted to spawn unknown quest: ${name}`);
+        return false;
+      }
+
+      spawnAndGiveQuest(character, quest);
+
+      character.output('Quest given to character.');
+      character.toRoom(`${character.name} has begun a new journey!`, [character.id]);
       return true;
     }
 

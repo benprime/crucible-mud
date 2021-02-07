@@ -30,7 +30,7 @@ export default {
           lookTarget = dir;
         } else {
           const acResult = autocomplete.multiple(character, ['inventory', 'room', 'mob', 'character'], lookTarget);
-          lookTarget = acResult.item;
+          lookTarget = acResult ? acResult.item : null;
         }
       }
     } else {

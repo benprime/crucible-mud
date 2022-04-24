@@ -11,6 +11,7 @@
     "express": "^4.17.1",
     "express-validator": "^6.2.0",
     "jsonwebtoken": "^8.4.0",
+    "mailgun-js": "^0.22.0",
     "mongodb": "^3.6.3",
     "mongoose": "^5.7.5",
     "mongoose-data-seed": "^2.1.6",

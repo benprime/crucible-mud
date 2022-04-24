@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 
 let transporter;
 
-async function setup() {
+function setup() {
   transporter = nodemailer.createTransport({
     host: 'localhost',
   });
@@ -34,7 +34,8 @@ exports.sendMail = async function (email) {
 };
 
 // create transporter
-try {
+try
+{
   setup();
 }
 catch(error)

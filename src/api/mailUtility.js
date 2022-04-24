@@ -30,14 +30,14 @@ exports.sendMail = async function (email) {
       text: email.text,
       html: email.html,
     });
+    
+    console.log('Message sent: %s', result.messageId, '\n');
+    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(result), '\n');
   }
   catch(error)
   {
       console.error('Could not send mail! ' + error);
   }
-
-  console.log('Message sent: %s', result.messageId, '\n');
-  console.log('Preview URL: %s', nodemailer.getTestMessageUrl(result), '\n');
 };
 
 // create transporter

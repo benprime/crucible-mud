@@ -34,4 +34,11 @@ exports.sendMail = async function (email) {
 };
 
 // create transporter
-setup();
+try {
+  setup();
+}
+catch(error)
+{
+  console.error('Could not connect to mail server! ' + error);
+}
+

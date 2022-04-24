@@ -5,6 +5,7 @@ let transporter;
 function setup() {
   transporter = nodemailer.createTransport({
     host: 'localhost',
+    port: 25
   });
 }
 

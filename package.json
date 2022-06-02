@@ -17,7 +17,7 @@
     "mongoose": "^5.7.5",
     "mongoose-data-seed": "^2.1.6",
     "nodemailer": "^6.3.1",
-    "npm": "^7.0.9",
+    "npm": "^8.11.0",
     "socket.io": "^2.3.0"
   },
   "devDependencies": {

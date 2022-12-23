@@ -10,7 +10,7 @@
     "canvas": "^2.6.1",
     "express": "^4.17.1",
     "express-validator": "^6.2.0",
-    "jsonwebtoken": "^8.4.0",
+    "jsonwebtoken": "^9.0.0",
     "mailgun-js": "^0.22.0",
     "mailgun-js": "^0.22.0",
     "mongodb": "^3.6.3",
